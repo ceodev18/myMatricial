@@ -7,6 +7,7 @@ public class LandPoint {
 	private int id = -1;
 	private int x = -1;
 	private int y = -1;
+	private String type = "L";
 	private boolean isPolygonLimit = false;
 	private boolean isMapLimitXW = false;
 	private boolean isMapLimitXE = false;
@@ -201,5 +202,13 @@ public class LandPoint {
 			return isMapLimitYS;
 		}
 		return false;
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
 	}
 }

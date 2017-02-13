@@ -21,34 +21,34 @@ public class LSystemRouteAlgorithm {
 	 * (block_horizontal → block_vertical road_horizontal block_vertical)
 	 */
 
-	public static void createRoute(int entryPointId, int direction, int type, int maxDeep, int currentDeep) {
+	public static void createRoute(int entryPointId, int direction, int type, int maxDeep, int currentDepth) {
 		//we initialize with the main route
-		List<Integer> randomPointInLine = bisect(entryPointId, direction, Constants.AVENUE_BRANCH);
+		List<Integer> randomPointInLine = bisect(entryPointId, direction, Constants.AVENUE_BRANCH, currentDepth);
 		List<Integer> orthogonalDirection = DirectionHelper.randomOrthogonalDirection(direction); 
 		
-		currentDeep++;
-		grow(randomPointInLine.get(0), orthogonalDirection.get(0), maxDeep, currentDeep, Constants.HORIZONTAL);
-		grow(randomPointInLine.get(1), orthogonalDirection.get(1), maxDeep, currentDeep, Constants.HORIZONTAL);
+		currentDepth++;
+		grow(randomPointInLine.get(0), orthogonalDirection.get(0), maxDeep, currentDepth, Constants.HORIZONTAL);
+		grow(randomPointInLine.get(1), orthogonalDirection.get(1), maxDeep, currentDepth, Constants.HORIZONTAL);
 	}
 
-	private static void grow(Integer pointInLine, Integer direction, int maxDeep, int currentDeep, int iterationType) {		
-		if (currentDeep >= maxDeep) return;
-		List<Integer> randomPointInLine = bisect(pointInLine, direction, Constants.AVENUE_BRANCH);
+	private static void grow(Integer pointInLine, Integer direction, int maxDeep, int currentDepth, int iterationType) {		
+		if (currentDepth >= maxDeep) return;
+		List<Integer> randomPointInLine = bisect(pointInLine, direction, Constants.AVENUE_BRANCH, currentDepth);
 		List<Integer> orthogonalDirection = DirectionHelper.randomOrthogonalDirection(direction); 
-		enroute(pointInLine, direction);
+		enroute(pointInLine, direction, currentDepth);
 		
 		if(randomPointInLine.get(0)== -1 || orthogonalDirection.get(0)== -1) return;
-		currentDeep++;
+		currentDepth++;
 		if (iterationType == Constants.HORIZONTAL){
-			grow(randomPointInLine.get(0), orthogonalDirection.get(0), maxDeep, currentDeep, Constants.VERTICAL);
-			grow(randomPointInLine.get(1), orthogonalDirection.get(1), maxDeep, currentDeep, Constants.VERTICAL);
+			grow(randomPointInLine.get(0), orthogonalDirection.get(0), maxDeep, currentDepth, Constants.VERTICAL);
+			grow(randomPointInLine.get(1), orthogonalDirection.get(1), maxDeep, currentDepth, Constants.VERTICAL);
 		}else {
-			grow(randomPointInLine.get(0), orthogonalDirection.get(0), maxDeep, currentDeep, Constants.HORIZONTAL);
-			grow(randomPointInLine.get(1), orthogonalDirection.get(1), maxDeep, currentDeep, Constants.HORIZONTAL);
+			grow(randomPointInLine.get(0), orthogonalDirection.get(0), maxDeep, currentDepth, Constants.HORIZONTAL);
+			grow(randomPointInLine.get(1), orthogonalDirection.get(1), maxDeep, currentDepth, Constants.HORIZONTAL);
 		}
 	}
 
-	private static void enroute(int randomPointInLineId, int redirection) {
+	private static void enroute(int randomPointInLineId, int redirection, int currentDepth) {
 		int distance= landMap.findDistanceToLimit(randomPointInLineId, redirection);
 		
 		if (distance == 0){
@@ -61,7 +61,7 @@ public class LSystemRouteAlgorithm {
 				int nextPointId = currentPoint.findNeighbour(redirection);
 				if (nextPointId != -1) {// means it is already occupied
 					currentPoint = landMap.findPoint(nextPointId, redirection, Constants.ALLEY_BRANCH);
-					landMap.pointIsOfSubRoute(nextPointId, true);
+					landMap.pointIsOfSubRoute(nextPointId, true, currentDepth);
 					if (currentPoint == null) {
 						return;
 					}
@@ -72,7 +72,7 @@ public class LSystemRouteAlgorithm {
 		}
 	}
 
-	private static List<Integer> bisect(int entryPointId, int direction, int type) {
+	private static List<Integer> bisect(int entryPointId, int direction, int type, int currentDepth) {
 		List<Integer> points = new ArrayList<>();
 		List<Integer> result = new ArrayList<>();
 		LandPoint currentPoint = landMap.findPoint(entryPointId, direction);
@@ -83,13 +83,13 @@ public class LSystemRouteAlgorithm {
 						// an avenue or a subroute. For now nothing
 		}
 		
-		landMap.pointIsOfRoute(entryPointId, true);
+		landMap.pointIsOfRoute(entryPointId, true, currentDepth);
 		while (!currentPoint.isMapLimit(direction)) {
 			int nextPointId = currentPoint.findNeighbour(direction);
 			if (nextPointId != -1) {// means it is already occupied
 				points.add(nextPointId);
 				currentPoint = landMap.findPoint(nextPointId, direction, type);
-				landMap.pointIsOfRoute(nextPointId, true);
+				landMap.pointIsOfRoute(nextPointId, true, currentDepth);
 				if (currentPoint == null) {
 					result.add(-1);
 					return result;

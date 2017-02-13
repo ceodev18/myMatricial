@@ -88,22 +88,14 @@ public class LandMap {
 		}
 	}
 
-	public void printMap() {
-		for (int j = pointsy - 1; j >= 0; j--) {
-			for (int i = 0; i < pointsx; i++) {
-				System.out.print(getLandPoint(MapHelper.formKey(i, j)).isPartOfRoute()
-						|| getLandPoint(MapHelper.formKey(i, j)).isPartOfSubRoute() ? "R" : "L");
-			}
-			System.out.println();
-		}
-	}
-
-	public void pointIsOfRoute(int id, boolean partOfRoute) {
+	public void pointIsOfRoute(int id, boolean partOfRoute, int currentDepth) {
 		map.get(id).setPartOfRoute(partOfRoute);
+		map.get(id).setType(""+currentDepth);
 	}
 
-	public void pointIsOfSubRoute(int id, boolean partOfSubRoute) {
+	public void pointIsOfSubRoute(int id, boolean partOfSubRoute, int currentDepth) {
 		map.get(id).setPartOfSubRoute(partOfSubRoute);
+		map.get(id).setType(""+currentDepth);
 	}
 
 	public int findDistanceToLimit(int randomPointInLineId, int direction) {
@@ -122,6 +114,15 @@ public class LandMap {
 				}
 				point = neighbour;
 			}
+		}
+	}
+	
+	public void printMap() {
+		for (int j = pointsy - 1; j >= 0; j--) {
+			for (int i = 0; i < pointsx; i++) {
+				System.out.print(getLandPoint(MapHelper.formKey(i, j)).getType());
+			}
+			System.out.println();
 		}
 	}
 }
