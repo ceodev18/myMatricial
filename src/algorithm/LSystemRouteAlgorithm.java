@@ -12,6 +12,7 @@ import models.LandPoint;
 public class LSystemRouteAlgorithm {
 	public static LandMap landMap;
 
+	
 	/*
 	 * variables: block_vertical block_horizontal road_vertical road_horizontal
 	 * start: block_vertical 
@@ -21,26 +22,29 @@ public class LSystemRouteAlgorithm {
 	 */
 
 	public static void createRoute(int entryPointId, int direction, int type, int maxDeep, int currentDeep) {
-		int redirection = -1;
-		int randomPointInLineId = -1;
-		int secondRandomPointInLineId = -1;
-		int roadPointLineId = -1;
-		for (int i = currentDeep; i < maxDeep; i++) {
-			if (i % 2 == 0) {// block vertical
-				//block vertical
-				randomPointInLineId = bisect(entryPointId, direction, Constants.AVENUE_BRANCH); // block horizontal
-				//road horizontal
-				redirection = DirectionHelper.randomOrthogonalDirection(direction); 
-				roadPointLineId = enroute(randomPointInLineId, redirection);
-				//2nd block vertical
-				secondRandomPointInLineId = bisect(roadPointLineId, direction, Constants.AVENUE_BRANCH); // block horizontal
-			} else { //horizontal
-				randomPointInLineId = randomPoint(entryPointId, direction, type);
-				direction = DirectionHelper.oppositeDirection(redirection);
-				entryPointId = bisect(randomPointInLineId, direction, Constants.AVENUE_BRANCH);
-				redirection = DirectionHelper.randomOrthogonalDirection(direction);
-				enroute(entryPointId, direction);
-			}
+		//we initialize with the main route
+		List<Integer> randomPointInLine = bisect(entryPointId, direction, Constants.AVENUE_BRANCH);
+		List<Integer> orthogonalDirection = DirectionHelper.randomOrthogonalDirection(direction); 
+		
+		currentDeep++;
+		grow(randomPointInLine.get(0), orthogonalDirection.get(0), maxDeep, currentDeep, Constants.HORIZONTAL);
+		grow(randomPointInLine.get(1), orthogonalDirection.get(1), maxDeep, currentDeep, Constants.HORIZONTAL);
+	}
+
+	private static void grow(Integer pointInLine, Integer direction, int maxDeep, int currentDeep, int iterationType) {		
+		if (currentDeep >= maxDeep) return;
+		List<Integer> randomPointInLine = bisect(pointInLine, direction, Constants.AVENUE_BRANCH);
+		List<Integer> orthogonalDirection = DirectionHelper.randomOrthogonalDirection(direction); 
+		enroute(pointInLine, direction);
+		
+		if(randomPointInLine.get(0)== -1 || orthogonalDirection.get(0)== -1) return;
+		currentDeep++;
+		if (iterationType == Constants.HORIZONTAL){
+			grow(randomPointInLine.get(0), orthogonalDirection.get(0), maxDeep, currentDeep, Constants.VERTICAL);
+			grow(randomPointInLine.get(1), orthogonalDirection.get(1), maxDeep, currentDeep, Constants.VERTICAL);
+		}else {
+			grow(randomPointInLine.get(0), orthogonalDirection.get(0), maxDeep, currentDeep, Constants.HORIZONTAL);
+			grow(randomPointInLine.get(1), orthogonalDirection.get(1), maxDeep, currentDeep, Constants.HORIZONTAL);
 		}
 	}
 
@@ -68,15 +72,18 @@ public class LSystemRouteAlgorithm {
 		}
 	}
 
-	private static int bisect(int entryPointId, int direction, int type) {
+	private static List<Integer> bisect(int entryPointId, int direction, int type) {
 		List<Integer> points = new ArrayList<>();
+		List<Integer> result = new ArrayList<>();
 		LandPoint currentPoint = landMap.findPoint(entryPointId, direction);
 		points.add(entryPointId);
-		if (currentPoint == null)
-			return -1;// TODO means is already taken, it should verify wether by
+		if (currentPoint == null){
+			result.add(-1);
+			return result;// TODO means is already taken, it should verify wether by
 						// an avenue or a subroute. For now nothing
+		}
+		
 		landMap.pointIsOfRoute(entryPointId, true);
-
 		while (!currentPoint.isMapLimit(direction)) {
 			int nextPointId = currentPoint.findNeighbour(direction);
 			if (nextPointId != -1) {// means it is already occupied
@@ -84,17 +91,33 @@ public class LSystemRouteAlgorithm {
 				currentPoint = landMap.findPoint(nextPointId, direction, type);
 				landMap.pointIsOfRoute(nextPointId, true);
 				if (currentPoint == null) {
-					return -1;
+					result.add(-1);
+					return result;
 				}
 			} else {
-				return -1;
+				result.add(-1);
+				return result;
 			}
 		}
 
 		Random random = new Random();
-		return points.get(random.nextInt(points.size() - 1));
+		int bound = (points.size()/2) - 1;
+		if (bound <= 0){
+			result.add(-1);
+			return result;
+		}
+		
+		int upperHalf = random.nextInt(bound) + points.size()/2;
+		int lowerHalf = random.nextInt(bound);
+		result.add(points.get(upperHalf));
+		result.add(points.get(lowerHalf));
+		points.clear();
+		points = null;
+		System.gc(); 
+		return result;
 	}
 	
+	/*
 	private static int randomPoint(int entryPointId, int direction, int type) {
 		List<Integer> points = new ArrayList<>();
 		LandPoint currentPoint = landMap.findPoint(entryPointId, direction);
@@ -116,5 +139,5 @@ public class LSystemRouteAlgorithm {
 
 		Random random = new Random();
 		return points.get(random.nextInt(points.size() - 1));
-	}
+	}*/
 }

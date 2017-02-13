@@ -1,33 +1,34 @@
 package helpers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import interfaces.Constants;
 
 public class DirectionHelper {
-	public static int randomOrthogonalDirection(final int direction) {
+	public static List<Integer> randomOrthogonalDirection(final int direction) {
+		List<Integer> directions = new ArrayList<>();
 		switch (direction) {
 		case Constants.NORTH:
-			if (new Random().nextInt(1) == 0)
-				return Constants.EAST;
-			else
-				return Constants.WEST;
+			directions.add(Constants.EAST);
+			directions.add(Constants.WEST);
+			break;
 		case Constants.SOUTH:
-			if (new Random().nextInt(1) == 0)
-				return Constants.EAST;
-			else
-				return Constants.WEST;
+			directions.add(Constants.WEST);
+			directions.add(Constants.EAST);
+			break;
 		case Constants.EAST:
-			if (new Random().nextInt(1) == 0)
-				return Constants.NORTH;
-			else
-				return Constants.SOUTH;
+			directions.add(Constants.NORTH);
+			directions.add(Constants.SOUTH);
+			break;
 		case Constants.WEST:
-			if (new Random().nextInt(1) == 0)
-				return Constants.NORTH;
-			else
-				return Constants.SOUTH;
+			directions.add(Constants.SOUTH);
+			directions.add(Constants.NORTH);
+			break;
+		default:
+			directions.add(-1);
 		}
-		return -1;
+		return directions;
 	}
 
 	public static int oppositeDirection(int direction) {

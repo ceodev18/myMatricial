@@ -115,7 +115,7 @@ public class LandMap {
 			while (true) {
 				int neighbourId = point.findNeighbour(direction);
 				LandPoint neighbour = map.get(neighbourId);
-				if (neighbour.isPartOfRoute() || neighbour.isPartOfSubRoute() || neighbour.isMapLimit(direction)) {
+				if (neighbour == null || neighbour.isPartOfRoute() || neighbour.isPartOfSubRoute() || neighbour.isMapLimit(direction)) {
 					return num;
 				} else {
 					num++;

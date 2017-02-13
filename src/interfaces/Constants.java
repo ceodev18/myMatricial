@@ -11,4 +11,7 @@ public interface Constants {
 	public int AVENUE_BRANCH = 0;
 	public int STREET_BRANCH = 1; //Jiron - Avenida corta
 	public int ALLEY_BRANCH = 2;
+	
+	public int HORIZONTAL = 1;
+	public int VERTICAL = 1;
 }
