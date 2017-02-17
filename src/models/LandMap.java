@@ -90,12 +90,12 @@ public class LandMap {
 
 	public void pointIsOfRoute(int id, boolean partOfRoute, int currentDepth) {
 		map.get(id).setPartOfRoute(partOfRoute);
-		map.get(id).setType(""+currentDepth);
+		map.get(id).setType(".");
 	}
 
 	public void pointIsOfSubRoute(int id, boolean partOfSubRoute, int currentDepth) {
 		map.get(id).setPartOfSubRoute(partOfSubRoute);
-		map.get(id).setType(""+currentDepth);
+		map.get(id).setType(".");
 	}
 
 	public int findDistanceToLimit(int randomPointInLineId, int direction) {
