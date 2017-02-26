@@ -1,10 +1,10 @@
-package algorithm;
+package algorithm.base;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import helpers.DirectionHelper;
+import helpers.base.DirectionHelper;
 import interfaces.Constants;
 import models.LandMap;
 import models.LandPoint;

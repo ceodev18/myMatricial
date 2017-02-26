@@ -3,7 +3,7 @@ package models;
 import java.util.HashMap;
 import java.util.Map;
 
-import helpers.MapHelper;
+import helpers.base.MapHelper;
 import interfaces.Constants;
 
 public class LandMap {

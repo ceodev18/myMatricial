@@ -1,7 +1,7 @@
-package helpers;
+package helpers.base;
 
-import algorithm.LSystemRouteAlgorithm;
-import algorithm.LotizationAlgorithm;
+import algorithm.base.LSystemRouteAlgorithm;
+import algorithm.base.LotizationAlgorithm;
 import interfaces.Constants;
 import models.LandMap;
 import models.LandPoint;

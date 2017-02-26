@@ -1,6 +1,6 @@
-package algorithm;
+package algorithm.base;
 
-import helpers.MapHelper;
+import helpers.base.MapHelper;
 import models.LandLot;
 import models.LandMap;
 

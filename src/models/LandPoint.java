@@ -1,6 +1,6 @@
 package models;
 
-import helpers.MapHelper;
+import helpers.base.MapHelper;
 import interfaces.Constants;
 
 public class LandPoint {
