@@ -125,6 +125,7 @@ public class LandMap {
 	 * all the input from android looks like that.
 	 */
 	public void createBorderFromPolygon(List<LandPoint> polygon) {
+		// first we create the border
 		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
 			int underscore = (polygon.get(j).getX() - polygon.get(i).getX());
 			// there are three gradient cases.
@@ -161,6 +162,40 @@ public class LandMap {
 				}
 			}
 		}
+		// we fill everything outside of it with Xs
+		for (int x = 0; x < pointsx; x++) {
+			int count = 0;
+			int pInitialLimit = -1;
+			boolean reversed = false;
+			for (int y = 0; y < pointsy; y++) {
+				if (getLandPoint(MapHelper.formKey(x, y)).getType() == Constants.POLYGON_LIMIT) {
+					count++;
+					pInitialLimit = pInitialLimit == -1 ? y : pInitialLimit;
+				}
+
+				switch (count) {
+				case 0:
+					getLandPoint(MapHelper.formKey(x, y)).setType(Constants.OUTSIDE_POLYGON);
+					break;
+				case 1:
+					if (getLandPoint(MapHelper.formKey(x, y)).getType() != Constants.POLYGON_LIMIT) {
+						getLandPoint(MapHelper.formKey(x, y)).setType(Constants.OUTSIDE_POLYGON);
+					}
+					break;
+				case 2:
+					if (!reversed) {
+						for (int w = pInitialLimit+1; w < y; w++) {
+							getLandPoint(MapHelper.formKey(x, w)).setType(Constants.INSIDE_POLYGON);
+						}
+						reversed = true;
+					} else {
+						getLandPoint(MapHelper.formKey(x, y)).setType(Constants.OUTSIDE_POLYGON);
+					}
+					break;
+				}
+			}
+		}
+
 	}
 
 	/**

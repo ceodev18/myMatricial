@@ -7,7 +7,7 @@ public class LandPoint {
 	private int id = -1;
 	private int x = -1;
 	private int y = -1;
-	private String type = "L";
+	private String type = Constants.INSIDE_POLYGON;
 	private boolean isPolygonLimit = false;
 	private boolean isMapLimitXW = false;
 	private boolean isMapLimitXE = false;
