@@ -1,6 +1,7 @@
 package models;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import helpers.base.MapHelper;
@@ -107,7 +108,8 @@ public class LandMap {
 			while (true) {
 				int neighbourId = point.findNeighbour(direction);
 				LandPoint neighbour = map.get(neighbourId);
-				if (neighbour == null || neighbour.isPartOfRoute() || neighbour.isPartOfSubRoute() || neighbour.isMapLimit(direction)) {
+				if (neighbour == null || neighbour.isPartOfRoute() || neighbour.isPartOfSubRoute()
+						|| neighbour.isMapLimit(direction)) {
 					return num;
 				} else {
 					num++;
@@ -116,7 +118,55 @@ public class LandMap {
 			}
 		}
 	}
-	
+
+	/**
+	 * This method marks all points that are not inside the polygon border as
+	 * restricted area. This must be an ordered set of consecutive points (after
+	 * all the input from android looks like that.
+	 */
+	public void createBorderFromPolygon(List<LandPoint> polygon) {
+		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
+			int underscore = (polygon.get(j).getX() - polygon.get(i).getX());
+			// there are three gradient cases.
+			// 1st UNDEFINED = (get(j).getX()-get(i).getX()); straight Y axis
+			if (underscore == 0) {
+				int lower = polygon.get(i).getY() < polygon.get(j).getY() ? polygon.get(i).getY()
+						: polygon.get(j).getY();
+				int upper = polygon.get(i).getY() > polygon.get(j).getY() ? polygon.get(i).getY()
+						: polygon.get(j).getY();
+				for (int w = lower; w < upper; w++) {
+					getLandPoint(MapHelper.formKey(polygon.get(i).getX(), w)).setType(Constants.POLYGON_LIMIT);
+				}
+				continue;
+			}
+
+			double gradient = (polygon.get(j).getY() - polygon.get(i).getY()) * 1.0 / underscore;
+			// 2nd, gradient=0; straight in the X axis
+			int lower = polygon.get(i).getX() < polygon.get(j).getX() ? polygon.get(i).getX() : polygon.get(j).getX();
+			int upper = polygon.get(i).getX() > polygon.get(j).getX() ? polygon.get(i).getX() : polygon.get(j).getX();
+			if (gradient == 0) {
+				for (int w = lower; w < upper; w++) {
+					getLandPoint(MapHelper.formKey(w, polygon.get(i).getY())).setType(Constants.POLYGON_LIMIT);
+				}
+				continue;
+			}
+
+			double b = polygon.get(j).getY() - gradient * polygon.get(j).getX();
+			// 3nd the gradient is positive/negative.
+			for (int w = lower; w <= upper; w++) {
+				float y = MapHelper.round(gradient * w + b);
+				if (y == (int) y) // quick and dirty convertion check
+				{
+					getLandPoint(MapHelper.formKey(w, (int) y)).setType(Constants.POLYGON_LIMIT);
+				}
+			}
+		}
+	}
+
+	/**
+	 * This method prints this will be the method to test if our hypothesis is
+	 * right
+	 */
 	public void printMap() {
 		for (int j = pointsy - 1; j >= 0; j--) {
 			for (int i = 0; i < pointsx; i++) {

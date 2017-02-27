@@ -14,4 +14,6 @@ public interface Constants {
 	
 	public int HORIZONTAL = 1;
 	public int VERTICAL = 1;
+	
+	public String POLYGON_LIMIT = "P";
 }
