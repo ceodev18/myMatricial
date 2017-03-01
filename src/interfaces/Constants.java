@@ -15,7 +15,7 @@ public interface Constants {
 	public int HORIZONTAL = 1;
 	public int VERTICAL = 1;
 	
-	public String POLYGON_LIMIT = "P";
-	public String OUTSIDE_POLYGON = "X";
-	public String INSIDE_POLYGON = "L";
+	public String POLYGON_LIMIT = ".";
+	public String OUTSIDE_POLYGON = " ";
+	public String INSIDE_POLYGON = "l";
 }

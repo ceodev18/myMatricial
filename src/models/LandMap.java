@@ -1,5 +1,8 @@
 package models;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -208,6 +211,22 @@ public class LandMap {
 				System.out.print(getLandPoint(MapHelper.formKey(i, j)).getType());
 			}
 			System.out.println();
+		}
+	}
+	
+	public void printMapToFile() {
+	    try {
+			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
+			for (int j = pointsy - 1; j >= 0; j--) {
+				for (int i = 0; i < pointsx; i++) {
+					writer.print(getLandPoint(MapHelper.formKey(i, j)).getType());
+				}
+				writer.println();
+			}
+			writer.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
