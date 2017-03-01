@@ -1,27 +1,17 @@
-package helpers.matricialVariation;
+package helpers.clusterVariation;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import algorithm.clusterVariation.LSystemClusterAlgorithm;
+import interfaces.Constants;
 import models.LandMap;
 import models.LandPoint;
 
-public class MatricialTester {
+public class ClusterTester {
 	public static void main(String[] args) {
-		// int large, width
-		// int slope
-		// poligonal vertices
-		// entering points
-		// minLateralLot maxLateralLot
-		// minAreaLot maxAreaLot
-		// minGeographicDensity maxGeographicDensity
-		
-		//Limiting points = [1834,0][1594,1434][862,1623][0,588][1013,183]
-	    //Entry points = [327,981][1710,742]
-		//XDistance: 1834
-		//YDistance: 1623
-		
 		int large = 1834, width = 1623;
+		//1. We create the map
 		LandMap landMap = new LandMap(large, width);
 
 		List<LandPoint> polygon = new ArrayList<>();
@@ -35,12 +25,23 @@ public class MatricialTester {
 		polygon.add(landPoint);
 		landPoint = new LandPoint(1013, 183, false, false, true, false, false);
 		polygon.add(landPoint);
-		//we must reuse the first one as the last
+		// we must reuse the first one as the last
 		landPoint = new LandPoint(1833, 0, false, false, true, false, false);
 		polygon.add(landPoint);
+		
+		//2. we create the border from the polygon
 		landMap.createBorderFromPolygon(polygon);
-		landMap.printMapToFile();
+		//landMap.printMapToFile();
 
+		LSystemClusterAlgorithm.landMap = landMap;
+		if(large > 1000 || width > 1000){
+			LSystemClusterAlgorithm.createRoute(landPoint.getId(), Constants.ORTHOGONAL, 
+					Constants.ARTERIAL_BRANCH, 120, 0);
+		} else {
+			LSystemClusterAlgorithm.createRoute(landPoint.getId(), Constants.ORTHOGONAL, 
+					Constants.COLLECTOR_BRANCH, 120, 0);
+		}
+		
 		/*
 		 * landPoint = new LandPoint(20, 0, false, false, true, false, false);
 		 * 
