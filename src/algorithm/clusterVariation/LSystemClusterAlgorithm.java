@@ -1,7 +1,5 @@
 package algorithm.clusterVariation;
 
-import java.util.ArrayList;
-import java.util.List;
 import models.clusterVariation.CLandMap;
 import models.clusterVariation.CLandPoint;
 
@@ -9,15 +7,20 @@ public class LSystemClusterAlgorithm {
 	public static CLandMap landMap;
 
 	public static void createMainRoute(int entryPointId, int direction, int branchType) {
-		List<Integer> points = new ArrayList<>();
 		CLandPoint currentPoint = landMap.findPoint(entryPointId);
-		points.add(entryPointId);
-		landMap.markVariation(entryPointId, branchType);
-		while (!currentPoint.isMapLimit(direction)) {
+		//due to the vastness of the maps there is a error margin that we must cover
+		while (currentPoint.isMapLimit(direction)) {
+			landMap.markVariation(currentPoint.getId(), branchType);
 			int nextPointId = currentPoint.findNeighbour(direction);
-			points.add(nextPointId);
 			currentPoint = landMap.findPoint(nextPointId);
-			landMap.markVariation(entryPointId, branchType);
+		}
+		//then the true end
+		while (!currentPoint.isMapLimit(direction)) {
+			landMap.markVariation(currentPoint.getId(), branchType);
+			int nextPointId = currentPoint.findNeighbour(direction);
+			currentPoint = landMap.findPoint(nextPointId);
 		}
 	}
+	
+	
 }

@@ -37,17 +37,15 @@ public class CLandPoint {
 
 	/* Helper functions */
 	public int findNeighbour(int direction) {
-		if (!type.equals(Constants.INSIDE_POLYGON))
-			return -1;
 		switch (direction) {
 		case Constants.EAST:
 			return MapHelper.formKey(x + 1, y);
 		case Constants.WEST:
 			return MapHelper.formKey(x - 1, y);
 		case Constants.NORTH:
-			return MapHelper.formKey(x, y + 1);
-		case Constants.SOUTH:
 			return MapHelper.formKey(x, y - 1);
+		case Constants.SOUTH:
+			return MapHelper.formKey(x, y + 1);
 		}
 		return -1;
 	}
@@ -71,10 +69,10 @@ public class CLandPoint {
 	}
 
 	public boolean isMapLimit(int direction) {
-		if (type.equals(Constants.INSIDE_POLYGON))
-			return false;
-		else
+		if (type.equals(Constants.OUTSIDE_POLYGON))
 			return true;
+		else
+			return false;
 	}
 
 	public String getType() {

@@ -14,6 +14,10 @@ public class CLandMap {
 	private CLandPoint centroid;
 	private int baseArea;
 	private int polygonalArea;
+	private int numberOfClusters;
+	private int emptyFocalArea;
+	private int fullFocalArea;
+	
 	private Map<Integer, CLandPoint> map;
 
 	public CLandMap(int pointsx, int pointsy) {
@@ -156,6 +160,9 @@ public class CLandMap {
 
 		findPolygonalArea(polygon);
 		findCentroid(polygon);
+		setNumberOfClusters(polygonalArea/800);
+		setEmptyFocalArea((int) ((Integer)(polygonalArea/10000)>10?(polygonalArea/10000)*0.3:(polygonalArea/10000)*0.08));
+		setFullFocalArea((int) (polygonalArea * 0.05));
 	}
 
 	private void findPolygonalArea(List<CLandPoint> polygon) {
@@ -168,31 +175,7 @@ public class CLandMap {
 	}
 
 	private void findCentroid(List<CLandPoint> polygon) {
-		int[] centroid = new int[2];
-		double signedArea = 0.0;
-		double x0 = 0.0; // Current vertex X
-		double y0 = 0.0; // Current vertex Y
-		double x1 = 0.0; // Next vertex X
-		double y1 = 0.0; // Next vertex Y
-		double a = 0.0; // Partial signed area
-
-		// For all vertices
-		for (int i = 0; i < polygon.size(); ++i) {
-			x0 = polygon.get(i).getX();
-			y0 = polygon.get(i).getY();
-			x1 = polygon.get((i + 1) % polygon.size()).getX();
-			y1 = polygon.get((i + 1) % polygon.size()).getY();
-			a = x0 * y1 - x1 * y0;
-			signedArea += a;
-			centroid[0] += (x0 + x1) * a;
-			centroid[1] += (y0 + y1) * a;
-		}
-
-		signedArea *= 0.5;
-		centroid[0] /= (6.0 * signedArea);
-		centroid[1] /= (6.0 * signedArea);
-
-		this.setCentroid(new CLandPoint(centroid[0], centroid[1]));
+		this.setCentroid(new CLandPoint(pointsx/2, pointsy/2));
 	}
 
 	/**
@@ -231,6 +214,30 @@ public class CLandMap {
 			variation = "A";
 			break;
 		}
-		findPoint(entryPointId).setType(variation);
+		map.get(entryPointId).setType(variation);
+	}
+
+	public int getNumberOfClusters() {
+		return numberOfClusters;
+	}
+
+	public void setNumberOfClusters(int numberOfClusters) {
+		this.numberOfClusters = numberOfClusters;
+	}
+
+	public int getEmptyFocalArea() {
+		return emptyFocalArea;
+	}
+
+	public void setEmptyFocalArea(int emptyFocalArea) {
+		this.emptyFocalArea = emptyFocalArea;
+	}
+
+	public int getFullFocalArea() {
+		return fullFocalArea;
+	}
+
+	public void setFullFocalArea(int fullFocalArea) {
+		this.fullFocalArea = fullFocalArea;
 	}
 }

@@ -11,9 +11,9 @@ import models.clusterVariation.CLandPoint;
 public class ClusterTester {
 	public static void main(String[] args) {
 		int large = 1834, width = 1623;
-		// 1. We create the map
+		// 1. We create the map and set its intrinsec variables
 		CLandMap landMap = new CLandMap(large, width);
-
+		
 		List<CLandPoint> polygon = new ArrayList<>();
 		CLandPoint landPoint = new CLandPoint(1833, 0);
 		polygon.add(landPoint);
@@ -50,19 +50,10 @@ public class ClusterTester {
 			}
 		}
 
-		landMap.printMapToFile();
-
-		/*
-		 * landPoint = new LandPoint(20, 0, false, false, true, false, false);
-		 * 
-		 * LSystemRouteAlgorithm.landMap = landMap;
-		 * LSystemRouteAlgorithm.createRoute(landPoint.getId(), Constants.NORTH,
-		 * Constants.AVENUE_BRANCH, 120, 0);
-		 * //LSystemRouteAlgorithm.landMap.printMap();
-		 * 
-		 * LotizationAlgorithm.landMap = LSystemRouteAlgorithm.landMap; int
-		 * lotSize = 240; LotizationAlgorithm.generateLots(lotSize);
-		 * LotizationAlgorithm.landMap.printMap();
-		 */
+		//4. We clusterize the points
+		
+		
+		
+		//LSystemClusterAlgorithm.landMap.printMapToFile();
 	}
 }
