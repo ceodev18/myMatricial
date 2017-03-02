@@ -1,8 +1,6 @@
 package models;
 
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +11,15 @@ import interfaces.Constants;
 public class LandMap {
 	private int pointsx = -1;
 	private int pointsy = -1;
+	private LandPoint centroid;
+	private int baseArea;
+	private int polygonalArea;
 	private Map<Integer, LandPoint> map;
 
 	public LandMap(int pointsx, int pointsy) {
 		this.setPointsx(pointsx);
 		this.setPointsy(pointsy);
+		this.setBaseArea(pointsx * pointsy);
 
 		map = new HashMap<>();
 		for (int i = 0; i < pointsx; i++) {
@@ -52,6 +54,30 @@ public class LandMap {
 
 	public LandPoint getLandPoint(int pointId) {
 		return map.get(pointId);
+	}
+
+	public LandPoint getCentroid() {
+		return centroid;
+	}
+
+	public void setCentroid(LandPoint centroid) {
+		this.centroid = centroid;
+	}
+
+	public int getBaseArea() {
+		return baseArea;
+	}
+
+	public void setBaseArea(int baseArea) {
+		this.baseArea = baseArea;
+	}
+
+	public int getPolygonalArea() {
+		return polygonalArea;
+	}
+
+	public void setPolygonalArea(int polygonalArea) {
+		this.polygonalArea = polygonalArea;
 	}
 
 	/* Helper functions */
@@ -187,7 +213,7 @@ public class LandMap {
 					break;
 				case 2:
 					if (!reversed) {
-						for (int w = pInitialLimit+1; w < y; w++) {
+						for (int w = pInitialLimit + 1; w < y; w++) {
 							getLandPoint(MapHelper.formKey(x, w)).setType(Constants.INSIDE_POLYGON);
 						}
 						reversed = true;
@@ -199,6 +225,45 @@ public class LandMap {
 			}
 		}
 
+		findPolygonalArea(polygon);
+		findCentroid(polygon);
+	}
+
+	private void findPolygonalArea(List<LandPoint> polygon) {
+		int absoluteArea = 0;
+		for (int i = 0; i < polygon.size(); i++) {
+			absoluteArea += (polygon.get(i).getX() * polygon.get(i + 1 % polygon.size()).getY())
+					- (polygon.get(i).getY() * polygon.get(i + 1 % polygon.size()).getX());
+		}
+		setPolygonalArea(Math.abs(absoluteArea) / 2);
+	}
+
+	private void findCentroid(List<LandPoint> polygon) {
+		int[] centroid = new int[2];
+		double signedArea = 0.0;
+		double x0 = 0.0; // Current vertex X
+		double y0 = 0.0; // Current vertex Y
+		double x1 = 0.0; // Next vertex X
+		double y1 = 0.0; // Next vertex Y
+		double a = 0.0; // Partial signed area
+
+		// For all vertices
+		for (int i = 0; i < polygon.size(); ++i) {
+			x0 = polygon.get(i).getX();
+			y0 = polygon.get(i).getY();
+			x1 = polygon.get((i + 1) % polygon.size()).getX();
+			y1 = polygon.get((i + 1) % polygon.size()).getY();
+			a = x0 * y1 - x1 * y0;
+			signedArea += a;
+			centroid[0] += (x0 + x1) * a;
+			centroid[1] += (y0 + y1) * a;
+		}
+
+		signedArea *= 0.5;
+		centroid[0] /= (6.0 * signedArea);
+		centroid[1] /= (6.0 * signedArea);
+
+		this.setCentroid(new LandPoint(centroid[0], centroid[1], false, false, false, false, false));
 	}
 
 	/**
@@ -213,9 +278,9 @@ public class LandMap {
 			System.out.println();
 		}
 	}
-	
+
 	public void printMapToFile() {
-	    try {
+		try {
 			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
 			for (int j = pointsy - 1; j >= 0; j--) {
 				for (int i = 0; i < pointsx; i++) {

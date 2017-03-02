@@ -18,7 +18,8 @@ public class LSystemRouteAlgorithm {
 	 * start: block_vertical 
 	 * rules: 
 	 * (block_vertical → block_horizontal road_vertical block_horizontal)                              
-	 * (block_horizontal → block_vertical road_horizontal block_vertical)
+	 * (block_horizontal → block_vertical road_h
+	 * horizontal block_vertical)
 	 */
 
 	public static void createRoute(int entryPointId, int direction, int type, int maxDeep, int currentDepth) {
