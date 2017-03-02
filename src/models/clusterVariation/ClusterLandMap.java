@@ -8,19 +8,19 @@ import java.util.Map;
 import helpers.base.MapHelper;
 import interfaces.Constants;
 
-public class CLandMap {
+public class ClusterLandMap {
 	private int pointsx = -1;
 	private int pointsy = -1;
-	private CLandPoint centroid;
+	private ClusterLandPoint centroid;
 	private int baseArea;
 	private int polygonalArea;
 	private int numberOfClusters;
 	private int emptyFocalArea;
 	private int fullFocalArea;
-	
-	private Map<Integer, CLandPoint> map;
 
-	public CLandMap(int pointsx, int pointsy) {
+	private Map<Integer, ClusterLandPoint> map;
+
+	public ClusterLandMap(int pointsx, int pointsy) {
 		this.setPointsx(pointsx);
 		this.setPointsy(pointsy);
 		this.setBaseArea(pointsx * pointsy);
@@ -28,7 +28,7 @@ public class CLandMap {
 		map = new HashMap<>();
 		for (int i = 0; i < pointsx; i++) {
 			for (int j = 0; j < pointsy; j++) {
-				map.put(MapHelper.formKey(i, j), new CLandPoint(i, j));
+				map.put(MapHelper.formKey(i, j), new ClusterLandPoint(i, j));
 			}
 		}
 	}
@@ -49,15 +49,15 @@ public class CLandMap {
 		this.pointsy = pointsy;
 	}
 
-	public CLandPoint getLandPoint(int pointId) {
+	public ClusterLandPoint getLandPoint(int pointId) {
 		return map.get(pointId);
 	}
 
-	public CLandPoint getCentroid() {
+	public ClusterLandPoint getCentroid() {
 		return centroid;
 	}
 
-	public void setCentroid(CLandPoint centroid) {
+	public void setCentroid(ClusterLandPoint centroid) {
 		this.centroid = centroid;
 	}
 
@@ -77,7 +77,7 @@ public class CLandMap {
 		this.polygonalArea = polygonalArea;
 	}
 
-	public CLandPoint findPoint(int entryPointId) {
+	public ClusterLandPoint findPoint(int entryPointId) {
 		return map.get(entryPointId);
 	}
 
@@ -86,7 +86,7 @@ public class CLandMap {
 	 * restricted area. This must be an ordered set of consecutive points (after
 	 * all the input from android looks like that.
 	 */
-	public void createBorderFromPolygon(List<CLandPoint> polygon) {
+	public void createBorderFromPolygon(List<ClusterLandPoint> polygon) {
 		// first we create the border
 		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
 			int underscore = (polygon.get(j).getX() - polygon.get(i).getX());
@@ -160,12 +160,21 @@ public class CLandMap {
 
 		findPolygonalArea(polygon);
 		findCentroid(polygon);
-		setNumberOfClusters(polygonalArea/800);
-		setEmptyFocalArea((int) ((Integer)(polygonalArea/10000)>10?(polygonalArea/10000)*0.3:(polygonalArea/10000)*0.08));
+		setNumberOfClusters(polygonalArea / 800);
+		setEmptyFocalArea((int) ((polygonalArea) * 0.08)); // ((Integer)(polygonalArea/10000)>10?(polygonalArea)*0.3:(polygonalArea)*0.08));
 		setFullFocalArea((int) (polygonalArea * 0.05));
 	}
 
-	private void findPolygonalArea(List<CLandPoint> polygon) {
+	public int getNumberOfParks() {
+		// the problem with this is that we should minimize areas.
+		if (polygonalArea > 1000000) {
+			return 16;
+		} else {
+			return emptyFocalArea / 800 < 16 ? emptyFocalArea / 800 : 8;// 240*25
+		}
+	}
+
+	private void findPolygonalArea(List<ClusterLandPoint> polygon) {
 		int absoluteArea = 0;
 		for (int i = 0; i < polygon.size(); i++) {
 			absoluteArea += (polygon.get(i).getX() * polygon.get((i + 1) % polygon.size()).getY())
@@ -174,8 +183,8 @@ public class CLandMap {
 		setPolygonalArea(Math.abs(absoluteArea) / 2);
 	}
 
-	private void findCentroid(List<CLandPoint> polygon) {
-		this.setCentroid(new CLandPoint(pointsx/2, pointsy/2));
+	private void findCentroid(List<ClusterLandPoint> polygon) {
+		this.setCentroid(new ClusterLandPoint(pointsx / 2, pointsy / 2));
 	}
 
 	/**

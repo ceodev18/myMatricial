@@ -3,7 +3,7 @@ package helpers.clusterVariation;
 import java.util.ArrayList;
 import java.util.List;
 import interfaces.Constants;
-import models.clusterVariation.CLandPoint;
+import models.clusterVariation.ClusterLandPoint;
 
 public class CDirectionHelper {
 	public static List<Integer> randomOrthogonalDirection(final int direction) {
@@ -45,7 +45,7 @@ public class CDirectionHelper {
 		return -1;
 	}
 
-	public static int orthogonalDirectionFromPointToPoint(CLandPoint currentPoint, CLandPoint centroid) {
+	public static int orthogonalDirectionFromPointToPoint(ClusterLandPoint currentPoint, ClusterLandPoint centroid) {
 		int xDifference = centroid.getX() - currentPoint.getX();
 		int yDifference = centroid.getY() - currentPoint.getY();
 

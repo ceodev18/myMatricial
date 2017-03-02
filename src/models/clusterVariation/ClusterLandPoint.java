@@ -3,13 +3,13 @@ package models.clusterVariation;
 import helpers.base.MapHelper;
 import interfaces.Constants;
 
-public class CLandPoint {
+public class ClusterLandPoint {
 	private int id = -1;
 	private int x = -1;
 	private int y = -1;
 	private String type = Constants.INSIDE_POLYGON;
 
-	public CLandPoint(int x, int y) {
+	public ClusterLandPoint(int x, int y) {
 		this.x = x;
 		this.y = y;
 		this.id = x * 10000 + y; /* Result space = y: 0 -9999 y x = 0 9999 */
@@ -50,7 +50,7 @@ public class CLandPoint {
 		return -1;
 	}
 
-	public int findDirection(CLandPoint mainRouteExit) {
+	public int findDirection(ClusterLandPoint mainRouteExit) {
 		int xDiff = mainRouteExit.getX() - this.getX();
 		int yDiff = mainRouteExit.getX() - this.getY();
 
