@@ -1,24 +1,31 @@
 package models.clusterVariation;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import helpers.base.MapHelper;
+import interfaces.ClusterConfiguration;
 import interfaces.Constants;
 
 public class ClusterLandMap {
 	private int pointsx = -1;
 	private int pointsy = -1;
+
 	private ClusterLandPoint centroid;
 	private int baseArea;
 	private int polygonalArea;
+
 	private int numberOfClusters;
+
 	private int emptyFocalArea;
 	private int fullFocalArea;
 
 	private Map<Integer, ClusterLandPoint> map;
+
+	private List<ClusterLandRoute> landRoutes = new ArrayList<>();
 
 	public ClusterLandMap(int pointsx, int pointsy) {
 		this.setPointsx(pointsx);
@@ -219,8 +226,14 @@ public class ClusterLandMap {
 	public void markVariation(int entryPointId, int branchType) {
 		String variation = "-";
 		switch (branchType) {
-		case Constants.ARTERIAL_BRANCH:
+		case ClusterConfiguration.ARTERIAL_BRANCH:
 			variation = "A";
+			break;
+		case ClusterConfiguration.COLLECTOR_BRANCH:
+			variation = "B";
+			break;
+		case ClusterConfiguration.LOCAL_BRANCH:
+			variation = "L";
 			break;
 		}
 		map.get(entryPointId).setType(variation);
@@ -248,5 +261,18 @@ public class ClusterLandMap {
 
 	public void setFullFocalArea(int fullFocalArea) {
 		this.fullFocalArea = fullFocalArea;
+	}
+
+	public List<ClusterLandRoute> getLandRoutes() {
+		return landRoutes;
+	}
+
+	public void setLandRoutes(List<ClusterLandRoute> landRoutes) {
+		this.landRoutes = landRoutes;
+	}
+
+	public boolean landPointisOnMap(int pointId) {
+		int[] xy = MapHelper.breakKey(pointId);
+		return xy[0] < pointsx && xy[0] > 0 && xy[1] < pointsy && xy[1] > 0;
 	}
 }

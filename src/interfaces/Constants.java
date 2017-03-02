@@ -11,12 +11,15 @@ public interface Constants {
 	public int NORTH_EAST = 6;
 	public int NORTH_WEST = 7;
 	
-	//for the branching of the algorithm
+	//FOR THE ROADS
+	//This are from my initial investigation
 	public int AVENUE_BRANCH = 0;
 	public int STREET_BRANCH = 1; //Jiron - Avenida corta
 	public int ALLEY_BRANCH = 2;
+	//This are from the architects
 	public int ARTERIAL_BRANCH = 3;
 	public int COLLECTOR_BRANCH = 4;
+	public int LOCAL_BRANCH = 5;
 	
 	public int HORIZONTAL = 1;
 	public int VERTICAL = 2;
@@ -25,4 +28,5 @@ public interface Constants {
 	public String POLYGON_LIMIT = ".";
 	public String OUTSIDE_POLYGON = " ";
 	public String INSIDE_POLYGON = "l";
+
 }

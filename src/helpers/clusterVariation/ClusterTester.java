@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import algorithm.clusterVariation.LSystemClusterAlgorithm;
+import interfaces.ClusterConfiguration;
 import interfaces.Constants;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
@@ -44,9 +45,11 @@ public class ClusterTester {
 		for (ClusterLandPoint entryPoint : entryPoints) {
 			int direction = CDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint, landMap.getCentroid());
 			if (large > 1000 || width > 1000) {
-				LSystemClusterAlgorithm.createMainRoute(entryPoint.getId(), direction, Constants.ARTERIAL_BRANCH);
+				LSystemClusterAlgorithm.createRoute(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
+				break;
 			} else {
-				LSystemClusterAlgorithm.createMainRoute(entryPoint.getId(), direction, Constants.COLLECTOR_BRANCH);
+				LSystemClusterAlgorithm.createRoute(entryPoint.getId(), direction, ClusterConfiguration.COLLECTOR_BRANCH);
+				break;
 			}
 		}
 
@@ -55,6 +58,6 @@ public class ClusterTester {
 		
 		
 		
-		//LSystemClusterAlgorithm.landMap.printMapToFile();
+		LSystemClusterAlgorithm.landMap.printMapToFile();
 	}
 }
