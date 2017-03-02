@@ -6,8 +6,8 @@ import java.util.Random;
 
 import helpers.base.DirectionHelper;
 import interfaces.Constants;
-import models.LandMap;
-import models.LandPoint;
+import models.base.LandMap;
+import models.base.LandPoint;
 
 public class LSystemRouteAlgorithm {
 	public static LandMap landMap;

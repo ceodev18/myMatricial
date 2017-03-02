@@ -1,4 +1,4 @@
-package models;
+package models.base;
 
 public class LandLot {
 	private String id = "Z";

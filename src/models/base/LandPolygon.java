@@ -1,4 +1,4 @@
-package models;
+package models.base;
 
 public class LandPolygon {
 	

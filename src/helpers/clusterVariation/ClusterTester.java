@@ -5,28 +5,28 @@ import java.util.List;
 
 import algorithm.clusterVariation.LSystemClusterAlgorithm;
 import interfaces.Constants;
-import models.LandMap;
-import models.LandPoint;
+import models.clusterVariation.CLandMap;
+import models.clusterVariation.CLandPoint;
 
 public class ClusterTester {
 	public static void main(String[] args) {
 		int large = 1834, width = 1623;
 		// 1. We create the map
-		LandMap landMap = new LandMap(large, width);
+		CLandMap landMap = new CLandMap(large, width);
 
-		List<LandPoint> polygon = new ArrayList<>();
-		LandPoint landPoint = new LandPoint(1833, 0, false, false, true, false, false);
+		List<CLandPoint> polygon = new ArrayList<>();
+		CLandPoint landPoint = new CLandPoint(1833, 0);
 		polygon.add(landPoint);
-		landPoint = new LandPoint(1594, 1434, false, false, true, false, false);
+		landPoint = new CLandPoint(1594, 1434);
 		polygon.add(landPoint);
-		landPoint = new LandPoint(862, 1622, false, false, true, false, false);
+		landPoint = new CLandPoint(862, 1622);
 		polygon.add(landPoint);
-		landPoint = new LandPoint(0, 588, false, false, true, false, false);
+		landPoint = new CLandPoint(0, 588);
 		polygon.add(landPoint);
-		landPoint = new LandPoint(1013, 183, false, false, true, false, false);
+		landPoint = new CLandPoint(1013, 183);
 		polygon.add(landPoint);
 		// we must reuse the first one as the last
-		landPoint = new LandPoint(1833, 0, false, false, true, false, false);
+		landPoint = new CLandPoint(1833, 0);
 		polygon.add(landPoint);
 
 		// 2. we create the border from the polygon
@@ -34,24 +34,23 @@ public class ClusterTester {
 
 		// 3, We create the entry points for the main routes
 		// Entry points = [327,981][1710,742]
-		List<LandPoint> entryPoints = new ArrayList<>();
-		landPoint = new LandPoint(327, 981, false, false, true, false, false);
+		List<CLandPoint> entryPoints = new ArrayList<>();
+		landPoint = new CLandPoint(327, 981);
 		entryPoints.add(landPoint);
-		landPoint = new LandPoint(1710, 742, false, false, true, false, false);
+		landPoint = new CLandPoint(1710, 742);
 		entryPoints.add(landPoint);
 
 		LSystemClusterAlgorithm.landMap = landMap;
-		for (LandPoint entryPoint : entryPoints) {
+		for (CLandPoint entryPoint : entryPoints) {
+			int direction = CDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint, landMap.getCentroid());
 			if (large > 1000 || width > 1000) {
-				LSystemClusterAlgorithm.createMainRoute(entryPoint.getId(), Constants.ORTHOGONAL,
-						Constants.ARTERIAL_BRANCH);
+				LSystemClusterAlgorithm.createMainRoute(entryPoint.getId(), direction, Constants.ARTERIAL_BRANCH);
 			} else {
-				LSystemClusterAlgorithm.createMainRoute(entryPoint.getId(), Constants.ORTHOGONAL,
-						Constants.COLLECTOR_BRANCH);
+				LSystemClusterAlgorithm.createMainRoute(entryPoint.getId(), direction, Constants.COLLECTOR_BRANCH);
 			}
 		}
 
-		// landMap.printMapToFile();
+		landMap.printMapToFile();
 
 		/*
 		 * landPoint = new LandPoint(20, 0, false, false, true, false, false);

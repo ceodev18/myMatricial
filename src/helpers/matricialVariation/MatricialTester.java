@@ -3,8 +3,8 @@ package helpers.matricialVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-import models.LandMap;
-import models.LandPoint;
+import models.base.LandMap;
+import models.base.LandPoint;
 
 public class MatricialTester {
 	public static void main(String[] args) {

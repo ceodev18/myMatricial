@@ -1,4 +1,4 @@
-package models;
+package models.clusterVariation;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
@@ -8,15 +8,15 @@ import java.util.Map;
 import helpers.base.MapHelper;
 import interfaces.Constants;
 
-public class LandMap {
+public class CLandMap {
 	private int pointsx = -1;
 	private int pointsy = -1;
-	private LandPoint centroid;
+	private CLandPoint centroid;
 	private int baseArea;
 	private int polygonalArea;
-	private Map<Integer, LandPoint> map;
+	private Map<Integer, CLandPoint> map;
 
-	public LandMap(int pointsx, int pointsy) {
+	public CLandMap(int pointsx, int pointsy) {
 		this.setPointsx(pointsx);
 		this.setPointsy(pointsy);
 		this.setBaseArea(pointsx * pointsy);
@@ -24,14 +24,7 @@ public class LandMap {
 		map = new HashMap<>();
 		for (int i = 0; i < pointsx; i++) {
 			for (int j = 0; j < pointsy; j++) {
-				boolean isMapLimitXW = (i == 0) ? true : false;
-				boolean isMapLimitXE = (i == (pointsx - 1)) ? true : false;
-
-				boolean isMapLimitYS = (j == 0) ? true : false;
-				boolean isMapLimitYN = (j == (pointsy - 1)) ? true : false;
-
-				map.put(MapHelper.formKey(i, j),
-						new LandPoint(i, j, isMapLimitXW, isMapLimitXE, isMapLimitYS, isMapLimitYN, false));
+				map.put(MapHelper.formKey(i, j), new CLandPoint(i, j));
 			}
 		}
 	}
@@ -52,15 +45,15 @@ public class LandMap {
 		this.pointsy = pointsy;
 	}
 
-	public LandPoint getLandPoint(int pointId) {
+	public CLandPoint getLandPoint(int pointId) {
 		return map.get(pointId);
 	}
 
-	public LandPoint getCentroid() {
+	public CLandPoint getCentroid() {
 		return centroid;
 	}
 
-	public void setCentroid(LandPoint centroid) {
+	public void setCentroid(CLandPoint centroid) {
 		this.centroid = centroid;
 	}
 
@@ -80,72 +73,8 @@ public class LandMap {
 		this.polygonalArea = polygonalArea;
 	}
 
-	/* Helper functions */
-	public LandPoint findPoint(LandPoint point, int direction) {
-		int pointId = point.findNeighbour(direction);
-
-		if (pointId == -1) {
-			return null;
-		} else {
-			return map.get(pointId);
-		}
-	}
-
-	public LandPoint findPoint(int nextPointId, int direction, int type) {
-		if (nextPointId == -1) {
-			return null;
-		} else {
-			LandPoint point = map.get(nextPointId);
-			if (point.isPartOfRoute() && type == Constants.AVENUE_BRANCH) {
-				return null;
-			} else if (point.isPartOfSubRoute()
-					&& (type == Constants.ALLEY_BRANCH || type == Constants.STREET_BRANCH)) {
-				return null;
-			} else {
-				return point;
-			}
-		}
-	}
-
-	/**
-	 * Only due to it already existing on a route
-	 */
-	public LandPoint findPoint(int randomPointInLineId, int redirection) {
-		if (randomPointInLineId == -1) {
-			return null;
-		} else {
-			return map.get(randomPointInLineId);
-		}
-	}
-
-	public void pointIsOfRoute(int id, boolean partOfRoute, int currentDepth) {
-		map.get(id).setPartOfRoute(partOfRoute);
-		map.get(id).setType(".");
-	}
-
-	public void pointIsOfSubRoute(int id, boolean partOfSubRoute, int currentDepth) {
-		map.get(id).setPartOfSubRoute(partOfSubRoute);
-		map.get(id).setType(".");
-	}
-
-	public int findDistanceToLimit(int randomPointInLineId, int direction) {
-		if (randomPointInLineId == -1) {
-			return 0;
-		} else {
-			int num = 0;
-			LandPoint point = map.get(randomPointInLineId);
-			while (true) {
-				int neighbourId = point.findNeighbour(direction);
-				LandPoint neighbour = map.get(neighbourId);
-				if (neighbour == null || neighbour.isPartOfRoute() || neighbour.isPartOfSubRoute()
-						|| neighbour.isMapLimit(direction)) {
-					return num;
-				} else {
-					num++;
-				}
-				point = neighbour;
-			}
-		}
+	public CLandPoint findPoint(int entryPointId) {
+		return map.get(entryPointId);
 	}
 
 	/**
@@ -153,7 +82,7 @@ public class LandMap {
 	 * restricted area. This must be an ordered set of consecutive points (after
 	 * all the input from android looks like that.
 	 */
-	public void createBorderFromPolygon(List<LandPoint> polygon) {
+	public void createBorderFromPolygon(List<CLandPoint> polygon) {
 		// first we create the border
 		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
 			int underscore = (polygon.get(j).getX() - polygon.get(i).getX());
@@ -229,16 +158,16 @@ public class LandMap {
 		findCentroid(polygon);
 	}
 
-	private void findPolygonalArea(List<LandPoint> polygon) {
+	private void findPolygonalArea(List<CLandPoint> polygon) {
 		int absoluteArea = 0;
 		for (int i = 0; i < polygon.size(); i++) {
-			absoluteArea += (polygon.get(i).getX() * polygon.get(i + 1 % polygon.size()).getY())
-					- (polygon.get(i).getY() * polygon.get(i + 1 % polygon.size()).getX());
+			absoluteArea += (polygon.get(i).getX() * polygon.get((i + 1) % polygon.size()).getY())
+					- (polygon.get(i).getY() * polygon.get((i + 1) % polygon.size()).getX());
 		}
 		setPolygonalArea(Math.abs(absoluteArea) / 2);
 	}
 
-	private void findCentroid(List<LandPoint> polygon) {
+	private void findCentroid(List<CLandPoint> polygon) {
 		int[] centroid = new int[2];
 		double signedArea = 0.0;
 		double x0 = 0.0; // Current vertex X
@@ -263,7 +192,7 @@ public class LandMap {
 		centroid[0] /= (6.0 * signedArea);
 		centroid[1] /= (6.0 * signedArea);
 
-		this.setCentroid(new LandPoint(centroid[0], centroid[1], false, false, false, false, false));
+		this.setCentroid(new CLandPoint(centroid[0], centroid[1]));
 	}
 
 	/**
@@ -293,5 +222,15 @@ public class LandMap {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public void markVariation(int entryPointId, int branchType) {
+		String variation = "-";
+		switch (branchType) {
+		case Constants.ARTERIAL_BRANCH:
+			variation = "A";
+			break;
+		}
+		findPoint(entryPointId).setType(variation);
 	}
 }

@@ -1,8 +1,8 @@
 package algorithm.base;
 
 import helpers.base.MapHelper;
-import models.LandLot;
-import models.LandMap;
+import models.base.LandLot;
+import models.base.LandMap;
 
 public class LotizationAlgorithm {
 

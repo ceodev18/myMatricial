@@ -1,4 +1,4 @@
-package models;
+package models.base;
 
 import helpers.base.MapHelper;
 import interfaces.Constants;
@@ -191,7 +191,11 @@ public class LandPoint {
 	}
 
 	public boolean isMapLimit(int direction) {
-		switch(direction){
+		if(type.equals("l"))return false;
+		else return true;
+		/*TODO Changed. Original algorithm worked with what is under. Current algorithms should not
+		 * 
+		 * switch(direction){
 		case Constants.EAST:
 			return isMapLimitXE;
 		case Constants.WEST:
@@ -201,7 +205,7 @@ public class LandPoint {
 		case Constants.SOUTH:
 			return isMapLimitYS;
 		}
-		return false;
+		return false;*/
 	}
 
 	public String getType() {

@@ -3,8 +3,8 @@ package helpers.base;
 import algorithm.base.LSystemRouteAlgorithm;
 import algorithm.base.LotizationAlgorithm;
 import interfaces.Constants;
-import models.LandMap;
-import models.LandPoint;
+import models.base.LandMap;
+import models.base.LandPoint;
 
 public class Tester {
 	public static void main(String[] args) {
