@@ -1,13 +1,14 @@
 package models.clusterVariation;
 
 import helpers.base.MapHelper;
+import interfaces.ClusterConfiguration;
 import interfaces.Constants;
 
 public class ClusterLandPoint {
 	private int id = -1;
 	private int x = -1;
 	private int y = -1;
-	private String type = Constants.INSIDE_POLYGON;
+	private String type = ClusterConfiguration.EMPTY;
 
 	public ClusterLandPoint(int x, int y) {
 		this.x = x;
@@ -69,7 +70,7 @@ public class ClusterLandPoint {
 	}
 
 	public boolean isMapLimit(int direction) {
-		if (type.equals(Constants.OUTSIDE_POLYGON))
+		if (type.equals(ClusterConfiguration.OUTSIDE_POLYGON))
 			return true;
 		else
 			return false;

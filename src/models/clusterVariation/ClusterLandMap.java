@@ -26,6 +26,7 @@ public class ClusterLandMap {
 	private Map<Integer, ClusterLandPoint> map;
 
 	private List<ClusterLandRoute> landRoutes = new ArrayList<>();
+	private List<Integer> nodes = new ArrayList<>();
 
 	public ClusterLandMap(int pointsx, int pointsy) {
 		this.setPointsx(pointsx);
@@ -170,6 +171,18 @@ public class ClusterLandMap {
 		setNumberOfClusters(polygonalArea / 800);
 		setEmptyFocalArea((int) ((polygonalArea) * 0.08)); // ((Integer)(polygonalArea/10000)>10?(polygonalArea)*0.3:(polygonalArea)*0.08));
 		setFullFocalArea((int) (polygonalArea * 0.05));
+		clearDottedLimits();
+	}
+
+	private void clearDottedLimits() {
+		for (int i = 0; i < pointsx; i++) {
+			for (int j = 0; j < pointsy; j++) {
+				ClusterLandPoint clusterLandPoint = this.getLandPoint(MapHelper.formKey(i, j));
+				if (clusterLandPoint.getType().equals(ClusterConfiguration.POLYGON_BORDER)) {
+					clusterLandPoint.setType(ClusterConfiguration.EMPTY);
+				}
+			}
+		}
 	}
 
 	public int getNumberOfParks() {
@@ -233,7 +246,10 @@ public class ClusterLandMap {
 			variation = "B";
 			break;
 		case ClusterConfiguration.LOCAL_BRANCH:
-			variation = "L";
+			variation = "C";
+			break;
+		case ClusterConfiguration.NODE:
+			variation = "N";
 			break;
 		}
 		map.get(entryPointId).setType(variation);
@@ -274,5 +290,13 @@ public class ClusterLandMap {
 	public boolean landPointisOnMap(int pointId) {
 		int[] xy = MapHelper.breakKey(pointId);
 		return xy[0] < pointsx && xy[0] > 0 && xy[1] < pointsy && xy[1] > 0;
+	}
+
+	public List<Integer> getNodes() {
+		return nodes;
+	}
+
+	public void setNodes(List<Integer> nodes) {
+		this.nodes = nodes;
 	}
 }

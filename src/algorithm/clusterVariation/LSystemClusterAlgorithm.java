@@ -5,6 +5,7 @@ import java.util.List;
 import helpers.base.MapHelper;
 import helpers.clusterVariation.CDirectionHelper;
 import interfaces.ClusterConfiguration;
+import interfaces.Constants;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 import models.clusterVariation.ClusterLandRoute;
@@ -25,13 +26,28 @@ public class LSystemClusterAlgorithm {
 			currentPoint = landMap.findPoint(nextPointId);
 			extension++;
 		}
-		// then the true end
+
+		landMap.getNodes().add(currentPoint.getId());
+		boolean first = true;
 		while (!currentPoint.isMapLimit(direction)) {
-			landMap.markVariation(currentPoint.getId(), branchType);
+			if (first) {
+				first = false;
+				landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE);
+			} else {
+				if (!currentPoint.getType().equals(ClusterConfiguration.EMPTY)) {
+					landMap.getNodes().add(currentPoint.getId());
+					landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE);
+				} else {
+					landMap.markVariation(currentPoint.getId(), branchType);
+				}
+			}
+
 			int nextPointId = currentPoint.findNeighbour(direction);
 			currentPoint = landMap.findPoint(nextPointId);
 			extension++;
 		}
+		landMap.getNodes().add(currentPoint.getId());
+		landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE);
 
 		clusterLandRoute.setExtension(extension);
 		clusterLandRoute.setFinalPointId(currentPoint.getId());
@@ -66,8 +82,9 @@ public class LSystemClusterAlgorithm {
 				// then BASE_CLUSTER_SIZE
 				upperParallelId = MapHelper.moveKeyByOffsetAndDirection(upperParallelId,
 						ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(0));
-			}	
-			if (!landMap.landPointisOnMap(upperParallelId))break;
+			}
+			if (!landMap.landPointisOnMap(upperParallelId))
+				break;
 			createRoute(upperParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
 			current++;
 		}
@@ -82,7 +99,8 @@ public class LSystemClusterAlgorithm {
 				lowerParallelId = MapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
 						ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(1));
 			}
-			if (!landMap.landPointisOnMap(upperParallelId))break;
+			if (!landMap.landPointisOnMap(upperParallelId))
+				break;
 			createRoute(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
 			current++;
 		}

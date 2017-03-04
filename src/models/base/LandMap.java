@@ -7,6 +7,7 @@ import java.util.Map;
 
 import helpers.base.MapHelper;
 import interfaces.Constants;
+import models.clusterVariation.ClusterLandPoint;
 
 public class LandMap {
 	private int pointsx = -1;

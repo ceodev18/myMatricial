@@ -20,6 +20,7 @@ public interface Constants {
 	public int ARTERIAL_BRANCH = 3;
 	public int COLLECTOR_BRANCH = 4;
 	public int LOCAL_BRANCH = 5;
+	public int NODE = 6;
 	
 	public int HORIZONTAL = 1;
 	public int VERTICAL = 2;
@@ -28,5 +29,6 @@ public interface Constants {
 	public String POLYGON_LIMIT = ".";
 	public String OUTSIDE_POLYGON = " ";
 	public String INSIDE_POLYGON = "l";
+
 
 }

@@ -14,4 +14,10 @@ public interface ClusterConfiguration {
 	public static int ARTERIAL_BRANCH = 0;
 	public static int COLLECTOR_BRANCH = 1;
 	public static int LOCAL_BRANCH = 2;
+	public static int NODE = 3;
+
+	public static String EMPTY = "l";
+	public static String OUTSIDE_POLYGON = " ";
+
+	public static String POLYGON_BORDER = ".";
 }
