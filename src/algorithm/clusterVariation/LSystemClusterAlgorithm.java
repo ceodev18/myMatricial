@@ -1,7 +1,10 @@
 package algorithm.clusterVariation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import helpers.base.MapHelper;
 import helpers.clusterVariation.CDirectionHelper;
@@ -119,28 +122,28 @@ public class LSystemClusterAlgorithm {
 
 	private static List<ClusterPolygon> defineFigures() {
 		MapHelper.orderNodes(landMap.getNodes());
-		List<ClusterPolygon> polygons = new ArrayList<>();
-		int[] positions = new int[landMap.getNodes().size()];
+		Map<Integer, List<Integer>> mappedPoints = new HashMap<>();
+		for(int i = 0; i< landMap.getNodes().size(); i++){
+			mappedPoints.put(landMap.getNodes().get(i), new ArrayList<>());			
+		}
+
+		/*
+		(Map mp) {
+    Iterator it = mp.entrySet().iterator();
+    while (it.hasNext()) {
+        Map.Entry pair = (Map.Entry)it.next();
+        System.out.println(pair.getKey() + " = " + pair.getValue());
+        it.remove(); // avoids a ConcurrentModificationException
+    } 
+		 */
+		List<ClusterPolygon> polygons = new ArrayList<>();		
 		for (int i = 0; i < landMap.getNodes().size(); i++) {
-			int lastW = 0;
-			boolean first = true;
-			for (int j = 0; j < 4; j++) {
-				ClusterPolygon clusterPolygon = new ClusterPolygon();
-				boolean out = false;
-				for (int w = lastW; w < i + 1; w++) {
-					if (positions[i] < 4) {
-						if(){//rule 1
-							if(first)lastW = w; 
-						}else if(){//rule 2
-							
-						}else if(){//rule 3
-							
-						}
-						
-					}
-				}
-				polygons.add(clusterPolygon);
-			}
+		    Iterator it = mappedPoints.entrySet().iterator();
+		    while (it.hasNext()) {
+		        Map.Entry pair = (Map.Entry)it.next();
+		        //System.out.println(pair.getKey() + " = " + pair.getValue());
+		        
+		    }    
 		}
 
 		return polygons;
