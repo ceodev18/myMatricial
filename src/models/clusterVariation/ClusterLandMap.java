@@ -236,7 +236,7 @@ public class ClusterLandMap {
 		}
 	}
 
-	public void markVariation(int entryPointId, int branchType) {
+	public void markVariation(int entryPointId, int branchType, int nodeType) {
 		String variation = "-";
 		switch (branchType) {
 		case ClusterConfiguration.ARTERIAL_BRANCH:
@@ -253,6 +253,7 @@ public class ClusterLandMap {
 			break;
 		}
 		map.get(entryPointId).setType(variation);
+		map.get(entryPointId).setNodeType(nodeType);
 	}
 
 	public int getNumberOfClusters() {

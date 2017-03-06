@@ -9,6 +9,7 @@ public class ClusterLandPoint {
 	private int x = -1;
 	private int y = -1;
 	private String type = ClusterConfiguration.EMPTY;
+	private int nodeType;
 
 	public ClusterLandPoint(int x, int y) {
 		this.x = x;
@@ -35,7 +36,22 @@ public class ClusterLandPoint {
 	public void setY(int y) {
 		this.y = y;
 	}
+	public String getType() {
+		return type;
+	}
 
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public void setNodeType(int nodeType) {
+		this.nodeType = nodeType;
+	}
+	
+	public int getNodeType(){
+		return nodeType;
+	}
+	
 	/* Helper functions */
 	public int findNeighbour(int direction) {
 		switch (direction) {
@@ -74,13 +90,5 @@ public class ClusterLandPoint {
 			return true;
 		else
 			return false;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
 	}
 }

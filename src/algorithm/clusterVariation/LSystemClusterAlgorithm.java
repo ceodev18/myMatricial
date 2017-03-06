@@ -1,14 +1,15 @@
 package algorithm.clusterVariation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import helpers.base.MapHelper;
 import helpers.clusterVariation.CDirectionHelper;
 import interfaces.ClusterConfiguration;
-import interfaces.Constants;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 import models.clusterVariation.ClusterLandRoute;
+import models.clusterVariation.ClusterPolygon;
 
 public class LSystemClusterAlgorithm {
 	public static ClusterLandMap landMap;
@@ -32,22 +33,23 @@ public class LSystemClusterAlgorithm {
 		while (!currentPoint.isMapLimit(direction)) {
 			if (first) {
 				first = false;
-				landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE);
+				landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE,
+						ClusterConfiguration.TYPE_OUTER_NODE);
 			} else {
 				if (!currentPoint.getType().equals(ClusterConfiguration.EMPTY)) {
 					landMap.getNodes().add(currentPoint.getId());
-					landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE);
+					landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE,
+							ClusterConfiguration.TYPE_INNER_NODE);
 				} else {
-					landMap.markVariation(currentPoint.getId(), branchType);
+					landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
 				}
 			}
-
 			int nextPointId = currentPoint.findNeighbour(direction);
 			currentPoint = landMap.findPoint(nextPointId);
 			extension++;
 		}
 		landMap.getNodes().add(currentPoint.getId());
-		landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE);
+		landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE, ClusterConfiguration.TYPE_OUTER_NODE);
 
 		clusterLandRoute.setExtension(extension);
 		clusterLandRoute.setFinalPointId(currentPoint.getId());
@@ -60,6 +62,7 @@ public class LSystemClusterAlgorithm {
 		ClusterLandRoute mainRoute = landMap.getLandRoutes().get(0);
 		int numClusters = mainRoute.getExtension() / ClusterConfiguration.BASE_CLUSTER_SIZE;
 		int entryPointId = mainRoute.getInitialPointId();
+
 		// Once the collector branches are created we need to create the non
 		// collector running orthogonal to the main
 		List<Integer> orthogonalDirections = CDirectionHelper.randomOrthogonalDirection(mainRoute.getDirection());
@@ -104,6 +107,42 @@ public class LSystemClusterAlgorithm {
 			createRoute(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
 			current++;
 		}
-		// on the lotization step the parallels lose area due to the parks
+		// We define the cluster areas.
+		List<ClusterPolygon> figures = defineFigures();
+
+		// Finally we create the lots given their points to lotize themss
+		ClusterLotizationAlgorithm.landMap = landMap;
+		for (int i = 0; i < figures.size(); i++) {
+			ClusterLotizationAlgorithm.zonify(figures);
+		}
+	}
+
+	private static List<ClusterPolygon> defineFigures() {
+		MapHelper.orderNodes(landMap.getNodes());
+		List<ClusterPolygon> polygons = new ArrayList<>();
+		int[] positions = new int[landMap.getNodes().size()];
+		for (int i = 0; i < landMap.getNodes().size(); i++) {
+			int lastW = 0;
+			boolean first = true;
+			for (int j = 0; j < 4; j++) {
+				ClusterPolygon clusterPolygon = new ClusterPolygon();
+				boolean out = false;
+				for (int w = lastW; w < i + 1; w++) {
+					if (positions[i] < 4) {
+						if(){//rule 1
+							if(first)lastW = w; 
+						}else if(){//rule 2
+							
+						}else if(){//rule 3
+							
+						}
+						
+					}
+				}
+				polygons.add(clusterPolygon);
+			}
+		}
+
+		return polygons;
 	}
 }

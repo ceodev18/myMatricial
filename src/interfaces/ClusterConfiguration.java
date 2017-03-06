@@ -20,4 +20,8 @@ public interface ClusterConfiguration {
 	public static String OUTSIDE_POLYGON = " ";
 
 	public static String POLYGON_BORDER = ".";
+
+	public static int TYPE_OUTER_NODE = 0;
+	public static int TYPE_INNER_NODE = 1;
+	public static int TYPE_NO_NODE = 2;
 }
