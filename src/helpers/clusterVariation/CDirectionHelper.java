@@ -66,4 +66,26 @@ public class CDirectionHelper {
 		}
 		return -1;
 	}
+
+	public static int directionFromPointToPoint(ClusterLandPoint currentPoint, ClusterLandPoint centroid) {
+		int xDifference = centroid.getX() - currentPoint.getX();
+		int yDifference = centroid.getY() - currentPoint.getY();
+
+		if (yDifference > 0) {
+			return Constants.NORTH;
+		}
+
+		if (yDifference < 0) {
+			return Constants.SOUTH;
+		}
+
+		if (xDifference > 0) {
+			return Constants.EAST;
+		}
+
+		if (xDifference < 0) {
+			return Constants.WEST;
+		}
+		return -1;
+	}
 }
