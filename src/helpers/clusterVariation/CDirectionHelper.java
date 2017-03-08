@@ -6,7 +6,7 @@ import interfaces.Constants;
 import models.clusterVariation.ClusterLandPoint;
 
 public class CDirectionHelper {
-	public static List<Integer> randomOrthogonalDirection(final int direction) {
+	public static List<Integer> orthogonalDirections(final int direction) {
 		List<Integer> directions = new ArrayList<>();
 		switch (direction) {
 		case Constants.NORTH:

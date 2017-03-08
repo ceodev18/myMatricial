@@ -29,5 +29,10 @@ public interface ClusterConfiguration {
 	public static int CLUSTER_TYPE_TRIANGLE = 3;
 	public static int CLUSTER_TYPE_RECTANGLE = 4;
 
-
+	public static String ARTERIAL_MARK = "a";
+	public static String COLLECTOR_MARK = "b";
+	public static String LOCAL_MARK = "c";
+	public static String NODE_MARK = "n";
+	
+	
 }

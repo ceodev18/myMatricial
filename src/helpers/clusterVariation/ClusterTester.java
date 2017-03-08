@@ -54,7 +54,7 @@ public class ClusterTester {
 		}
 
 		//4. We clusterize the points through the count of minimun number of parks
-		//LSystemClusterAlgorithm.clusterize();
+		LSystemClusterAlgorithm.clusterize();
 		
 		// Finally we create the lots given their points to lotize themss
 		//ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;

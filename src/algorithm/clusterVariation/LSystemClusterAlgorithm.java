@@ -29,38 +29,38 @@ public class LSystemClusterAlgorithm {
 		clusterLandRoute.setInitialPointId(entryPointId);
 
 		int extension = 0;
-		while (currentPoint.isMapLimit(direction)) {
-			int nextPointId = currentPoint.findNeighbour(direction);
-			currentPoint = landMap.findPoint(nextPointId);
-			extension++;
+		if (branchType == ClusterConfiguration.ARTERIAL_BRANCH) {
+			while (currentPoint.isMapLimit(direction)) {
+				int nextPointId = currentPoint.findNeighbour(direction);
+				currentPoint = landMap.findPoint(nextPointId);
+				extension++;
+			}
+		} else {
+			while (!currentPoint.getType().equals(ClusterConfiguration.EMPTY)) {
+				int nextPointId = currentPoint.findNeighbour(direction);
+				currentPoint = landMap.findPoint(nextPointId);
+				extension++;
+			}
 		}
 
-		landMap.getNodes().add(currentPoint.getId());
 		boolean first = true;
 		while (!currentPoint.isMapLimit(direction)) {
 			if (first) {
 				first = false;
-				landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE,
-						ClusterConfiguration.TYPE_OUTER_NODE);
 			} else {
 				if (!currentPoint.getType().equals(ClusterConfiguration.EMPTY)) {
-					landMap.getNodes().add(currentPoint.getId());
-					landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE,
-							ClusterConfiguration.TYPE_INNER_NODE);
 				} else {
 					landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
 				}
 			}
 
-			List<Integer> orthogonalDirections = CDirectionHelper.randomOrthogonalDirection(direction);
+			List<Integer> orthogonalDirections = CDirectionHelper.orthogonalDirections(direction);
 			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
 			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
 			int nextPointId = currentPoint.findNeighbour(direction);
 			currentPoint = landMap.findPoint(nextPointId);
 			extension++;
 		}
-
-		landMap.getNodes().add(currentPoint.getId());
 		landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE, ClusterConfiguration.TYPE_OUTER_NODE);
 
 		clusterLandRoute.setExtension(extension);
@@ -76,11 +76,13 @@ public class LSystemClusterAlgorithm {
 		case ClusterConfiguration.ARTERIAL_BRANCH:
 			extension = (ClusterConfiguration.ARTERIAL_BRANCH_SIZE) / 2 - (imperfect ? 1 : 0);
 			break;
+		case ClusterConfiguration.COLLECTOR_BRANCH:// As it is taken into
+													// account during the route
+													// separation only left
+			extension = (ClusterConfiguration.COLLECTOR_BRANCH_SIZE - 1) * (imperfect ? 1 : 0);
+			break;
 		case ClusterConfiguration.LOCAL_BRANCH:
 			extension = ClusterConfiguration.LOCAL_BRANCH_SIZE / 2 - (imperfect ? 1 : 0);
-			break;
-		case ClusterConfiguration.COLLECTOR_BRANCH:
-			extension = ClusterConfiguration.COLLECTOR_BRANCH_SIZE / 2 - (imperfect ? 1 : 0);
 			break;
 		case ClusterConfiguration.WALK_BRANCH:
 			extension = ClusterConfiguration.WALK_BRANCH_SIZE / 2 - (imperfect ? 1 : 0);
@@ -89,7 +91,7 @@ public class LSystemClusterAlgorithm {
 
 		int nextPointId = currentPoint.findNeighbour(direction);
 		currentPoint = landMap.findPoint(nextPointId);
-		while (!currentPoint.isMapLimit(direction) && (extension>0)) {
+		while (!currentPoint.isMapLimit(direction) && (extension > 0)) {
 			if (currentPoint.getType().equals(ClusterConfiguration.EMPTY)) {
 				landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
 			} else {
@@ -100,6 +102,10 @@ public class LSystemClusterAlgorithm {
 			extension--;
 		}
 
+		if (!currentPoint.isMapLimit(direction) && currentPoint.getType().equals(ClusterConfiguration.EMPTY)) {
+			landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE,
+					ClusterConfiguration.TYPE_INNER_NODE);
+		}
 	}
 
 	public static void clusterize() {
@@ -110,12 +116,17 @@ public class LSystemClusterAlgorithm {
 
 		// Once the collector branches are created we need to create the non
 		// collector running orthogonal to the main
-		List<Integer> orthogonalDirections = CDirectionHelper.randomOrthogonalDirection(mainRoute.getDirection());
+		List<Integer> orthogonalDirections = CDirectionHelper.orthogonalDirections(mainRoute.getDirection());
 		for (int i = 0; i < numClusters; i++) {
-			entryPointId = MapHelper.moveKeyByOffsetAndDirection(entryPointId, ClusterConfiguration.BASE_CLUSTER_SIZE,
+			entryPointId = MapHelper.moveKeyByOffsetAndDirection(entryPointId,
+					ClusterConfiguration.BASE_CLUSTER_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE,
 					mainRoute.getDirection());
-			createRoute(entryPointId, orthogonalDirections.get(0), ClusterConfiguration.COLLECTOR_BRANCH);
-			createRoute(entryPointId, orthogonalDirections.get(1), ClusterConfiguration.COLLECTOR_BRANCH);
+			if (entryPointId != -1) {
+				createRoute(entryPointId, orthogonalDirections.get(0), ClusterConfiguration.COLLECTOR_BRANCH);
+				createRoute(entryPointId, orthogonalDirections.get(1), ClusterConfiguration.COLLECTOR_BRANCH);
+			} else {
+				break;
+			}
 		}
 
 		int upperParallelId = mainRoute.getInitialPointId();

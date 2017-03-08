@@ -240,16 +240,16 @@ public class ClusterLandMap {
 		String variation = "-";
 		switch (branchType) {
 		case ClusterConfiguration.ARTERIAL_BRANCH:
-			variation = "A";
+			variation = ClusterConfiguration.ARTERIAL_MARK;
 			break;
 		case ClusterConfiguration.COLLECTOR_BRANCH:
-			variation = "B";
+			variation = ClusterConfiguration.COLLECTOR_MARK;
 			break;
 		case ClusterConfiguration.LOCAL_BRANCH:
-			variation = "C";
+			variation = ClusterConfiguration.LOCAL_MARK;
 			break;
 		case ClusterConfiguration.NODE:
-			variation = "N";
+			variation = ClusterConfiguration.NODE_MARK;
 			break;
 		}
 		map.get(entryPointId).setType(variation);
