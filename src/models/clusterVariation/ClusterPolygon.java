@@ -21,6 +21,21 @@ public class ClusterPolygon {
 		this.type = type;
 		this.centroid = findCentroid();
 		enshrink();
+		reorder();
+	}
+
+	// Order : 4 polygon will be upleft, upright, downleft, downright
+	private void reorder() {
+		for (int i = 0; i < type-1; i++) {
+			for (int j = i + 1; j < type; j++) {
+				int[] xy = MapHelper.breakKey(vertices.get(i));
+				int[] xyI = MapHelper.breakKey(vertices.get(j));
+				if ((xyI[0] <= xy[0]) && (xyI[1] >= xy[1])) {//
+					vertices.set(i, MapHelper.formKey(xyI[0], xyI[1]));
+					vertices.set(j, MapHelper.formKey(xy[0], xy[1]));
+				}
+			}
+		}
 	}
 
 	public void enshrink() {

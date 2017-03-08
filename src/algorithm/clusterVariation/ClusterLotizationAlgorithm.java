@@ -1,5 +1,7 @@
 package algorithm.clusterVariation;
 
+import java.util.List;
+
 import helpers.base.MapHelper;
 import interfaces.ClusterConfiguration;
 import interfaces.Constants;
@@ -13,9 +15,50 @@ public class ClusterLotizationAlgorithm {
 	public static void zonify(ClusterPolygon figure) {
 		if (figure.getType() == ClusterConfiguration.CLUSTER_TYPE_TRIANGLE) {
 			fillTriangle(figure);
-		} else {
-
+		} else if (figure.getType() == ClusterConfiguration.CLUSTER_TYPE_RECTANGLE) {
+			archetypeCluster(figure);
 		}
+	}
+
+	private static void archetypeCluster(ClusterPolygon figure) {
+		List<Integer> limits = figure.getVertices();
+		int markNumber = 0;
+		// we do first the upper part likely to be close to the main street
+		for (int i = MapHelper.breakKey(limits.get(0))[0]; i < MapHelper.breakKey(limits.get(1))[0]; 
+				markNumber += 2, i += ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE) {
+			createHouseIfPossible(i, MapHelper.breakKey(limits.get(0))[1], Constants.SOUTH, markNumber % 3);// upper
+		}
+	}
+
+	private static void createHouseIfPossible(int xInitialCoordinate, int yInitialCoordinate, int direction,
+			int numberMark) {
+		if (possibleHouse(xInitialCoordinate, yInitialCoordinate, direction)) {
+			for (int i = xInitialCoordinate; i < xInitialCoordinate
+					+ ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+				for (int j = yInitialCoordinate; j > yInitialCoordinate
+						- ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; j--) {
+					landMap.findPoint(MapHelper.formKey(i, j)).setType(""+numberMark);
+				}
+
+			}
+		}
+	}
+
+	private static boolean possibleHouse(int x, int y, int direction) {
+		//TODO include directions on analisis
+		if(((x + ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE) >= landMap.getPointsx()) 
+				|| ((y - ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) < 0)){
+			return false;
+			
+		}
+		for (int i = x; i < x + ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {//Only for south
+			for (int j = y; j > y - ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; j--) {
+				if(!landMap.findPoint(MapHelper.formKey(i, j)).getType().equals(ClusterConfiguration.EMPTY)){
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	private static void fillTriangle(ClusterPolygon figure) {

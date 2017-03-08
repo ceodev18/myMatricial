@@ -51,10 +51,15 @@ public class LSystemClusterAlgorithm {
 					landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
 				}
 			}
+
+			List<Integer> orthogonalDirections = CDirectionHelper.randomOrthogonalDirection(direction);
+			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
+			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
 			int nextPointId = currentPoint.findNeighbour(direction);
 			currentPoint = landMap.findPoint(nextPointId);
 			extension++;
 		}
+
 		landMap.getNodes().add(currentPoint.getId());
 		landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE, ClusterConfiguration.TYPE_OUTER_NODE);
 
@@ -62,6 +67,39 @@ public class LSystemClusterAlgorithm {
 		clusterLandRoute.setFinalPointId(currentPoint.getId());
 		clusterLandRoute.setType(branchType);
 		landMap.getLandRoutes().add(clusterLandRoute);
+	}
+
+	private static void extendRouteToTrueSize(ClusterLandPoint currentPoint, Integer direction, int branchType,
+			boolean imperfect) {
+		int extension = 0;
+		switch (branchType) {
+		case ClusterConfiguration.ARTERIAL_BRANCH:
+			extension = (ClusterConfiguration.ARTERIAL_BRANCH_SIZE) / 2 - (imperfect ? 1 : 0);
+			break;
+		case ClusterConfiguration.LOCAL_BRANCH:
+			extension = ClusterConfiguration.LOCAL_BRANCH_SIZE / 2 - (imperfect ? 1 : 0);
+			break;
+		case ClusterConfiguration.COLLECTOR_BRANCH:
+			extension = ClusterConfiguration.COLLECTOR_BRANCH_SIZE / 2 - (imperfect ? 1 : 0);
+			break;
+		case ClusterConfiguration.WALK_BRANCH:
+			extension = ClusterConfiguration.WALK_BRANCH_SIZE / 2 - (imperfect ? 1 : 0);
+			break;
+		}
+
+		int nextPointId = currentPoint.findNeighbour(direction);
+		currentPoint = landMap.findPoint(nextPointId);
+		while (!currentPoint.isMapLimit(direction) && (extension>0)) {
+			if (currentPoint.getType().equals(ClusterConfiguration.EMPTY)) {
+				landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
+			} else {
+				break;
+			}
+			nextPointId = currentPoint.findNeighbour(direction);
+			currentPoint = landMap.findPoint(nextPointId);
+			extension--;
+		}
+
 	}
 
 	public static void clusterize() {
@@ -254,7 +292,7 @@ public class LSystemClusterAlgorithm {
 			if (polygons.get(i).getType() == ClusterConfiguration.CLUSTER_TYPE_TRIANGLE) {
 				for (int j = i + 1; j < polygons.size(); j++) {
 					if (polygons.get(j).getType() == ClusterConfiguration.CLUSTER_TYPE_TRIANGLE) {
-						if(polygons.get(i).sharesDirectionAndSide(polygons.get(j))){
+						if (polygons.get(i).sharesDirectionAndSide(polygons.get(j))) {
 							polygons.get(i).fusion(polygons.get(j));
 							polygons.remove(j);
 							break;
