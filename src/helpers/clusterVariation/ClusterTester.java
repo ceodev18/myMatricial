@@ -57,6 +57,7 @@ public class ClusterTester {
 		LSystemClusterAlgorithm.clusterize();
 		// Finally we create the lots given their points to lotize themss
 		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
+		
 		for (int i = 0; i < LSystemClusterAlgorithm.polygons.size(); i++) {
 			//LSystemClusterAlgorithm.polygons.get(i).print();
 			ClusterLotizationAlgorithm.zonify(LSystemClusterAlgorithm.polygons.get(i));

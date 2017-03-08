@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import helpers.base.MapHelper;
+import interfaces.ClusterConfiguration;
 
 public class ClusterPolygon {
 	private List<Integer> vertices;
 	private int type;
+	private int[] centroid;
+	private int[] squareLimits;
 
 	public ClusterPolygon(int[] polygonVertex, int type) {
 		vertices = new ArrayList<>();
@@ -15,12 +18,12 @@ public class ClusterPolygon {
 			vertices.add(polygonVertex[i]);
 		}
 
-		this.setType(type);
+		this.type = type;
+		this.centroid = findCentroid();
 		enshrink();
 	}
 
-	private void enshrink() {
-		int[] centroid = findCentroid();
+	public void enshrink() {
 		for (int i = 0; i < type; i++) {
 			int[] xy = MapHelper.breakKey(vertices.get(i));
 
@@ -65,6 +68,14 @@ public class ClusterPolygon {
 					yLimits[0] = xy[1];
 			}
 		}
+
+		// inferiorleft, inferiorright, upright
+		squareLimits = new int[4];
+		squareLimits[0] = xLimits[0];
+		squareLimits[1] = xLimits[1];
+		squareLimits[2] = yLimits[0];
+		squareLimits[3] = yLimits[1];
+
 		return new int[] { ((xLimits[0] + xLimits[1]) / 2), ((yLimits[0] + yLimits[1]) / 2) };
 	}
 
@@ -100,11 +111,64 @@ public class ClusterPolygon {
 		this.type = type;
 	}
 
+	public int[] getCentroid() {
+		return centroid;
+	}
+
+	public void setCentroid(int[] centroid) {
+		this.centroid = centroid;
+	}
+
+	public int[] getSquareLimits() {
+		return squareLimits;
+	}
+
+	public void setSquareLimits(int[] squareLimits) {
+		this.squareLimits = squareLimits;
+	}
+
 	public void print() {
 		String vertexChain = "";
 		for (Integer in : getVertices()) {
 			vertexChain += in + ", ";
 		}
 		System.out.println(vertexChain);
+	}
+
+	public boolean sharesDirectionAndSide(ClusterPolygon clusterPolygon) {
+		int shared = 0;
+		for (int i = 0; i < type; i++) {
+			for (int j = 0; j < type; j++) {
+				if (vertices.get(i).intValue() == clusterPolygon.vertices.get(j).intValue()) {
+					shared++;
+					break;
+				}
+			}
+		}
+
+		if (shared == 2) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public void fusion(ClusterPolygon clusterPolygon) {
+		boolean isOf;
+		for (int i = 0; i < type; i++) {
+			isOf = false;
+			for (int j = 0; j < type; j++) {
+				if (vertices.get(i).intValue() == clusterPolygon.vertices.get(i).intValue()) {
+					isOf = true;
+					break;
+				}
+			}
+			if (!isOf) {
+				vertices.add(clusterPolygon.vertices.get(i));
+				this.type = ClusterConfiguration.CLUSTER_TYPE_RECTANGLE;
+				this.centroid = findCentroid();
+				break;
+			}
+		}
 	}
 }

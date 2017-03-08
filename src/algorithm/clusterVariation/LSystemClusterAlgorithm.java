@@ -246,6 +246,24 @@ public class LSystemClusterAlgorithm {
 				}
 			}
 		}
+		joinPolygons();
+	}
+
+	private static void joinPolygons() {
+		for (int i = 0; i < polygons.size() - 1; i++) {
+			if (polygons.get(i).getType() == ClusterConfiguration.CLUSTER_TYPE_TRIANGLE) {
+				for (int j = i + 1; j < polygons.size(); j++) {
+					if (polygons.get(j).getType() == ClusterConfiguration.CLUSTER_TYPE_TRIANGLE) {
+						if(polygons.get(i).sharesDirectionAndSide(polygons.get(j))){
+							polygons.get(i).fusion(polygons.get(j));
+							polygons.remove(j);
+							break;
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 	private static void recursiveRecombination(Map<Integer, List<Integer>> mappedPoints, int currentVertex,
