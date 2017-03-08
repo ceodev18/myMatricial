@@ -24,4 +24,7 @@ public interface ClusterConfiguration {
 	public static int TYPE_OUTER_NODE = 0;
 	public static int TYPE_INNER_NODE = 1;
 	public static int TYPE_NO_NODE = 2;
+	
+	public static int CLUSTER_TYPE_TRIANGLE = 3;
+	public static int CLUSTER_TYPE_RECTANGLE = 4;
 }

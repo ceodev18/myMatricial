@@ -3,9 +3,9 @@ package helpers.clusterVariation;
 import java.util.ArrayList;
 import java.util.List;
 
+import algorithm.clusterVariation.ClusterLotizationAlgorithm;
 import algorithm.clusterVariation.LSystemClusterAlgorithm;
 import interfaces.ClusterConfiguration;
-import interfaces.Constants;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 
@@ -55,7 +55,12 @@ public class ClusterTester {
 
 		//4. We clusterize the points through the count of minimun number of parks
 		LSystemClusterAlgorithm.clusterize();
-		
+		// Finally we create the lots given their points to lotize themss
+		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
+		for (int i = 0; i < LSystemClusterAlgorithm.polygons.size(); i++) {
+			//LSystemClusterAlgorithm.polygons.get(i).print();
+			ClusterLotizationAlgorithm.zonify(LSystemClusterAlgorithm.polygons.get(i));
+		}
 		
 		
 		LSystemClusterAlgorithm.landMap.printMapToFile();

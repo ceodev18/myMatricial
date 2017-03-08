@@ -29,6 +29,7 @@ public interface Constants {
 	public String POLYGON_LIMIT = ".";
 	public String OUTSIDE_POLYGON = " ";
 	public String INSIDE_POLYGON = "l";
+	public String GARDEN_BORDER = "G";
 
 
 }

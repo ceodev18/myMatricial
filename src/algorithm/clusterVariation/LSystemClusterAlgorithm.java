@@ -19,6 +19,7 @@ import models.clusterVariation.ClusterPolygon;
 
 public class LSystemClusterAlgorithm {
 	public static ClusterLandMap landMap;
+	public static List<ClusterPolygon> polygons = new ArrayList<>();
 
 	public static void createRoute(int entryPointId, int direction, int branchType) {
 		ClusterLandPoint currentPoint = landMap.findPoint(entryPointId);
@@ -114,16 +115,10 @@ public class LSystemClusterAlgorithm {
 			current++;
 		}
 		// We define the cluster areas.
-		List<ClusterPolygon> figures = defineFigures();
-
-		// Finally we create the lots given their points to lotize themss
-		ClusterLotizationAlgorithm.landMap = landMap;
-		for (int i = 0; i < figures.size(); i++) {
-			ClusterLotizationAlgorithm.zonify(figures);
-		}
+		defineFigures();
 	}
 
-	private static List<ClusterPolygon> defineFigures() {
+	private static void defineFigures() {
 		MapHelper.orderNodes(landMap.getNodes());
 		Map<Integer, List<Integer>> mappedPoints = new HashMap<>();
 		for (int i = 0; i < landMap.getNodes().size(); i++) {
@@ -211,11 +206,11 @@ public class LSystemClusterAlgorithm {
 		}
 
 		// finally we combine to create rectangles an
-		return recombine(mappedPoints);
+		recombine(mappedPoints);
 	}
 
-	private static List<ClusterPolygon> recombine(Map<Integer, List<Integer>> mappedPoints) {
-		List<ClusterPolygon> polygons = new ArrayList<>();
+	// List<ClusterPolygon>
+	private static void recombine(Map<Integer, List<Integer>> mappedPoints) {
 		Iterator<Entry<Integer, List<Integer>>> it = mappedPoints.entrySet().iterator();
 		while (it.hasNext()) {
 			Map.Entry<Integer, List<Integer>> pair = (Map.Entry<Integer, List<Integer>>) it.next();
@@ -251,7 +246,6 @@ public class LSystemClusterAlgorithm {
 				}
 			}
 		}
-		return polygons;
 	}
 
 	private static void recursiveRecombination(Map<Integer, List<Integer>> mappedPoints, int currentVertex,
@@ -263,6 +257,12 @@ public class LSystemClusterAlgorithm {
 			level += 1;
 
 			if (level == 4) {
+				ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 4);
+				for (int i = 0; i < polygons.size(); i++) {
+					if (polygons.get(i).same(clusterPolygon))
+						return;
+				}
+				polygons.add(clusterPolygon);
 				return;
 			}
 			List<Integer> following = mappedPoints.get(currentVertex);
@@ -273,7 +273,13 @@ public class LSystemClusterAlgorithm {
 						recursiveRecombination(mappedPoints, following.get(0), polygonVertex, level, Constants.NORTH,
 								firstMoveRestriction, secondMoveRestriction);
 					} else {
-						// TODO Save as a triangle (its what it is
+						ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 3);
+						for (int i = 0; i < polygons.size(); i++) {
+							if (polygons.get(i).same(clusterPolygon))
+								return;
+						}
+						polygons.add(clusterPolygon);
+						return;
 					}
 				}
 
@@ -282,7 +288,13 @@ public class LSystemClusterAlgorithm {
 						recursiveRecombination(mappedPoints, following.get(1), polygonVertex, level, Constants.WEST,
 								firstMoveRestriction, secondMoveRestriction);
 					} else {
-						// TODO Save as a triangle (its what it is
+						ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 3);
+						for (int i = 0; i < polygons.size(); i++) {
+							if (polygons.get(i).same(clusterPolygon))
+								return;
+						}
+						polygons.add(clusterPolygon);
+						return;
 					}
 				}
 
@@ -291,7 +303,13 @@ public class LSystemClusterAlgorithm {
 						recursiveRecombination(mappedPoints, following.get(2), polygonVertex, level, Constants.SOUTH,
 								firstMoveRestriction, secondMoveRestriction);
 					} else {
-						// TODO Save as a triangle (its what it is
+						ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 3);
+						for (int i = 0; i < polygons.size(); i++) {
+							if (polygons.get(i).same(clusterPolygon))
+								return;
+						}
+						polygons.add(clusterPolygon);
+						return;
 					}
 				}
 
@@ -300,7 +318,13 @@ public class LSystemClusterAlgorithm {
 						recursiveRecombination(mappedPoints, following.get(3), polygonVertex, level, Constants.EAST,
 								firstMoveRestriction, secondMoveRestriction);
 					} else {
-						// TODO Save as a triangle (its what it is
+						ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 3);
+						for (int i = 0; i < polygons.size(); i++) {
+							if (polygons.get(i).same(clusterPolygon))
+								return;
+						}
+						polygons.add(clusterPolygon);
+						return;
 					}
 				}
 			} else if (level == 2) {
