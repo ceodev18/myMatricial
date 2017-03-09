@@ -86,7 +86,7 @@ public class ClusterLandPoint {
 	}
 
 	public boolean isMapLimit(int direction) {
-		if (type.equals(ClusterConfiguration.OUTSIDE_POLYGON))
+		if (type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 			return true;
 		else
 			return false;

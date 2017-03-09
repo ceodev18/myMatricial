@@ -1,17 +1,12 @@
 package algorithm.clusterVariation;
 
+import java.io.ObjectInputStream.GetField;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import helpers.base.DirectionHelper;
 import helpers.base.MapHelper;
 import helpers.clusterVariation.ClusterDirectionHelper;
 import interfaces.ClusterConfiguration;
-import interfaces.Constants;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 import models.clusterVariation.ClusterLandRoute;
@@ -159,13 +154,17 @@ public class LSystemClusterAlgorithm {
 		}
 
 		int upperParallelId = mainRoute.getInitialPointId();
+		int [] key= MapHelper.breakKey(upperParallelId);
+		key[0] = 1;
+		upperParallelId = MapHelper.formKey(key[0], key[1]);
+		
 		int current = 0;
 		while (true) {
 			if (current % 2 == 0) {
 				// the parallel should be houseLength (as 8 is already used
 				// should be somewhere between 12 and more) and then road
-				int totalMobility = (2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE)
-						+ 11 + (current == 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 26 : 0);
+				int totalMobility = (2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) + 11
+						+ (current == 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 26 : 0);
 				upperParallelId = MapHelper.moveKeyByOffsetAndDirection(upperParallelId, totalMobility,
 						orthogonalDirections.get(0));
 			} else {
@@ -180,11 +179,14 @@ public class LSystemClusterAlgorithm {
 		}
 
 		int lowerParallelId = mainRoute.getInitialPointId();
+		key= MapHelper.breakKey(lowerParallelId);
+		key[0] = 1;
+		lowerParallelId = MapHelper.formKey(key[0], key[1]);
 		current = 0;
 		while (true) {
 			if (current % 2 == 0) {
-				int totalMobility = (2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE)
-						+ 11 + (current == 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 11 : 0);
+				int totalMobility = (2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) + 11
+						+ (current == 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 11 : 0);
 				lowerParallelId = MapHelper.moveKeyByOffsetAndDirection(lowerParallelId, totalMobility,
 						orthogonalDirections.get(1));
 			} else {
@@ -196,264 +198,86 @@ public class LSystemClusterAlgorithm {
 			createTransversalRoute(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
 			current++;
 		}
-		// We define the cluster areas.
-		// defineFigures();
-	}
-
-	private static void defineFigures() {
-		MapHelper.orderNodes(landMap.getNodes());
-		Map<Integer, List<Integer>> mappedPoints = new HashMap<>();
-		for (int i = 0; i < landMap.getNodes().size(); i++) {
-			mappedPoints.put(landMap.getNodes().get(i), new ArrayList<>());
-		}
-
-		// we put every point on the map and find their associated nodes in all
-		// directions
-		for (int i = 0; i < landMap.getNodes().size(); i++) {
-			int pointId = landMap.getNodes().get(i);
-			int[] xy = MapHelper.breakKey(pointId);
-			Iterator<Entry<Integer, List<Integer>>> it = mappedPoints.entrySet().iterator();
-			while (it.hasNext()) {
-				Map.Entry<Integer, List<Integer>> pair = (Map.Entry<Integer, List<Integer>>) it.next();
-				int[] xyC = MapHelper.breakKey(pair.getKey());
-				if (pointId != pair.getKey().intValue() && (xy[0] == xyC[0] || xy[1] == xyC[1])) {
-					mappedPoints.get(pointId).add(pair.getKey());
-				}
-			}
-		}
-
-		// we remove the furthest nodes in every direction so that we have one
-		// closest on every direction
-		Iterator<Entry<Integer, List<Integer>>> it = mappedPoints.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<Integer, List<Integer>> pair = (Map.Entry<Integer, List<Integer>>) it.next();
-			int closeNorth = 0, closeSouth = 0, closeEast = 0, closeWest = 0;
-			for (int i = 0; i < pair.getValue().size(); i++) {
-				int direction = ClusterDirectionHelper.directionFromPointToPoint(landMap.getLandPoint(pair.getKey()),
-						landMap.getLandPoint(pair.getValue().get(i)));
-				switch (direction) {
-				case Constants.SOUTH:
-					if (closeSouth == 0) {
-						closeSouth = pair.getValue().get(i);
-					} else {
-						int[] currentSouth = MapHelper.breakKey(closeSouth);
-						int[] possibleSouth = MapHelper.breakKey(pair.getValue().get(i));
-						if (currentSouth[1] < possibleSouth[1]) {
-							closeSouth = pair.getValue().get(i);
-						}
-					}
-					break;
-				case Constants.WEST:
-					if (closeWest == 0) {
-						closeWest = pair.getValue().get(i);
-					} else {
-						int[] currentWest = MapHelper.breakKey(closeWest);
-						int[] possibleWest = MapHelper.breakKey(pair.getValue().get(i));
-						if (currentWest[0] < possibleWest[0]) {
-							closeWest = pair.getValue().get(i);
-						}
-					}
-					break;
-				case Constants.NORTH:
-					if (closeNorth == 0) {
-						closeNorth = pair.getValue().get(i);
-					} else {
-						int[] currentNorth = MapHelper.breakKey(closeNorth);
-						int[] possibleNorth = MapHelper.breakKey(pair.getValue().get(i));
-						if (currentNorth[1] > possibleNorth[1]) {
-							closeNorth = pair.getValue().get(i);
-						}
-					}
-					break;
-				case Constants.EAST:
-					if (closeEast == 0) {
-						closeEast = pair.getValue().get(i);
-					} else {
-						int[] currentEast = MapHelper.breakKey(closeEast);
-						int[] possibleEast = MapHelper.breakKey(pair.getValue().get(i));
-						if (currentEast[0] > possibleEast[0]) {
-							closeEast = pair.getValue().get(i);
-						}
-					}
-					break;
-				}
-			}
-			// N W S E
-			List<Integer> directions = new ArrayList<>();
-			directions.add(closeNorth);
-			directions.add(closeWest);
-			directions.add(closeSouth);
-			directions.add(closeEast);
-			mappedPoints.put(pair.getKey(), directions);
-		}
-
-		// finally we combine to create rectangles an
-		recombine(mappedPoints);
-	}
-
-	// List<ClusterPolygon>
-	private static void recombine(Map<Integer, List<Integer>> mappedPoints) {
-		Iterator<Entry<Integer, List<Integer>>> it = mappedPoints.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<Integer, List<Integer>> pair = (Map.Entry<Integer, List<Integer>>) it.next();
-			int[] polygonVertex = new int[4];
-			polygonVertex[0] = pair.getKey();
-			int level = 1;
-			for (int i = 0; i < 4; i++) {
-				switch (i) {// N W S E
-				case 0:
-					if (pair.getValue().get(0) != 0) {
-						recursiveRecombination(mappedPoints, pair.getValue().get(0), polygonVertex, level,
-								Constants.NORTH, Constants.NORTH, -1);
-					}
-					break;
-				case 1:
-					if (pair.getValue().get(1) != 0) {
-						recursiveRecombination(mappedPoints, pair.getValue().get(1), polygonVertex, level,
-								Constants.WEST, Constants.WEST, -1);
-					}
-					break;
-				case 2:
-					if (pair.getValue().get(2) != 0) {
-						recursiveRecombination(mappedPoints, pair.getValue().get(2), polygonVertex, level,
-								Constants.SOUTH, Constants.SOUTH, -1);
-					}
-					break;
-				case 3:
-					if (pair.getValue().get(3) != 0) {
-						recursiveRecombination(mappedPoints, pair.getValue().get(3), polygonVertex, level,
-								Constants.EAST, Constants.EAST, -1);
-					}
-					break;
-				}
-			}
-		}
-		joinPolygons();
-	}
-
-	private static void joinPolygons() {
-		for (int i = 0; i < polygons.size() - 1; i++) {
-			if (polygons.get(i).getType() == ClusterConfiguration.CLUSTER_TYPE_TRIANGLE) {
-				for (int j = i + 1; j < polygons.size(); j++) {
-					if (polygons.get(j).getType() == ClusterConfiguration.CLUSTER_TYPE_TRIANGLE) {
-						if (polygons.get(i).sharesDirectionAndSide(polygons.get(j))) {
-							polygons.get(i).fusion(polygons.get(j));
-							polygons.remove(j);
-							break;
-						}
-					}
-				}
-			}
-		}
-
-	}
-
-	private static void recursiveRecombination(Map<Integer, List<Integer>> mappedPoints, int currentVertex,
-			int[] polygonVertex, int level, int direction, int firstMoveRestriction, int secondMoveRestriction) {
-		if (level == 5) {
-			return;
-		} else {
-			polygonVertex[level] = currentVertex;
-			level += 1;
-
-			if (level == 4) {
-				ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 4);
-				for (int i = 0; i < polygons.size(); i++) {
-					if (polygons.get(i).same(clusterPolygon))
-						return;
-				}
-				polygons.add(clusterPolygon);
-				return;
-			}
-			List<Integer> following = mappedPoints.get(currentVertex);
-			if (level == 3) {
-				int dir = ClusterDirectionHelper.oppositeDirection(firstMoveRestriction);
-				if (dir == Constants.NORTH) {
-					if ((following.get(0) != 0)) {
-						recursiveRecombination(mappedPoints, following.get(0), polygonVertex, level, Constants.NORTH,
-								firstMoveRestriction, secondMoveRestriction);
-					} else {
-						ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 3);
-						for (int i = 0; i < polygons.size(); i++) {
-							if (polygons.get(i).same(clusterPolygon))
-								return;
-						}
-						polygons.add(clusterPolygon);
-						return;
-					}
-				}
-
-				if (dir == Constants.WEST) {
-					if (following.get(1) != 0) {
-						recursiveRecombination(mappedPoints, following.get(1), polygonVertex, level, Constants.WEST,
-								firstMoveRestriction, secondMoveRestriction);
-					} else {
-						ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 3);
-						for (int i = 0; i < polygons.size(); i++) {
-							if (polygons.get(i).same(clusterPolygon))
-								return;
-						}
-						polygons.add(clusterPolygon);
-						return;
-					}
-				}
-
-				if (dir == Constants.SOUTH) {
-					if (following.get(2) != 0) {
-						recursiveRecombination(mappedPoints, following.get(2), polygonVertex, level, Constants.SOUTH,
-								firstMoveRestriction, secondMoveRestriction);
-					} else {
-						ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 3);
-						for (int i = 0; i < polygons.size(); i++) {
-							if (polygons.get(i).same(clusterPolygon))
-								return;
-						}
-						polygons.add(clusterPolygon);
-						return;
-					}
-				}
-
-				if (dir == Constants.EAST) {
-					if ((following.get(3) != 0)) {
-						recursiveRecombination(mappedPoints, following.get(3), polygonVertex, level, Constants.EAST,
-								firstMoveRestriction, secondMoveRestriction);
-					} else {
-						ClusterPolygon clusterPolygon = new ClusterPolygon(polygonVertex, 3);
-						for (int i = 0; i < polygons.size(); i++) {
-							if (polygons.get(i).same(clusterPolygon))
-								return;
-						}
-						polygons.add(clusterPolygon);
-						return;
-					}
-				}
-			} else if (level == 2) {
-				List<Integer> directions = DirectionHelper.randomOrthogonalDirection(direction);
-				if ((following.get(0) != 0)
-						&& (directions.get(0) == Constants.NORTH || directions.get(1) == Constants.NORTH)) {
-					recursiveRecombination(mappedPoints, following.get(0), polygonVertex, level, Constants.NORTH,
-							firstMoveRestriction, Constants.NORTH);
-				}
-				if ((following.get(1) != 0)
-						&& (directions.get(0) == Constants.WEST || directions.get(1) == Constants.WEST)) {
-					recursiveRecombination(mappedPoints, following.get(1), polygonVertex, level, Constants.WEST,
-							firstMoveRestriction, Constants.WEST);
-				}
-				if ((following.get(2) != 0)
-						&& (directions.get(0) == Constants.SOUTH || directions.get(1) == Constants.SOUTH)) {
-					recursiveRecombination(mappedPoints, following.get(2), polygonVertex, level, Constants.SOUTH,
-							firstMoveRestriction, Constants.SOUTH);
-				}
-				if ((following.get(3) != 0)
-						&& (directions.get(0) == Constants.EAST || directions.get(1) == Constants.EAST)) {
-					recursiveRecombination(mappedPoints, following.get(3), polygonVertex, level, Constants.EAST,
-							firstMoveRestriction, Constants.EAST);
-				}
-			}
-		}
 	}
 
 	public static void optimizeClusterization() {
-		
+		// For finding the empty "n" on Y from bottom to top
+		for (int x = 0; x < landMap.getPointsx(); x++) {
+			int emptySpaces = 0;
+			boolean successivesN = false;
+			boolean enteredPolygon = false;
+			boolean leavePolygon = false;
+			int y;
+			
+			for (y = 0; y < landMap.getPointsy(); y++) {
+				if (!enteredPolygon && !landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					enteredPolygon = true;
+				} else if (enteredPolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					leavePolygon = true;
+				}
+
+				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.EMPTY_MARK)) {
+					emptySpaces++;
+				}
+
+				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.NODE_MARK)) {
+					if (landMap.getLandPoint(MapHelper.formKey(x, y+1)).getType()
+							.equals(ClusterConfiguration.NODE_MARK)) {
+						successivesN = true;
+					}
+				}
+				
+				if (leavePolygon == true)
+					break;
+			}
+			if (successivesN && emptySpaces > 0) {
+				for (int j = y; j > (y - emptySpaces); j--) {
+					landMap.getLandPoint(MapHelper.formKey(x, j)).setType(ClusterConfiguration.NODE_MARK);
+				}
+			}
+		}
+
+		// For finding the empty "n" on X from left to right
+		for (int y = 0; y < landMap.getPointsy(); y++) {
+			int emptySpaces = 0;
+			boolean successivesN = false;
+			boolean enteredPolygon = false;
+			boolean leavePolygon = false;
+			int x;
+			for (x = 0; x < landMap.getPointsx(); x++) {
+				if (!enteredPolygon && !landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					enteredPolygon = true;
+				} else if (enteredPolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					leavePolygon = true;
+				}
+
+				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.EMPTY_MARK)) {
+					emptySpaces++;
+				}
+
+				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.NODE_MARK)) {
+					if (landMap.getLandPoint(MapHelper.formKey(x + 1, y)).getType()
+							.equals(ClusterConfiguration.NODE_MARK)) {
+						successivesN = true;
+					}
+				}
+
+				if (leavePolygon == true)
+					break;
+			}
+			if (successivesN && emptySpaces > 0) {
+				for (int j = x; j > (x - emptySpaces); j--) {
+					landMap.getLandPoint(MapHelper.formKey(j, y)).setType(ClusterConfiguration.NODE_MARK);
+				}
+			}
+		}
 	}
 }

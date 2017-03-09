@@ -3,7 +3,6 @@ package helpers.clusterVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-import algorithm.clusterVariation.ClusterLotizationAlgorithm;
 import algorithm.clusterVariation.LSystemClusterAlgorithm;
 import interfaces.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
