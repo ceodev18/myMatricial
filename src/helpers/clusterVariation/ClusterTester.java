@@ -43,7 +43,7 @@ public class ClusterTester {
 
 		LSystemClusterAlgorithm.landMap = landMap;
 		for (ClusterLandPoint entryPoint : entryPoints) {
-			int direction = CDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint, landMap.getCentroid());
+			int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint, landMap.getCentroid());
 			if (large > 1000 || width > 1000) {
 				LSystemClusterAlgorithm.createRoute(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
 				break;
@@ -55,7 +55,7 @@ public class ClusterTester {
 
 		//4. We clusterize the points through the count of minimun number of parks
 		LSystemClusterAlgorithm.clusterize();
-		
+		LSystemClusterAlgorithm.optimizeClusterization();
 		// Finally we create the lots given their points to lotize themss
 		//ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
 		

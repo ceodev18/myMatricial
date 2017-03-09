@@ -5,7 +5,7 @@ import java.util.List;
 import interfaces.Constants;
 import models.clusterVariation.ClusterLandPoint;
 
-public class CDirectionHelper {
+public class ClusterDirectionHelper {
 	public static List<Integer> orthogonalDirections(final int direction) {
 		List<Integer> directions = new ArrayList<>();
 		switch (direction) {

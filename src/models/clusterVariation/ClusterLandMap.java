@@ -179,7 +179,7 @@ public class ClusterLandMap {
 			for (int j = 0; j < pointsy; j++) {
 				ClusterLandPoint clusterLandPoint = this.getLandPoint(MapHelper.formKey(i, j));
 				if (clusterLandPoint.getType().equals(ClusterConfiguration.POLYGON_BORDER)) {
-					clusterLandPoint.setType(ClusterConfiguration.EMPTY);
+					clusterLandPoint.setType(ClusterConfiguration.EMPTY_MARK);
 				}
 			}
 		}
@@ -299,5 +299,17 @@ public class ClusterLandMap {
 
 	public void setNodes(List<Integer> nodes) {
 		this.nodes = nodes;
+	}
+
+	public boolean intersectMainRoute(int entryPointId) {
+		int initialPoint = landRoutes.get(0).getInitialPointId();
+		int finalPoint = landRoutes.get(0).getFinalPointId();
+
+		int[] initialXY = MapHelper.breakKey(initialPoint);
+		int[] finalXY = MapHelper.breakKey(finalPoint);
+		int[] entryXY = MapHelper.breakKey(entryPointId);
+
+		return (initialXY[0] < entryXY[0] && entryXY[0] < finalXY[0])
+				|| ((initialXY[1] < entryXY[1] && entryXY[1] < finalXY[1]));
 	}
 }

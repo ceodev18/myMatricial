@@ -53,7 +53,7 @@ public class ClusterLotizationAlgorithm {
 		}
 		for (int i = x; i < x + ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {//Only for south
 			for (int j = y; j > y - ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; j--) {
-				if(!landMap.findPoint(MapHelper.formKey(i, j)).getType().equals(ClusterConfiguration.EMPTY)){
+				if(!landMap.findPoint(MapHelper.formKey(i, j)).getType().equals(ClusterConfiguration.EMPTY_MARK)){
 					return false;
 				}
 			}

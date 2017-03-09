@@ -18,7 +18,7 @@ public interface ClusterConfiguration {
 	public static int WALK_BRANCH = 4;
 	public static int NODE = 3;
 
-	public static String EMPTY = "l";
+	public static String EMPTY_MARK = "l";
 	public static String OUTSIDE_POLYGON = " ";
 	public static String POLYGON_BORDER = ".";
 
