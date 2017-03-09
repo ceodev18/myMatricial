@@ -65,7 +65,7 @@ public class LSystemClusterAlgorithm {
 		ClusterLandRoute clusterLandRoute = new ClusterLandRoute();
 		clusterLandRoute.setDirection(direction);
 		clusterLandRoute.setInitialPointId(entryPointId);
-
+		
 		int extension = 0;
 		while (currentPoint.isMapLimit(direction)) {
 			int nextPointId = currentPoint.findNeighbour(direction);
