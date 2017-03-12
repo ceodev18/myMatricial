@@ -27,6 +27,7 @@ public class ClusterLandMap {
 
 	private List<ClusterLandRoute> landRoutes = new ArrayList<>();
 	private List<Integer> nodes = new ArrayList<>();
+	private List<Integer> finalPolygon;
 
 	public ClusterLandMap(int pointsx, int pointsy) {
 		this.setPointsx(pointsx);
@@ -95,8 +96,10 @@ public class ClusterLandMap {
 	 * all the input from android looks like that.
 	 */
 	public void createBorderFromPolygon(List<ClusterLandPoint> polygon) {
+		List<List<Integer>> fullPolygon = new ArrayList<>();
 		// first we create the border
 		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
+			List<Integer> truePolygon = new ArrayList<>();
 			int underscore = (polygon.get(j).getX() - polygon.get(i).getX());
 			// there are three gradient cases.
 			// 1st UNDEFINED = (get(j).getX()-get(i).getX()); straight Y axis
@@ -105,8 +108,10 @@ public class ClusterLandMap {
 						: polygon.get(j).getY();
 				int upper = polygon.get(i).getY() > polygon.get(j).getY() ? polygon.get(i).getY()
 						: polygon.get(j).getY();
-				for (int w = lower; w < upper; w++) {
+
+				for (int w = lower; w <= upper; w++) {
 					getLandPoint(MapHelper.formKey(polygon.get(i).getX(), w)).setType(Constants.POLYGON_LIMIT);
+					truePolygon.add(MapHelper.formKey(polygon.get(i).getX(), w));
 				}
 				continue;
 			}
@@ -116,8 +121,9 @@ public class ClusterLandMap {
 			int lower = polygon.get(i).getX() < polygon.get(j).getX() ? polygon.get(i).getX() : polygon.get(j).getX();
 			int upper = polygon.get(i).getX() > polygon.get(j).getX() ? polygon.get(i).getX() : polygon.get(j).getX();
 			if (gradient == 0) {
-				for (int w = lower; w < upper; w++) {
+				for (int w = lower; w <= upper; w++) {
 					getLandPoint(MapHelper.formKey(w, polygon.get(i).getY())).setType(Constants.POLYGON_LIMIT);
+					truePolygon.add(MapHelper.formKey(w, polygon.get(i).getY()));
 				}
 				continue;
 			}
@@ -129,9 +135,42 @@ public class ClusterLandMap {
 				if (y == (int) y) // quick and dirty convertion check
 				{
 					getLandPoint(MapHelper.formKey(w, (int) y)).setType(Constants.POLYGON_LIMIT);
+					truePolygon.add(MapHelper.formKey(w, (int) y));
 				}
 			}
+			fullPolygon.add(truePolygon);
 		}
+
+		// true chained polygon
+		finalPolygon = new ArrayList<>();
+		for (int i = 0; i < fullPolygon.get(0).size(); i++) {
+			finalPolygon.add(fullPolygon.get(0).get(i));
+		}
+		fullPolygon.remove(0);
+
+		int i = 0;
+		while (fullPolygon.size() > 0) {
+			// normal case
+			if (fullPolygon.get(i).get(0).intValue() == finalPolygon.get(finalPolygon.size() - 1).intValue()) {
+				for (int j = 0; j < fullPolygon.get(i).size(); j++) {
+					finalPolygon.add(fullPolygon.get(i).get(j));
+				}
+				fullPolygon.remove(i);
+				i = 0;
+				continue;
+			}
+			// inverted case
+			if (fullPolygon.get(i).get(fullPolygon.get(i).size() - 1).intValue() == finalPolygon
+					.get(finalPolygon.size() - 1).intValue()) {
+				for (int j = fullPolygon.get(i).size() - 1; j > -1; j--) {
+					finalPolygon.add(fullPolygon.get(i).get(j));
+				}
+				fullPolygon.remove(i);
+				i = -1;
+			}
+			i++;
+		}
+
 		// we fill everything outside of it with Xs
 		for (int x = 0; x < pointsx; x++) {
 			int count = 0;
@@ -297,6 +336,10 @@ public class ClusterLandMap {
 		return nodes;
 	}
 
+	public List<Integer> getFinalPolygon() {
+		return finalPolygon;
+	}
+
 	public void setNodes(List<Integer> nodes) {
 		this.nodes = nodes;
 	}
@@ -311,5 +354,51 @@ public class ClusterLandMap {
 
 		return (initialXY[0] < entryXY[0] && entryXY[0] < finalXY[0])
 				|| ((initialXY[1] < entryXY[1] && entryXY[1] < finalXY[1]));
+	}
+
+	public boolean isNode(int x, int y) {
+		// up,down,left,right
+		if (!findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			return false;
+		}
+
+		int node = 0;
+		boolean[] nodeInBorder = new boolean[] { false, false, false, false };
+		int outside = 0;
+
+		if (findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			node++;
+			nodeInBorder[0] = true;
+		}
+		if (findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			node++;
+			nodeInBorder[1] = true;
+		}
+		if (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			node++;
+			nodeInBorder[3] = true;
+		}
+		if (findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			node++;
+			nodeInBorder[4] = true;
+		}
+
+		if (findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			outside++;
+		if (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			outside++;
+		if (findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			outside++;
+		if (findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			outside++;
+
+		if (node == 2 && (!(nodeInBorder[0] && nodeInBorder[1]) || !(nodeInBorder[2] && nodeInBorder[3]))) {
+			return false;
+		}
+
+		if (node + outside > 1) {
+			return true;
+		}
+		return false;
 	}
 }

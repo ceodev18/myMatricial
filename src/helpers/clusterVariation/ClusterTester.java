@@ -3,6 +3,7 @@ package helpers.clusterVariation;
 import java.util.ArrayList;
 import java.util.List;
 
+import algorithm.clusterVariation.ClusterLotizationAlgorithm;
 import algorithm.clusterVariation.LSystemClusterAlgorithm;
 import interfaces.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
@@ -31,7 +32,10 @@ public class ClusterTester {
 
 		// 2. we create the border from the polygon
 		landMap.createBorderFromPolygon(polygon);
-
+		/*for(int i=0; i< landMap.getFinalPolygon().size();i++){
+			System.out.println(landMap.getFinalPolygon().get(i));
+		}*/
+		 
 		// 3, We create the entry points for the main routes
 		// Entry points = [327,981][1710,742]
 		List<ClusterLandPoint> entryPoints = new ArrayList<>();
@@ -55,15 +59,13 @@ public class ClusterTester {
 		//4. We clusterize the points through the count of minimun number of parks
 		LSystemClusterAlgorithm.clusterize();
 		LSystemClusterAlgorithm.optimizeClusterization();
-		// Finally we create the lots given their points to lotize themss
-		//ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
-		
-		/*for (int i = 0; i < LSystemClusterAlgorithm.polygons.size(); i++) {
-			LSystemClusterAlgorithm.polygons.get(i).print();
-			ClusterLotizationAlgorithm.zonify(LSystemClusterAlgorithm.polygons.get(i));
-		}*/
-		
 		
 		LSystemClusterAlgorithm.landMap.printMapToFile();
+		
+		// Finally we create the lots given their points to lotize themss
+		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
+		ClusterLotizationAlgorithm.zonify();
+			
+
 	}
 }

@@ -1,7 +1,5 @@
 package algorithm.clusterVariation;
 
-import java.util.List;
-
 import helpers.base.MapHelper;
 import interfaces.ClusterConfiguration;
 import interfaces.Constants;
@@ -12,117 +10,113 @@ public class ClusterLotizationAlgorithm {
 
 	public static ClusterLandMap landMap;
 
-	public static void zonify(ClusterPolygon figure) {
-		if (figure.getType() == ClusterConfiguration.CLUSTER_TYPE_TRIANGLE) {
-			fillTriangle(figure);
-		} else if (figure.getType() == ClusterConfiguration.CLUSTER_TYPE_RECTANGLE) {
-			archetypeCluster(figure);
-		}
+	public static void zonify() {
+		// findZonificationAreas();
+		organicZonification();
+
 	}
 
-	private static void archetypeCluster(ClusterPolygon figure) {
-		List<Integer> limits = figure.getVertices();
-		int markNumber = 0;
-		// we do first the upper part likely to be close to the main street
-		for (int i = MapHelper.breakKey(limits.get(0))[0]; i < MapHelper.breakKey(limits.get(1))[0]; 
-				markNumber += 2, i += ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE) {
-			createHouseIfPossible(i, MapHelper.breakKey(limits.get(0))[1], Constants.SOUTH, markNumber % 3);// upper
-		}
-	}
+	private static void organicZonification() {
+		// Organic zonification: This zonification searchs the figure and
+		// reduces it in a reason configured by the user. if it can be done, it
+		// becomes a new cluster. If not, it becomes simply defaults into a
+		// perfect zonification
 
-	private static void createHouseIfPossible(int xInitialCoordinate, int yInitialCoordinate, int direction,
-			int numberMark) {
-		if (possibleHouse(xInitialCoordinate, yInitialCoordinate, direction)) {
-			for (int i = xInitialCoordinate; i < xInitialCoordinate
-					+ ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
-				for (int j = yInitialCoordinate; j > yInitialCoordinate
-						- ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; j--) {
-					landMap.findPoint(MapHelper.formKey(i, j)).setType(""+numberMark);
+		// we should save the Ns used
+		for (int y = 0; y < landMap.getPointsy(); y++) {
+			for (int x = 0; x < landMap.getPointsx(); x++) {
+				if (landMap.isNode(x,y) && landMap.findPoint(MapHelper.formKey((x + 1), y)).getType()
+								.equals(ClusterConfiguration.NODE_MARK)) {
+					ClusterPolygon clusterPolygon = new ClusterPolygon();
+					System.out.println("x:"+x +" y:"+y);
+					System.out.println("Inside");
+					int nextPoint = createOrganicCoverture(MapHelper.formKey(x, y), Constants.EAST, clusterPolygon);
+					if (nextPoint != -1) {
+							x = nextPoint - 1;// this is the next point where we
+							// should find what we want
+					}
+					clusterPolygon.printPolygon();
+					return;// just for testing my hypothesis
 				}
-
+				
+				if (landMap.isNode(x,y) && landMap.findPoint(MapHelper.formKey(x, y+1)).getType()
+						.equals(ClusterConfiguration.NODE_MARK)) {
+					ClusterPolygon clusterPolygon = new ClusterPolygon();
+					System.out.println("x:"+x +" y:"+y);
+					System.out.println("Inside");
+					createOrganicCoverture(MapHelper.formKey(x, y), Constants.NORTH, clusterPolygon);
+					clusterPolygon.printPolygon();
+					return;// just for testing my hypothesis
+				}
 			}
 		}
+		// perfectZonification();
 	}
 
-	private static boolean possibleHouse(int x, int y, int direction) {
-		//TODO include directions on analisis
-		if(((x + ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE) >= landMap.getPointsx()) 
-				|| ((y - ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) < 0)){
-			return false;
+	private static int createOrganicCoverture(int initialKey, int direction, ClusterPolygon clusterPolygon) {
+		clusterPolygon.getPoints().add(initialKey);
+		boolean borderFound = false;
+		while (!borderFound) {
+			initialKey = MapHelper.moveKeyByOffsetAndDirection(initialKey, 1, direction);
+			int[] firstNode = MapHelper.breakKey(initialKey);
+			switch (direction) {
+			case Constants.EAST:
+				// east, north, west, south
+				if (landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1] + 1)).getType()
+						.equals(ClusterConfiguration.NODE_MARK)) {
+					createOrganicCoverture(initialKey, Constants.NORTH, clusterPolygon);
+					borderFound = true;
+				}
+				break;
+			case Constants.NORTH:
+				if (landMap.findPoint(MapHelper.formKey(firstNode[0] - 1, firstNode[1])).getType()
+						.equals(ClusterConfiguration.NODE_MARK)) {
+					createOrganicCoverture(initialKey, Constants.WEST, clusterPolygon);
+					borderFound = true;
+				}
+				break;
+			case Constants.WEST:
+				if (landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1] - 1)).getType()
+						.equals(ClusterConfiguration.NODE_MARK)) {
+					createOrganicCoverture(initialKey, Constants.SOUTH, clusterPolygon);
+					borderFound = true;
+				}
+				break;
+			case Constants.SOUTH:
+				if (landMap.findPoint(MapHelper.formKey(firstNode[0] + 1, firstNode[1])).getType()
+						.equals(ClusterConfiguration.NODE_MARK)) {
+					borderFound = true;
+					clusterPolygon.getPoints().add(initialKey);
+					clusterPolygon.setComplete(true);
+				}
+				break;
+			}
 			
-		}
-		for (int i = x; i < x + ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {//Only for south
-			for (int j = y; j > y - ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; j--) {
-				if(!landMap.findPoint(MapHelper.formKey(i, j)).getType().equals(ClusterConfiguration.EMPTY_MARK)){
-					return false;
+			System.out.println("x:"+ firstNode[0] +" y:"+ firstNode[1] + " type: "+ landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType());
+			if(landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType()
+						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)){
+				switch(direction){
+				case Constants.EAST:
+					clusterPolygon.getPoints().add(MapHelper.formKey(firstNode[0]-1, firstNode[1]));					
+					break;
+				case Constants.NORTH:
+					clusterPolygon.getPoints().add(MapHelper.formKey(firstNode[0], firstNode[1]-1));
+					break;
 				}
+				//TODO for the case of this 2 figures there are fixed answers
+				//GOING from the initial point upwards
+				//if up. Just going till finding a border will be enough (Inverse createOrganicCoverture
+				//that is the case for both cases.
+				return -1;
 			}
 		}
-		return true;
+		return initialKey;
 	}
-
-	private static void fillTriangle(ClusterPolygon figure) {
-		for (int i = 0; i < figure.getVertices().size(); i++) {
-			createBorder(figure.getVertices().get(i),
-					figure.getVertices().get((i + 1) % (figure.getVertices().size())));
-		}
-		alotTriangle(figure);
-
-	}
-
-	private static void alotTriangle(ClusterPolygon figure) {
-		int[] limits = figure.getSquareLimits();
-		for (int i = limits[0]; i < limits[1]; i++) {// limits of X
-			int borderLimit = 0;
-			for (borderLimit = limits[2]; borderLimit < limits[3]; borderLimit++) {// limits
-																					// of
-																					// Y
-				if (landMap.getLandPoint(MapHelper.formKey(i, borderLimit)).getType().equals(Constants.GARDEN_LOT))
-					break;
-			}
-
-			borderLimit++;
-			for (int j = borderLimit; j < limits[3]; j++) {
-				if (landMap.getLandPoint(MapHelper.formKey(i, j)).getType().equals(Constants.INSIDE_POLYGON)) {
-					landMap.getLandPoint(MapHelper.formKey(i, j)).setType(Constants.GARDEN_LOT);
-				} else
-					break;
-			}
-		}
-	}
-
-	private static void createBorder(Integer initialPoint, Integer finalPoint) {
-		int[] finalXY = MapHelper.breakKey(finalPoint);
-		int[] initialXY = MapHelper.breakKey(initialPoint);
-		int underscore = finalXY[0] - initialXY[0];
-
-		if (underscore == 0) {
-			int lower = initialXY[1] < finalXY[1] ? initialXY[1] : finalXY[1];
-			int upper = initialXY[1] > finalXY[1] ? initialXY[1] : finalXY[1];
-			for (int w = lower; w < upper; w++) {
-				landMap.getLandPoint(MapHelper.formKey(initialXY[0], w)).setType(Constants.GARDEN_LOT);
-			}
-		}
-
-		double gradient = (finalXY[1] - initialXY[1]) * 1.0 / underscore;
-
-		int lower = initialXY[0] < finalXY[0] ? initialXY[0] : finalXY[0];
-		int upper = initialXY[0] > finalXY[0] ? initialXY[0] : finalXY[0];
-		if (gradient == 0) {
-			for (int w = lower; w < upper; w++) {
-				landMap.getLandPoint(MapHelper.formKey(w, initialXY[1])).setType(Constants.GARDEN_LOT);
-			}
-		}
-
-		double b = finalXY[1] - gradient * finalXY[0];
-		// 3nd the gradient is positive/negative.
-		for (int w = lower; w <= upper; w++) {
-			float y = MapHelper.round(gradient * w + b);
-			if (y == (int) y) // quick and dirty convertion check
-			{
-				landMap.getLandPoint(MapHelper.formKey(w, (int) y)).setType(Constants.GARDEN_LOT);
-			}
-		}
-	}
-
 }
+
+// private static void perfectZonification() {
+// TODO this method is only used on figures where the park couldnt be
+// big enough.
+// it is the default zonification done by the architects. View page of
+// the default zonification
+// }

@@ -11,6 +11,7 @@ import models.clusterVariation.ClusterLandPoint;
 import models.clusterVariation.ClusterLandRoute;
 import models.clusterVariation.ClusterPolygon;
 
+//16n2
 public class LSystemClusterAlgorithm {
 	public static ClusterLandMap landMap;
 	public static List<ClusterPolygon> polygons = new ArrayList<>();
@@ -69,7 +70,20 @@ public class LSystemClusterAlgorithm {
 		while (currentPoint.isMapLimit(direction)) {
 			int nextPointId = currentPoint.findNeighbour(direction);
 			currentPoint = landMap.findPoint(nextPointId);
-			extension++;
+		}
+
+		ClusterLandPoint testPoint = currentPoint;
+		// test if the route crosses a collector if it does not it should not
+		// create anything
+		while (!testPoint.isMapLimit(direction)) {
+			if (testPoint.getType().equals(ClusterConfiguration.COLLECTOR_MARK)) {
+				break;
+			}
+			int nextPointId = testPoint.findNeighbour(direction);
+			testPoint = landMap.findPoint(nextPointId);
+		}
+		if (testPoint.isMapLimit(direction)) {
+			return;
 		}
 
 		List<Integer> orthogonalDirections = ClusterDirectionHelper.orthogonalDirections(direction);
@@ -134,6 +148,7 @@ public class LSystemClusterAlgorithm {
 		}
 	}
 
+	// Time: 3N2
 	public static void clusterize() {
 		// 1. we need to now the main route size
 		ClusterLandRoute mainRoute = landMap.getLandRoutes().get(0);
@@ -199,6 +214,7 @@ public class LSystemClusterAlgorithm {
 		}
 	}
 
+	// Time: 2N2
 	public static void optimizeClusterization() {
 		// For finding the empty "n" on Y from bottom to top
 		for (int x = 0; x < landMap.getPointsx(); x++) {
@@ -250,7 +266,7 @@ public class LSystemClusterAlgorithm {
 
 				// lower side only it retries until the case is done
 				if (successivesN && (emptySpaces > 0) && lower) {
-					for (int j = y; j > (y - (emptySpaces+1)); j--) {
+					for (int j = y; j > (y - (emptySpaces + 1)); j--) {
 						landMap.getLandPoint(MapHelper.formKey(x, j)).setType(ClusterConfiguration.NODE_MARK);
 					}
 					successivesN = false;
@@ -324,7 +340,7 @@ public class LSystemClusterAlgorithm {
 
 				// lower side only it retries until the case is done
 				if (successivesN && (emptySpaces > 0) && left) {
-					for (int j = x; j > (x - (emptySpaces+1)); j--) {
+					for (int j = x; j > (x - (emptySpaces + 1)); j--) {
 						landMap.getLandPoint(MapHelper.formKey(j, y)).setType(ClusterConfiguration.NODE_MARK);
 					}
 					successivesN = false;
