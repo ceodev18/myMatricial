@@ -71,6 +71,6 @@ public class ClusterTester {
 		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
 		ClusterLotizationAlgorithm.zonify();
 			
-		LSystemClusterAlgorithm.landMap.printMapToFile();
+		ClusterLotizationAlgorithm.landMap.printMapToFile();
 	}
 }

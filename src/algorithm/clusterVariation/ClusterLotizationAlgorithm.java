@@ -1,5 +1,7 @@
 package algorithm.clusterVariation;
 
+import java.util.List;
+
 import helpers.base.MapHelper;
 import interfaces.ClusterConfiguration;
 import interfaces.Constants;
@@ -48,15 +50,28 @@ public class ClusterLotizationAlgorithm {
 						landMap.joinWithPolygonalBorder(clusterPolygon);
 					}
 					clusterPolygon.printPolygon();
-
+					
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
-					for(int j=0;j<15+15+10;j++){
-						clusterPolygon.shrink();						
-						for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
-							landMap.findPoint(clusterPolygon.getPoints().get(i)).setType("e");
-						}
+
+					List<Integer> points = clusterPolygon.shrinkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
+							ClusterConfiguration.COLLECTOR_BRANCH_SIZE);
+					List<Integer> grass = clusterPolygon.parkZone(
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE);
+
+					for (int j = 0; j < points.size(); j++) {
+						landMap.findPoint(points.get(j)).setType(ClusterConfiguration.LOCAL_MARK);
 					}
+
+					for (int j = 0; j < grass.size(); j++) {
+						landMap.findPoint(grass.get(j)).setType(ClusterConfiguration.PARK_MARK);
+					}
+					
+					if(points.size()==0 && grass.size()==0){
+						//TODO lotize as full focus (library or other).
+					}
+					
 				}
+				
 
 				if (landMap.isNode(x, y)
 						&& landMap.findPoint(MapHelper.formKey(x, y + 1)).getType()
@@ -69,12 +84,22 @@ public class ClusterLotizationAlgorithm {
 					createOrganicCoverture(MapHelper.formKey(x, y), Constants.NORTH, clusterPolygon);
 					clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
-					for(int j=0;j<15+15+10;j++){
-						clusterPolygon.shrink();						
-						for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
-							landMap.findPoint(clusterPolygon.getPoints().get(i)).setType("e");
-						}
+
+					List<Integer> points = clusterPolygon.shrinkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
+							ClusterConfiguration.COLLECTOR_BRANCH_SIZE);
+					List<Integer> grass = clusterPolygon.parkZone(
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE);
+
+					for (int j = 0; j < points.size(); j++) {
+						landMap.findPoint(points.get(j)).setType(ClusterConfiguration.LOCAL_MARK);
 					}
+
+					for (int j = 0; j < grass.size(); j++) {
+						landMap.findPoint(grass.get(j)).setType(ClusterConfiguration.PARK_MARK);
+					}
+					
+					
+
 				}
 			}
 		}

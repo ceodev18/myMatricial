@@ -14,7 +14,7 @@ public class ClusterPolygon {
 	public ClusterPolygon() {
 		points = new ArrayList<>();
 	}
-	
+
 	public int[] getCentroid() {
 		return centroid;
 	}
@@ -37,7 +37,7 @@ public class ClusterPolygon {
 
 	public void setComplete(boolean complete) {
 		this.complete = complete;
-		if(complete){
+		if (complete) {
 			findCentroid();
 		}
 	}
@@ -46,22 +46,24 @@ public class ClusterPolygon {
 		return complete;
 	}
 
-	public void shrink() {
+	public List<Integer> shrink(int size) {
+		List<Integer> shrinkedList = new ArrayList<>();
 		for (int i = 0; i < points.size(); i++) {
 			int[] xy = MapHelper.breakKey(points.get(i));
 
-			if (centroid[0] - xy[0] > 0)
-				xy[0]++;
+			if (centroid[0] > xy[0])
+				xy[0] = xy[0] + size > centroid[0] ? centroid[0] : xy[0] + size;
 			else
-				xy[0]--;
+				xy[0] = xy[0] - size < centroid[0] ? centroid[0] : xy[0] - size;
 
-			if (centroid[1] - xy[1] > 0)
-				xy[1]++;
+			if (centroid[1] > xy[1])
+				xy[1] = xy[1] + size > centroid[1] ? centroid[1] : xy[1] + size;
 			else
-				xy[1]--;
+				xy[1] = xy[1] - size < centroid[1] ? centroid[1] : xy[1] - size;
 
-			points.set(i, MapHelper.formKey(xy[0], xy[1]));
+			shrinkedList.add(i, MapHelper.formKey(xy[0], xy[1]));
 		}
+		return shrinkedList;
 	}
 
 	public int[] findCentroid() {
@@ -106,15 +108,53 @@ public class ClusterPolygon {
 
 		if (isComplete()) {
 			System.out.println("Polygon is complete");
-			for(int i = 0; i<points.size();i++){
-				System.out.print(i+"="+points.get(i)+", ");
+			for (int i = 0; i < points.size(); i++) {
+				System.out.print(i + "=" + points.get(i) + ", ");
 			}
-		} else {			
+		} else {
 			System.out.println("Polygon is not complete");
-			for(int i = 0; i<points.size();i++){
-				System.out.print(i+"="+points.get(i)+", ");
+			for (int i = 0; i < points.size(); i++) {
+				System.out.print(i + "=" + points.get(i) + ", ");
 			}
 		}
 		System.out.println();
+	}
+
+	public List<Integer> shrinkZone(int initialShrink, int size) {
+		List<Integer> area = new ArrayList<>();
+		area.addAll(shrink(initialShrink));
+		int xy[] = MapHelper.breakKey(area.get(0));
+		int distance = (int) Math.sqrt(Math.pow(xy[0] - centroid[0], 2) + Math.pow(xy[1] - centroid[1], 2));
+
+		if (distance > initialShrink + size) {
+			for (int i = initialShrink + 1; i < initialShrink + size; i++)
+				area.addAll(shrink(i));
+		} else {
+			area = new ArrayList<>();
+		}
+
+		return area;
+	}
+
+	public List<Integer> parkZone(int initialDepth) {
+		List<Integer> area = new ArrayList<>();
+		area.addAll(shrink(initialDepth));
+		int minorDistance = 9999;
+		for (int i = 0; i < area.size(); i++) {
+			int xy[] = MapHelper.breakKey(area.get(i));
+			int distance = (int) Math.sqrt(Math.pow(xy[0] - centroid[0], 2) + Math.pow(xy[1] - centroid[1], 2));
+			if (distance < minorDistance) {
+				minorDistance = distance;
+			}
+		}
+
+		if (minorDistance > 0) {
+			for (int i = initialDepth + 1; i < initialDepth + minorDistance; i++) {
+				area.addAll(shrink(i));
+			}
+		} else {
+			area = new ArrayList<>();
+		}
+		return area;
 	}
 }
