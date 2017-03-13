@@ -53,26 +53,24 @@ public class ClusterLotizationAlgorithm {
 					
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 
-					List<Integer> points = clusterPolygon.shrinkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
-							ClusterConfiguration.COLLECTOR_BRANCH_SIZE);
-					List<Integer> grass = clusterPolygon.parkZone(
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE);
-
-					for (int j = 0; j < points.size(); j++) {
-						landMap.findPoint(points.get(j)).setType(ClusterConfiguration.LOCAL_MARK);
-					}
+					List<List<Integer>> points = clusterPolygon.shrinkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2,
+							ClusterConfiguration.LOCAL_BRANCH_SIZE);
+					List<List<Integer>> grass = clusterPolygon.parkZone(
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2-1 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
 
 					for (int j = 0; j < grass.size(); j++) {
-						landMap.findPoint(grass.get(j)).setType(ClusterConfiguration.PARK_MARK);
+						landMap.createBorderFromPolygon(grass.get(j),ClusterConfiguration.PARK_MARK);
 					}
 					
+					for (int j = 0; j < points.size(); j++) {
+						landMap.createBorderFromPolygon(points.get(j),ClusterConfiguration.LOCAL_MARK);
+					}
+
 					if(points.size()==0 && grass.size()==0){
 						//TODO lotize as full focus (library or other).
 					}
-					
 				}
 				
-
 				if (landMap.isNode(x, y)
 						&& landMap.findPoint(MapHelper.formKey(x, y + 1)).getType()
 								.equals(ClusterConfiguration.NODE_MARK)
@@ -85,21 +83,22 @@ public class ClusterLotizationAlgorithm {
 					clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 
-					List<Integer> points = clusterPolygon.shrinkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
-							ClusterConfiguration.COLLECTOR_BRANCH_SIZE);
-					List<Integer> grass = clusterPolygon.parkZone(
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE);
-
-					for (int j = 0; j < points.size(); j++) {
-						landMap.findPoint(points.get(j)).setType(ClusterConfiguration.LOCAL_MARK);
-					}
+					List<List<Integer>> points = clusterPolygon.shrinkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2,
+							ClusterConfiguration.LOCAL_BRANCH_SIZE);
+					List<List<Integer>> grass = clusterPolygon.parkZone(
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2 + ClusterConfiguration.LOCAL_BRANCH_SIZE-1);
 
 					for (int j = 0; j < grass.size(); j++) {
-						landMap.findPoint(grass.get(j)).setType(ClusterConfiguration.PARK_MARK);
+						landMap.createBorderFromPolygon(grass.get(j),ClusterConfiguration.PARK_MARK);
 					}
 					
+					for (int j = 0; j < points.size(); j++) {
+						landMap.createBorderFromPolygon(points.get(j),ClusterConfiguration.LOCAL_MARK);
+					}
 					
-
+					if(points.size()==0 && grass.size()==0){
+						//TODO lotize as full focus (library or other).
+					}
 				}
 			}
 		}

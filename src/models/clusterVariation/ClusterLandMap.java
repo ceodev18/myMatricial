@@ -215,6 +215,46 @@ public class ClusterLandMap {
 		clearDottedLimits();
 	}
 
+	//Variation for the creation of zones
+	public void createBorderFromPolygon(List<Integer> polygon, String markType) {
+		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
+			int xyInitial[]= MapHelper.breakKey(polygon.get(i));
+			int xyFinal[]= MapHelper.breakKey(polygon.get(j));
+			
+			int underscore = (xyFinal[0] - xyInitial[0]);
+			if (underscore == 0) {
+				int lower = xyInitial[1] < xyFinal[1] ? xyInitial[1] : xyFinal[1];
+				int upper = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
+
+				for (int w = lower; w <= upper; w++) {
+					getLandPoint(MapHelper.formKey(xyInitial[0], w)).setType(markType);
+				}
+				continue;
+			}
+
+			double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
+			// 2nd, gradient=0; straight in the X axis
+			int lower = xyInitial[0] < xyFinal[0] ? xyInitial[0] : xyFinal[0];
+			int upper = xyInitial[0] > xyFinal[0] ? xyInitial[0] : xyFinal[0];
+			if (gradient == 0) {
+				for (int w = lower; w <= upper; w++) {
+					getLandPoint(MapHelper.formKey(w, xyInitial[1])).setType(markType);
+				}
+				continue;
+			}
+
+			double b = xyFinal[1] - gradient * xyFinal[0];
+			// 3nd the gradient is positive/negative.
+			for (int w = lower; w <= upper; w++) {
+				float y = MapHelper.round(gradient * w + b);
+				if (y == (int) y) // quick and dirty convertion check
+				{
+					getLandPoint(MapHelper.formKey(w, (int) y)).setType(markType);
+				}
+			}
+		}
+	}
+
 	private void clearDottedLimits() {
 		for (int i = 0; i < pointsx; i++) {
 			for (int j = 0; j < pointsy; j++) {
@@ -441,12 +481,13 @@ public class ClusterLandMap {
 			}
 		}
 
-		System.out.println("initial and final point: " + initialPoint + ", "+finalPoint + ". Tam poligono: " + polygonFull.size());
+		System.out.println("initial and final point: " + initialPoint + ", " + finalPoint + ". Tam poligono: "
+				+ polygonFull.size());
 
 		if ((initialPoint != polygonFull.size()) && (finalPoint != polygonFull.size())) {
 			if (initialPoint < finalPoint) {
 				for (int i = initialPoint + 1; i < finalPoint; i++) {
-					for (int j = 0; j < polygonNodes.size()-1; j++) {
+					for (int j = 0; j < polygonNodes.size() - 1; j++) {
 						if (polygonFull.get(i).intValue() == polygonNodes.get(j).getId()) {
 							clusterPolygon.getPoints().add(polygonFull.get(i));
 							System.out.println("new node: " + polygonFull.get(i));
@@ -454,8 +495,8 @@ public class ClusterLandMap {
 					}
 				}
 			} else {
-				for (int i = finalPoint+1; i < initialPoint; i++) {
-					for (int j = 0; j < polygonNodes.size()+1; j++) {
+				for (int i = finalPoint + 1; i < initialPoint; i++) {
+					for (int j = 0; j < polygonNodes.size() + 1; j++) {
 						if (polygonFull.get(i).intValue() == polygonNodes.get(j).getId()) {
 							clusterPolygon.getPoints().add(polygonFull.get(i));
 							System.out.println("new node: " + polygonFull.get(i));

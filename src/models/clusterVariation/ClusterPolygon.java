@@ -120,25 +120,28 @@ public class ClusterPolygon {
 		System.out.println();
 	}
 
-	public List<Integer> shrinkZone(int initialShrink, int size) {
-		List<Integer> area = new ArrayList<>();
-		area.addAll(shrink(initialShrink));
+	public List<List<Integer>> shrinkZone(int initialShrink, int size) {
+		List<List<Integer>> areas = new ArrayList<>();
+		List<Integer> area =shrink(initialShrink);
+		areas.add(area);
 		int xy[] = MapHelper.breakKey(area.get(0));
 		int distance = (int) Math.sqrt(Math.pow(xy[0] - centroid[0], 2) + Math.pow(xy[1] - centroid[1], 2));
 
 		if (distance > initialShrink + size) {
-			for (int i = initialShrink + 1; i < initialShrink + size; i++)
-				area.addAll(shrink(i));
+			for (int i = initialShrink + 1; i < initialShrink + size; i++){
+				area = shrink(i);
+				areas.add(area);
+			}
 		} else {
-			area = new ArrayList<>();
+			areas = new ArrayList<>();
 		}
 
-		return area;
+		return areas;
 	}
 
-	public List<Integer> parkZone(int initialDepth) {
-		List<Integer> area = new ArrayList<>();
-		area.addAll(shrink(initialDepth));
+	public List<List<Integer>> parkZone(int initialDepth) {
+		List<List<Integer>> areas = new ArrayList<>();
+		List<Integer> area =shrink(initialDepth);
 		int minorDistance = 9999;
 		for (int i = 0; i < area.size(); i++) {
 			int xy[] = MapHelper.breakKey(area.get(i));
@@ -150,11 +153,12 @@ public class ClusterPolygon {
 
 		if (minorDistance > 0) {
 			for (int i = initialDepth + 1; i < initialDepth + minorDistance; i++) {
-				area.addAll(shrink(i));
+				area = shrink(i);
+				areas.add(area);
 			}
 		} else {
-			area = new ArrayList<>();
+			areas = new ArrayList<>();
 		}
-		return area;
+		return areas;
 	}
 }
