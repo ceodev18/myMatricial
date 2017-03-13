@@ -58,14 +58,15 @@ public class ClusterTester {
 
 		//4. We clusterize the points through the count of minimun number of parks
 		LSystemClusterAlgorithm.clusterize();
-		LSystemClusterAlgorithm.optimizeClusterization();
-		
-		LSystemClusterAlgorithm.landMap.printMapToFile();
+		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.NODE_MARK);
+		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.COLLECTOR_MARK);
+		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.ARTERIAL_MARK);
+		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.LOCAL_MARK);
 		
 		// Finally we create the lots given their points to lotize themss
 		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
 		ClusterLotizationAlgorithm.zonify();
 			
-
+		LSystemClusterAlgorithm.landMap.printMapToFile();
 	}
 }

@@ -21,32 +21,47 @@ public class ClusterLotizationAlgorithm {
 		// reduces it in a reason configured by the user. if it can be done, it
 		// becomes a new cluster. If not, it becomes simply defaults into a
 		// perfect zonification
-
+		System.out.println("Limit x:" + landMap.getPointsx() + "Limit y:" + landMap.getPointsy());
 		// we should save the Ns used
-		for (int y = 0; y < landMap.getPointsy(); y++) {
+		for (int y = landMap.getPointsy()-1; y >= 0; y--) {
+			boolean insidePolygon = false;
 			for (int x = 0; x < landMap.getPointsx(); x++) {
-				if (landMap.isNode(x,y) && landMap.findPoint(MapHelper.formKey((x + 1), y)).getType()
-								.equals(ClusterConfiguration.NODE_MARK)) {
-					ClusterPolygon clusterPolygon = new ClusterPolygon();
-					System.out.println("x:"+x +" y:"+y);
-					System.out.println("Inside");
-					int nextPoint = createOrganicCoverture(MapHelper.formKey(x, y), Constants.EAST, clusterPolygon);
-					if (nextPoint != -1) {
-							x = nextPoint - 1;// this is the next point where we
-							// should find what we want
-					}
-					clusterPolygon.printPolygon();
-					return;// just for testing my hypothesis
+				if (insidePolygon && landMap.findPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					break;
+				}
+				if (!insidePolygon && !landMap.findPoint(MapHelper.formKey(x, y)).getType()
+						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					insidePolygon = true;
 				}
 				
-				if (landMap.isNode(x,y) && landMap.findPoint(MapHelper.formKey(x, y+1)).getType()
-						.equals(ClusterConfiguration.NODE_MARK)) {
+				if (landMap.isNode(x, y) && landMap.findPoint(MapHelper.formKey((x + 1), y)).getType()
+						.equals(ClusterConfiguration.NODE_MARK) &&
+						landMap.findPoint(MapHelper.formKey((x + 1), (y+1))).getType()
+						.equals(ClusterConfiguration.EMPTY_MARK)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
-					System.out.println("x:"+x +" y:"+y);
-					System.out.println("Inside");
+					System.out.println("x:" + x + " y:" + y);
+					System.out.println("Inside Right");
+					int nextPoint = createOrganicCoverture(MapHelper.formKey(x, y), Constants.EAST, clusterPolygon);
+					//if (nextPoint != -1) {
+					//	x = nextPoint - 1;// this is the next point where we
+						// should find what we want
+					//	System.out.println("Next x:" + x + " y:" + y);
+					//}
+					clusterPolygon.printPolygon();
+					//return;// just for testing my hypothesis
+				}
+
+				if (landMap.isNode(x, y) && landMap.findPoint(MapHelper.formKey(x, y + 1)).getType()
+						.equals(ClusterConfiguration.NODE_MARK)&&
+						landMap.findPoint(MapHelper.formKey((x - 1), (y+1))).getType()
+						.equals(ClusterConfiguration.EMPTY_MARK)) {
+					ClusterPolygon clusterPolygon = new ClusterPolygon();
+					System.out.println("x:" + x + " y:" + y);
+					System.out.println("Inside Up");
 					createOrganicCoverture(MapHelper.formKey(x, y), Constants.NORTH, clusterPolygon);
 					clusterPolygon.printPolygon();
-					return;// just for testing my hypothesis
+					//return;// just for testing my hypothesis
 				}
 			}
 		}
@@ -91,24 +106,29 @@ public class ClusterLotizationAlgorithm {
 				}
 				break;
 			}
+
+			System.out.println("x:" + firstNode[0] + " y:" + firstNode[1] + " type: "
+					+ landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType());
+
 			
-			System.out.println("x:"+ firstNode[0] +" y:"+ firstNode[1] + " type: "+ landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType());
-			if(landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType()
-						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)){
-				switch(direction){
+			if (landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType()
+					.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+				switch (direction) {
 				case Constants.EAST:
-					clusterPolygon.getPoints().add(MapHelper.formKey(firstNode[0]-1, firstNode[1]));					
+					clusterPolygon.getPoints().add(MapHelper.formKey(firstNode[0] - 1, firstNode[1]));
 					break;
 				case Constants.NORTH:
-					clusterPolygon.getPoints().add(MapHelper.formKey(firstNode[0], firstNode[1]-1));
+					clusterPolygon.getPoints().add(MapHelper.formKey(firstNode[0], firstNode[1] - 1));
 					break;
 				}
-				//TODO for the case of this 2 figures there are fixed answers
-				//GOING from the initial point upwards
-				//if up. Just going till finding a border will be enough (Inverse createOrganicCoverture
-				//that is the case for both cases.
+				// TODO for the case of this 2 figures there are fixed answers
+				// GOING from the initial point upwards
+				// if up. Just going till finding a border will be enough
+				// (Inverse createOrganicCoverture
+				// that is the case for both cases.
 				return -1;
 			}
+			landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).setType("e");					
 		}
 		return initialKey;
 	}

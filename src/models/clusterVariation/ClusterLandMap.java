@@ -358,39 +358,51 @@ public class ClusterLandMap {
 
 	public boolean isNode(int x, int y) {
 		// up,down,left,right
-		if (!findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+		if (!findPoint(MapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
 			return false;
 		}
-
 		int node = 0;
 		boolean[] nodeInBorder = new boolean[] { false, false, false, false };
 		int outside = 0;
+		if (y + 1 != pointsy) {
+			if (findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+				node++;
+				nodeInBorder[0] = true;
+			}
 
-		if (findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
-			node++;
-			nodeInBorder[0] = true;
-		}
-		if (findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
-			node++;
-			nodeInBorder[1] = true;
-		}
-		if (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
-			node++;
-			nodeInBorder[3] = true;
-		}
-		if (findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
-			node++;
-			nodeInBorder[4] = true;
+			if (findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+				outside++;
 		}
 
-		if (findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
-			outside++;
-		if (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
-			outside++;
-		if (findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
-			outside++;
-		if (findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
-			outside++;
+		if (y - 1 != -1) {
+			if (findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+				node++;
+				nodeInBorder[1] = true;
+			}
+
+			if (findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+				outside++;
+		}
+
+		if (x - 1 != -1) {
+			if (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+				node++;
+				nodeInBorder[2] = true;
+			}
+
+			if (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+				outside++;
+		}
+
+		if (x + 1 != pointsx) {
+			if (findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+				node++;
+				nodeInBorder[3] = true;
+			}
+
+			if (findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+				outside++;
+		}
 
 		if (node == 2 && (!(nodeInBorder[0] && nodeInBorder[1]) || !(nodeInBorder[2] && nodeInBorder[3]))) {
 			return false;

@@ -132,7 +132,11 @@ public class ClusterPolygon {
 				System.out.println();
 			}
 		} else {
+			
 			System.out.println("Polygon is not complete");
+			for(int i = 0; i<points.size();i++){
+				System.out.println(i+"="+points.get(i)+",");
+			}
 		}
 	}
 
