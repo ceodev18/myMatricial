@@ -63,6 +63,10 @@ public class ClusterTester {
 		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.ARTERIAL_MARK);
 		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.LOCAL_MARK);
 		
+		//System.out.println("PolygonFull");
+		//for (int i= 0; i < landMap.getFinalPolygon().size(); i++) {
+//			System.out.println(landMap.getFinalPolygon().get(i));
+	//	}
 		// Finally we create the lots given their points to lotize themss
 		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
 		ClusterLotizationAlgorithm.zonify();

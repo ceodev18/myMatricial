@@ -7,7 +7,6 @@ import helpers.base.MapHelper;
 
 public class ClusterPolygon {
 	private List<Integer> points;
-	private int type;
 	private int[] centroid;
 	private int[] squareLimits;
 	private boolean complete;
@@ -15,15 +14,7 @@ public class ClusterPolygon {
 	public ClusterPolygon() {
 		points = new ArrayList<>();
 	}
-
-	public int getType() {
-		return type;
-	}
-
-	public void setType(int type) {
-		this.type = type;
-	}
-
+	
 	public int[] getCentroid() {
 		return centroid;
 	}
@@ -55,8 +46,8 @@ public class ClusterPolygon {
 		return complete;
 	}
 
-	public void enshrink() {
-		for (int i = 0; i < type; i++) {
+	public void shrink() {
+		for (int i = 0; i < points.size(); i++) {
 			int[] xy = MapHelper.breakKey(points.get(i));
 
 			if (centroid[0] - xy[0] > 0)
@@ -73,7 +64,7 @@ public class ClusterPolygon {
 		}
 	}
 
-	private int[] findCentroid() {
+	public int[] findCentroid() {
 		int xLimits[] = new int[2];
 		xLimits[1] = -1000;
 		xLimits[0] = -1000;
@@ -82,7 +73,7 @@ public class ClusterPolygon {
 		yLimits[1] = -1000;
 		yLimits[0] = -1000;
 
-		for (int i = 0; i < type; i++) {
+		for (int i = 0; i < points.size(); i++) {
 			int[] xy = MapHelper.breakKey(points.get(i));
 			if (i == 0) {
 				xLimits[1] = xy[0];
@@ -114,30 +105,16 @@ public class ClusterPolygon {
 	public void printPolygon() {
 
 		if (isComplete()) {
-			for (int j = squareLimits[3]; j >= squareLimits[2]; j--) {
-				for (int i = squareLimits[1]; i >= squareLimits[0]; i--) {
-					boolean found = false;
-					for (int w = 0; w < getPoints().size(); i++) {
-						if (MapHelper.breakKey(getPoints().get(w))[0] == i
-								&& MapHelper.breakKey(getPoints().get(w))[0] == j) {
-							System.out.print("x");
-							found = true;
-							break;
-						}
-					}
-					if (!found) {
-						System.out.print(" ");
-					}
-				}
-				System.out.println();
+			System.out.println("Polygon is complete");
+			for(int i = 0; i<points.size();i++){
+				System.out.print(i+"="+points.get(i)+", ");
 			}
-		} else {
-			
+		} else {			
 			System.out.println("Polygon is not complete");
 			for(int i = 0; i<points.size();i++){
-				System.out.println(i+"="+points.get(i)+",");
+				System.out.print(i+"="+points.get(i)+", ");
 			}
 		}
+		System.out.println();
 	}
-
 }

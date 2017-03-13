@@ -27,7 +27,8 @@ public class ClusterLandMap {
 
 	private List<ClusterLandRoute> landRoutes = new ArrayList<>();
 	private List<Integer> nodes = new ArrayList<>();
-	private List<Integer> finalPolygon;
+	private List<Integer> polygonFull;
+	private List<ClusterLandPoint> polygonNodes;
 
 	public ClusterLandMap(int pointsx, int pointsy) {
 		this.setPointsx(pointsx);
@@ -96,6 +97,7 @@ public class ClusterLandMap {
 	 * all the input from android looks like that.
 	 */
 	public void createBorderFromPolygon(List<ClusterLandPoint> polygon) {
+		setPolygonNodes(polygon);
 		List<List<Integer>> fullPolygon = new ArrayList<>();
 		// first we create the border
 		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
@@ -142,28 +144,28 @@ public class ClusterLandMap {
 		}
 
 		// true chained polygon
-		finalPolygon = new ArrayList<>();
+		polygonFull = new ArrayList<>();
 		for (int i = 0; i < fullPolygon.get(0).size(); i++) {
-			finalPolygon.add(fullPolygon.get(0).get(i));
+			polygonFull.add(fullPolygon.get(0).get(i));
 		}
 		fullPolygon.remove(0);
 
 		int i = 0;
 		while (fullPolygon.size() > 0) {
 			// normal case
-			if (fullPolygon.get(i).get(0).intValue() == finalPolygon.get(finalPolygon.size() - 1).intValue()) {
-				for (int j = 0; j < fullPolygon.get(i).size(); j++) {
-					finalPolygon.add(fullPolygon.get(i).get(j));
+			if (fullPolygon.get(i).get(0).intValue() == polygonFull.get(polygonFull.size() - 1).intValue()) {
+				for (int j = 1; j < fullPolygon.get(i).size(); j++) {
+					polygonFull.add(fullPolygon.get(i).get(j));
 				}
 				fullPolygon.remove(i);
 				i = 0;
 				continue;
 			}
 			// inverted case
-			if (fullPolygon.get(i).get(fullPolygon.get(i).size() - 1).intValue() == finalPolygon
-					.get(finalPolygon.size() - 1).intValue()) {
+			if (fullPolygon.get(i).get(fullPolygon.get(i).size() - 1).intValue() == polygonFull
+					.get(polygonFull.size() - 1).intValue()) {
 				for (int j = fullPolygon.get(i).size() - 1; j > -1; j--) {
-					finalPolygon.add(fullPolygon.get(i).get(j));
+					polygonFull.add(fullPolygon.get(i).get(j));
 				}
 				fullPolygon.remove(i);
 				i = -1;
@@ -337,11 +339,19 @@ public class ClusterLandMap {
 	}
 
 	public List<Integer> getFinalPolygon() {
-		return finalPolygon;
+		return polygonFull;
 	}
 
 	public void setNodes(List<Integer> nodes) {
 		this.nodes = nodes;
+	}
+
+	public List<ClusterLandPoint> getPolygonNodes() {
+		return polygonNodes;
+	}
+
+	public void setPolygonNodes(List<ClusterLandPoint> polygonNodes) {
+		this.polygonNodes = polygonNodes;
 	}
 
 	public boolean intersectMainRoute(int entryPointId) {
@@ -412,5 +422,48 @@ public class ClusterLandMap {
 			return true;
 		}
 		return false;
+	}
+
+	public void joinWithPolygonalBorder(ClusterPolygon clusterPolygon) {
+		// we find the first polygon border
+		int initialPoint;
+		for (initialPoint = 0; initialPoint < polygonFull.size(); initialPoint++) {
+			if (polygonFull.get(initialPoint).intValue() == clusterPolygon.getPoints().get(0).intValue()) {
+				break;
+			}
+		}
+
+		int finalPoint;
+		for (finalPoint = 0; finalPoint < polygonFull.size(); finalPoint++) {
+			if (polygonFull.get(finalPoint).intValue() == clusterPolygon.getPoints()
+					.get(clusterPolygon.getPoints().size() - 1).intValue()) {
+				break;
+			}
+		}
+
+		System.out.println("initial and final point: " + initialPoint + ", "+finalPoint + ". Tam poligono: " + polygonFull.size());
+
+		if ((initialPoint != polygonFull.size()) && (finalPoint != polygonFull.size())) {
+			if (initialPoint < finalPoint) {
+				for (int i = initialPoint + 1; i < finalPoint; i++) {
+					for (int j = 0; j < polygonNodes.size()-1; j++) {
+						if (polygonFull.get(i).intValue() == polygonNodes.get(j).getId()) {
+							clusterPolygon.getPoints().add(polygonFull.get(i));
+							System.out.println("new node: " + polygonFull.get(i));
+						}
+					}
+				}
+			} else {
+				for (int i = finalPoint+1; i < initialPoint; i++) {
+					for (int j = 0; j < polygonNodes.size()+1; j++) {
+						if (polygonFull.get(i).intValue() == polygonNodes.get(j).getId()) {
+							clusterPolygon.getPoints().add(polygonFull.get(i));
+							System.out.println("new node: " + polygonFull.get(i));
+						}
+					}
+				}
+			}
+			clusterPolygon.setComplete(true);
+		}
 	}
 }

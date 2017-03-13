@@ -23,7 +23,7 @@ public class ClusterLotizationAlgorithm {
 		// perfect zonification
 		System.out.println("Limit x:" + landMap.getPointsx() + "Limit y:" + landMap.getPointsy());
 		// we should save the Ns used
-		for (int y = landMap.getPointsy()-1; y >= 0; y--) {
+		for (int y = landMap.getPointsy() - 1; y >= 0; y--) {
 			boolean insidePolygon = false;
 			for (int x = 0; x < landMap.getPointsx(); x++) {
 				if (insidePolygon && landMap.findPoint(MapHelper.formKey(x, y)).getType()
@@ -34,34 +34,47 @@ public class ClusterLotizationAlgorithm {
 						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 					insidePolygon = true;
 				}
-				
-				if (landMap.isNode(x, y) && landMap.findPoint(MapHelper.formKey((x + 1), y)).getType()
-						.equals(ClusterConfiguration.NODE_MARK) &&
-						landMap.findPoint(MapHelper.formKey((x + 1), (y+1))).getType()
-						.equals(ClusterConfiguration.EMPTY_MARK)) {
+
+				if (landMap.isNode(x, y)
+						&& landMap.findPoint(MapHelper.formKey((x + 1), y)).getType()
+								.equals(ClusterConfiguration.NODE_MARK)
+						&& landMap.findPoint(MapHelper.formKey((x + 1), (y + 1))).getType()
+								.equals(ClusterConfiguration.EMPTY_MARK)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
 					System.out.println("x:" + x + " y:" + y);
 					System.out.println("Inside Right");
 					int nextPoint = createOrganicCoverture(MapHelper.formKey(x, y), Constants.EAST, clusterPolygon);
-					//if (nextPoint != -1) {
-					//	x = nextPoint - 1;// this is the next point where we
-						// should find what we want
-					//	System.out.println("Next x:" + x + " y:" + y);
-					//}
+					if (!clusterPolygon.isComplete()) {
+						landMap.joinWithPolygonalBorder(clusterPolygon);
+					}
 					clusterPolygon.printPolygon();
-					//return;// just for testing my hypothesis
+
+					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
+					for(int j=0;j<15+15+10;j++){
+						clusterPolygon.shrink();						
+						for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
+							landMap.findPoint(clusterPolygon.getPoints().get(i)).setType("e");
+						}
+					}
 				}
 
-				if (landMap.isNode(x, y) && landMap.findPoint(MapHelper.formKey(x, y + 1)).getType()
-						.equals(ClusterConfiguration.NODE_MARK)&&
-						landMap.findPoint(MapHelper.formKey((x - 1), (y+1))).getType()
-						.equals(ClusterConfiguration.EMPTY_MARK)) {
+				if (landMap.isNode(x, y)
+						&& landMap.findPoint(MapHelper.formKey(x, y + 1)).getType()
+								.equals(ClusterConfiguration.NODE_MARK)
+						&& landMap.findPoint(MapHelper.formKey((x - 1), (y + 1))).getType()
+								.equals(ClusterConfiguration.EMPTY_MARK)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
 					System.out.println("x:" + x + " y:" + y);
 					System.out.println("Inside Up");
 					createOrganicCoverture(MapHelper.formKey(x, y), Constants.NORTH, clusterPolygon);
 					clusterPolygon.printPolygon();
-					//return;// just for testing my hypothesis
+					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
+					for(int j=0;j<15+15+10;j++){
+						clusterPolygon.shrink();						
+						for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
+							landMap.findPoint(clusterPolygon.getPoints().get(i)).setType("e");
+						}
+					}
 				}
 			}
 		}
@@ -110,7 +123,6 @@ public class ClusterLotizationAlgorithm {
 			System.out.println("x:" + firstNode[0] + " y:" + firstNode[1] + " type: "
 					+ landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType());
 
-			
 			if (landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType()
 					.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 				switch (direction) {
@@ -128,7 +140,7 @@ public class ClusterLotizationAlgorithm {
 				// that is the case for both cases.
 				return -1;
 			}
-			landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).setType("e");					
+			landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).setType("e");
 		}
 		return initialKey;
 	}
