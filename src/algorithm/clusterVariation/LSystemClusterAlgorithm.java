@@ -174,18 +174,19 @@ public class LSystemClusterAlgorithm {
 
 		int current = 0;
 		while (true) {
-			if (current % 2 == 0) {
-				// the parallel should be houseLength (as 8 is already used
-				// should be somewhere between 12 and more) and then road
-				int totalMobility = (2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) + 11
-						+ (current == 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 26 : 0);
-				upperParallelId = MapHelper.moveKeyByOffsetAndDirection(upperParallelId, totalMobility,
-						orthogonalDirections.get(0));
-			} else {
-				// then BASE_CLUSTER_SIZE
-				upperParallelId = MapHelper.moveKeyByOffsetAndDirection(upperParallelId,
-						ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(0));
-			}
+			// the parallel should be houseLength (as 8 is already used
+			// should be somewhere between 12 and more) and then road
+			/*
+			 * int totalMobility = (2 *
+			 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) + 11+ (current ==
+			 * 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 26 :
+			 * 0);upperParallelId =
+			 * MapHelper.moveKeyByOffsetAndDirection(upperParallelId,
+			 * totalMobility, orthogonalDirections.get(0)); } else {
+			 */
+			// then BASE_CLUSTER_SIZE
+			upperParallelId = MapHelper.moveKeyByOffsetAndDirection(upperParallelId,
+					ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(0));
 			if (!landMap.landPointisOnMap(upperParallelId))
 				break;
 			createTransversalRoute(upperParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
@@ -245,18 +246,15 @@ public class LSystemClusterAlgorithm {
 					emptySpaces++;
 				}
 
-				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
-						.equals(markType)) {
+				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType().equals(markType)) {
 					if (y != 0 && y != (landMap.getPointsy() - 1)) {
-						if (landMap.getLandPoint(MapHelper.formKey(x, (y + 1))).getType()
-								.equals(markType)
+						if (landMap.getLandPoint(MapHelper.formKey(x, (y + 1))).getType().equals(markType)
 								&& landMap.getLandPoint(MapHelper.formKey(x, (y - 1))).getType()
 										.equals(ClusterConfiguration.EMPTY_MARK)) {
 							successivesN = lower = true;
 						}
 
-						if (landMap.getLandPoint(MapHelper.formKey(x, (y - 1))).getType()
-								.equals(markType)
+						if (landMap.getLandPoint(MapHelper.formKey(x, (y - 1))).getType().equals(markType)
 								&& landMap.getLandPoint(MapHelper.formKey(x, (y + 1))).getType()
 										.equals(ClusterConfiguration.EMPTY_MARK)) {
 							successivesN = upper = true;
@@ -319,18 +317,15 @@ public class LSystemClusterAlgorithm {
 					emptySpaces++;
 				}
 
-				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
-						.equals(markType)) {
+				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType().equals(markType)) {
 					if (x != 0 && y != (landMap.getPointsx() - 1)) {
-						if (landMap.getLandPoint(MapHelper.formKey((x + 1), y)).getType()
-								.equals(markType)
+						if (landMap.getLandPoint(MapHelper.formKey((x + 1), y)).getType().equals(markType)
 								&& landMap.getLandPoint(MapHelper.formKey((x - 1), y)).getType()
 										.equals(ClusterConfiguration.EMPTY_MARK)) {
 							successivesN = left = true;
 						}
 
-						if (landMap.getLandPoint(MapHelper.formKey((x - 1), y)).getType()
-								.equals(markType)
+						if (landMap.getLandPoint(MapHelper.formKey((x - 1), y)).getType().equals(markType)
 								&& landMap.getLandPoint(MapHelper.formKey((x + 1), y)).getType()
 										.equals(ClusterConfiguration.EMPTY_MARK)) {
 							successivesN = right = true;

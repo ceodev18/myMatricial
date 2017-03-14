@@ -15,7 +15,6 @@ public class ClusterLotizationAlgorithm {
 	public static void zonify() {
 		// findZonificationAreas();
 		organicZonification();
-
 	}
 
 	private static void organicZonification() {

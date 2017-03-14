@@ -215,12 +215,12 @@ public class ClusterLandMap {
 		clearDottedLimits();
 	}
 
-	//Variation for the creation of zones
+	// Variation for the creation of zones
 	public void createBorderFromPolygon(List<Integer> polygon, String markType) {
 		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
-			int xyInitial[]= MapHelper.breakKey(polygon.get(i));
-			int xyFinal[]= MapHelper.breakKey(polygon.get(j));
-			
+			int xyInitial[] = MapHelper.breakKey(polygon.get(i));
+			int xyFinal[] = MapHelper.breakKey(polygon.get(j));
+
 			int underscore = (xyFinal[0] - xyInitial[0]);
 			if (underscore == 0) {
 				int lower = xyInitial[1] < xyFinal[1] ? xyInitial[1] : xyFinal[1];
@@ -452,6 +452,16 @@ public class ClusterLandMap {
 
 			if (findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 				outside++;
+		}
+
+		if ((y + 1 != pointsy) && (y - 1 != -1) && (x - 1 != -1) && (x + 1 != pointsx)) {
+			if ((findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.ARTERIAL_MARK)
+					|| findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.LOCAL_MARK))
+					&& findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.COLLECTOR_MARK)
+					&& findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)
+					&& findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+				return true;
+			}
 		}
 
 		if (node == 2 && (!(nodeInBorder[0] && nodeInBorder[1]) || !(nodeInBorder[2] && nodeInBorder[3]))) {
