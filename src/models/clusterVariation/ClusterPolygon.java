@@ -46,7 +46,7 @@ public class ClusterPolygon {
 		return complete;
 	}
 
-	public List<Integer> shrink(int size) {
+	public List<Integer> centroidShrinking(int size) {
 		List<Integer> shrinkedList = new ArrayList<>();
 		for (int i = 0; i < points.size(); i++) {
 			int[] xy = MapHelper.breakKey(points.get(i));
@@ -64,6 +64,95 @@ public class ClusterPolygon {
 			shrinkedList.add(i, MapHelper.formKey(xy[0], xy[1]));
 		}
 		return shrinkedList;
+	}
+
+	public List<Integer> vectorShrinking(int size) {
+		List<Integer> shrinkedList = new ArrayList<>();
+		List<Double> gradients = new ArrayList<>();
+		List<Double> offsets = new ArrayList<>();
+
+		for (int i = 0; i < points.size(); i++) {
+			int[] xyInitial = MapHelper.breakKey(points.get(i));
+			int[] xyFinal = MapHelper.breakKey(points.get((i + 1) % points.size()));
+
+			// we find the unit vector
+			double[] unitVector = new double[2];
+			unitVector[0] = (xyFinal[0] - xyInitial[0])
+					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
+			unitVector[1] = (xyFinal[1] - xyInitial[1])
+					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
+			double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / (xyFinal[0] - xyInitial[0]);
+			gradients.add(gradient);
+			// then the perpendicular
+			double[] perpendicularUnitVector = new double[2];
+			perpendicularUnitVector[0] = unitVector[1];
+			perpendicularUnitVector[1] = -unitVector[0];
+
+			double[] variationA = new double[2];
+			double[] variationB = new double[2];
+
+			variationA[0] = xyInitial[0] + size * perpendicularUnitVector[0];
+			variationA[1] = xyInitial[1] + size * perpendicularUnitVector[1];
+
+			variationB[0] = xyInitial[0] - size * perpendicularUnitVector[0];
+			variationB[1] = xyInitial[1] - size * perpendicularUnitVector[1];
+
+			double distanceToCentroidA = distanceToCentroid(variationA);
+			double distanceToCentroid = distanceToCentroid(xyInitial);
+
+			double b;
+			if (distanceToCentroid > distanceToCentroidA) {
+				b = variationA[1] - gradient * variationA[0];
+			} else {
+				b = variationB[1] - gradient * variationB[0];
+			}
+			offsets.add(b);
+		}
+
+		for (int i = 0; i < offsets.size(); i++) {
+			int xy[] = new int[2];
+			int previous = i - 1;
+			if (i == 0) {
+				previous = offsets.size() - 1;
+			}
+
+			xy[0] = (int) (gradients.get(previous) - gradients.get(i) / offsets.get(i) - offsets.get(previous));
+			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
+
+			shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
+		}
+
+		// validity check
+		for (int i = 0; i < shrinkedList.size(); i++) {
+			if (!isInsidePolygon(shrinkedList.get(i))) {
+				shrinkedList = new ArrayList<>();
+			}
+		}
+
+		return shrinkedList;
+	}
+
+	private boolean isInsidePolygon(Integer vertexId) {
+		boolean c = false;
+		int[] xy = MapHelper.breakKey(vertexId);
+		for (int i = 0, j = getPoints().size() - 1; i < getPoints().size(); j = i++) {
+			if (((MapHelper.breakKey(getPoints().get(i))[1] > xy[1]) != (MapHelper
+					.breakKey(getPoints().get(j))[1] > xy[1]))
+					&& (xy[0] < (MapHelper.breakKey(getPoints().get(j))[0] - MapHelper.breakKey(getPoints().get(i))[0])
+							* (xy[1] - MapHelper.breakKey(getPoints().get(i))[1])
+							/ (MapHelper.breakKey(getPoints().get(j))[1] - MapHelper.breakKey(getPoints().get(i))[1])
+							+ MapHelper.breakKey(getPoints().get(i))[0]))
+				c = !c;
+		}
+		return c;
+	}
+
+	private double distanceToCentroid(int[] initial) {
+		return Math.sqrt(Math.pow(centroid[0] - initial[0], 2) + Math.pow(centroid[1] - initial[1], 2));
+	}
+
+	private double distanceToCentroid(double[] variation) {
+		return Math.sqrt(Math.pow(centroid[0] - variation[0], 2) + Math.pow(centroid[1] - variation[1], 2));
 	}
 
 	public int[] findCentroid() {
@@ -122,26 +211,24 @@ public class ClusterPolygon {
 
 	public List<List<Integer>> shrinkZone(int initialShrink, int size) {
 		List<List<Integer>> areas = new ArrayList<>();
-		List<Integer> area =shrink(initialShrink);
-		areas.add(area);
-		int xy[] = MapHelper.breakKey(area.get(0));
-		int distance = (int) Math.sqrt(Math.pow(xy[0] - centroid[0], 2) + Math.pow(xy[1] - centroid[1], 2));
-
-		if (distance > initialShrink + size) {
-			for (int i = initialShrink + 1; i < initialShrink + size; i++){
-				area = shrink(i);
-				areas.add(area);
+		List<Integer> area = vectorShrinking(initialShrink);
+		if (area.size() != 0) {
+			areas.add(area);
+			for (int i = initialShrink + 1; i < initialShrink + size; i++) {
+				area = vectorShrinking(i);
+				if (area.size() != 0) {
+					areas.add(area);
+				} else {
+					break;
+				}
 			}
-		} else {
-			areas = new ArrayList<>();
 		}
-
 		return areas;
 	}
 
 	public List<List<Integer>> parkZone(int initialDepth) {
 		List<List<Integer>> areas = new ArrayList<>();
-		List<Integer> area =shrink(initialDepth);
+		List<Integer> area = vectorShrinking(initialDepth);
 		int minorDistance = 9999;
 		for (int i = 0; i < area.size(); i++) {
 			int xy[] = MapHelper.breakKey(area.get(i));
@@ -153,7 +240,7 @@ public class ClusterPolygon {
 
 		if (minorDistance > 0) {
 			for (int i = initialDepth + 1; i < initialDepth + minorDistance; i++) {
-				area = shrink(i);
+				area = vectorShrinking(i);
 				areas.add(area);
 			}
 		} else {

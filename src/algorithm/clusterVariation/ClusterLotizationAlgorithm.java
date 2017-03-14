@@ -42,8 +42,8 @@ public class ClusterLotizationAlgorithm {
 						&& landMap.findPoint(MapHelper.formKey((x + 1), (y + 1))).getType()
 								.equals(ClusterConfiguration.EMPTY_MARK)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
-					System.out.println("x:" + x + " y:" + y);
-					System.out.println("Inside Right");
+					//System.out.println("x:" + x + " y:" + y);
+					//System.out.println("Inside Right");
 					int nextPoint = createOrganicCoverture(MapHelper.formKey(x, y), Constants.EAST, clusterPolygon);
 					if (!clusterPolygon.isComplete()) {
 						landMap.joinWithPolygonalBorder(clusterPolygon);
@@ -69,36 +69,6 @@ public class ClusterLotizationAlgorithm {
 						//TODO lotize as full focus (library or other).
 					}
 				}
-				
-				if (landMap.isNode(x, y)
-						&& landMap.findPoint(MapHelper.formKey(x, y + 1)).getType()
-								.equals(ClusterConfiguration.NODE_MARK)
-						&& landMap.findPoint(MapHelper.formKey((x - 1), (y + 1))).getType()
-								.equals(ClusterConfiguration.EMPTY_MARK)) {
-					ClusterPolygon clusterPolygon = new ClusterPolygon();
-					System.out.println("x:" + x + " y:" + y);
-					System.out.println("Inside Up");
-					createOrganicCoverture(MapHelper.formKey(x, y), Constants.NORTH, clusterPolygon);
-					clusterPolygon.printPolygon();
-					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
-
-					List<List<Integer>> points = clusterPolygon.shrinkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2,
-							ClusterConfiguration.LOCAL_BRANCH_SIZE);
-					List<List<Integer>> grass = clusterPolygon.parkZone(
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2 + ClusterConfiguration.LOCAL_BRANCH_SIZE-1);
-
-					for (int j = 0; j < grass.size(); j++) {
-						landMap.createBorderFromPolygon(grass.get(j),ClusterConfiguration.PARK_MARK);
-					}
-					
-					for (int j = 0; j < points.size(); j++) {
-						landMap.createBorderFromPolygon(points.get(j),ClusterConfiguration.LOCAL_MARK);
-					}
-					
-					if(points.size()==0 && grass.size()==0){
-						//TODO lotize as full focus (library or other).
-					}
-				}
 			}
 		}
 		// perfectZonification();
@@ -115,38 +85,34 @@ public class ClusterLotizationAlgorithm {
 				// east, north, west, south
 				if (landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1] + 1)).getType()
 						.equals(ClusterConfiguration.NODE_MARK)) {
-					createOrganicCoverture(initialKey, Constants.NORTH, clusterPolygon);
-					borderFound = true;
+					return createOrganicCoverture(initialKey, Constants.NORTH, clusterPolygon);
 				}
 				break;
 			case Constants.NORTH:
 				if (landMap.findPoint(MapHelper.formKey(firstNode[0] - 1, firstNode[1])).getType()
 						.equals(ClusterConfiguration.NODE_MARK)) {
-					createOrganicCoverture(initialKey, Constants.WEST, clusterPolygon);
-					borderFound = true;
+					return createOrganicCoverture(initialKey, Constants.WEST, clusterPolygon);
 				}
 				break;
 			case Constants.WEST:
 				if (landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1] - 1)).getType()
 						.equals(ClusterConfiguration.NODE_MARK)) {
-					createOrganicCoverture(initialKey, Constants.SOUTH, clusterPolygon);
-					borderFound = true;
+					return createOrganicCoverture(initialKey, Constants.SOUTH, clusterPolygon);
 				}
 				break;
 			case Constants.SOUTH:
 				if (landMap.findPoint(MapHelper.formKey(firstNode[0] + 1, firstNode[1])).getType()
 						.equals(ClusterConfiguration.NODE_MARK)) {
 					borderFound = true;
-					clusterPolygon.getPoints().add(initialKey);
 					clusterPolygon.setComplete(true);
 				}
 				break;
 			}
 
-			System.out.println("x:" + firstNode[0] + " y:" + firstNode[1] + " type: "
-					+ landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType());
+			/*System.out.println("x:" + firstNode[0] + " y:" + firstNode[1] + " type: "
+					+ landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType());*/
 
-			if (landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType()
+			if (!clusterPolygon.isComplete() && landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType()
 					.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 				switch (direction) {
 				case Constants.EAST:
@@ -168,10 +134,3 @@ public class ClusterLotizationAlgorithm {
 		return initialKey;
 	}
 }
-
-// private static void perfectZonification() {
-// TODO this method is only used on figures where the park couldnt be
-// big enough.
-// it is the default zonification done by the architects. View page of
-// the default zonification
-// }
