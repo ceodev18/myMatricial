@@ -313,7 +313,6 @@ public class ClusterLandMap {
 			}
 			writer.close();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -519,44 +518,60 @@ public class ClusterLandMap {
 		}
 	}
 
+	// TODO incomplete lotization methods
 	public Object lotize(List<Integer> list, int direction, int beginning) {
-		// TODO Not ready
 		if (beginning >= list.size()) {
 			return 0;
 		}
 
+		int seed = 0;
+		boolean lotizable = true, notUniform = false;
 		int[] currentXY = MapHelper.breakKey(list.get(beginning));
 		int[] finalXY = MapHelper.breakKey(list.get((beginning + 1) % list.size()));
 		Double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
 
 		if (direction == Constants.EAST || direction == Constants.WEST) {
 			if (gradient.doubleValue() == 0.0) {
-				currentXY[0]= direction == Constants.EAST? currentXY[0]+1 : currentXY[0];
+				currentXY[0] = direction == Constants.EAST ? currentXY[0] + 1 : currentXY[0];
 				ClusterBuilding clusterBuilding = createWalkRoute(currentXY, false, direction, beginning);
 				if (clusterBuilding != null) {
 					currentXY = MapHelper.moveKeyByOffsetAndDirection(currentXY, ClusterConfiguration.WALK_BRANCH_SIZE,
 							direction);
 				}
 
-				finalXY[0]= direction == Constants.EAST? finalXY[0] : finalXY[0]+1;
+				finalXY[0] = direction == Constants.EAST ? finalXY[0] : finalXY[0] + 1;
 				clusterBuilding = createWalkRoute(finalXY, true, direction, beginning);
 				if (clusterBuilding != null) {
 					finalXY = MapHelper.moveKeyByOffsetAndDirection(finalXY, ClusterConfiguration.WALK_BRANCH_SIZE,
 							ClusterDirectionHelper.oppositeDirection(direction));
 				}
 			} else {
+				notUniform = true;
 				System.out.println("Non orthogonal east/west walk detected");
 			}
 		} else if (direction == Constants.SOUTH || direction == Constants.NORTH) {
 			if (gradient.isInfinite()) {// means it is a route connection and a
 										// perfect one at it
 				createClusterEntrance(currentXY, finalXY, direction);
+			} else {
 				System.out.println("Non orthogonal south/north walk detected");
+				notUniform = true;
 			}
 		}
 
+		// TODO the not uniform type of polygon will be develop next
+		if (notUniform) {
+			return -1;
+		}
+
 		while (true) {
-			if (currentXY[0] == finalXY[0] && currentXY[0] == finalXY[0]) {
+			boolean done = false;
+			if ((direction == Constants.EAST) || (direction == Constants.NORTH))
+				done = currentXY[0] >= finalXY[0] && currentXY[1] >= finalXY[1];
+			else
+				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
+
+			if (done) {
 				switch (direction) {
 				case Constants.EAST:
 					return lotize(list, Constants.NORTH, ++beginning);
@@ -569,9 +584,17 @@ public class ClusterLandMap {
 				}
 			}
 
-			int current = MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]), 1,
-					direction);
-			currentXY = MapHelper.breakKey(current);
+			lotizable = canBeLotized(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
+					ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
+			if (lotizable) {
+				createDoubleLot(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
+						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 10);
+				currentXY = MapHelper.moveKeyByOffsetAndDirection(currentXY,
+						ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
+				seed += 2;
+			} else {
+				currentXY = MapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
+			}
 		}
 	}
 
@@ -582,17 +605,18 @@ public class ClusterLandMap {
 		int upperMiddle[] = new int[2];
 		upperMiddle[0] = currentXY[0];
 		upperMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) + (ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
-		
+
 		int lowerMiddle[] = new int[2];
 		lowerMiddle[0] = currentXY[0];
 		lowerMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) - (ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
-		
-		if ((direction==Constants.NORTH) && (lowerMiddle[1] < currentXY[1]  || upperMiddle[1] > finalXY[1]))
+
+		if ((direction == Constants.NORTH) && (lowerMiddle[1] < currentXY[1] || upperMiddle[1] > finalXY[1]))
 			return;
-		else if((direction==Constants.SOUTH) && (lowerMiddle[1] > currentXY[1]  || upperMiddle[1] < finalXY[1]))
+		else if ((direction == Constants.SOUTH) && (lowerMiddle[1] > currentXY[1] || upperMiddle[1] < finalXY[1]))
 			return;
-		createInsideClusterRoute(upperMiddle, MapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction, ClusterConfiguration.WALK_BRANCH,
-				ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+		createInsideClusterRoute(upperMiddle, MapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction,
+				ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+				ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
 	}
 
 	private ClusterBuilding createWalkRoute(int[] currentXY, boolean isInverse, int direction, int rotation) {
@@ -600,14 +624,126 @@ public class ClusterLandMap {
 			return createInsideClusterRoute(currentXY,
 					MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]),
 							ClusterConfiguration.WALK_BRANCH_SIZE, ClusterDirectionHelper.oppositeDirection(direction)),
-					direction, ClusterConfiguration.WALK_BRANCH,
-					ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, ClusterConfiguration.WALK_MARK);
+					direction, ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+					ClusterConfiguration.WALK_MARK);
 		} else {
 			return createInsideClusterRoute(currentXY,
 					MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]),
 							ClusterConfiguration.WALK_BRANCH_SIZE, direction),
 					direction, ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
 					ClusterConfiguration.WALK_MARK);
+		}
+	}
+
+	private boolean canBeLotized(int[] currentXY, int houseSideSize, int doublehouseDepthSize, int direction) {
+		switch (direction) {
+		case Constants.EAST:
+			for (int i = currentXY[0]; i < currentXY[0] + houseSideSize; i++) {
+				for (int j = currentXY[1]; j > currentXY[1] - doublehouseDepthSize; j--) {
+					if (landPointisOnMap(MapHelper.formKey(i, j))) {
+						String type = findPoint(MapHelper.formKey(i, j)).getType();
+						if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals("e")) {
+							return false;
+						}
+					} else {
+						return false;
+					}
+				}
+			}
+			break;
+		case Constants.NORTH:
+			for (int i = currentXY[1]; i < currentXY[1] + houseSideSize; i++) {
+				for (int j = currentXY[0]; j < currentXY[0] + doublehouseDepthSize; j++) {
+					if (landPointisOnMap(MapHelper.formKey(j, i))) {
+						String type = findPoint(MapHelper.formKey(j, i)).getType();
+						if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals("e")) {
+							return false;
+						}
+					} else {
+						return false;
+					}
+				}
+			}
+			break;
+		case Constants.WEST:
+			for (int i = currentXY[0]; i >= currentXY[0] - houseSideSize; i--) {
+				for (int j = currentXY[1]; j < currentXY[1] + doublehouseDepthSize; j++) {
+					if (landPointisOnMap(MapHelper.formKey(i, j))) {
+						String type = findPoint(MapHelper.formKey(i, j)).getType();
+						if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals("e")) {
+							return false;
+						}
+					} else {
+						return false;
+					}
+				}
+			}
+			break;
+		case Constants.SOUTH:
+			for (int i = currentXY[1]; i >= currentXY[1] - houseSideSize; i--) {
+				for (int j = currentXY[0]; j > currentXY[0] - doublehouseDepthSize; j--) {
+					if (landPointisOnMap(MapHelper.formKey(j, i))) {
+						String type = findPoint(MapHelper.formKey(j, i)).getType();
+						if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals("e")) {
+							return false;
+						}
+					} else {
+						return false;
+					}
+				}
+			}
+			break;
+		}
+		return true;
+	}
+
+	private void createDoubleLot(int[] currentXY, int houseSideMinimunSize, int houseDepthMinimunSize, int direction,
+			int serialNumber) {
+		switch (direction) {
+		case Constants.EAST:
+			for (int i = currentXY[0]; i < currentXY[0] + houseSideMinimunSize; i++) {
+				for (int j = currentXY[1]; j > currentXY[1] - houseDepthMinimunSize; j--) {
+					findPoint(MapHelper.formKey(i, j)).setType("" + serialNumber);
+				}
+				for (int j = currentXY[1] - (houseDepthMinimunSize + 1); j > currentXY[1]
+						- 2 * houseDepthMinimunSize; j--) {
+					findPoint(MapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
+				}
+			}
+			break;
+		case Constants.NORTH:
+			for (int i = currentXY[1]; i < currentXY[1] + houseSideMinimunSize; i++) {
+				for (int j = currentXY[0]; j < currentXY[0] + houseDepthMinimunSize; j++) {
+					findPoint(MapHelper.formKey(j, i)).setType("" + serialNumber);
+				}
+				for (int j = currentXY[0] + houseDepthMinimunSize + 1; j < currentXY[0]
+						+ 2 * houseDepthMinimunSize; j++) {
+					findPoint(MapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
+				}
+			}
+			break;
+		case Constants.WEST:
+			for (int i = currentXY[0]; i >= currentXY[0] - houseSideMinimunSize; i--) {
+				for (int j = currentXY[1]; j < currentXY[1] + houseDepthMinimunSize; j++) {
+					findPoint(MapHelper.formKey(i, j)).setType("" + serialNumber);
+				}
+				for (int j = currentXY[1] + houseDepthMinimunSize + 1; j < currentXY[1]
+						+ 2 * houseDepthMinimunSize; j++) {
+					findPoint(MapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
+				}
+			}
+			break;
+		case Constants.SOUTH:
+			for (int i = currentXY[1]; i >= currentXY[1] - houseSideMinimunSize; i--) {
+				for (int j = currentXY[0]; j > currentXY[0] - houseDepthMinimunSize; j--) {
+					findPoint(MapHelper.formKey(j, i)).setType("" + serialNumber);
+				}
+				for (int j = currentXY[0] - (houseDepthMinimunSize + 1); j > currentXY[0]
+						- 2 * houseDepthMinimunSize; j--) {
+					findPoint(MapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
+				}
+			}
+			break;
 		}
 	}
 
@@ -625,7 +761,7 @@ public class ClusterLandMap {
 				lower = currentXY[1];
 				upper = finalXY[1];
 			}
-			
+
 			if (direction == Constants.SOUTH) {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[0]; j > currentXY[0] - depth; j--) {
@@ -647,7 +783,7 @@ public class ClusterLandMap {
 				lower = currentXY[0];
 				upper = finalXY[0];
 			}
-			
+
 			if (direction == Constants.EAST) {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[1]; j > currentXY[1] - depth; j--) {
