@@ -2,28 +2,29 @@ package helpers.clusterVariation;
 
 import java.util.ArrayList;
 import java.util.List;
-import interfaces.Constants;
+
+import interfaces.clusterVariation.ClusterConstants;
 import models.clusterVariation.ClusterLandPoint;
 
 public class ClusterDirectionHelper {
 	public static List<Integer> orthogonalDirections(final int direction) {
 		List<Integer> directions = new ArrayList<>();
 		switch (direction) {
-		case Constants.NORTH:
-			directions.add(Constants.EAST);
-			directions.add(Constants.WEST);
+		case ClusterConstants.NORTH:
+			directions.add(ClusterConstants.EAST);
+			directions.add(ClusterConstants.WEST);
 			break;
-		case Constants.SOUTH:
-			directions.add(Constants.WEST);
-			directions.add(Constants.EAST);
+		case ClusterConstants.SOUTH:
+			directions.add(ClusterConstants.WEST);
+			directions.add(ClusterConstants.EAST);
 			break;
-		case Constants.EAST:
-			directions.add(Constants.NORTH);
-			directions.add(Constants.SOUTH);
+		case ClusterConstants.EAST:
+			directions.add(ClusterConstants.NORTH);
+			directions.add(ClusterConstants.SOUTH);
 			break;
-		case Constants.WEST:
-			directions.add(Constants.SOUTH);
-			directions.add(Constants.NORTH);
+		case ClusterConstants.WEST:
+			directions.add(ClusterConstants.SOUTH);
+			directions.add(ClusterConstants.NORTH);
 			break;
 		default:
 			directions.add(-1);
@@ -33,14 +34,14 @@ public class ClusterDirectionHelper {
 
 	public static int oppositeDirection(int direction) {
 		switch (direction) {
-		case Constants.NORTH:
-			return Constants.SOUTH;
-		case Constants.SOUTH:
-			return Constants.NORTH;
-		case Constants.EAST:
-			return Constants.WEST;
-		case Constants.WEST:
-			return Constants.EAST;
+		case ClusterConstants.NORTH:
+			return ClusterConstants.SOUTH;
+		case ClusterConstants.SOUTH:
+			return ClusterConstants.NORTH;
+		case ClusterConstants.EAST:
+			return ClusterConstants.WEST;
+		case ClusterConstants.WEST:
+			return ClusterConstants.EAST;
 		}
 		return -1;
 	}
@@ -50,19 +51,19 @@ public class ClusterDirectionHelper {
 		int yDifference = centroid.getY() - currentPoint.getY();
 
 		if ((yDifference > 0) && (yDifference > xDifference)) {
-			return Constants.NORTH;
+			return ClusterConstants.NORTH;
 		}
 
 		if ((yDifference < 0) && (yDifference > xDifference)) {
-			return Constants.SOUTH;
+			return ClusterConstants.SOUTH;
 		}
 
 		if ((xDifference > 0) && (yDifference < xDifference)) {
-			return Constants.EAST;
+			return ClusterConstants.EAST;
 		}
 
 		if ((xDifference < 0) && (yDifference < xDifference)) {
-			return Constants.WEST;
+			return ClusterConstants.WEST;
 		}
 		return -1;
 	}
@@ -72,19 +73,19 @@ public class ClusterDirectionHelper {
 		int yDifference = centroid.getY() - currentPoint.getY();
 
 		if (yDifference > 0) {
-			return Constants.NORTH;
+			return ClusterConstants.NORTH;
 		}
 
 		if (yDifference < 0) {
-			return Constants.SOUTH;
+			return ClusterConstants.SOUTH;
 		}
 
 		if (xDifference > 0) {
-			return Constants.EAST;
+			return ClusterConstants.EAST;
 		}
 
 		if (xDifference < 0) {
-			return Constants.WEST;
+			return ClusterConstants.WEST;
 		}
 		return -1;
 	}

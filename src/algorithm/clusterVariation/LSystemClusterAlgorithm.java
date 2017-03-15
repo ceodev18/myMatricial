@@ -3,9 +3,9 @@ package algorithm.clusterVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-import helpers.base.MapHelper;
 import helpers.clusterVariation.ClusterDirectionHelper;
-import interfaces.ClusterConfiguration;
+import helpers.clusterVariation.ClusterMapHelper;
+import interfaces.clusterVariation.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 import models.clusterVariation.ClusterLandRoute;
@@ -157,7 +157,7 @@ public class LSystemClusterAlgorithm {
 		// collector running orthogonal to the main
 		List<Integer> orthogonalDirections = ClusterDirectionHelper.orthogonalDirections(mainRoute.getDirection());
 		while (true) {
-			entryPointId = MapHelper.moveKeyByOffsetAndDirection(entryPointId,
+			entryPointId = ClusterMapHelper.moveKeyByOffsetAndDirection(entryPointId,
 					ClusterConfiguration.BASE_CLUSTER_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE,
 					mainRoute.getDirection());
 			if (landMap.landPointisOnMap(entryPointId) && landMap.intersectMainRoute(entryPointId)) {
@@ -168,9 +168,9 @@ public class LSystemClusterAlgorithm {
 		}
 
 		int upperParallelId = mainRoute.getInitialPointId();
-		int[] key = MapHelper.breakKey(upperParallelId);
+		int[] key = ClusterMapHelper.breakKey(upperParallelId);
 		key[0] = 1;
-		upperParallelId = MapHelper.formKey(key[0], key[1]);
+		upperParallelId = ClusterMapHelper.formKey(key[0], key[1]);
 
 		int current = 0;
 		while (true) {
@@ -181,11 +181,11 @@ public class LSystemClusterAlgorithm {
 			 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) + 11+ (current ==
 			 * 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 26 :
 			 * 0);upperParallelId =
-			 * MapHelper.moveKeyByOffsetAndDirection(upperParallelId,
+			 * ClusterMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
 			 * totalMobility, orthogonalDirections.get(0)); } else {
 			 */
 			// then BASE_CLUSTER_SIZE
-			upperParallelId = MapHelper.moveKeyByOffsetAndDirection(upperParallelId,
+			upperParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
 					ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(0));
 			if (!landMap.landPointisOnMap(upperParallelId))
 				break;
@@ -194,18 +194,18 @@ public class LSystemClusterAlgorithm {
 		}
 
 		int lowerParallelId = mainRoute.getInitialPointId();
-		key = MapHelper.breakKey(lowerParallelId);
+		key = ClusterMapHelper.breakKey(lowerParallelId);
 		key[0] = 1;
-		lowerParallelId = MapHelper.formKey(key[0], key[1]);
+		lowerParallelId = ClusterMapHelper.formKey(key[0], key[1]);
 		current = 0;
 		while (true) {
 			if (current % 2 == 0) {
 				int totalMobility = (2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) + 11
 						+ (current == 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 11 : 0);
-				lowerParallelId = MapHelper.moveKeyByOffsetAndDirection(lowerParallelId, totalMobility,
+				lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId, totalMobility,
 						orthogonalDirections.get(1));
 			} else {
-				lowerParallelId = MapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
+				lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
 						ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(1));
 			}
 			if (!landMap.landPointisOnMap(lowerParallelId))
@@ -228,10 +228,10 @@ public class LSystemClusterAlgorithm {
 			int y;
 
 			for (y = 0; y < landMap.getPointsy(); y++) {
-				if (!enteredPolygon && !landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+				if (!enteredPolygon && !landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 					enteredPolygon = true;
-				} else if (enteredPolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+				} else if (enteredPolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 					leavePolygon = true;
 				}
@@ -241,21 +241,21 @@ public class LSystemClusterAlgorithm {
 
 				// just for the lower part we sum the empty marks that where not
 				// choosen
-				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+				if (!leavePolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.EMPTY_MARK)) {
 					emptySpaces++;
 				}
 
-				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType().equals(markType)) {
+				if (!leavePolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType().equals(markType)) {
 					if (y != 0 && y != (landMap.getPointsy() - 1)) {
-						if (landMap.getLandPoint(MapHelper.formKey(x, (y + 1))).getType().equals(markType)
-								&& landMap.getLandPoint(MapHelper.formKey(x, (y - 1))).getType()
+						if (landMap.getLandPoint(ClusterMapHelper.formKey(x, (y + 1))).getType().equals(markType)
+								&& landMap.getLandPoint(ClusterMapHelper.formKey(x, (y - 1))).getType()
 										.equals(ClusterConfiguration.EMPTY_MARK)) {
 							successivesN = lower = true;
 						}
 
-						if (landMap.getLandPoint(MapHelper.formKey(x, (y - 1))).getType().equals(markType)
-								&& landMap.getLandPoint(MapHelper.formKey(x, (y + 1))).getType()
+						if (landMap.getLandPoint(ClusterMapHelper.formKey(x, (y - 1))).getType().equals(markType)
+								&& landMap.getLandPoint(ClusterMapHelper.formKey(x, (y + 1))).getType()
 										.equals(ClusterConfiguration.EMPTY_MARK)) {
 							successivesN = upper = true;
 						}
@@ -265,7 +265,7 @@ public class LSystemClusterAlgorithm {
 				// lower side only it retries until the case is done
 				if (successivesN && (emptySpaces > 0) && lower) {
 					for (int j = y; j > (y - (emptySpaces + 1)); j--) {
-						landMap.getLandPoint(MapHelper.formKey(x, j)).setType(markType);
+						landMap.getLandPoint(ClusterMapHelper.formKey(x, j)).setType(markType);
 					}
 					successivesN = false;
 					lower = false;
@@ -274,14 +274,14 @@ public class LSystemClusterAlgorithm {
 				// upper side is going to need me to do it until one is out
 				if (successivesN && upper) {
 					for (int j = y; j < landMap.getPointsy(); j++) {
-						if (landMap.getLandPoint(MapHelper.formKey(x, j)).getType()
+						if (landMap.getLandPoint(ClusterMapHelper.formKey(x, j)).getType()
 								.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 							leavePolygon = true;
 							successivesN = false;
 							upper = false;
 							break;
 						}
-						landMap.getLandPoint(MapHelper.formKey(x, j)).setType(markType);
+						landMap.getLandPoint(ClusterMapHelper.formKey(x, j)).setType(markType);
 					}
 				}
 			}
@@ -299,10 +299,10 @@ public class LSystemClusterAlgorithm {
 			int x;
 
 			for (x = 0; x < landMap.getPointsx(); x++) {
-				if (!enteredPolygon && !landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+				if (!enteredPolygon && !landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 					enteredPolygon = true;
-				} else if (enteredPolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+				} else if (enteredPolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 					leavePolygon = true;
 				}
@@ -312,21 +312,21 @@ public class LSystemClusterAlgorithm {
 
 				// just for the lower part we sum the empty marks that where not
 				// choosen
-				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType()
+				if (!leavePolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.EMPTY_MARK)) {
 					emptySpaces++;
 				}
 
-				if (!leavePolygon && landMap.getLandPoint(MapHelper.formKey(x, y)).getType().equals(markType)) {
+				if (!leavePolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType().equals(markType)) {
 					if (x != 0 && y != (landMap.getPointsx() - 1)) {
-						if (landMap.getLandPoint(MapHelper.formKey((x + 1), y)).getType().equals(markType)
-								&& landMap.getLandPoint(MapHelper.formKey((x - 1), y)).getType()
+						if (landMap.getLandPoint(ClusterMapHelper.formKey((x + 1), y)).getType().equals(markType)
+								&& landMap.getLandPoint(ClusterMapHelper.formKey((x - 1), y)).getType()
 										.equals(ClusterConfiguration.EMPTY_MARK)) {
 							successivesN = left = true;
 						}
 
-						if (landMap.getLandPoint(MapHelper.formKey((x - 1), y)).getType().equals(markType)
-								&& landMap.getLandPoint(MapHelper.formKey((x + 1), y)).getType()
+						if (landMap.getLandPoint(ClusterMapHelper.formKey((x - 1), y)).getType().equals(markType)
+								&& landMap.getLandPoint(ClusterMapHelper.formKey((x + 1), y)).getType()
 										.equals(ClusterConfiguration.EMPTY_MARK)) {
 							successivesN = right = true;
 						}
@@ -336,7 +336,7 @@ public class LSystemClusterAlgorithm {
 				// lower side only it retries until the case is done
 				if (successivesN && (emptySpaces > 0) && left) {
 					for (int j = x; j > (x - (emptySpaces + 1)); j--) {
-						landMap.getLandPoint(MapHelper.formKey(j, y)).setType(markType);
+						landMap.getLandPoint(ClusterMapHelper.formKey(j, y)).setType(markType);
 					}
 					successivesN = false;
 					left = false;
@@ -345,14 +345,14 @@ public class LSystemClusterAlgorithm {
 				// upper side is going to need me to do it until one is out
 				if (successivesN && right) {
 					for (int j = x; j < landMap.getPointsx(); j++) {
-						if (landMap.getLandPoint(MapHelper.formKey(j, y)).getType()
+						if (landMap.getLandPoint(ClusterMapHelper.formKey(j, y)).getType()
 								.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 							leavePolygon = true;
 							successivesN = false;
 							right = false;
 							break;
 						}
-						landMap.getLandPoint(MapHelper.formKey(j, y)).setType(markType);
+						landMap.getLandPoint(ClusterMapHelper.formKey(j, y)).setType(markType);
 					}
 				}
 			}

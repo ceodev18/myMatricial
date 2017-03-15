@@ -1,12 +1,12 @@
 package models.clusterVariation;
 
-import interfaces.Constants;
+import interfaces.clusterVariation.ClusterConstants;
 
 public class ClusterLandRoute {
-	private int type = Constants.ARTERIAL_BRANCH;
+	private int type = ClusterConstants.ARTERIAL_BRANCH;
 	private int initialPointId = -1;
 	private int finalPointId = -1;
-	private int direction = Constants.ORTHOGONAL;
+	private int direction = ClusterConstants.ORTHOGONAL;
 	private int extension = 0;
 	
 	public int getType() {

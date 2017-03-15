@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import helpers.base.MapHelper;
 import helpers.clusterVariation.ClusterDirectionHelper;
-import interfaces.ClusterConfiguration;
-import interfaces.Constants;
+import helpers.clusterVariation.ClusterMapHelper;
+import interfaces.clusterVariation.ClusterConfiguration;
+import interfaces.clusterVariation.ClusterConstants;
 
 public class ClusterLandMap {
 	private int pointsx = -1;
@@ -39,7 +39,7 @@ public class ClusterLandMap {
 		map = new HashMap<>();
 		for (int i = 0; i < pointsx; i++) {
 			for (int j = 0; j < pointsy; j++) {
-				map.put(MapHelper.formKey(i, j), new ClusterLandPoint(i, j));
+				map.put(ClusterMapHelper.formKey(i, j), new ClusterLandPoint(i, j));
 			}
 		}
 	}
@@ -113,8 +113,8 @@ public class ClusterLandMap {
 						: polygon.get(j).getY();
 
 				for (int w = lower; w <= upper; w++) {
-					getLandPoint(MapHelper.formKey(polygon.get(i).getX(), w)).setType(Constants.POLYGON_LIMIT);
-					truePolygon.add(MapHelper.formKey(polygon.get(i).getX(), w));
+					getLandPoint(ClusterMapHelper.formKey(polygon.get(i).getX(), w)).setType(ClusterConstants.POLYGON_LIMIT);
+					truePolygon.add(ClusterMapHelper.formKey(polygon.get(i).getX(), w));
 				}
 				continue;
 			}
@@ -125,8 +125,8 @@ public class ClusterLandMap {
 			int upper = polygon.get(i).getX() > polygon.get(j).getX() ? polygon.get(i).getX() : polygon.get(j).getX();
 			if (gradient == 0) {
 				for (int w = lower; w <= upper; w++) {
-					getLandPoint(MapHelper.formKey(w, polygon.get(i).getY())).setType(Constants.POLYGON_LIMIT);
-					truePolygon.add(MapHelper.formKey(w, polygon.get(i).getY()));
+					getLandPoint(ClusterMapHelper.formKey(w, polygon.get(i).getY())).setType(ClusterConstants.POLYGON_LIMIT);
+					truePolygon.add(ClusterMapHelper.formKey(w, polygon.get(i).getY()));
 				}
 				continue;
 			}
@@ -134,11 +134,11 @@ public class ClusterLandMap {
 			double b = polygon.get(j).getY() - gradient * polygon.get(j).getX();
 			// 3nd the gradient is positive/negative.
 			for (int w = lower; w <= upper; w++) {
-				float y = MapHelper.round(gradient * w + b);
+				float y = ClusterMapHelper.round(gradient * w + b);
 				if (y == (int) y) // quick and dirty convertion check
 				{
-					getLandPoint(MapHelper.formKey(w, (int) y)).setType(Constants.POLYGON_LIMIT);
-					truePolygon.add(MapHelper.formKey(w, (int) y));
+					getLandPoint(ClusterMapHelper.formKey(w, (int) y)).setType(ClusterConstants.POLYGON_LIMIT);
+					truePolygon.add(ClusterMapHelper.formKey(w, (int) y));
 				}
 			}
 			fullPolygon.add(truePolygon);
@@ -180,28 +180,28 @@ public class ClusterLandMap {
 			int pInitialLimit = -1;
 			boolean reversed = false;
 			for (int y = 0; y < pointsy; y++) {
-				if (getLandPoint(MapHelper.formKey(x, y)).getType() == Constants.POLYGON_LIMIT) {
+				if (getLandPoint(ClusterMapHelper.formKey(x, y)).getType() == ClusterConstants.POLYGON_LIMIT) {
 					count++;
 					pInitialLimit = pInitialLimit == -1 ? y : pInitialLimit;
 				}
 
 				switch (count) {
 				case 0:
-					getLandPoint(MapHelper.formKey(x, y)).setType(Constants.OUTSIDE_POLYGON);
+					getLandPoint(ClusterMapHelper.formKey(x, y)).setType(ClusterConstants.OUTSIDE_POLYGON);
 					break;
 				case 1:
-					if (getLandPoint(MapHelper.formKey(x, y)).getType() != Constants.POLYGON_LIMIT) {
-						getLandPoint(MapHelper.formKey(x, y)).setType(Constants.OUTSIDE_POLYGON);
+					if (getLandPoint(ClusterMapHelper.formKey(x, y)).getType() != ClusterConstants.POLYGON_LIMIT) {
+						getLandPoint(ClusterMapHelper.formKey(x, y)).setType(ClusterConstants.OUTSIDE_POLYGON);
 					}
 					break;
 				case 2:
 					if (!reversed) {
 						for (int w = pInitialLimit + 1; w < y; w++) {
-							getLandPoint(MapHelper.formKey(x, w)).setType(Constants.INSIDE_POLYGON);
+							getLandPoint(ClusterMapHelper.formKey(x, w)).setType(ClusterConstants.INSIDE_POLYGON);
 						}
 						reversed = true;
 					} else {
-						getLandPoint(MapHelper.formKey(x, y)).setType(Constants.OUTSIDE_POLYGON);
+						getLandPoint(ClusterMapHelper.formKey(x, y)).setType(ClusterConstants.OUTSIDE_POLYGON);
 					}
 					break;
 				}
@@ -219,8 +219,8 @@ public class ClusterLandMap {
 	// Variation for the creation of zones
 	public void createBorderFromPolygon(List<Integer> polygon, String markType) {
 		for (int i = 0; i < polygon.size(); i++) {
-			int xyInitial[] = MapHelper.breakKey(polygon.get(i));
-			int xyFinal[] = MapHelper.breakKey(polygon.get((i + 1) % polygon.size()));
+			int xyInitial[] = ClusterMapHelper.breakKey(polygon.get(i));
+			int xyFinal[] = ClusterMapHelper.breakKey(polygon.get((i + 1) % polygon.size()));
 
 			int underscore = (xyFinal[0] - xyInitial[0]);
 			if (underscore == 0) {
@@ -228,7 +228,7 @@ public class ClusterLandMap {
 				int upper = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
 
 				for (int w = lower; w <= upper; w++) {
-					getLandPoint(MapHelper.formKey(xyInitial[0], w)).setType(markType);
+					getLandPoint(ClusterMapHelper.formKey(xyInitial[0], w)).setType(markType);
 				}
 				continue;
 			}
@@ -239,7 +239,7 @@ public class ClusterLandMap {
 			int upper = xyInitial[0] > xyFinal[0] ? xyInitial[0] : xyFinal[0];
 			if (gradient == 0) {
 				for (int w = lower; w <= upper; w++) {
-					getLandPoint(MapHelper.formKey(w, xyInitial[1])).setType(markType);
+					getLandPoint(ClusterMapHelper.formKey(w, xyInitial[1])).setType(markType);
 				}
 				continue;
 			}
@@ -247,10 +247,10 @@ public class ClusterLandMap {
 			double b = xyFinal[1] - gradient * xyFinal[0];
 			// 3nd the gradient is positive/negative.
 			for (int w = lower; w <= upper; w++) {
-				float y = MapHelper.round(gradient * w + b);
+				float y = ClusterMapHelper.round(gradient * w + b);
 				if (y == (int) y) // quick and dirty convertion check
 				{
-					getLandPoint(MapHelper.formKey(w, (int) y)).setType(markType);
+					getLandPoint(ClusterMapHelper.formKey(w, (int) y)).setType(markType);
 				}
 			}
 		}
@@ -259,7 +259,7 @@ public class ClusterLandMap {
 	private void clearDottedLimits() {
 		for (int i = 0; i < pointsx; i++) {
 			for (int j = 0; j < pointsy; j++) {
-				ClusterLandPoint clusterLandPoint = this.getLandPoint(MapHelper.formKey(i, j));
+				ClusterLandPoint clusterLandPoint = this.getLandPoint(ClusterMapHelper.formKey(i, j));
 				if (clusterLandPoint.getType().equals(ClusterConfiguration.POLYGON_BORDER)) {
 					clusterLandPoint.setType(ClusterConfiguration.EMPTY_MARK);
 				}
@@ -296,7 +296,7 @@ public class ClusterLandMap {
 	public void printMap() {
 		for (int j = pointsy - 1; j >= 0; j--) {
 			for (int i = 0; i < pointsx; i++) {
-				System.out.print(getLandPoint(MapHelper.formKey(i, j)).getType());
+				System.out.print(getLandPoint(ClusterMapHelper.formKey(i, j)).getType());
 			}
 			System.out.println();
 		}
@@ -307,7 +307,7 @@ public class ClusterLandMap {
 			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
 			for (int j = pointsy - 1; j >= 0; j--) {
 				for (int i = 0; i < pointsx; i++) {
-					writer.print(getLandPoint(MapHelper.formKey(i, j)).getType());
+					writer.print(getLandPoint(ClusterMapHelper.formKey(i, j)).getType());
 				}
 				writer.println();
 			}
@@ -370,7 +370,7 @@ public class ClusterLandMap {
 	}
 
 	public boolean landPointisOnMap(int pointId) {
-		int[] xy = MapHelper.breakKey(pointId);
+		int[] xy = ClusterMapHelper.breakKey(pointId);
 		return xy[0] < pointsx && xy[0] > 0 && xy[1] < pointsy && xy[1] > 0;
 	}
 
@@ -398,9 +398,9 @@ public class ClusterLandMap {
 		int initialPoint = landRoutes.get(0).getInitialPointId();
 		int finalPoint = landRoutes.get(0).getFinalPointId();
 
-		int[] initialXY = MapHelper.breakKey(initialPoint);
-		int[] finalXY = MapHelper.breakKey(finalPoint);
-		int[] entryXY = MapHelper.breakKey(entryPointId);
+		int[] initialXY = ClusterMapHelper.breakKey(initialPoint);
+		int[] finalXY = ClusterMapHelper.breakKey(finalPoint);
+		int[] entryXY = ClusterMapHelper.breakKey(entryPointId);
 
 		return (initialXY[0] < entryXY[0] && entryXY[0] < finalXY[0])
 				|| ((initialXY[1] < entryXY[1] && entryXY[1] < finalXY[1]));
@@ -408,58 +408,58 @@ public class ClusterLandMap {
 
 	public boolean isNode(int x, int y) {
 		// up,down,left,right
-		if (!findPoint(MapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+		if (!findPoint(ClusterMapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
 			return false;
 		}
 		int node = 0;
 		boolean[] nodeInBorder = new boolean[] { false, false, false, false };
 		int outside = 0;
 		if (y + 1 != pointsy) {
-			if (findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if (findPoint(ClusterMapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
 				node++;
 				nodeInBorder[0] = true;
 			}
 
-			if (findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			if (findPoint(ClusterMapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 				outside++;
 		}
 
 		if (y - 1 != -1) {
-			if (findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if (findPoint(ClusterMapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
 				node++;
 				nodeInBorder[1] = true;
 			}
 
-			if (findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			if (findPoint(ClusterMapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 				outside++;
 		}
 
 		if (x - 1 != -1) {
-			if (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if (findPoint(ClusterMapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
 				node++;
 				nodeInBorder[2] = true;
 			}
 
-			if (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			if (findPoint(ClusterMapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 				outside++;
 		}
 
 		if (x + 1 != pointsx) {
-			if (findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if (findPoint(ClusterMapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
 				node++;
 				nodeInBorder[3] = true;
 			}
 
-			if (findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			if (findPoint(ClusterMapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 				outside++;
 		}
 
 		if ((y + 1 != pointsy) && (y - 1 != -1) && (x - 1 != -1) && (x + 1 != pointsx)) {
-			if ((findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.ARTERIAL_MARK)
-					|| findPoint(MapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.LOCAL_MARK))
-					&& findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.COLLECTOR_MARK)
-					&& findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)
-					&& findPoint(MapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if ((findPoint(ClusterMapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.ARTERIAL_MARK)
+					|| findPoint(ClusterMapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.LOCAL_MARK))
+					&& findPoint(ClusterMapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.COLLECTOR_MARK)
+					&& findPoint(ClusterMapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)
+					&& findPoint(ClusterMapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
 				return true;
 			}
 		}
@@ -526,30 +526,30 @@ public class ClusterLandMap {
 
 		int seed = 0;
 		boolean lotizable = true, notUniform = false;
-		int[] currentXY = MapHelper.breakKey(list.get(beginning));
-		int[] finalXY = MapHelper.breakKey(list.get((beginning + 1) % list.size()));
+		int[] currentXY = ClusterMapHelper.breakKey(list.get(beginning));
+		int[] finalXY = ClusterMapHelper.breakKey(list.get((beginning + 1) % list.size()));
 		Double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
 
-		if (direction == Constants.EAST || direction == Constants.WEST) {
+		if (direction == ClusterConstants.EAST || direction == ClusterConstants.WEST) {
 			if (gradient.doubleValue() == 0.0) {
-				currentXY[0] = direction == Constants.EAST ? currentXY[0] + 1 : currentXY[0];
+				currentXY[0] = direction == ClusterConstants.EAST ? currentXY[0] + 1 : currentXY[0];
 				ClusterBuilding clusterBuilding = createWalkRoute(currentXY, false, direction, beginning);
 				if (clusterBuilding != null) {
-					currentXY = MapHelper.moveKeyByOffsetAndDirection(currentXY, ClusterConfiguration.WALK_BRANCH_SIZE,
+					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, ClusterConfiguration.WALK_BRANCH_SIZE,
 							direction);
 				}
 
-				finalXY[0] = direction == Constants.EAST ? finalXY[0] : finalXY[0] + 1;
+				finalXY[0] = direction == ClusterConstants.EAST ? finalXY[0] : finalXY[0] + 1;
 				clusterBuilding = createWalkRoute(finalXY, true, direction, beginning);
 				if (clusterBuilding != null) {
-					finalXY = MapHelper.moveKeyByOffsetAndDirection(finalXY, ClusterConfiguration.WALK_BRANCH_SIZE,
+					finalXY = ClusterMapHelper.moveKeyByOffsetAndDirection(finalXY, ClusterConfiguration.WALK_BRANCH_SIZE,
 							ClusterDirectionHelper.oppositeDirection(direction));
 				}
 			} else {
 				notUniform = true;
 				System.out.println("Non orthogonal east/west walk detected");
 			}
-		} else if (direction == Constants.SOUTH || direction == Constants.NORTH) {
+		} else if (direction == ClusterConstants.SOUTH || direction == ClusterConstants.NORTH) {
 			if (gradient.isInfinite()) {// means it is a route connection and a
 										// perfect one at it
 				createClusterEntrance(currentXY, finalXY, direction);
@@ -566,20 +566,20 @@ public class ClusterLandMap {
 
 		while (true) {
 			boolean done = false;
-			if ((direction == Constants.EAST) || (direction == Constants.NORTH))
+			if ((direction == ClusterConstants.EAST) || (direction == ClusterConstants.NORTH))
 				done = currentXY[0] >= finalXY[0] && currentXY[1] >= finalXY[1];
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
 
 			if (done) {
 				switch (direction) {
-				case Constants.EAST:
-					return lotize(list, Constants.NORTH, ++beginning);
-				case Constants.NORTH:
-					return lotize(list, Constants.WEST, ++beginning);
-				case Constants.WEST:
-					return lotize(list, Constants.SOUTH, ++beginning);
-				case Constants.SOUTH:
+				case ClusterConstants.EAST:
+					return lotize(list, ClusterConstants.NORTH, ++beginning);
+				case ClusterConstants.NORTH:
+					return lotize(list, ClusterConstants.WEST, ++beginning);
+				case ClusterConstants.WEST:
+					return lotize(list, ClusterConstants.SOUTH, ++beginning);
+				case ClusterConstants.SOUTH:
 					return 0;
 				}
 			}
@@ -589,11 +589,11 @@ public class ClusterLandMap {
 			if (lotizable) {
 				createDoubleLot(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
 						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 10);
-				currentXY = MapHelper.moveKeyByOffsetAndDirection(currentXY,
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
 						ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
 				seed += 2;
 			} else {
-				currentXY = MapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
 			}
 		}
 	}
@@ -610,11 +610,11 @@ public class ClusterLandMap {
 		lowerMiddle[0] = currentXY[0];
 		lowerMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) - (ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
 
-		if ((direction == Constants.NORTH) && (lowerMiddle[1] < currentXY[1] || upperMiddle[1] > finalXY[1]))
+		if ((direction == ClusterConstants.NORTH) && (lowerMiddle[1] < currentXY[1] || upperMiddle[1] > finalXY[1]))
 			return;
-		else if ((direction == Constants.SOUTH) && (lowerMiddle[1] > currentXY[1] || upperMiddle[1] < finalXY[1]))
+		else if ((direction == ClusterConstants.SOUTH) && (lowerMiddle[1] > currentXY[1] || upperMiddle[1] < finalXY[1]))
 			return;
-		createInsideClusterRoute(upperMiddle, MapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction,
+		createInsideClusterRoute(upperMiddle, ClusterMapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction,
 				ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
 				ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
 	}
@@ -622,13 +622,13 @@ public class ClusterLandMap {
 	private ClusterBuilding createWalkRoute(int[] currentXY, boolean isInverse, int direction, int rotation) {
 		if (isInverse) {
 			return createInsideClusterRoute(currentXY,
-					MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]),
+					ClusterMapHelper.moveKeyByOffsetAndDirection(ClusterMapHelper.formKey(currentXY[0], currentXY[1]),
 							ClusterConfiguration.WALK_BRANCH_SIZE, ClusterDirectionHelper.oppositeDirection(direction)),
 					direction, ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
 					ClusterConfiguration.WALK_MARK);
 		} else {
 			return createInsideClusterRoute(currentXY,
-					MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]),
+					ClusterMapHelper.moveKeyByOffsetAndDirection(ClusterMapHelper.formKey(currentXY[0], currentXY[1]),
 							ClusterConfiguration.WALK_BRANCH_SIZE, direction),
 					direction, ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
 					ClusterConfiguration.WALK_MARK);
@@ -637,11 +637,11 @@ public class ClusterLandMap {
 
 	private boolean canBeLotized(int[] currentXY, int houseSideSize, int doublehouseDepthSize, int direction) {
 		switch (direction) {
-		case Constants.EAST:
+		case ClusterConstants.EAST:
 			for (int i = currentXY[0]; i < currentXY[0] + houseSideSize; i++) {
 				for (int j = currentXY[1]; j > currentXY[1] - doublehouseDepthSize; j--) {
-					if (landPointisOnMap(MapHelper.formKey(i, j))) {
-						String type = findPoint(MapHelper.formKey(i, j)).getType();
+					if (landPointisOnMap(ClusterMapHelper.formKey(i, j))) {
+						String type = findPoint(ClusterMapHelper.formKey(i, j)).getType();
 						if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals("e")) {
 							return false;
 						}
@@ -651,11 +651,11 @@ public class ClusterLandMap {
 				}
 			}
 			break;
-		case Constants.NORTH:
+		case ClusterConstants.NORTH:
 			for (int i = currentXY[1]; i < currentXY[1] + houseSideSize; i++) {
 				for (int j = currentXY[0]; j < currentXY[0] + doublehouseDepthSize; j++) {
-					if (landPointisOnMap(MapHelper.formKey(j, i))) {
-						String type = findPoint(MapHelper.formKey(j, i)).getType();
+					if (landPointisOnMap(ClusterMapHelper.formKey(j, i))) {
+						String type = findPoint(ClusterMapHelper.formKey(j, i)).getType();
 						if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals("e")) {
 							return false;
 						}
@@ -665,11 +665,11 @@ public class ClusterLandMap {
 				}
 			}
 			break;
-		case Constants.WEST:
+		case ClusterConstants.WEST:
 			for (int i = currentXY[0]; i >= currentXY[0] - houseSideSize; i--) {
 				for (int j = currentXY[1]; j < currentXY[1] + doublehouseDepthSize; j++) {
-					if (landPointisOnMap(MapHelper.formKey(i, j))) {
-						String type = findPoint(MapHelper.formKey(i, j)).getType();
+					if (landPointisOnMap(ClusterMapHelper.formKey(i, j))) {
+						String type = findPoint(ClusterMapHelper.formKey(i, j)).getType();
 						if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals("e")) {
 							return false;
 						}
@@ -679,11 +679,11 @@ public class ClusterLandMap {
 				}
 			}
 			break;
-		case Constants.SOUTH:
+		case ClusterConstants.SOUTH:
 			for (int i = currentXY[1]; i >= currentXY[1] - houseSideSize; i--) {
 				for (int j = currentXY[0]; j > currentXY[0] - doublehouseDepthSize; j--) {
-					if (landPointisOnMap(MapHelper.formKey(j, i))) {
-						String type = findPoint(MapHelper.formKey(j, i)).getType();
+					if (landPointisOnMap(ClusterMapHelper.formKey(j, i))) {
+						String type = findPoint(ClusterMapHelper.formKey(j, i)).getType();
 						if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals("e")) {
 							return false;
 						}
@@ -700,47 +700,47 @@ public class ClusterLandMap {
 	private void createDoubleLot(int[] currentXY, int houseSideMinimunSize, int houseDepthMinimunSize, int direction,
 			int serialNumber) {
 		switch (direction) {
-		case Constants.EAST:
+		case ClusterConstants.EAST:
 			for (int i = currentXY[0]; i < currentXY[0] + houseSideMinimunSize; i++) {
 				for (int j = currentXY[1]; j > currentXY[1] - houseDepthMinimunSize; j--) {
-					findPoint(MapHelper.formKey(i, j)).setType("" + serialNumber);
+					findPoint(ClusterMapHelper.formKey(i, j)).setType("" + serialNumber);
 				}
 				for (int j = currentXY[1] - (houseDepthMinimunSize + 1); j > currentXY[1]
 						- 2 * houseDepthMinimunSize; j--) {
-					findPoint(MapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
+					findPoint(ClusterMapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
 				}
 			}
 			break;
-		case Constants.NORTH:
+		case ClusterConstants.NORTH:
 			for (int i = currentXY[1]; i < currentXY[1] + houseSideMinimunSize; i++) {
 				for (int j = currentXY[0]; j < currentXY[0] + houseDepthMinimunSize; j++) {
-					findPoint(MapHelper.formKey(j, i)).setType("" + serialNumber);
+					findPoint(ClusterMapHelper.formKey(j, i)).setType("" + serialNumber);
 				}
 				for (int j = currentXY[0] + houseDepthMinimunSize + 1; j < currentXY[0]
 						+ 2 * houseDepthMinimunSize; j++) {
-					findPoint(MapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
+					findPoint(ClusterMapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
 				}
 			}
 			break;
-		case Constants.WEST:
+		case ClusterConstants.WEST:
 			for (int i = currentXY[0]; i >= currentXY[0] - houseSideMinimunSize; i--) {
 				for (int j = currentXY[1]; j < currentXY[1] + houseDepthMinimunSize; j++) {
-					findPoint(MapHelper.formKey(i, j)).setType("" + serialNumber);
+					findPoint(ClusterMapHelper.formKey(i, j)).setType("" + serialNumber);
 				}
 				for (int j = currentXY[1] + houseDepthMinimunSize + 1; j < currentXY[1]
 						+ 2 * houseDepthMinimunSize; j++) {
-					findPoint(MapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
+					findPoint(ClusterMapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
 				}
 			}
 			break;
-		case Constants.SOUTH:
+		case ClusterConstants.SOUTH:
 			for (int i = currentXY[1]; i >= currentXY[1] - houseSideMinimunSize; i--) {
 				for (int j = currentXY[0]; j > currentXY[0] - houseDepthMinimunSize; j--) {
-					findPoint(MapHelper.formKey(j, i)).setType("" + serialNumber);
+					findPoint(ClusterMapHelper.formKey(j, i)).setType("" + serialNumber);
 				}
 				for (int j = currentXY[0] - (houseDepthMinimunSize + 1); j > currentXY[0]
 						- 2 * houseDepthMinimunSize; j--) {
-					findPoint(MapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
+					findPoint(ClusterMapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
 				}
 			}
 			break;
@@ -749,11 +749,11 @@ public class ClusterLandMap {
 
 	private ClusterBuilding createInsideClusterRoute(int[] currentXY, int finalKey, int direction, int type, int depth,
 			String markType) {
-		int[] finalXY = MapHelper.breakKey(finalKey);
+		int[] finalXY = ClusterMapHelper.breakKey(finalKey);
 		int lower, upper;
 		ClusterBuilding clusterBuilding = new ClusterBuilding();
 
-		if ((direction == Constants.NORTH) || (direction == Constants.SOUTH)) {
+		if ((direction == ClusterConstants.NORTH) || (direction == ClusterConstants.SOUTH)) {
 			if (currentXY[1] > finalXY[1]) {
 				lower = finalXY[1];
 				upper = currentXY[1];
@@ -762,20 +762,20 @@ public class ClusterLandMap {
 				upper = finalXY[1];
 			}
 
-			if (direction == Constants.SOUTH) {
+			if (direction == ClusterConstants.SOUTH) {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[0]; j > currentXY[0] - depth; j--) {
-						findPoint(MapHelper.formKey(j, i)).setType(markType);
+						findPoint(ClusterMapHelper.formKey(j, i)).setType(markType);
 					}
 				}
 			} else {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[0]; j < currentXY[0] + depth; j++) {
-						findPoint(MapHelper.formKey(j, i)).setType(markType);
+						findPoint(ClusterMapHelper.formKey(j, i)).setType(markType);
 					}
 				}
 			}
-		} else if ((direction == Constants.EAST) || (direction == Constants.WEST)) {
+		} else if ((direction == ClusterConstants.EAST) || (direction == ClusterConstants.WEST)) {
 			if (currentXY[0] > finalXY[0]) {
 				lower = finalXY[0];
 				upper = currentXY[0];
@@ -784,16 +784,16 @@ public class ClusterLandMap {
 				upper = finalXY[0];
 			}
 
-			if (direction == Constants.EAST) {
+			if (direction == ClusterConstants.EAST) {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[1]; j > currentXY[1] - depth; j--) {
-						findPoint(MapHelper.formKey(i, j)).setType(markType);
+						findPoint(ClusterMapHelper.formKey(i, j)).setType(markType);
 					}
 				}
 			} else {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[1]; j < currentXY[1] + depth; j++) {
-						findPoint(MapHelper.formKey(i, j)).setType(markType);
+						findPoint(ClusterMapHelper.formKey(i, j)).setType(markType);
 					}
 				}
 			}

@@ -1,4 +1,4 @@
-package interfaces;
+package interfaces.clusterVariation;
 
 public interface ClusterConfiguration {
 	public static int BASE_CLUSTER_SIZE = 272;

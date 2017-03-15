@@ -5,7 +5,7 @@ import java.util.List;
 
 import algorithm.clusterVariation.ClusterLotizationAlgorithm;
 import algorithm.clusterVariation.LSystemClusterAlgorithm;
-import interfaces.ClusterConfiguration;
+import interfaces.clusterVariation.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 

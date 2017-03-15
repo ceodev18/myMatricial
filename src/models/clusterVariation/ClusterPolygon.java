@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import helpers.base.MapHelper;
-import helpers.clusterVariation.ClusterDirectionHelper;
-import interfaces.ClusterConfiguration;
-import interfaces.Constants;
 
 public class ClusterPolygon {
 	private List<Integer> points;

@@ -1,8 +1,8 @@
 package models.clusterVariation;
 
-import helpers.base.MapHelper;
-import interfaces.ClusterConfiguration;
-import interfaces.Constants;
+import helpers.clusterVariation.ClusterMapHelper;
+import interfaces.clusterVariation.ClusterConfiguration;
+import interfaces.clusterVariation.ClusterConstants;
 
 public class ClusterLandPoint {
 	private int id = -1;
@@ -55,14 +55,14 @@ public class ClusterLandPoint {
 	/* Helper functions */
 	public int findNeighbour(int direction) {
 		switch (direction) {
-		case Constants.EAST:
-			return MapHelper.formKey(x + 1, y);
-		case Constants.WEST:
-			return MapHelper.formKey(x - 1, y);
-		case Constants.NORTH:
-			return MapHelper.formKey(x, y - 1);
-		case Constants.SOUTH:
-			return MapHelper.formKey(x, y + 1);
+		case ClusterConstants.EAST:
+			return ClusterMapHelper.formKey(x + 1, y);
+		case ClusterConstants.WEST:
+			return ClusterMapHelper.formKey(x - 1, y);
+		case ClusterConstants.NORTH:
+			return ClusterMapHelper.formKey(x, y - 1);
+		case ClusterConstants.SOUTH:
+			return ClusterMapHelper.formKey(x, y + 1);
 		}
 		return -1;
 	}
@@ -72,15 +72,15 @@ public class ClusterLandPoint {
 		int yDiff = mainRouteExit.getX() - this.getY();
 
 		if (yDiff > 0) {
-			return Constants.NORTH;
+			return ClusterConstants.NORTH;
 		} else if (yDiff < 0) {
-			return Constants.SOUTH;
+			return ClusterConstants.SOUTH;
 		}
 
 		if (xDiff > 0) {
-			return Constants.WEST;
+			return ClusterConstants.WEST;
 		} else if (xDiff < 0) {
-			return Constants.EAST;
+			return ClusterConstants.EAST;
 		}
 		return -1; // In case of error or pointing the same point
 	}
