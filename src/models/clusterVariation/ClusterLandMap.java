@@ -217,9 +217,9 @@ public class ClusterLandMap {
 
 	// Variation for the creation of zones
 	public void createBorderFromPolygon(List<Integer> polygon, String markType) {
-		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
+		for (int i = 0; i < polygon.size(); i++) {
 			int xyInitial[] = MapHelper.breakKey(polygon.get(i));
-			int xyFinal[] = MapHelper.breakKey(polygon.get(j));
+			int xyFinal[] = MapHelper.breakKey(polygon.get((i+1)%polygon.size()));
 
 			int underscore = (xyFinal[0] - xyInitial[0]);
 			if (underscore == 0) {

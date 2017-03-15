@@ -54,18 +54,18 @@ public class ClusterLotizationAlgorithm {
 
 					List<List<Integer>> points = clusterPolygon.shrinkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2,
 							ClusterConfiguration.LOCAL_BRANCH_SIZE);
-					List<List<Integer>> grass = clusterPolygon.parkZone(
+					/*List<List<Integer>> grass = clusterPolygon.parkZone(
 							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2-1 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
 
 					for (int j = 0; j < grass.size(); j++) {
 						landMap.createBorderFromPolygon(grass.get(j),ClusterConfiguration.PARK_MARK);
-					}
+					}*/
 					
 					for (int j = 0; j < points.size(); j++) {
 						landMap.createBorderFromPolygon(points.get(j),ClusterConfiguration.LOCAL_MARK);
 					}
 
-					if(points.size()==0 && grass.size()==0){
+					if(points.size()==0 ){//&& grass.size()==0){
 						//TODO lotize as full focus (library or other).
 					}
 				}

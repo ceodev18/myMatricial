@@ -70,6 +70,7 @@ public class ClusterPolygon {
 		List<Integer> shrinkedList = new ArrayList<>();
 		List<Double> gradients = new ArrayList<>();
 		List<Double> offsets = new ArrayList<>();
+		List<double[]> variations = new ArrayList<>();
 
 		for (int i = 0; i < points.size(); i++) {
 			int[] xyInitial = MapHelper.breakKey(points.get(i));
@@ -81,6 +82,7 @@ public class ClusterPolygon {
 					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
 			unitVector[1] = (xyFinal[1] - xyInitial[1])
 					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
+
 			double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / (xyFinal[0] - xyInitial[0]);
 			gradients.add(gradient);
 			// then the perpendicular
@@ -99,16 +101,21 @@ public class ClusterPolygon {
 
 			double distanceToCentroidA = distanceToCentroid(variationA);
 			double distanceToCentroid = distanceToCentroid(xyInitial);
+			double distanceToCentroidB = distanceToCentroid(variationB);
 
 			double b;
 			if (distanceToCentroid > distanceToCentroidA) {
 				b = variationA[1] - gradient * variationA[0];
+				variations.add(variationA);
 			} else {
 				b = variationB[1] - gradient * variationB[0];
+				variations.add(variationB);
 			}
 			offsets.add(b);
 		}
 
+		// TODO especial cases. When infinity and when 0 if infinity y=has a
+		// number and the other is perpendicular. Such xy
 		for (int i = 0; i < offsets.size(); i++) {
 			int xy[] = new int[2];
 			int previous = i - 1;
@@ -116,9 +123,57 @@ public class ClusterPolygon {
 				previous = offsets.size() - 1;
 			}
 
-			xy[0] = (int) (gradients.get(previous) - gradients.get(i) / offsets.get(i) - offsets.get(previous));
-			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
+			int infinite = 0, zero = 0;
+			if (gradients.get(i).isInfinite()) {
+				infinite = 1;
+				xy[0] = (int) variations.get(i)[0];
+			} 
 
+			if (gradients.get(previous).isInfinite()) {
+				infinite = 2;
+				xy[0] = (int) variations.get(previous)[0];
+			} 
+						
+			if (gradients.get(i) == 0.0) {
+				zero = 1;
+				xy[1] = (int) variations.get(i)[1];
+			}
+			
+			if (gradients.get(previous) == 0.0) {
+				zero = 2;
+				xy[1] = (int) variations.get(previous)[1];
+			}
+			
+			//squared box
+			if (infinite>0 && zero>0) {	
+				shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
+				continue;
+			}
+
+			//square and non linear up and side
+			if (infinite>0) {
+				if(infinite==1){
+					xy[1] = (int) (gradients.get(previous)*xy[0]+offsets.get(previous));
+				}else{
+					xy[1] = (int) (gradients.get(i)*xy[0]+offsets.get(i));
+				}
+				shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
+				continue;
+			}
+			
+			//square and non linear down and side
+			if (zero>0) {
+				if(zero==1){
+					xy[0]=(int) ((xy[1] - offsets.get(previous))/gradients.get(previous));
+				}else{
+					xy[0]=(int) ((xy[1] - offsets.get(i))/gradients.get(i));
+				}
+				shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
+				continue;
+			}
+			
+			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
+			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
 			shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
 		}
 
