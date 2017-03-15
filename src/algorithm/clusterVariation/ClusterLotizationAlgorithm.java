@@ -42,31 +42,29 @@ public class ClusterLotizationAlgorithm {
 						&& landMap.findPoint(MapHelper.formKey((x + 1), (y + 1))).getType()
 								.equals(ClusterConfiguration.EMPTY_MARK)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
-					//System.out.println("x:" + x + " y:" + y);
-					//System.out.println("Inside Right");
-					int nextPoint = createOrganicCoverture(MapHelper.formKey(x, y), Constants.EAST, clusterPolygon);
+					/*int nextPoint=*/createOrganicCoverture(MapHelper.formKey(x, y), Constants.EAST, clusterPolygon);
 					if (!clusterPolygon.isComplete()) {
 						landMap.joinWithPolygonalBorder(clusterPolygon);
 					}
-					clusterPolygon.printPolygon();
-					
+					//clusterPolygon.printPolygon();
+
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
-
-					List<List<Integer>> points = clusterPolygon.shrinkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2,
-							ClusterConfiguration.LOCAL_BRANCH_SIZE);
-					/*List<List<Integer>> grass = clusterPolygon.parkZone(
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2-1 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
-
-					for (int j = 0; j < grass.size(); j++) {
-						landMap.createBorderFromPolygon(grass.get(j),ClusterConfiguration.PARK_MARK);
-					}*/
-					
-					for (int j = 0; j < points.size(); j++) {
-						landMap.createBorderFromPolygon(points.get(j),ClusterConfiguration.LOCAL_MARK);
+					List<List<Integer>> routes = clusterPolygon.shrinkZone(
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, ClusterConfiguration.LOCAL_BRANCH_SIZE);
+					for (int j = 0; j < routes.size(); j++) {
+						landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
 					}
 
-					if(points.size()==0 ){//&& grass.size()==0){
-						//TODO lotize as full focus (library or other).
+					List<List<Integer>> grass = clusterPolygon
+							.parkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
+
+					for (int j = 0; j < grass.size(); j++) {
+						landMap.createBorderFromPolygon(grass.get(j), ClusterConfiguration.PARK_MARK);
+					}
+
+					if ((routes.size() == 0) && (grass.size() == 0)) {
+						// TODO lotize as full focus (library or other).
+						clusterPolygon.printPolygon();
 					}
 				}
 			}
@@ -109,11 +107,8 @@ public class ClusterLotizationAlgorithm {
 				break;
 			}
 
-			/*System.out.println("x:" + firstNode[0] + " y:" + firstNode[1] + " type: "
-					+ landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType());*/
-
-			if (!clusterPolygon.isComplete() && landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1])).getType()
-					.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+			if (!clusterPolygon.isComplete() && landMap.findPoint(MapHelper.formKey(firstNode[0], firstNode[1]))
+					.getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 				switch (direction) {
 				case Constants.EAST:
 					clusterPolygon.getPoints().add(MapHelper.formKey(firstNode[0] - 1, firstNode[1]));

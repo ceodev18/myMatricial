@@ -101,7 +101,6 @@ public class ClusterPolygon {
 
 			double distanceToCentroidA = distanceToCentroid(variationA);
 			double distanceToCentroid = distanceToCentroid(xyInitial);
-			double distanceToCentroidB = distanceToCentroid(variationB);
 
 			double b;
 			if (distanceToCentroid > distanceToCentroidA) {
@@ -114,7 +113,7 @@ public class ClusterPolygon {
 			offsets.add(b);
 		}
 
-		// TODO especial cases. When infinity and when 0 if infinity y=has a
+		// Special cases. When infinity and when 0 if infinity y=has a
 		// number and the other is perpendicular. Such xy
 		for (int i = 0; i < offsets.size(); i++) {
 			int xy[] = new int[2];
@@ -127,51 +126,51 @@ public class ClusterPolygon {
 			if (gradients.get(i).isInfinite()) {
 				infinite = 1;
 				xy[0] = (int) variations.get(i)[0];
-			} 
+			}
 
 			if (gradients.get(previous).isInfinite()) {
 				infinite = 2;
 				xy[0] = (int) variations.get(previous)[0];
-			} 
-						
+			}
+
 			if (gradients.get(i) == 0.0) {
 				zero = 1;
 				xy[1] = (int) variations.get(i)[1];
 			}
-			
+
 			if (gradients.get(previous) == 0.0) {
 				zero = 2;
 				xy[1] = (int) variations.get(previous)[1];
 			}
-			
-			//squared box
-			if (infinite>0 && zero>0) {	
+
+			// squared box
+			if (infinite > 0 && zero > 0) {
 				shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
 				continue;
 			}
 
-			//square and non linear up and side
-			if (infinite>0) {
-				if(infinite==1){
-					xy[1] = (int) (gradients.get(previous)*xy[0]+offsets.get(previous));
-				}else{
-					xy[1] = (int) (gradients.get(i)*xy[0]+offsets.get(i));
+			// square and non linear up and side
+			if (infinite > 0) {
+				if (infinite == 1) {
+					xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
+				} else {
+					xy[1] = (int) (gradients.get(i) * xy[0] + offsets.get(i));
 				}
 				shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
 				continue;
 			}
-			
-			//square and non linear down and side
-			if (zero>0) {
-				if(zero==1){
-					xy[0]=(int) ((xy[1] - offsets.get(previous))/gradients.get(previous));
-				}else{
-					xy[0]=(int) ((xy[1] - offsets.get(i))/gradients.get(i));
+
+			// square and non linear down and side
+			if (zero > 0) {
+				if (zero == 1) {
+					xy[0] = (int) ((xy[1] - offsets.get(previous)) / gradients.get(previous));
+				} else {
+					xy[0] = (int) ((xy[1] - offsets.get(i)) / gradients.get(i));
 				}
 				shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
 				continue;
 			}
-			
+
 			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
 			shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
@@ -284,23 +283,31 @@ public class ClusterPolygon {
 	public List<List<Integer>> parkZone(int initialDepth) {
 		List<List<Integer>> areas = new ArrayList<>();
 		List<Integer> area = vectorShrinking(initialDepth);
-		int minorDistance = 9999;
-		for (int i = 0; i < area.size(); i++) {
-			int xy[] = MapHelper.breakKey(area.get(i));
-			int distance = (int) Math.sqrt(Math.pow(xy[0] - centroid[0], 2) + Math.pow(xy[1] - centroid[1], 2));
-			if (distance < minorDistance) {
-				minorDistance = distance;
+		int goDeeper = initialDepth;
+		if (area.size() != 0) {
+			areas.add(area);
+			while (minimunDistanceBetweenVertex(area) > 1) {
+				goDeeper++;
+				area = vectorShrinking(goDeeper);
+				if (area.size() != 0) {
+					areas.add(area);
+				}
 			}
-		}
-
-		if (minorDistance > 0) {
-			for (int i = initialDepth + 1; i < initialDepth + minorDistance; i++) {
-				area = vectorShrinking(i);
-				areas.add(area);
-			}
-		} else {
-			areas = new ArrayList<>();
 		}
 		return areas;
+	}
+
+	private double minimunDistanceBetweenVertex(List<Integer> area) {
+		double minimunDistance = 30000000;
+		for (int i = 0; i < area.size(); i++) {
+			int[] xyInitial = MapHelper.breakKey(area.get(i));
+			int[] xyFinal = MapHelper.breakKey(area.get((i + 1) % area.size()));
+			double distance = Math
+					.sqrt(Math.pow(xyInitial[0] - xyFinal[0], 2) + Math.pow(xyInitial[1] - xyFinal[1], 2));
+			if (minimunDistance > distance) {
+				minimunDistance = distance;
+			}
+		}
+		return minimunDistance;
 	}
 }
