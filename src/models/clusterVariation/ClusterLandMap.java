@@ -531,24 +531,27 @@ public class ClusterLandMap {
 
 		if (direction == Constants.EAST || direction == Constants.WEST) {
 			if (gradient.doubleValue() == 0.0) {
+				currentXY[0]= direction == Constants.EAST? currentXY[0]+1 : currentXY[0];
 				ClusterBuilding clusterBuilding = createWalkRoute(currentXY, false, direction, beginning);
 				if (clusterBuilding != null) {
 					currentXY = MapHelper.moveKeyByOffsetAndDirection(currentXY, ClusterConfiguration.WALK_BRANCH_SIZE,
 							direction);
 				}
 
+				finalXY[0]= direction == Constants.EAST? finalXY[0] : finalXY[0]+1;
 				clusterBuilding = createWalkRoute(finalXY, true, direction, beginning);
 				if (clusterBuilding != null) {
 					finalXY = MapHelper.moveKeyByOffsetAndDirection(finalXY, ClusterConfiguration.WALK_BRANCH_SIZE,
 							ClusterDirectionHelper.oppositeDirection(direction));
 				}
 			} else {
-				System.out.println("Non orthogonal walk detected");
+				System.out.println("Non orthogonal east/west walk detected");
 			}
 		} else if (direction == Constants.SOUTH || direction == Constants.NORTH) {
 			if (gradient.isInfinite()) {// means it is a route connection and a
 										// perfect one at it
 				createClusterEntrance(currentXY, finalXY, direction);
+				System.out.println("Non orthogonal south/north walk detected");
 			}
 		}
 
