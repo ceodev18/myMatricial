@@ -59,9 +59,9 @@ public class ClusterTester {
 		//4. We clusterize the points through the count of minimun number of parks
 		LSystemClusterAlgorithm.clusterize();
 		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.NODE_MARK);
-		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.COLLECTOR_MARK);
 		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.ARTERIAL_MARK);
 		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.LOCAL_MARK);
+		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.COLLECTOR_MARK);
 		
 		//System.out.println("PolygonFull");
 		//for (int i= 0; i < landMap.getFinalPolygon().size(); i++) {

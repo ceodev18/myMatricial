@@ -30,6 +30,24 @@ public class MapHelper {
 		return -1;
 	}
 
+	public static int[] moveKeyByOffsetAndDirection(int[] xy, int size, int direction) {
+		switch (direction) {
+		case Constants.NORTH:
+			xy[1] = xy[1] + size;
+			return xy;
+		case Constants.SOUTH:
+			xy[1] = xy[1] - size;
+			return xy;
+		case Constants.EAST:
+			xy[0] = xy[0] + size;
+			return xy;
+		case Constants.WEST:
+			xy[0] = xy[0] - size;
+			return xy;
+		}
+		return null;
+	}
+	
 	public static int round(double d) {
 		double dAbs = Math.abs(d);
 		int i = (int) dAbs;
@@ -40,5 +58,4 @@ public class MapHelper {
 			return d < 0 ? -(i + 1) : i + 1;
 		}
 	}
-
 }

@@ -12,6 +12,7 @@ public interface ClusterConfiguration {
 	public static int HOUSE_SIDE_MAXIMUN_SIZE = 15;
 	public static int HOUSE_DEPTH_MINIMUN_SIZE = 15; //8*12=96	
 	public static int HOUSE_DEPTH_MAXIMUN_SIZE = 20; //8*12=96	
+	public static int CLUSTER_ENTRANCE_SIZE = 12;
 	
 	public static int ARTERIAL_BRANCH = 0;
 	public static int COLLECTOR_BRANCH = 1;
@@ -28,6 +29,7 @@ public interface ClusterConfiguration {
 	public static String NODE_MARK = "n";
 	public static String PARK_MARK = "p";	
 	public static String WALK_MARK = "w";
+	public static String CLUSTER_ENTRANCE_MARK = "t";
 	
 	public static int TYPE_OUTER_NODE = 0;
 	public static int TYPE_INNER_NODE = 1;
@@ -35,6 +37,8 @@ public interface ClusterConfiguration {
 	
 	public static int CLUSTER_TYPE_TRIANGLE = 3;
 	public static int CLUSTER_TYPE_RECTANGLE = 4;
+
+
 
 
 }

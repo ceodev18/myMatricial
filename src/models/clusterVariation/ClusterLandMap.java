@@ -220,7 +220,7 @@ public class ClusterLandMap {
 	public void createBorderFromPolygon(List<Integer> polygon, String markType) {
 		for (int i = 0; i < polygon.size(); i++) {
 			int xyInitial[] = MapHelper.breakKey(polygon.get(i));
-			int xyFinal[] = MapHelper.breakKey(polygon.get((i+1)%polygon.size()));
+			int xyFinal[] = MapHelper.breakKey(polygon.get((i + 1) % polygon.size()));
 
 			int underscore = (xyFinal[0] - xyInitial[0]);
 			if (underscore == 0) {
@@ -527,19 +527,32 @@ public class ClusterLandMap {
 
 		int[] currentXY = MapHelper.breakKey(list.get(beginning));
 		int[] finalXY = MapHelper.breakKey(list.get((beginning + 1) % list.size()));
-		double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
+		Double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
 
 		if (direction == Constants.EAST || direction == Constants.WEST) {
-			if (gradient == 0.0) {
-				createWalkRoute(currentXY, false, direction, beginning);
-				createWalkRoute(finalXY, true, direction, beginning);
+			if (gradient.doubleValue() == 0.0) {
+				ClusterBuilding clusterBuilding = createWalkRoute(currentXY, false, direction, beginning);
+				if (clusterBuilding != null) {
+					currentXY = MapHelper.moveKeyByOffsetAndDirection(currentXY, ClusterConfiguration.WALK_BRANCH_SIZE,
+							direction);
+				}
+
+				clusterBuilding = createWalkRoute(finalXY, true, direction, beginning);
+				if (clusterBuilding != null) {
+					finalXY = MapHelper.moveKeyByOffsetAndDirection(finalXY, ClusterConfiguration.WALK_BRANCH_SIZE,
+							ClusterDirectionHelper.oppositeDirection(direction));
+				}
 			} else {
 				System.out.println("Non orthogonal walk detected");
+			}
+		} else if (direction == Constants.SOUTH || direction == Constants.NORTH) {
+			if (gradient.isInfinite()) {// means it is a route connection and a
+										// perfect one at it
+				createClusterEntrance(currentXY, finalXY, direction);
 			}
 		}
 
 		while (true) {
-			// out case
 			if (currentXY[0] == finalXY[0] && currentXY[0] == finalXY[0]) {
 				switch (direction) {
 				case Constants.EAST:
@@ -552,57 +565,102 @@ public class ClusterLandMap {
 					return 0;
 				}
 			}
-			
-			int current = MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]), 1, direction);
+
+			int current = MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]), 1,
+					direction);
 			currentXY = MapHelper.breakKey(current);
 		}
 	}
 
+	private void createClusterEntrance(int[] currentXY, int[] finalXY, int direction) {
+		// NORTH then it goes toward x+
+		// SOUTH toward x-
+		// given that x is the same, y is our indicator for the middle
+		int upperMiddle[] = new int[2];
+		upperMiddle[0] = currentXY[0];
+		upperMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) + (ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
+		
+		int lowerMiddle[] = new int[2];
+		lowerMiddle[0] = currentXY[0];
+		lowerMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) - (ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
+		
+		if ((direction==Constants.NORTH) && (lowerMiddle[1] < currentXY[1]  || upperMiddle[1] > finalXY[1]))
+			return;
+		else if((direction==Constants.SOUTH) && (lowerMiddle[1] > currentXY[1]  || upperMiddle[1] < finalXY[1]))
+			return;
+		createInsideClusterRoute(upperMiddle, MapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction, ClusterConfiguration.WALK_BRANCH,
+				ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+	}
+
 	private ClusterBuilding createWalkRoute(int[] currentXY, boolean isInverse, int direction, int rotation) {
 		if (isInverse) {
-			return tryCreateBuilding(currentXY,
+			return createInsideClusterRoute(currentXY,
 					MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]),
 							ClusterConfiguration.WALK_BRANCH_SIZE, ClusterDirectionHelper.oppositeDirection(direction)),
-					ClusterDirectionHelper.oppositeDirection(direction), ClusterConfiguration.WALK_BRANCH,
-					ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, rotation);
+					direction, ClusterConfiguration.WALK_BRANCH,
+					ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, ClusterConfiguration.WALK_MARK);
 		} else {
-			return tryCreateBuilding(currentXY,
+			return createInsideClusterRoute(currentXY,
 					MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]),
 							ClusterConfiguration.WALK_BRANCH_SIZE, direction),
-					direction, ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, rotation);
+					direction, ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+					ClusterConfiguration.WALK_MARK);
 		}
 	}
 
-	private ClusterBuilding tryCreateBuilding(int[] currentXY, int finalKey, int direction, int type, int depth,
-			int rotation) {
+	private ClusterBuilding createInsideClusterRoute(int[] currentXY, int finalKey, int direction, int type, int depth,
+			String markType) {
 		int[] finalXY = MapHelper.breakKey(finalKey);
 		int lower, upper;
 		ClusterBuilding clusterBuilding = new ClusterBuilding();
-		if (currentXY[0] > finalXY[0]) {
-			lower = finalXY[0];
-			upper = currentXY[0];
-		} else {
-			lower = currentXY[0];
-			upper = finalXY[0];
-		}
 
-		if (rotation == 0) {
-			for (int i = lower; i < upper; i++) {
-				for (int j = currentXY[1]; j > currentXY[1] - depth; j--) {
-					clusterBuilding.getPoints().add(MapHelper.formKey(i, j));
-					findPoint(MapHelper.formKey(i, j)).setType("w");
+		if ((direction == Constants.NORTH) || (direction == Constants.SOUTH)) {
+			if (currentXY[1] > finalXY[1]) {
+				lower = finalXY[1];
+				upper = currentXY[1];
+			} else {
+				lower = currentXY[1];
+				upper = finalXY[1];
+			}
+			
+			if (direction == Constants.SOUTH) {
+				for (int i = lower; i < upper; i++) {
+					for (int j = currentXY[0]; j > currentXY[0] - depth; j--) {
+						findPoint(MapHelper.formKey(j, i)).setType(markType);
+					}
+				}
+			} else {
+				for (int i = lower; i < upper; i++) {
+					for (int j = currentXY[0]; j < currentXY[0] + depth; j++) {
+						findPoint(MapHelper.formKey(j, i)).setType(markType);
+					}
 				}
 			}
-		} else {
-			for (int i = lower; i < upper; i++) {
-				for (int j = currentXY[1]; j < currentXY[1] + depth; j++) {
-					clusterBuilding.getPoints().add(MapHelper.formKey(i, j));
-					findPoint(MapHelper.formKey(i, j)).setType("w");
+		} else if ((direction == Constants.EAST) || (direction == Constants.WEST)) {
+			if (currentXY[0] > finalXY[0]) {
+				lower = finalXY[0];
+				upper = currentXY[0];
+			} else {
+				lower = currentXY[0];
+				upper = finalXY[0];
+			}
+			
+			if (direction == Constants.EAST) {
+				for (int i = lower; i < upper; i++) {
+					for (int j = currentXY[1]; j > currentXY[1] - depth; j--) {
+						findPoint(MapHelper.formKey(i, j)).setType(markType);
+					}
+				}
+			} else {
+				for (int i = lower; i < upper; i++) {
+					for (int j = currentXY[1]; j < currentXY[1] + depth; j++) {
+						findPoint(MapHelper.formKey(i, j)).setType(markType);
+					}
 				}
 			}
 		}
 
-		clusterBuilding.setType(ClusterConfiguration.WALK_MARK);
+		clusterBuilding.setType(markType);
 		clusterBuilding.setNumber(0);
 		return clusterBuilding;
 	}
