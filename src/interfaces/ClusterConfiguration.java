@@ -27,6 +27,7 @@ public interface ClusterConfiguration {
 	public static String LOCAL_MARK = "c";
 	public static String NODE_MARK = "n";
 	public static String PARK_MARK = "p";	
+	public static String WALK_MARK = "w";
 	
 	public static int TYPE_OUTER_NODE = 0;
 	public static int TYPE_INNER_NODE = 1;
@@ -34,4 +35,6 @@ public interface ClusterConfiguration {
 	
 	public static int CLUSTER_TYPE_TRIANGLE = 3;
 	public static int CLUSTER_TYPE_RECTANGLE = 4;
+
+
 }

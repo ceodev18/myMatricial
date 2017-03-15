@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import helpers.base.MapHelper;
+import helpers.clusterVariation.ClusterDirectionHelper;
+import interfaces.ClusterConfiguration;
+import interfaces.Constants;
 
 public class ClusterPolygon {
 	private List<Integer> points;
@@ -263,7 +266,7 @@ public class ClusterPolygon {
 		System.out.println();
 	}
 
-	public List<List<Integer>> shrinkZone(int initialShrink, int size) {
+	public List<List<Integer>> routeZone(int initialShrink, int size) {
 		List<List<Integer>> areas = new ArrayList<>();
 		List<Integer> area = vectorShrinking(initialShrink);
 		if (area.size() != 0) {
@@ -310,4 +313,6 @@ public class ClusterPolygon {
 		}
 		return minimunDistance;
 	}
+
+
 }

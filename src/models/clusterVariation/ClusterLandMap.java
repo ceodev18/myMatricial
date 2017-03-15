@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import helpers.base.MapHelper;
+import helpers.clusterVariation.ClusterDirectionHelper;
 import interfaces.ClusterConfiguration;
 import interfaces.Constants;
 
@@ -516,5 +517,93 @@ public class ClusterLandMap {
 			}
 			clusterPolygon.setComplete(true);
 		}
+	}
+
+	public Object lotize(List<Integer> list, int direction, int beginning) {
+		// TODO Not ready
+		if (beginning >= list.size()) {
+			return 0;
+		}
+
+		int[] currentXY = MapHelper.breakKey(list.get(beginning));
+		int[] finalXY = MapHelper.breakKey(list.get((beginning + 1) % list.size()));
+		double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
+
+		if (direction == Constants.EAST || direction == Constants.WEST) {
+			if (gradient == 0.0) {
+				createWalkRoute(currentXY, false, direction, beginning);
+				createWalkRoute(finalXY, true, direction, beginning);
+			} else {
+				System.out.println("Non orthogonal walk detected");
+			}
+		}
+
+		while (true) {
+			// out case
+			if (currentXY[0] == finalXY[0] && currentXY[0] == finalXY[0]) {
+				switch (direction) {
+				case Constants.EAST:
+					return lotize(list, Constants.NORTH, ++beginning);
+				case Constants.NORTH:
+					return lotize(list, Constants.WEST, ++beginning);
+				case Constants.WEST:
+					return lotize(list, Constants.SOUTH, ++beginning);
+				case Constants.SOUTH:
+					return 0;
+				}
+			}
+			
+			int current = MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]), 1, direction);
+			currentXY = MapHelper.breakKey(current);
+		}
+	}
+
+	private ClusterBuilding createWalkRoute(int[] currentXY, boolean isInverse, int direction, int rotation) {
+		if (isInverse) {
+			return tryCreateBuilding(currentXY,
+					MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]),
+							ClusterConfiguration.WALK_BRANCH_SIZE, ClusterDirectionHelper.oppositeDirection(direction)),
+					ClusterDirectionHelper.oppositeDirection(direction), ClusterConfiguration.WALK_BRANCH,
+					ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, rotation);
+		} else {
+			return tryCreateBuilding(currentXY,
+					MapHelper.moveKeyByOffsetAndDirection(MapHelper.formKey(currentXY[0], currentXY[1]),
+							ClusterConfiguration.WALK_BRANCH_SIZE, direction),
+					direction, ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, rotation);
+		}
+	}
+
+	private ClusterBuilding tryCreateBuilding(int[] currentXY, int finalKey, int direction, int type, int depth,
+			int rotation) {
+		int[] finalXY = MapHelper.breakKey(finalKey);
+		int lower, upper;
+		ClusterBuilding clusterBuilding = new ClusterBuilding();
+		if (currentXY[0] > finalXY[0]) {
+			lower = finalXY[0];
+			upper = currentXY[0];
+		} else {
+			lower = currentXY[0];
+			upper = finalXY[0];
+		}
+
+		if (rotation == 0) {
+			for (int i = lower; i < upper; i++) {
+				for (int j = currentXY[1]; j > currentXY[1] - depth; j--) {
+					clusterBuilding.getPoints().add(MapHelper.formKey(i, j));
+					findPoint(MapHelper.formKey(i, j)).setType("w");
+				}
+			}
+		} else {
+			for (int i = lower; i < upper; i++) {
+				for (int j = currentXY[1]; j < currentXY[1] + depth; j++) {
+					clusterBuilding.getPoints().add(MapHelper.formKey(i, j));
+					findPoint(MapHelper.formKey(i, j)).setType("w");
+				}
+			}
+		}
+
+		clusterBuilding.setType(ClusterConfiguration.WALK_MARK);
+		clusterBuilding.setNumber(0);
+		return clusterBuilding;
 	}
 }

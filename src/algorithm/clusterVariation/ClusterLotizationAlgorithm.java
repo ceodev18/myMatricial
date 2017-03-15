@@ -42,26 +42,32 @@ public class ClusterLotizationAlgorithm {
 						&& landMap.findPoint(MapHelper.formKey((x + 1), (y + 1))).getType()
 								.equals(ClusterConfiguration.EMPTY_MARK)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
-					/*int nextPoint=*/createOrganicCoverture(MapHelper.formKey(x, y), Constants.EAST, clusterPolygon);
+					/* int nextPoint= */createOrganicCoverture(MapHelper.formKey(x, y), Constants.EAST, clusterPolygon);
 					if (!clusterPolygon.isComplete()) {
 						landMap.joinWithPolygonalBorder(clusterPolygon);
 					}
-					//clusterPolygon.printPolygon();
-
+					// clusterPolygon.printPolygon();
+					// we create the routes surrounding the park
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
-					List<List<Integer>> routes = clusterPolygon.shrinkZone(
+					List<List<Integer>> routes = clusterPolygon.routeZone(
 							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, ClusterConfiguration.LOCAL_BRANCH_SIZE);
 					for (int j = 0; j < routes.size(); j++) {
 						landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
 					}
 
-					List<List<Integer>> grass = clusterPolygon
-							.parkZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
-
+					// we create the park
+					List<List<Integer>> grass = clusterPolygon.parkZone(
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
 					for (int j = 0; j < grass.size(); j++) {
 						landMap.createBorderFromPolygon(grass.get(j), ClusterConfiguration.PARK_MARK);
 					}
 
+					// we create the houses
+					List<List<Integer>> lowerBorder = clusterPolygon
+							.routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
+					if (lowerBorder.size() > 0) {
+						landMap.lotize(lowerBorder.get(0), Constants.EAST, 0);
+					}
 					if ((routes.size() == 0) && (grass.size() == 0)) {
 						// TODO lotize as full focus (library or other).
 						clusterPolygon.printPolygon();
