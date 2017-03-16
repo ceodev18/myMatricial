@@ -15,55 +15,54 @@ public class LSystemClusterAlgorithm {
 
 	public static void createRoute(int entryPointId, int direction, int branchType) {
 		ClusterLandPoint currentPoint = landMap.findPoint(entryPointId);
-		// due to the vastness of the maps there is a error margin to cover
-		ClusterLandRoute clusterLandRoute = new ClusterLandRoute();
-		clusterLandRoute.setDirection(direction);
-		clusterLandRoute.setInitialPointId(entryPointId);
 		List<Integer> orthogonalDirections = ClusterDirectionHelper.orthogonalDirections(direction);
-
-		int extension = 0;
+		int nextPointId;
 		if (branchType == ClusterConfiguration.ARTERIAL_BRANCH) {
+			ClusterLandRoute clusterLandRoute = new ClusterLandRoute();
 			while (currentPoint.isMapLimit(direction)) {
-				int nextPointId = currentPoint.findNeighbour(direction);
+				nextPointId = currentPoint.findNeighbour(direction);
 				currentPoint = landMap.findPoint(nextPointId);
-				extension++;
 			}
+			clusterLandRoute.setDirection(direction);
+			clusterLandRoute.setInitialPointId(currentPoint.getId());
+
+			while (!currentPoint.isMapLimit(direction)) {
+				if (currentPoint.getType().equals(ClusterConfiguration.EMPTY_MARK)) {
+					landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
+				}
+
+				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
+				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
+				nextPointId = currentPoint.findNeighbour(direction);
+				currentPoint = landMap.findPoint(nextPointId);
+			}
+			clusterLandRoute.setFinalPointId(ClusterMapHelper.moveKeyByOffsetAndDirection(currentPoint.getId(), 1,
+					ClusterDirectionHelper.oppositeDirection(direction)));
+			landMap.setLandRoute(clusterLandRoute);
 		} else {
 			while (!currentPoint.getType().equals(ClusterConfiguration.NODE_MARK)) {
-				int nextPointId = currentPoint.findNeighbour(direction);
+				nextPointId = currentPoint.findNeighbour(direction);
 				currentPoint = landMap.findPoint(nextPointId);
-				extension++;
-			}
-
-			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
-			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
-		}
-
-		while (!currentPoint.isMapLimit(direction)) {
-			if (currentPoint.getType().equals(ClusterConfiguration.EMPTY_MARK)) {
-				landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
 			}
 			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
 			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
-			int nextPointId = currentPoint.findNeighbour(direction);
-			currentPoint = landMap.findPoint(nextPointId);
-			extension++;
-		}
 
-		clusterLandRoute.setExtension(extension);
-		clusterLandRoute.setFinalPointId(currentPoint.getId());
-		clusterLandRoute.setType(branchType);
-		landMap.getLandRoutes().add(clusterLandRoute);
+			while (!currentPoint.isMapLimit(direction)) {
+				if (currentPoint.getType().equals(ClusterConfiguration.EMPTY_MARK)) {
+					landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
+				}
+
+				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
+				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
+				nextPointId = currentPoint.findNeighbour(direction);
+				currentPoint = landMap.findPoint(nextPointId);
+			}
+		}
 	}
 
 	public static void createTransversalRoute(int entryPointId, int direction, int branchType) {
 		ClusterLandPoint currentPoint = landMap.findPoint(entryPointId);
 		// due to the vastness of the maps there is a error margin to cover
-		ClusterLandRoute clusterLandRoute = new ClusterLandRoute();
-		clusterLandRoute.setDirection(direction);
-		clusterLandRoute.setInitialPointId(entryPointId);
-
-		int extension = 0;
 		while (currentPoint.isMapLimit(direction)) {
 			int nextPointId = currentPoint.findNeighbour(direction);
 			currentPoint = landMap.findPoint(nextPointId);
@@ -95,13 +94,7 @@ public class LSystemClusterAlgorithm {
 			}
 			int nextPointId = currentPoint.findNeighbour(direction);
 			currentPoint = landMap.findPoint(nextPointId);
-			extension++;
 		}
-
-		clusterLandRoute.setExtension(extension);
-		clusterLandRoute.setFinalPointId(currentPoint.getId());
-		clusterLandRoute.setType(branchType);
-		landMap.getLandRoutes().add(clusterLandRoute);
 	}
 
 	private static void extendRouteToTrueSize(ClusterLandPoint currentPoint, Integer direction, int branchType,
@@ -148,7 +141,7 @@ public class LSystemClusterAlgorithm {
 	// Time: 3N2
 	public static void clusterize() {
 		// 1. we need to now the main route size
-		ClusterLandRoute mainRoute = landMap.getLandRoutes().get(0);
+		ClusterLandRoute mainRoute = landMap.getLandRoute();
 		int entryPointId = mainRoute.getInitialPointId();
 		// Once the collector branches are created we need to create the non
 		// collector running orthogonal to the main

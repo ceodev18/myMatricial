@@ -16,25 +16,18 @@ public class ClusterLandMap {
 	private int pointsy = -1;
 
 	private ClusterLandPoint centroid;
-	private int baseArea;
-	private int polygonalArea;
-
-	private int numberOfClusters;
-
-	private int emptyFocalArea;
-	private int fullFocalArea;
 
 	private Map<Integer, ClusterLandPoint> map;
 
-	private List<ClusterLandRoute> landRoutes = new ArrayList<>();
+	private ClusterLandRoute landRoute;
 	private List<Integer> nodes = new ArrayList<>();
 	private List<Integer> polygonFull;
 	private List<ClusterLandPoint> polygonNodes;
+	private double polygonalArea;
 
 	public ClusterLandMap(int pointsx, int pointsy) {
 		this.setPointsx(pointsx);
 		this.setPointsy(pointsy);
-		this.setBaseArea(pointsx * pointsy);
 
 		map = new HashMap<>();
 		for (int i = 0; i < pointsx; i++) {
@@ -72,24 +65,16 @@ public class ClusterLandMap {
 		this.centroid = centroid;
 	}
 
-	public int getBaseArea() {
-		return baseArea;
-	}
-
-	public void setBaseArea(int baseArea) {
-		this.baseArea = baseArea;
-	}
-
-	public int getPolygonalArea() {
-		return polygonalArea;
-	}
-
-	public void setPolygonalArea(int polygonalArea) {
-		this.polygonalArea = polygonalArea;
-	}
-
 	public ClusterLandPoint findPoint(int entryPointId) {
 		return map.get(entryPointId);
+	}
+	
+	public void setLandRoute(ClusterLandRoute landRoute) {
+		this.landRoute = landRoute;
+	}
+	
+	public ClusterLandRoute getLandRoute() {
+		return landRoute;
 	}
 
 	/**
@@ -210,9 +195,6 @@ public class ClusterLandMap {
 
 		findPolygonalArea(polygon);
 		findCentroid(polygon);
-		setNumberOfClusters(polygonalArea / 800);
-		setEmptyFocalArea((int) ((polygonalArea) * 0.08)); // ((Integer)(polygonalArea/10000)>10?(polygonalArea)*0.3:(polygonalArea)*0.08));
-		setFullFocalArea((int) (polygonalArea * 0.05));
 		clearDottedLimits();
 	}
 
@@ -267,15 +249,6 @@ public class ClusterLandMap {
 		}
 	}
 
-	public int getNumberOfParks() {
-		// the problem with this is that we should minimize areas.
-		if (polygonalArea > 1000000) {
-			return 16;
-		} else {
-			return emptyFocalArea / 800 < 16 ? emptyFocalArea / 800 : 8;// 240*25
-		}
-	}
-
 	private void findPolygonalArea(List<ClusterLandPoint> polygon) {
 		int absoluteArea = 0;
 		for (int i = 0; i < polygon.size(); i++) {
@@ -324,38 +297,6 @@ public class ClusterLandMap {
 		map.get(entryPointId).setNodeType(nodeType);
 	}
 
-	public int getNumberOfClusters() {
-		return numberOfClusters;
-	}
-
-	public void setNumberOfClusters(int numberOfClusters) {
-		this.numberOfClusters = numberOfClusters;
-	}
-
-	public int getEmptyFocalArea() {
-		return emptyFocalArea;
-	}
-
-	public void setEmptyFocalArea(int emptyFocalArea) {
-		this.emptyFocalArea = emptyFocalArea;
-	}
-
-	public int getFullFocalArea() {
-		return fullFocalArea;
-	}
-
-	public void setFullFocalArea(int fullFocalArea) {
-		this.fullFocalArea = fullFocalArea;
-	}
-
-	public List<ClusterLandRoute> getLandRoutes() {
-		return landRoutes;
-	}
-
-	public void setLandRoutes(List<ClusterLandRoute> landRoutes) {
-		this.landRoutes = landRoutes;
-	}
-
 	public boolean landPointisOnMap(int pointId) {
 		int[] xy = ClusterMapHelper.breakKey(pointId);
 		return xy[0] < pointsx && xy[0] > 0 && xy[1] < pointsy && xy[1] > 0;
@@ -382,8 +323,8 @@ public class ClusterLandMap {
 	}
 
 	public boolean intersectMainRoute(int entryPointId) {
-		int initialPoint = landRoutes.get(0).getInitialPointId();
-		int finalPoint = landRoutes.get(0).getFinalPointId();
+		int initialPoint = landRoute.getInitialPointId();
+		int finalPoint = landRoute.getFinalPointId();
 
 		int[] initialXY = ClusterMapHelper.breakKey(initialPoint);
 		int[] finalXY = ClusterMapHelper.breakKey(finalPoint);
@@ -804,6 +745,14 @@ public class ClusterLandMap {
 			mapString += "\n";
 		}
 		return mapString;
+	}
+
+	public double getPolygonalArea() {
+		return polygonalArea;
+	}
+
+	public void setPolygonalArea(double polygonalArea) {
+		this.polygonalArea = polygonalArea;
 	}
 	
 }
