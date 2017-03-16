@@ -312,6 +312,4 @@ public class ClusterPolygon {
 		}
 		return minimunDistance;
 	}
-
-
 }

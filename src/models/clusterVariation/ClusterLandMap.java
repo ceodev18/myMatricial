@@ -26,8 +26,8 @@ public class ClusterLandMap {
 	private double polygonalArea;
 
 	public ClusterLandMap(int pointsx, int pointsy) {
-		this.setPointsx(pointsx);
-		this.setPointsy(pointsy);
+		this.setPointsx(++pointsx);
+		this.setPointsy(++pointsy);
 
 		map = new HashMap<>();
 		for (int i = 0; i < pointsx; i++) {
@@ -431,7 +431,7 @@ public class ClusterLandMap {
 			} else {
 				for (int i = finalPoint + 1; i < initialPoint; i++) {
 					for (int j = 0; j < polygonNodes.size() + 1; j++) {
-						if (polygonFull.get(i).intValue() == polygonNodes.get(j).getId()) {
+						if (polygonFull.get(i).intValue() == polygonNodes.get(j%polygonNodes.size()).getId()) {
 							clusterPolygon.getPoints().add(polygonFull.get(i));
 						}
 					}
