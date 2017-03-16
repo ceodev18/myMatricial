@@ -291,6 +291,8 @@ public class ClusterPolygon {
 				area = vectorShrinking(goDeeper);
 				if (area.size() != 0) {
 					areas.add(area);
+				}else{
+					break;
 				}
 			}
 		}

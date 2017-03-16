@@ -52,11 +52,13 @@ public class ClusterTester {
 
 		// 4. We clusterize the points
 		LSystemClusterAlgorithm.clusterize();
-		LSystemClusterAlgorithm.landMap.printMapToFile();
+
+		// 5. Zonification
+		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
+		ClusterLotizationAlgorithm.zonify();
+		
+		ClusterLotizationAlgorithm.landMap.printMapToFile();
 		/*
-		 * ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
-		 * ClusterLotizationAlgorithm.zonify();
-		 * 
 		 * System.out.print(ClusterLotizationAlgorithm.landMap.stringify());
 		 */
 	}

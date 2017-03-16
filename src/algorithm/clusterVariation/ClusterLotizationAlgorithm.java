@@ -42,7 +42,8 @@ public class ClusterLotizationAlgorithm {
 						&& landMap.findPoint(ClusterMapHelper.formKey((x + 1), (y + 1))).getType()
 								.equals(ClusterConfiguration.EMPTY_MARK)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
-					/* int nextPoint= */createOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.EAST, clusterPolygon);
+					/* int nextPoint= */
+					createOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.EAST, clusterPolygon);
 					if (!clusterPolygon.isComplete()) {
 						landMap.joinWithPolygonalBorder(clusterPolygon);
 					}
@@ -68,6 +69,8 @@ public class ClusterLotizationAlgorithm {
 					if (lowerBorder.size() > 0) {
 						landMap.lotize(lowerBorder.get(0), ClusterConstants.EAST, 0);
 					}
+					
+					
 					if ((routes.size() == 0) && (grass.size() == 0)) {
 						// TODO lotize as full focus (library or other).
 						clusterPolygon.printPolygon();
