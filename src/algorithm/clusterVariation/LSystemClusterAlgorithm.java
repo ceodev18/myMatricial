@@ -10,11 +10,9 @@ import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 import models.clusterVariation.ClusterLandRoute;
 
-//16n2
 public class LSystemClusterAlgorithm {
 	public static ClusterLandMap landMap;
 
-	// Time: 3N2
 	public static void clusterize() {
 		// 1. we need to now the main route size
 		ClusterLandRoute mainRoute = landMap.getLandRoute();
@@ -137,8 +135,10 @@ public class LSystemClusterAlgorithm {
 						direction, markType);
 				clusterLandRoute.setFinalPointId(finalPointid);
 				landMap.setLandRoute(clusterLandRoute);
+			} else {
+				createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction,
+						markType);
 			}
-			createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction, markType);
 		}
 	}
 
@@ -195,6 +195,7 @@ public class LSystemClusterAlgorithm {
 		ClusterLandPoint clusterLandPoint = landMap.findPoint(ClusterMapHelper.formKey(newXY[0], newXY[1]));
 		if (!in.booleanValue() && !clusterLandPoint.isMapLimit()) {
 			changed = true;
+			in = true;
 		}
 
 		if (in.booleanValue() && clusterLandPoint.isMapLimit()) {
