@@ -3,18 +3,10 @@ package models.clusterVariation;
 import interfaces.clusterVariation.ClusterConstants;
 
 public class ClusterLandRoute {
-	private int type = ClusterConstants.ARTERIAL_BRANCH;
 	private int initialPointId = -1;
 	private int finalPointId = -1;
 	private int direction = ClusterConstants.ORTHOGONAL;
-	private int extension = 0;
 	
-	public int getType() {
-		return type;
-	}
-	public void setType(int branchType) {
-		this.type = branchType;
-	}
 	public int getInitialPointId() {
 		return initialPointId;
 	}
@@ -26,12 +18,6 @@ public class ClusterLandRoute {
 	}
 	public void setDirection(int direction) {
 		this.direction = direction;
-	}
-	public int getExtension() {
-		return extension;
-	}
-	public void setExtension(int extension) {
-		this.extension = extension;
 	}
 	public int getFinalPointId() {
 		return finalPointId;

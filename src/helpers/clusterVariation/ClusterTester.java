@@ -45,28 +45,19 @@ public class ClusterTester {
 		for (ClusterLandPoint entryPoint : entryPoints) {
 			int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
 					landMap.getCentroid());
-			if (large > 1000 || width > 1000) {
-				LSystemClusterAlgorithm.createRoute(entryPoint.getId(), direction,
-						ClusterConfiguration.ARTERIAL_BRANCH);
-				break;
-			} else {
-				LSystemClusterAlgorithm.createRoute(entryPoint.getId(), direction,
-						ClusterConfiguration.COLLECTOR_BRANCH);
-				break;
-			}
+			LSystemClusterAlgorithm.createRouteVariation(entryPoint.getId(), direction,
+					ClusterConfiguration.ARTERIAL_BRANCH);
+			break;
 		}
 
-		// 4. We clusterize the points through the count of minimun number of
-		// parks
+		// 4. We clusterize the points
 		LSystemClusterAlgorithm.clusterize();
-		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.NODE_MARK);
-		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.ARTERIAL_MARK);
-		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.LOCAL_MARK);
-		LSystemClusterAlgorithm.optimizeClusterization(ClusterConfiguration.COLLECTOR_MARK);
-
-		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
-		ClusterLotizationAlgorithm.zonify();
-
-		System.out.print(ClusterLotizationAlgorithm.landMap.stringify());
+		LSystemClusterAlgorithm.landMap.printMapToFile();
+		/*
+		 * ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
+		 * ClusterLotizationAlgorithm.zonify();
+		 * 
+		 * System.out.print(ClusterLotizationAlgorithm.landMap.stringify());
+		 */
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import helpers.clusterVariation.ClusterDirectionHelper;
 import helpers.clusterVariation.ClusterMapHelper;
 import interfaces.clusterVariation.ClusterConfiguration;
+import interfaces.clusterVariation.ClusterConstants;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 import models.clusterVariation.ClusterLandRoute;
@@ -12,131 +13,6 @@ import models.clusterVariation.ClusterLandRoute;
 //16n2
 public class LSystemClusterAlgorithm {
 	public static ClusterLandMap landMap;
-
-	public static void createRoute(int entryPointId, int direction, int branchType) {
-		ClusterLandPoint currentPoint = landMap.findPoint(entryPointId);
-		List<Integer> orthogonalDirections = ClusterDirectionHelper.orthogonalDirections(direction);
-		int nextPointId;
-		if (branchType == ClusterConfiguration.ARTERIAL_BRANCH) {
-			ClusterLandRoute clusterLandRoute = new ClusterLandRoute();
-			while (currentPoint.isMapLimit(direction)) {
-				nextPointId = currentPoint.findNeighbour(direction);
-				currentPoint = landMap.findPoint(nextPointId);
-			}
-			clusterLandRoute.setDirection(direction);
-			clusterLandRoute.setInitialPointId(currentPoint.getId());
-
-			while (!currentPoint.isMapLimit(direction)) {
-				if (currentPoint.getType().equals(ClusterConfiguration.EMPTY_MARK)) {
-					landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
-				}
-
-				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
-				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
-				nextPointId = currentPoint.findNeighbour(direction);
-				currentPoint = landMap.findPoint(nextPointId);
-			}
-			clusterLandRoute.setFinalPointId(ClusterMapHelper.moveKeyByOffsetAndDirection(currentPoint.getId(), 1,
-					ClusterDirectionHelper.oppositeDirection(direction)));
-			landMap.setLandRoute(clusterLandRoute);
-		} else {
-			while (!currentPoint.getType().equals(ClusterConfiguration.NODE_MARK)) {
-				nextPointId = currentPoint.findNeighbour(direction);
-				currentPoint = landMap.findPoint(nextPointId);
-			}
-			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
-			extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
-
-			while (!currentPoint.isMapLimit(direction)) {
-				if (currentPoint.getType().equals(ClusterConfiguration.EMPTY_MARK)) {
-					landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
-				}
-
-				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
-				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
-				nextPointId = currentPoint.findNeighbour(direction);
-				currentPoint = landMap.findPoint(nextPointId);
-			}
-		}
-	}
-
-	public static void createTransversalRoute(int entryPointId, int direction, int branchType) {
-		ClusterLandPoint currentPoint = landMap.findPoint(entryPointId);
-		// due to the vastness of the maps there is a error margin to cover
-		while (currentPoint.isMapLimit(direction)) {
-			int nextPointId = currentPoint.findNeighbour(direction);
-			currentPoint = landMap.findPoint(nextPointId);
-		}
-
-		ClusterLandPoint testPoint = currentPoint;
-		// test if the route crosses a collector if it does not it should not
-		// create anything
-		while (!testPoint.isMapLimit(direction)) {
-			if (testPoint.getType().equals(ClusterConfiguration.COLLECTOR_MARK)) {
-				break;
-			}
-			int nextPointId = testPoint.findNeighbour(direction);
-			testPoint = landMap.findPoint(nextPointId);
-		}
-		if (testPoint.isMapLimit(direction)) {
-			return;
-		}
-
-		List<Integer> orthogonalDirections = ClusterDirectionHelper.orthogonalDirections(direction);
-		while (!currentPoint.isMapLimit(direction)) {
-			if (currentPoint.getType().equals(ClusterConfiguration.EMPTY_MARK)) {
-				landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
-				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
-				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
-			} else if (currentPoint.getType().equals(ClusterConfiguration.NODE_MARK)) {
-				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(0), branchType, true);
-				extendRouteToTrueSize(currentPoint, orthogonalDirections.get(1), branchType, false);
-			}
-			int nextPointId = currentPoint.findNeighbour(direction);
-			currentPoint = landMap.findPoint(nextPointId);
-		}
-	}
-
-	private static void extendRouteToTrueSize(ClusterLandPoint currentPoint, Integer direction, int branchType,
-			boolean imperfect) {
-		int extension = 0;
-		switch (branchType) {
-		case ClusterConfiguration.ARTERIAL_BRANCH:
-			extension = (ClusterConfiguration.ARTERIAL_BRANCH_SIZE) - 1;
-			break;
-		case ClusterConfiguration.COLLECTOR_BRANCH:
-			extension = ClusterConfiguration.COLLECTOR_BRANCH_SIZE - 1;
-			break;
-		case ClusterConfiguration.LOCAL_BRANCH:
-			extension = ClusterConfiguration.LOCAL_BRANCH_SIZE - 1;
-			break;
-		case ClusterConfiguration.WALK_BRANCH:
-			extension = ClusterConfiguration.WALK_BRANCH_SIZE - 1;
-			break;
-		}
-
-		if (!imperfect) {
-			extension = 0;
-		}
-
-		if (currentPoint.getType().equals(ClusterConfiguration.NODE_MARK)) {
-			landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
-		}
-
-		int nextPointId = currentPoint.findNeighbour(direction);
-		currentPoint = landMap.findPoint(nextPointId);
-		while (!currentPoint.isMapLimit(direction) && (extension > 0)) {
-			landMap.markVariation(currentPoint.getId(), branchType, ClusterConfiguration.TYPE_NO_NODE);
-			nextPointId = currentPoint.findNeighbour(direction);
-			currentPoint = landMap.findPoint(nextPointId);
-			extension--;
-		}
-
-		if (!currentPoint.isMapLimit(direction) && currentPoint.getType().equals(ClusterConfiguration.EMPTY_MARK)) {
-			landMap.markVariation(currentPoint.getId(), ClusterConfiguration.NODE,
-					ClusterConfiguration.TYPE_INNER_NODE);
-		}
-	}
 
 	// Time: 3N2
 	public static void clusterize() {
@@ -151,8 +27,9 @@ public class LSystemClusterAlgorithm {
 					ClusterConfiguration.BASE_CLUSTER_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE,
 					mainRoute.getDirection());
 			if (landMap.landPointisOnMap(entryPointId) && landMap.intersectMainRoute(entryPointId)) {
-				createRoute(entryPointId, orthogonalDirections.get(0), ClusterConfiguration.COLLECTOR_BRANCH);
-				createRoute(entryPointId, orthogonalDirections.get(1), ClusterConfiguration.COLLECTOR_BRANCH);
+				createRouteVariation(entryPointId, orthogonalDirections.get(0), ClusterConfiguration.COLLECTOR_BRANCH);
+				// createRoute(entryPointId, orthogonalDirections.get(1),
+				// ClusterConfiguration.COLLECTOR_BRANCH);
 			} else
 				break;
 		}
@@ -179,7 +56,7 @@ public class LSystemClusterAlgorithm {
 					ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(0));
 			if (!landMap.landPointisOnMap(upperParallelId))
 				break;
-			createTransversalRoute(upperParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
+			createRouteVariation(upperParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
 			current++;
 		}
 
@@ -200,152 +77,142 @@ public class LSystemClusterAlgorithm {
 			}
 			if (!landMap.landPointisOnMap(lowerParallelId))
 				break;
-			createTransversalRoute(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
+			createRouteVariation(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
 			current++;
 		}
 	}
 
-	// Time: 2N2
-	public static void optimizeClusterization(String markType) {
-		// For finding the empty "n" on Y from bottom to top
-		for (int x = 0; x < landMap.getPointsx(); x++) {
-			int emptySpaces = 0;
-			boolean lower = false;
-			boolean upper = false;
-			boolean successivesN = false;
-			boolean enteredPolygon = false;
-			boolean leavePolygon = false;
-			int y;
+	public static void createRouteVariation(int axisPoint, int direction, int branchType) {
+		int extension = 0;
+		String markType = "";
+		int growDirection = -1;
+		ClusterLandRoute clusterLandRoute = null;
+		switch (branchType) {
+		case ClusterConfiguration.ARTERIAL_BRANCH:
+			clusterLandRoute = new ClusterLandRoute();
+			clusterLandRoute.setInitialPointId(axisPoint);
+			clusterLandRoute.setDirection(direction);
+			extension = ClusterConfiguration.ARTERIAL_BRANCH_SIZE;
+			markType = ClusterConfiguration.ARTERIAL_MARK;
+			break;
+		case ClusterConfiguration.COLLECTOR_BRANCH:
+			extension = ClusterConfiguration.COLLECTOR_BRANCH_SIZE;
+			markType = ClusterConfiguration.COLLECTOR_MARK;
+			break;
+		case ClusterConfiguration.LOCAL_BRANCH:
+			extension = ClusterConfiguration.LOCAL_BRANCH_SIZE;
+			markType = ClusterConfiguration.LOCAL_MARK;
+			break;
+		case ClusterConfiguration.WALK_BRANCH:
+			extension = ClusterConfiguration.WALK_BRANCH_SIZE;
+			markType = ClusterConfiguration.WALK_MARK;
+			break;
+		}
 
-			for (y = 0; y < landMap.getPointsy(); y++) {
-				if (!enteredPolygon && !landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
-						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-					enteredPolygon = true;
-				} else if (enteredPolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
-						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-					leavePolygon = true;
+		switch (direction) {
+		case ClusterConstants.EAST:
+			growDirection = ClusterConstants.NORTH;
+			break;
+		case ClusterConstants.NORTH:
+			growDirection = ClusterConstants.WEST;
+			break;
+		case ClusterConstants.WEST:
+			growDirection = ClusterConstants.SOUTH;
+			break;
+		case ClusterConstants.SOUTH:
+			growDirection = ClusterConstants.EAST;
+			break;
+		}
+
+		createLine(
+				ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, 1,
+						ClusterDirectionHelper.oppositeDirection(growDirection)),
+				direction, ClusterConfiguration.NODE_MARK);
+		createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, extension, growDirection), direction,
+				ClusterConfiguration.NODE_MARK);
+
+		for (int i = 0; i < extension; i++) {
+			if ((branchType == ClusterConfiguration.ARTERIAL_BRANCH) && (i == 0)) {
+				int finalPointid = createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection),
+						direction, markType);
+				clusterLandRoute.setFinalPointId(finalPointid);
+				landMap.setLandRoute(clusterLandRoute);
+			}
+			createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction, markType);
+		}
+	}
+
+	private static int createLine(int givenXY, int direction, String markType) {
+		int[] xy = ClusterMapHelper.breakKey(givenXY);
+		int[] newXY = new int[2];
+		Boolean in = false, out = false, changed = false;
+		if ((direction == ClusterConstants.NORTH) || (direction == ClusterConstants.SOUTH)) {
+			if (xy[0] > landMap.getPointsx())
+				return -1;
+			for (int i = 0; i < landMap.getPointsy(); i++) {
+				newXY[0] = xy[0];
+				newXY[1] = i;
+				changed = markPoint(newXY, markType, in, out);
+				if (changed && !in) {
+					in = true;
+					changed = false;
 				}
-
-				if (leavePolygon == true)
-					break;
-
-				// just for the lower part we sum the empty marks that where not
-				// choosen
-				if (!leavePolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
-						.equals(ClusterConfiguration.EMPTY_MARK)) {
-					emptySpaces++;
+				if (changed && in) {
+					out = true;
 				}
-
-				if (!leavePolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType().equals(markType)) {
-					if (y != 0 && y != (landMap.getPointsy() - 1)) {
-						if (landMap.getLandPoint(ClusterMapHelper.formKey(x, (y + 1))).getType().equals(markType)
-								&& landMap.getLandPoint(ClusterMapHelper.formKey(x, (y - 1))).getType()
-										.equals(ClusterConfiguration.EMPTY_MARK)) {
-							successivesN = lower = true;
-						}
-
-						if (landMap.getLandPoint(ClusterMapHelper.formKey(x, (y - 1))).getType().equals(markType)
-								&& landMap.getLandPoint(ClusterMapHelper.formKey(x, (y + 1))).getType()
-										.equals(ClusterConfiguration.EMPTY_MARK)) {
-							successivesN = upper = true;
-						}
-					}
+				if (out.booleanValue()) {
+					newXY[0] = xy[0];
+					newXY[1] = i - 1;
+					return ClusterMapHelper.formKey(newXY[0], newXY[1]);
 				}
-
-				// lower side only it retries until the case is done
-				if (successivesN && (emptySpaces > 0) && lower) {
-					for (int j = y; j > (y - (emptySpaces + 1)); j--) {
-						landMap.getLandPoint(ClusterMapHelper.formKey(x, j)).setType(markType);
-					}
-					successivesN = false;
-					lower = false;
+			}
+		} else {
+			if (xy[1] > landMap.getPointsy())
+				return -1;
+			for (int i = 0; i < landMap.getPointsx(); i++) {
+				newXY[0] = i;
+				newXY[1] = xy[1];
+				changed = markPoint(newXY, markType, in, out);
+				if (changed && !in) {
+					in = true;
+					changed = false;
 				}
-
-				// upper side is going to need me to do it until one is out
-				if (successivesN && upper) {
-					for (int j = y; j < landMap.getPointsy(); j++) {
-						if (landMap.getLandPoint(ClusterMapHelper.formKey(x, j)).getType()
-								.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-							leavePolygon = true;
-							successivesN = false;
-							upper = false;
-							break;
-						}
-						landMap.getLandPoint(ClusterMapHelper.formKey(x, j)).setType(markType);
-					}
+				if (changed && in) {
+					out = true;
+				}
+				if (out.booleanValue()) {
+					newXY[0] = i - 1;
+					newXY[1] = xy[1];
+					return ClusterMapHelper.formKey(newXY[0], newXY[1]);
 				}
 			}
 		}
+		return -1;
+	}
 
-		// For finding the empty "n" on X from left to right
-		// For finding the empty "n" on Y from bottom to top
-		for (int y = 0; y < landMap.getPointsy(); y++) {
-			int emptySpaces = 0;
-			boolean left = false;
-			boolean right = false;
-			boolean successivesN = false;
-			boolean enteredPolygon = false;
-			boolean leavePolygon = false;
-			int x;
+	private static boolean markPoint(int[] newXY, String markType, Boolean in, Boolean out) {
+		boolean changed = false;
+		ClusterLandPoint clusterLandPoint = landMap.findPoint(ClusterMapHelper.formKey(newXY[0], newXY[1]));
+		if (!in.booleanValue() && !clusterLandPoint.isMapLimit()) {
+			changed = true;
+		}
 
-			for (x = 0; x < landMap.getPointsx(); x++) {
-				if (!enteredPolygon && !landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
-						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-					enteredPolygon = true;
-				} else if (enteredPolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
-						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-					leavePolygon = true;
+		if (in.booleanValue() && clusterLandPoint.isMapLimit()) {
+			changed = true;
+		}
+
+		if (in.booleanValue()) {
+			if (markType.equals(ClusterConfiguration.NODE_MARK)) {
+				if (clusterLandPoint.getType().equals(ClusterConfiguration.EMPTY_MARK)) {
+					clusterLandPoint.setType(markType);
 				}
-
-				if (leavePolygon == true)
-					break;
-
-				// just for the lower part we sum the empty marks that where not
-				// choosen
-				if (!leavePolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType()
-						.equals(ClusterConfiguration.EMPTY_MARK)) {
-					emptySpaces++;
-				}
-
-				if (!leavePolygon && landMap.getLandPoint(ClusterMapHelper.formKey(x, y)).getType().equals(markType)) {
-					if (x != 0 && y != (landMap.getPointsx() - 1)) {
-						if (landMap.getLandPoint(ClusterMapHelper.formKey((x + 1), y)).getType().equals(markType)
-								&& landMap.getLandPoint(ClusterMapHelper.formKey((x - 1), y)).getType()
-										.equals(ClusterConfiguration.EMPTY_MARK)) {
-							successivesN = left = true;
-						}
-
-						if (landMap.getLandPoint(ClusterMapHelper.formKey((x - 1), y)).getType().equals(markType)
-								&& landMap.getLandPoint(ClusterMapHelper.formKey((x + 1), y)).getType()
-										.equals(ClusterConfiguration.EMPTY_MARK)) {
-							successivesN = right = true;
-						}
-					}
-				}
-
-				// lower side only it retries until the case is done
-				if (successivesN && (emptySpaces > 0) && left) {
-					for (int j = x; j > (x - (emptySpaces + 1)); j--) {
-						landMap.getLandPoint(ClusterMapHelper.formKey(j, y)).setType(markType);
-					}
-					successivesN = false;
-					left = false;
-				}
-
-				// upper side is going to need me to do it until one is out
-				if (successivesN && right) {
-					for (int j = x; j < landMap.getPointsx(); j++) {
-						if (landMap.getLandPoint(ClusterMapHelper.formKey(j, y)).getType()
-								.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-							leavePolygon = true;
-							successivesN = false;
-							right = false;
-							break;
-						}
-						landMap.getLandPoint(ClusterMapHelper.formKey(j, y)).setType(markType);
-					}
+			} else {
+				if (clusterLandPoint.getType().equals(ClusterConfiguration.EMPTY_MARK)
+						|| clusterLandPoint.getType().equals(ClusterConfiguration.NODE_MARK)) {
+					clusterLandPoint.setType(markType);
 				}
 			}
 		}
+		return changed;
 	}
 }
