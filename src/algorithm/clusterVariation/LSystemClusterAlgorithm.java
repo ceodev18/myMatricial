@@ -1,6 +1,5 @@
 package algorithm.clusterVariation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import helpers.clusterVariation.ClusterDirectionHelper;
@@ -9,12 +8,10 @@ import interfaces.clusterVariation.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 import models.clusterVariation.ClusterLandRoute;
-import models.clusterVariation.ClusterPolygon;
 
 //16n2
 public class LSystemClusterAlgorithm {
 	public static ClusterLandMap landMap;
-	public static List<ClusterPolygon> polygons = new ArrayList<>();
 
 	public static void createRoute(int entryPointId, int direction, int branchType) {
 		ClusterLandPoint currentPoint = landMap.findPoint(entryPointId);

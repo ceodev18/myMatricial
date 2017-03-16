@@ -289,19 +289,6 @@ public class ClusterLandMap {
 		this.setCentroid(new ClusterLandPoint(pointsx / 2, pointsy / 2));
 	}
 
-	/**
-	 * This method prints this will be the method to test if our hypothesis is
-	 * right
-	 */
-	public void printMap() {
-		for (int j = pointsy - 1; j >= 0; j--) {
-			for (int i = 0; i < pointsx; i++) {
-				System.out.print(getLandPoint(ClusterMapHelper.formKey(i, j)).getType());
-			}
-			System.out.println();
-		}
-	}
-
 	public void printMapToFile() {
 		try {
 			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
@@ -491,16 +478,12 @@ public class ClusterLandMap {
 			}
 		}
 
-		System.out.println("initial and final point: " + initialPoint + ", " + finalPoint + ". Tam poligono: "
-				+ polygonFull.size());
-
 		if ((initialPoint != polygonFull.size()) && (finalPoint != polygonFull.size())) {
 			if (initialPoint < finalPoint) {
 				for (int i = initialPoint + 1; i < finalPoint; i++) {
 					for (int j = 0; j < polygonNodes.size() - 1; j++) {
 						if (polygonFull.get(i).intValue() == polygonNodes.get(j).getId()) {
 							clusterPolygon.getPoints().add(polygonFull.get(i));
-							System.out.println("new node: " + polygonFull.get(i));
 						}
 					}
 				}
@@ -509,7 +492,6 @@ public class ClusterLandMap {
 					for (int j = 0; j < polygonNodes.size() + 1; j++) {
 						if (polygonFull.get(i).intValue() == polygonNodes.get(j).getId()) {
 							clusterPolygon.getPoints().add(polygonFull.get(i));
-							System.out.println("new node: " + polygonFull.get(i));
 						}
 					}
 				}
@@ -803,4 +785,25 @@ public class ClusterLandMap {
 		clusterBuilding.setNumber(0);
 		return clusterBuilding;
 	}
+	
+	public String stringify() {
+		String mapString = "";
+		for (int j = pointsy - 1; j >= 0; j--) {
+			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
+			int repetitions = 1;
+			for (int i = 1; i < pointsx; i++) {
+				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
+					repetitions++;
+				} else {
+					mapString += type + "-" + repetitions + ",";
+					repetitions = 1;
+					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
+				}
+			}
+			mapString += type + "-" + repetitions + ",";
+			mapString += "\n";
+		}
+		return mapString;
+	}
+	
 }

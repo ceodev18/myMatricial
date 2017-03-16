@@ -249,7 +249,6 @@ public class ClusterPolygon {
 	}
 
 	public void printPolygon() {
-
 		if (isComplete()) {
 			System.out.println("Polygon is complete");
 			for (int i = 0; i < points.size(); i++) {
