@@ -3,7 +3,8 @@ package models.clusterVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-import helpers.base.MapHelper;
+import helpers.clusterVariation.ClusterMapHelper;
+
 
 public class ClusterPolygon {
 	private List<Integer> points;
@@ -49,7 +50,7 @@ public class ClusterPolygon {
 	public List<Integer> centroidShrinking(int size) {
 		List<Integer> shrinkedList = new ArrayList<>();
 		for (int i = 0; i < points.size(); i++) {
-			int[] xy = MapHelper.breakKey(points.get(i));
+			int[] xy = ClusterMapHelper.breakKey(points.get(i));
 
 			if (centroid[0] > xy[0])
 				xy[0] = xy[0] + size > centroid[0] ? centroid[0] : xy[0] + size;
@@ -61,7 +62,7 @@ public class ClusterPolygon {
 			else
 				xy[1] = xy[1] - size < centroid[1] ? centroid[1] : xy[1] - size;
 
-			shrinkedList.add(i, MapHelper.formKey(xy[0], xy[1]));
+			shrinkedList.add(i, ClusterMapHelper.formKey(xy[0], xy[1]));
 		}
 		return shrinkedList;
 	}
@@ -73,8 +74,8 @@ public class ClusterPolygon {
 		List<double[]> variations = new ArrayList<>();
 
 		for (int i = 0; i < points.size(); i++) {
-			int[] xyInitial = MapHelper.breakKey(points.get(i));
-			int[] xyFinal = MapHelper.breakKey(points.get((i + 1) % points.size()));
+			int[] xyInitial = ClusterMapHelper.breakKey(points.get(i));
+			int[] xyFinal = ClusterMapHelper.breakKey(points.get((i + 1) % points.size()));
 
 			// we find the unit vector
 			double[] unitVector = new double[2];
@@ -145,7 +146,7 @@ public class ClusterPolygon {
 
 			// squared box
 			if (infinite > 0 && zero > 0) {
-				shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
+				shrinkedList.add(ClusterMapHelper.formKey(xy[0], xy[1]));
 				continue;
 			}
 
@@ -156,7 +157,7 @@ public class ClusterPolygon {
 				} else {
 					xy[1] = (int) (gradients.get(i) * xy[0] + offsets.get(i));
 				}
-				shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
+				shrinkedList.add(ClusterMapHelper.formKey(xy[0], xy[1]));
 				continue;
 			}
 
@@ -167,13 +168,13 @@ public class ClusterPolygon {
 				} else {
 					xy[0] = (int) ((xy[1] - offsets.get(i)) / gradients.get(i));
 				}
-				shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
+				shrinkedList.add(ClusterMapHelper.formKey(xy[0], xy[1]));
 				continue;
 			}
 
 			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
-			shrinkedList.add(MapHelper.formKey(xy[0], xy[1]));
+			shrinkedList.add(ClusterMapHelper.formKey(xy[0], xy[1]));
 		}
 
 		// validity check
@@ -188,14 +189,14 @@ public class ClusterPolygon {
 
 	private boolean isInsidePolygon(Integer vertexId) {
 		boolean c = false;
-		int[] xy = MapHelper.breakKey(vertexId);
+		int[] xy = ClusterMapHelper.breakKey(vertexId);
 		for (int i = 0, j = getPoints().size() - 1; i < getPoints().size(); j = i++) {
-			if (((MapHelper.breakKey(getPoints().get(i))[1] > xy[1]) != (MapHelper
+			if (((ClusterMapHelper.breakKey(getPoints().get(i))[1] > xy[1]) != (ClusterMapHelper
 					.breakKey(getPoints().get(j))[1] > xy[1]))
-					&& (xy[0] < (MapHelper.breakKey(getPoints().get(j))[0] - MapHelper.breakKey(getPoints().get(i))[0])
-							* (xy[1] - MapHelper.breakKey(getPoints().get(i))[1])
-							/ (MapHelper.breakKey(getPoints().get(j))[1] - MapHelper.breakKey(getPoints().get(i))[1])
-							+ MapHelper.breakKey(getPoints().get(i))[0]))
+					&& (xy[0] < (ClusterMapHelper.breakKey(getPoints().get(j))[0] - ClusterMapHelper.breakKey(getPoints().get(i))[0])
+							* (xy[1] - ClusterMapHelper.breakKey(getPoints().get(i))[1])
+							/ (ClusterMapHelper.breakKey(getPoints().get(j))[1] - ClusterMapHelper.breakKey(getPoints().get(i))[1])
+							+ ClusterMapHelper.breakKey(getPoints().get(i))[0]))
 				c = !c;
 		}
 		return c;
@@ -219,7 +220,7 @@ public class ClusterPolygon {
 		yLimits[0] = -1000;
 
 		for (int i = 0; i < points.size(); i++) {
-			int[] xy = MapHelper.breakKey(points.get(i));
+			int[] xy = ClusterMapHelper.breakKey(points.get(i));
 			if (i == 0) {
 				xLimits[1] = xy[0];
 				xLimits[0] = xy[0];
@@ -300,8 +301,8 @@ public class ClusterPolygon {
 	private double minimunDistanceBetweenVertex(List<Integer> area) {
 		double minimunDistance = 30000000;
 		for (int i = 0; i < area.size(); i++) {
-			int[] xyInitial = MapHelper.breakKey(area.get(i));
-			int[] xyFinal = MapHelper.breakKey(area.get((i + 1) % area.size()));
+			int[] xyInitial = ClusterMapHelper.breakKey(area.get(i));
+			int[] xyFinal = ClusterMapHelper.breakKey(area.get((i + 1) % area.size()));
 			double distance = Math
 					.sqrt(Math.pow(xyInitial[0] - xyFinal[0], 2) + Math.pow(xyInitial[1] - xyFinal[1], 2));
 			if (minimunDistance > distance) {
