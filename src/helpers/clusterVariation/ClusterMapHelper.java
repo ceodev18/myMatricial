@@ -58,4 +58,27 @@ public class ClusterMapHelper {
 			return d < 0 ? -(i + 1) : i + 1;
 		}
 	}
+
+	public static int[] moveKeyByGradientAndOffset(int[] currentXY, int size, Double gradient, int offset, int direction) {
+		int [] newXY = new int[2];
+		switch (direction) {
+		case ClusterConstants.NORTH:
+			newXY[1]= currentXY[1]+size;
+			newXY[0]= (int) ((newXY[1] -offset)/gradient);
+			return newXY;
+		case ClusterConstants.SOUTH:
+			newXY[1]= currentXY[1]-size;
+			newXY[0]= (int) ((newXY[1] -offset)/gradient);
+			return newXY;
+		case ClusterConstants.EAST:
+			newXY[0]= currentXY[0]+size;
+			newXY[1]= (int) (gradient * newXY[0] + offset);
+			return newXY;
+		case ClusterConstants.WEST:
+			newXY[0]= currentXY[0]-size;
+			newXY[1]= (int) (gradient * newXY[0] + offset);
+			return newXY;
+		}
+		return null;
+	}
 }
