@@ -8,7 +8,7 @@ public class ClusterLandPoint {
 	private int id = -1;
 	private int x = -1;
 	private int y = -1;
-	private String type = ClusterConfiguration.EMPTY_MARK;
+	private String type = ClusterConfiguration.OUTSIDE_POLYGON_MARK;
 	private int nodeType;
 
 	public ClusterLandPoint(int x, int y) {

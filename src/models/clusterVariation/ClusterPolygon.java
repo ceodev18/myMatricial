@@ -255,7 +255,6 @@ public class ClusterPolygon {
 				System.out.print(i + "=" + points.get(i) + ", ");
 			}
 		} else {
-			System.out.println("Polygon is not complete");
 			for (int i = 0; i < points.size(); i++) {
 				System.out.print(i + "=" + points.get(i) + ", ");
 			}

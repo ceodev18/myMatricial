@@ -22,7 +22,8 @@ public class ClusterLotizationAlgorithm {
 		// reduces it in a reason configured by the user. if it can be done, it
 		// becomes a new cluster. If not, it becomes simply defaults into a
 		// perfect zonification
-		System.out.println("Limit x:" + landMap.getPointsx() + "Limit y:" + landMap.getPointsy());
+		// System.out.println("Limit x:" + landMap.getPointsx() + "Limit y:" +
+		// landMap.getPointsy());
 		// we should save the Ns used
 		for (int y = landMap.getPointsy() - 1; y >= 0; y--) {
 			boolean insidePolygon = false;
@@ -44,8 +45,10 @@ public class ClusterLotizationAlgorithm {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
 					/* int nextPoint= */
 					createOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.EAST, clusterPolygon);
-					if (!clusterPolygon.isComplete()) {
-						landMap.joinWithPolygonalBorder(clusterPolygon);
+					if (!clusterPolygon.isComplete() && clusterPolygon.getPoints().size() > 2) {
+						System.out.println("Pre polygon join with border ");
+						clusterPolygon.printPolygon();
+						clusterPolygon = landMap.joinWithPolygonalBorder(clusterPolygon);
 					}
 					// clusterPolygon.printPolygon();
 					// we create the routes surrounding the park
@@ -69,11 +72,10 @@ public class ClusterLotizationAlgorithm {
 					if (lowerBorder.size() > 0) {
 						landMap.lotize(lowerBorder.get(0), ClusterConstants.EAST, 0);
 					}
-					
-					
+
 					if ((routes.size() == 0) && (grass.size() == 0)) {
 						// TODO lotize as full focus (library or other).
-						clusterPolygon.printPolygon();
+						// clusterPolygon.printPolygon();
 					}
 				}
 			}
@@ -124,6 +126,12 @@ public class ClusterLotizationAlgorithm {
 					break;
 				case ClusterConstants.NORTH:
 					clusterPolygon.getPoints().add(ClusterMapHelper.formKey(firstNode[0], firstNode[1] - 1));
+					break;
+				case ClusterConstants.WEST:
+					clusterPolygon.getPoints().add(ClusterMapHelper.formKey(firstNode[0] + 1, firstNode[1]));
+					break;
+				case ClusterConstants.SOUTH:
+					clusterPolygon.getPoints().add(ClusterMapHelper.formKey(firstNode[0], firstNode[1] + 1));
 					break;
 				}
 				// TODO for the case of this 2 figures there are fixed answers
