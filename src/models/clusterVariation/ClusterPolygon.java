@@ -4,16 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import helpers.clusterVariation.ClusterMapHelper;
-
+import interfaces.clusterVariation.ClusterConfiguration;
 
 public class ClusterPolygon {
 	private List<Integer> points;
 	private int[] centroid;
 	private int[] squareLimits;
 	private boolean complete;
+	private int expansions;
 
 	public ClusterPolygon() {
 		points = new ArrayList<>();
+		setExpansions(0);
 	}
 
 	public int[] getCentroid() {
@@ -193,9 +195,11 @@ public class ClusterPolygon {
 		for (int i = 0, j = getPoints().size() - 1; i < getPoints().size(); j = i++) {
 			if (((ClusterMapHelper.breakKey(getPoints().get(i))[1] > xy[1]) != (ClusterMapHelper
 					.breakKey(getPoints().get(j))[1] > xy[1]))
-					&& (xy[0] < (ClusterMapHelper.breakKey(getPoints().get(j))[0] - ClusterMapHelper.breakKey(getPoints().get(i))[0])
+					&& (xy[0] < (ClusterMapHelper.breakKey(getPoints().get(j))[0]
+							- ClusterMapHelper.breakKey(getPoints().get(i))[0])
 							* (xy[1] - ClusterMapHelper.breakKey(getPoints().get(i))[1])
-							/ (ClusterMapHelper.breakKey(getPoints().get(j))[1] - ClusterMapHelper.breakKey(getPoints().get(i))[1])
+							/ (ClusterMapHelper.breakKey(getPoints().get(j))[1]
+									- ClusterMapHelper.breakKey(getPoints().get(i))[1])
 							+ ClusterMapHelper.breakKey(getPoints().get(i))[0]))
 				c = !c;
 		}
@@ -290,7 +294,7 @@ public class ClusterPolygon {
 				area = vectorShrinking(goDeeper);
 				if (area.size() != 0) {
 					areas.add(area);
-				}else{
+				} else {
 					break;
 				}
 			}
@@ -310,5 +314,33 @@ public class ClusterPolygon {
 			}
 		}
 		return minimunDistance;
+	}
+
+	public int getExpansions() {
+		return expansions;
+	}
+
+	public void setExpansions(int expansions) {
+		this.expansions = expansions;
+	}
+
+	public void rehashPolygon(int type) {
+		List<Integer> reorderedPoints = new ArrayList<>();
+		if (type == ClusterConfiguration.TYPE_SPECIAL) {
+			for (int i = points.size() -1; i >= 0; i--) {
+				reorderedPoints.add(points.get(i));
+			}
+		} else {
+			if (expansions > 0) {
+				for (int i = expansions; i < points.size(); i++) {
+					reorderedPoints.add(points.get(i));
+				}
+
+				for (int i = expansions - 1; i >= 0; i--) {
+					reorderedPoints.add(points.get(i));
+				}
+			}
+		}
+		points = reorderedPoints;
 	}
 }

@@ -31,4 +31,7 @@ public interface ClusterConfiguration {
 	public static String WALK_MARK = "w";
 	public static String CLUSTER_ENTRANCE_MARK = "t";
 	public static String BORDER_MARK = "e";
+
+	public static int TYPE_SPECIAL = 0;
+	public static int TYPE_COMPLETE = 1;
 }

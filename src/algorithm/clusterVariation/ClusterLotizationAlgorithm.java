@@ -2,6 +2,8 @@ package algorithm.clusterVariation;
 
 import java.util.List;
 
+import helpers.base.DirectionHelper;
+import helpers.clusterVariation.ClusterDirectionHelper;
 import helpers.clusterVariation.ClusterMapHelper;
 import interfaces.clusterVariation.ClusterConfiguration;
 import interfaces.clusterVariation.ClusterConstants;
@@ -52,6 +54,7 @@ public class ClusterLotizationAlgorithm {
 						// complete
 						completeOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.NORTH,
 								clusterPolygon);
+						clusterPolygon.rehashPolygon(ClusterConfiguration.TYPE_COMPLETE);
 						passedThough = true;
 					}
 
@@ -66,6 +69,7 @@ public class ClusterLotizationAlgorithm {
 						// TODO solve the problem of unresolved polygon
 						completeOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.NORTH,
 								clusterPolygon);
+						clusterPolygon.rehashPolygon(ClusterConfiguration.TYPE_COMPLETE);
 						// clusterPolygon =
 						// landMap.joinWithPolygonalBorder(clusterPolygon);
 					}
@@ -87,13 +91,12 @@ public class ClusterLotizationAlgorithm {
 					}
 
 					// we create the houses
-					/*
-					 * List<List<Integer>> lowerBorder = clusterPolygon
-					 * .routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE
-					 * * 2 - 1, 1); if (lowerBorder.size() > 0) {
-					 * landMap.lotize(lowerBorder.get(0), ClusterConstants.EAST,
-					 * 0); }
-					 */
+
+					List<List<Integer>> lowerBorder = clusterPolygon
+							.routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
+					if (lowerBorder.size() > 0) {
+						landMap.lotize(lowerBorder.get(0), ClusterConstants.EAST, 0);
+					}
 
 					if ((routes.size() == 0) && (grass.size() == 0)) {
 						// TODO lotize as full focus (library or other).
@@ -107,7 +110,7 @@ public class ClusterLotizationAlgorithm {
 					createSpecialCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.NORTH, clusterPolygon);
 					System.out.println("Special polygon");
 					clusterPolygon.printPolygon();
-
+					clusterPolygon.rehashPolygon(ClusterConfiguration.TYPE_SPECIAL);
 					// clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 
@@ -126,13 +129,13 @@ public class ClusterLotizationAlgorithm {
 					}
 
 					// we create the houses
-					/*
-					 * List<List<Integer>> lowerBorder = clusterPolygon
-					 * .routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE
-					 * * 2 - 1, 1); if (lowerBorder.size() > 0) {
-					 * landMap.lotize(lowerBorder.get(0), ClusterConstants.EAST,
-					 * 0); }
-					 */
+					List<List<Integer>> lowerBorder = clusterPolygon
+							.routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
+					if (lowerBorder.size() > 0) {
+						int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(
+								lowerBorder.get(0).get(0), lowerBorder.get(0).get(1));
+						landMap.lotize(lowerBorder.get(0), direction, 0);
+					}
 
 					if ((routes.size() == 0) && (grass.size() == 0)) {
 						// TODO lotize as full focus (library or other).
@@ -205,8 +208,13 @@ public class ClusterLotizationAlgorithm {
 		return initialKey;
 	}
 
+	/**
+	 * In case there is not a direct square or a lateral east, north west
+	 * polygon, we seize the opposite side to complete the polygon
+	 */
 	private static Object completeOrganicCoverture(int initialKey, int direction, ClusterPolygon clusterPolygon) {
 		if (direction != ClusterConstants.NORTH) {
+			clusterPolygon.setExpansions(clusterPolygon.getExpansions() + 1);
 			clusterPolygon.getPoints().add(0, initialKey);
 		}
 

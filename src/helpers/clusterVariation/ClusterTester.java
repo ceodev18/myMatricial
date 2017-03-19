@@ -115,6 +115,7 @@ public class ClusterTester {
 	}
 
 	public static class TestPane extends JPanel {
+		private static final long serialVersionUID = 1L;
 		public static ClusterLandMap clusterLandMap;
 		private int growtXY = 1;
 		public static int large = 35;
