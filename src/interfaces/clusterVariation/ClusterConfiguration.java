@@ -30,4 +30,5 @@ public interface ClusterConfiguration {
 	public static String PARK_MARK = "p";	
 	public static String WALK_MARK = "w";
 	public static String CLUSTER_ENTRANCE_MARK = "t";
+	public static String BORDER_MARK = "e";
 }

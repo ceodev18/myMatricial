@@ -26,57 +26,33 @@ public class LSystemClusterAlgorithm {
 					mainRoute.getDirection());
 			if (landMap.landPointisOnMap(entryPointId) && landMap.intersectMainRoute(entryPointId)) {
 				createRouteVariation(entryPointId, orthogonalDirections.get(0), ClusterConfiguration.COLLECTOR_BRANCH);
-				// createRoute(entryPointId, orthogonalDirections.get(1),
-				// ClusterConfiguration.COLLECTOR_BRANCH);
 			} else
 				break;
 		}
-
+		
+		//Principal routes
 		int upperParallelId = mainRoute.getInitialPointId();
 		int[] key = ClusterMapHelper.breakKey(upperParallelId);
 		key[0] = 1;
 		upperParallelId = ClusterMapHelper.formKey(key[0], key[1]);
-
-		int current = 0;
 		while (true) {
-			// the parallel should be houseLength (as 8 is already used
-			// should be somewhere between 12 and more) and then road
-			/*
-			 * int totalMobility = (2 *
-			 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) + 11+ (current ==
-			 * 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 26 :
-			 * 0);upperParallelId =
-			 * ClusterMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
-			 * totalMobility, orthogonalDirections.get(0)); } else {
-			 */
-			// then BASE_CLUSTER_SIZE
 			upperParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
 					ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(0));
 			if (!landMap.landPointisOnMap(upperParallelId))
 				break;
 			createRouteVariation(upperParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
-			current++;
 		}
 
 		int lowerParallelId = mainRoute.getInitialPointId();
 		key = ClusterMapHelper.breakKey(lowerParallelId);
 		key[0] = 1;
 		lowerParallelId = ClusterMapHelper.formKey(key[0], key[1]);
-		current = 0;
 		while (true) {
-			if (current % 2 == 0) {
-				int totalMobility = (2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) + 11
-						+ (current == 0 ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 11 : 0);
-				lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId, totalMobility,
-						orthogonalDirections.get(1));
-			} else {
-				lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
-						ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(1));
-			}
+			lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
+					ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(1));
 			if (!landMap.landPointisOnMap(lowerParallelId))
 				break;
 			createRouteVariation(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
-			current++;
 		}
 	}
 

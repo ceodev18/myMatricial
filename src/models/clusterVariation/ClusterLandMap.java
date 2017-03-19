@@ -348,7 +348,7 @@ public class ClusterLandMap {
 				|| ((initialXY[1] < entryXY[1] && entryXY[1] < finalXY[1]));
 	}
 
-	public boolean isNode(int x, int y) {
+	public boolean isNormalNode(int x, int y) {
 		// up,down,left,right
 		if (!findPoint(ClusterMapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
 			return false;
@@ -542,7 +542,7 @@ public class ClusterLandMap {
 				System.out.println("Non orthogonal east/west walk detected");
 				int[] newXY = createNonOrthogonalWalkRoute(list.get(beginning), list.get((beginning + 1) % list.size()),
 						finalXY, true, gradient, direction);
-				offset = (int) -(gradient*finalXY[0]- finalXY[1]);
+				offset = (int) -(gradient * finalXY[0] - finalXY[1]);
 			}
 		} else if (direction == ClusterConstants.SOUTH || direction == ClusterConstants.NORTH) {
 			if (gradient.isInfinite()) {// means it is a route connection and a
@@ -552,7 +552,7 @@ public class ClusterLandMap {
 				System.out.println("Non orthogonal south/north walk detected");
 				int[] newXY = createNonOrthogonalWalkRoute(list.get(beginning), list.get((beginning + 1) % list.size()),
 						finalXY, true, gradient, direction);
-				offset = (int) -(gradient*finalXY[0]- finalXY[1]);
+				offset = (int) -(gradient * finalXY[0] - finalXY[1]);
 			}
 		}
 
@@ -891,6 +891,27 @@ public class ClusterLandMap {
 
 	public void setPolygonalArea(double polygonalArea) {
 		this.polygonalArea = polygonalArea;
+	}
+
+	public boolean isSpecialNode(int x, int y) {
+		// up,down,left,right
+		if (!findPoint(ClusterMapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			return false;
+		}
+
+		if ((y + 1 != pointsy) && (y - 1 != -1) && (x - 1 != -1) && (x + 1 != pointsx)) {
+			if (findPoint(ClusterMapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)
+					&& findPoint(ClusterMapHelper.formKey(x, y - 1)).getType()
+							.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)
+					&& findPoint(ClusterMapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.EMPTY_MARK)
+					&& (!findPoint(ClusterMapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.EMPTY_MARK)
+							|| !findPoint(ClusterMapHelper.formKey(x + 1, y)).getType()
+									.equals(ClusterConfiguration.NODE_MARK))) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 }
