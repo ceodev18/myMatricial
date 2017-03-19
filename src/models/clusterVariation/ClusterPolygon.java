@@ -327,20 +327,21 @@ public class ClusterPolygon {
 	public void rehashPolygon(int type) {
 		List<Integer> reorderedPoints = new ArrayList<>();
 		if (type == ClusterConfiguration.TYPE_SPECIAL) {
-			for (int i = points.size() -1; i >= 0; i--) {
+			for (int i = points.size() - 1; i >= 0; i--) {
 				reorderedPoints.add(points.get(i));
 			}
+			points = reorderedPoints;
 		} else {
 			if (expansions > 0) {
-				for (int i = expansions; i < points.size(); i++) {
+				for (int i = expansions+1; i < points.size(); i++) {
 					reorderedPoints.add(points.get(i));
 				}
 
-				for (int i = expansions - 1; i >= 0; i--) {
+				for (int i = 0; i < expansions+1; i++) {
 					reorderedPoints.add(points.get(i));
 				}
+				points = reorderedPoints;
 			}
 		}
-		points = reorderedPoints;
 	}
 }

@@ -75,6 +75,23 @@ public class ClusterDirectionHelper {
 		int xDifference = xyF[0] - xyI[0];
 		int yDifference = xyF[1] - xyI[1];
 
+		if ((xDifference == 0) && (yDifference < 0)) {
+			return ClusterConstants.NORTH;
+		}
+
+		if ((yDifference < 0) && (xDifference == 0)) {
+			return ClusterConstants.SOUTH;
+		}
+
+		if ((xDifference > 0) && (yDifference == 0)) {
+			return ClusterConstants.EAST;
+		}
+
+		if ((xDifference < 0) && (yDifference == 0)) {
+			return ClusterConstants.WEST;
+		}
+		
+		
 		if ((yDifference > 0) && ((yDifference > xDifference)|| (xDifference == 0))) {
 			return ClusterConstants.NORTH;
 		}

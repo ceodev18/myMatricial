@@ -515,7 +515,6 @@ public class ClusterLandMap {
 		if (beginning >= list.size()) {
 			return 0;
 		}
-		System.out.println("direction: "+direction);
 
 		int seed = 0, offset = 0;
 		boolean lotizable = true, notUniform = false;
@@ -539,7 +538,7 @@ public class ClusterLandMap {
 							ClusterConfiguration.WALK_BRANCH_SIZE, ClusterDirectionHelper.oppositeDirection(direction));
 				}
 			} else {
-				return -1;
+				notUniform = true;
 				/*
 				 * System.out.println("Non orthogonal east/west walk detected");
 				 * int[] newXY =
@@ -555,7 +554,8 @@ public class ClusterLandMap {
 				createClusterEntrance(currentXY, finalXY, direction);
 			} else {
 				// TODO non orthogonal case
-				return -1;
+				notUniform = true;
+				//return -1;
 				/*
 				 * System.out.println("Non orthogonal south/north walk detected"
 				 * ); int[] newXY =
@@ -575,6 +575,7 @@ public class ClusterLandMap {
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
 
+			if(notUniform) done = true;
 			if (done) {
 				switch (direction) {
 				case ClusterConstants.EAST:
@@ -582,6 +583,11 @@ public class ClusterLandMap {
 				case ClusterConstants.NORTH:
 					return lotize(list, ClusterConstants.WEST, ++beginning);
 				case ClusterConstants.WEST:
+					//TODO depending on the next begining+1 && begining+2 being x we turn to X need to refactor all code
+					if(notUniform) {
+						int newDirection = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(list.get((beginning+1)%list.size()),list.get((beginning + 2) % list.size()));
+						lotize(list, newDirection, ++beginning);
+					}
 					return lotize(list, ClusterConstants.SOUTH, ++beginning);
 				case ClusterConstants.SOUTH:
 					return 0;
@@ -923,86 +929,5 @@ public class ClusterLandMap {
 		}
 
 		return false;
-	}
-
-	public Object specialLotize(List<Integer> list, int direction, int beginning) {
-		if (beginning >= list.size()) {
-			return 0;
-		}
-
-		int seed = 0, offset = 0;
-		boolean lotizable = true;
-		int[] currentXY = ClusterMapHelper.breakKey(list.get(beginning));
-		int[] finalXY = ClusterMapHelper.breakKey(list.get((beginning + 1) % list.size()));
-		Double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
-
-		if (direction == ClusterConstants.EAST || direction == ClusterConstants.WEST) {
-			if (gradient.doubleValue() == 0.0) {
-				currentXY[0] = direction == ClusterConstants.EAST ? currentXY[0] + 1 : currentXY[0];
-				ClusterBuilding clusterBuilding = createWalkRoute(currentXY, false, direction, beginning);
-				if (clusterBuilding != null) {
-					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
-							ClusterConfiguration.WALK_BRANCH_SIZE, direction);
-				}
-
-				finalXY[0] = direction == ClusterConstants.EAST ? finalXY[0] : finalXY[0] + 1;
-				clusterBuilding = createWalkRoute(finalXY, true, direction, beginning);
-				if (clusterBuilding != null) {
-					finalXY = ClusterMapHelper.moveKeyByOffsetAndDirection(finalXY,
-							ClusterConfiguration.WALK_BRANCH_SIZE, ClusterDirectionHelper.oppositeDirection(direction));
-				}
-			} else {
-				// TODO non orthogonal case
-				return -1;
-			}
-		} else if (direction == ClusterConstants.SOUTH || direction == ClusterConstants.NORTH) {
-			if (gradient.isInfinite()) {// means it is a route connection and a
-										// perfect one at it
-				createClusterEntrance(currentXY, finalXY, direction);
-			} else {
-				// TODO non orthogonal case
-				return -1;
-			}
-		}
-
-		// TODO the not uniform type of polygon will be develop next
-		while (true) {
-			boolean done = false;
-			if ((direction == ClusterConstants.EAST) || (direction == ClusterConstants.NORTH))
-				done = currentXY[0] >= finalXY[0] && currentXY[1] >= finalXY[1];
-			else
-				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
-
-			if (done) {
-				switch (direction) {
-				case ClusterConstants.EAST:
-					return lotize(list, ClusterConstants.SOUTH, ++beginning);
-				case ClusterConstants.NORTH:
-					return lotize(list, ClusterConstants.EAST, ++beginning);
-				case ClusterConstants.WEST:
-					return 0;
-				case ClusterConstants.SOUTH:
-					return lotize(list, ClusterConstants.WEST, ++beginning);
-				}
-			}
-
-			lotizable = canBeLotized(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-					ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
-			if (lotizable) {
-				createDoubleLot(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 10);
-				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
-						ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
-				seed += 2;
-			} else {
-				if (gradient.isInfinite() || (gradient.doubleValue() == 0.0)) {
-					// means it is a route connection and a
-					// perfect one at it
-					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
-				} else {
-					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, 1, gradient, offset, direction);
-				}
-			}
-		}	
 	}
 }

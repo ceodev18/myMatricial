@@ -2,7 +2,6 @@ package algorithm.clusterVariation;
 
 import java.util.List;
 
-import helpers.base.DirectionHelper;
 import helpers.clusterVariation.ClusterDirectionHelper;
 import helpers.clusterVariation.ClusterMapHelper;
 import interfaces.clusterVariation.ClusterConfiguration;
@@ -91,7 +90,6 @@ public class ClusterLotizationAlgorithm {
 					}
 
 					// we create the houses
-
 					List<List<Integer>> lowerBorder = clusterPolygon
 							.routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
 					if (lowerBorder.size() > 0) {
@@ -214,7 +212,8 @@ public class ClusterLotizationAlgorithm {
 	 */
 	private static Object completeOrganicCoverture(int initialKey, int direction, ClusterPolygon clusterPolygon) {
 		if (direction != ClusterConstants.NORTH) {
-			clusterPolygon.setExpansions(clusterPolygon.getExpansions() + 1);
+			int numExpansions = clusterPolygon.getExpansions() + 1;
+			clusterPolygon.setExpansions(numExpansions);
 			clusterPolygon.getPoints().add(0, initialKey);
 		}
 
