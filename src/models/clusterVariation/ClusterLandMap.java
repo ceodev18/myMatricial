@@ -539,13 +539,11 @@ public class ClusterLandMap {
 				}
 			} else {
 				notUniform = true;
+				int[] newXY = createNonOrthogonalWalkRoute(list.get(beginning), list.get((beginning + 1) % list.size()),
+						finalXY, true, gradient, direction);
+				// offset = (int) -(gradient * finalXY[0] - finalXY[1]);
 				/*
 				 * System.out.println("Non orthogonal east/west walk detected");
-				 * int[] newXY =
-				 * createNonOrthogonalWalkRoute(list.get(beginning),
-				 * list.get((beginning + 1) % list.size()), finalXY, true,
-				 * gradient, direction); offset = (int) -(gradient * finalXY[0]
-				 * - finalXY[1]);
 				 */
 			}
 		} else if (direction == ClusterConstants.SOUTH || direction == ClusterConstants.NORTH) {
@@ -555,7 +553,7 @@ public class ClusterLandMap {
 			} else {
 				// TODO non orthogonal case
 				notUniform = true;
-				//return -1;
+				// return -1;
 				/*
 				 * System.out.println("Non orthogonal south/north walk detected"
 				 * ); int[] newXY =
@@ -575,19 +573,22 @@ public class ClusterLandMap {
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
 
-			if(notUniform) done = true;
+			if (notUniform)
+				done = true;
 			if (done) {
+				if (notUniform) {
+					int newDirection = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(
+							list.get((beginning + 1) % list.size()), list.get((beginning + 2) % list.size()));
+					return lotize(list, newDirection, ++beginning);
+				}
 				switch (direction) {
 				case ClusterConstants.EAST:
 					return lotize(list, ClusterConstants.NORTH, ++beginning);
 				case ClusterConstants.NORTH:
 					return lotize(list, ClusterConstants.WEST, ++beginning);
 				case ClusterConstants.WEST:
-					//TODO depending on the next begining+1 && begining+2 being x we turn to X need to refactor all code
-					if(notUniform) {
-						int newDirection = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(list.get((beginning+1)%list.size()),list.get((beginning + 2) % list.size()));
-						lotize(list, newDirection, ++beginning);
-					}
+					// TODO depending on the next begining+1 && begining+2 being
+					// x we turn to X need to refactor all code
 					return lotize(list, ClusterConstants.SOUTH, ++beginning);
 				case ClusterConstants.SOUTH:
 					return 0;
@@ -616,49 +617,44 @@ public class ClusterLandMap {
 
 	private int[] createNonOrthogonalWalkRoute(Integer initialPoint, Integer finalPoint, int[] beginXY, boolean inverse,
 			Double gradient, int direction) {
-		int[] initialXY = MapHelper.breakKey(initialPoint);
-		int[] finalXY = MapHelper.breakKey(finalPoint);
-		double b = -(gradient * initialXY[0] - initialXY[1]);
+		// f lines are perpendicular, M1× M2 = − 1
+		// int[] initialXY = MapHelper.breakKey(initialPoint);
+		// int[] finalXY = MapHelper.breakKey(finalPoint);
+		double offset = -gradient * beginXY[0] + beginXY[1];
 
-		double[] unitaryVector = new double[2];
-		unitaryVector[0] = (finalXY[0] - initialXY[0])
-				/ Math.sqrt(Math.pow((finalXY[0] - initialXY[0]), 2) + Math.pow((finalXY[1] - initialXY[1]), 2));
-		unitaryVector[1] = (finalXY[1] - initialXY[1])
-				/ Math.sqrt(Math.pow((finalXY[0] - initialXY[0]), 2) + Math.pow((finalXY[1] - initialXY[1]), 2));
+		double orthogonalGradient = -1 / gradient;
+		double orthogonalOffset = -orthogonalGradient * beginXY[0] + beginXY[1];
 
-		double[] perpendicularUnitVector = new double[2];
-		perpendicularUnitVector[0] = unitaryVector[1];
-		perpendicularUnitVector[1] = -unitaryVector[0];
+		double variation[] = new double[2];
 
-		double[] variationA = new double[2];
-		double[] variationB = new double[2];
-		variationA[0] = beginXY[0] + ClusterConfiguration.WALK_BRANCH_SIZE * perpendicularUnitVector[0];
-		variationA[1] = beginXY[1] + ClusterConfiguration.WALK_BRANCH_SIZE * perpendicularUnitVector[1];
+		// this should be in another function
+		variation[0] = beginXY[0] - 1;
+		variation[1] = (int) (orthogonalGradient * variation[0] + orthogonalOffset);
+		double varA = distanceToCentroid(variation);
 
-		variationB[0] = beginXY[0] - ClusterConfiguration.WALK_BRANCH_SIZE * perpendicularUnitVector[0];
-		variationB[1] = beginXY[1] - ClusterConfiguration.WALK_BRANCH_SIZE * perpendicularUnitVector[1];
-
-		double distanceToCentroidA = distanceToCentroid(variationA);
-		double distanceToCentroidB = distanceToCentroid(variationB);
+		variation[0] = beginXY[0] + 1;
+		variation[1] = (int) (orthogonalGradient * variation[0] + orthogonalOffset);
+		double varB = distanceToCentroid(variation);
 
 		int[] currentXY = new int[2];
 		for (int j = 0; j < ClusterConfiguration.WALK_BRANCH_SIZE; j++) {
 			currentXY[0] = beginXY[0] + j;
-			currentXY[1] = (int) (gradient * currentXY[0] + b);
+			currentXY[1] = (int) (gradient * currentXY[0] + offset);
+			orthogonalOffset = -orthogonalGradient * currentXY[0] + currentXY[1];
 
 			// We need to find the furthest
-			if (distanceToCentroidB > distanceToCentroidA) {
-				for (int i = 0; i < ClusterConfiguration.WALK_BRANCH_SIZE; i++) {
-					variationB[0] = currentXY[0] - i * perpendicularUnitVector[0];
-					variationB[1] = currentXY[1] - i * perpendicularUnitVector[1];
-					findPoint(MapHelper.formKey((int) variationB[0], (int) variationB[1]))
+			if (varB > varA) {
+				for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+					variation[1] = currentXY[1] + i;
+					variation[0] = (variation[1] - orthogonalOffset)/ orthogonalGradient;
+					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
 							.setType(ClusterConfiguration.WALK_MARK);
 				}
 			} else {
-				for (int i = 0; i < ClusterConfiguration.WALK_BRANCH_SIZE; i++) {
-					variationA[0] = currentXY[0] + i * perpendicularUnitVector[0];
-					variationA[1] = currentXY[1] + i * perpendicularUnitVector[1];
-					findPoint(MapHelper.formKey((int) variationA[0], (int) variationA[1]))
+				for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+					variation[1] = currentXY[1] - i;
+					variation[0] = (variation[1] - orthogonalOffset)/ orthogonalGradient;
+					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
 							.setType(ClusterConfiguration.WALK_MARK);
 				}
 			}
@@ -666,13 +662,13 @@ public class ClusterLandMap {
 
 		// We have the full
 		currentXY[0] = currentXY[0] + 1;
-		currentXY[1] = (int) (gradient * currentXY[0] + b);
+		currentXY[1] = (int) (gradient * currentXY[0] + offset);
 		return currentXY;
 	}
 
-	private double distanceToCentroid(double[] variationA) {
-		// TODO Auto-generated method stub
-		return 0;
+	private double distanceToCentroid(double[] variation) {
+		int [] center= MapHelper.breakKey(centroid.getId());
+		return Math.sqrt(Math.pow(center[0] - variation[0], 2) + Math.pow(center[1] - variation[1], 2));
 	}
 
 	private void createClusterEntrance(int[] currentXY, int[] finalXY, int direction) {
