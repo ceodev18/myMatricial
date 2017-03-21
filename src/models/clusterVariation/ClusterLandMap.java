@@ -449,8 +449,8 @@ public class ClusterLandMap {
 			clusterPolygon.setComplete(true);
 			return clusterPolygon;
 		}
-
-		System.out.println("Vertexes " + initialVertexSide + "||" + finalVertexSide);
+		// System.out.println("Vertexes " + initialVertexSide + "||" +
+		// finalVertexSide);
 
 		if (initialVertexSide != finalVertexSide) {
 			// simple complex figure
@@ -459,9 +459,8 @@ public class ClusterLandMap {
 			// before trying again this strategy
 			if ((initialVertexSide == -1 && finalVertexSide != -1)
 					|| (initialVertexSide != -1 && finalVertexSide == -1)) {
-				System.out.println("Incomplete data polygon");
+				// System.out.println("Incomplete data polygon");
 				clusterPolygon.printPolygon();
-				System.out.println();
 				return clusterPolygon;
 			}
 
@@ -471,41 +470,32 @@ public class ClusterLandMap {
 			int finalVertex0 = fullPolygon.get(finalVertexSide).get(0);
 			int finalVertexFinal = fullPolygon.get(finalVertexSide).get(fullPolygon.get(finalVertexSide).size() - 1);
 
-			System.out.println("Initial row: " + initialVertex0 + "," + initialVertexFinal + "||" + finalVertex0 + ","
-					+ finalVertexFinal);
-
 			if (initialVertex0 == finalVertex0) {
 				clusterPolygon.getPoints().add(initialVertex0);
 				clusterPolygon.setComplete(true);
-				System.out.println("Complete data polygon");
+				// System.out.println("Complete data polygon");
 				clusterPolygon.printPolygon();
-				System.out.println();
 				return clusterPolygon;
 			} else if (initialVertex0 == finalVertexFinal) {
 				clusterPolygon.getPoints().add(initialVertex0);
 				clusterPolygon.setComplete(true);
-				System.out.println("Complete data polygon");
+				// System.out.println("Complete data polygon");
 				clusterPolygon.printPolygon();
-				System.out.println();
 				return clusterPolygon;
 			} else if (initialVertexFinal == finalVertex0) {
 				clusterPolygon.getPoints().add(initialVertexFinal);
 				clusterPolygon.setComplete(true);
-				System.out.println("Complete data polygon");
+				// System.out.println("Complete data polygon");
 				clusterPolygon.printPolygon();
-				System.out.println();
 				return clusterPolygon;
 			} else if (initialVertexFinal == finalVertexFinal) {
 				clusterPolygon.getPoints().add(initialVertexFinal);
 				clusterPolygon.setComplete(true);
-				System.out.println("Complete data polygon");
+				// System.out.println("Complete data polygon");
 				clusterPolygon.printPolygon();
-				System.out.println();
 				return clusterPolygon;
 			}
-
-			System.out.println("Polygon with more than 4 sides");
-			System.out.println();
+			// System.out.println("Polygon with more than 4 sides");
 		}
 		return clusterPolygon;
 	}
@@ -519,12 +509,12 @@ public class ClusterLandMap {
 			return 0;
 		}
 
-		int seed = 0, offset = 0;
+		int seed = 0;
 		boolean lotizable = true, notUniform = false;
 		int[] currentXY = ClusterMapHelper.breakKey(list.get(beginning));
 		int[] finalXY = ClusterMapHelper.breakKey(list.get((beginning + 1) % list.size()));
 		Double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
-
+		double offset = finalXY[1] - gradient*finalXY[0];
 		if (direction == ClusterConstants.EAST || direction == ClusterConstants.WEST) {
 			if (gradient.doubleValue() == 0.0) {
 				currentXY[0] = direction == ClusterConstants.EAST ? currentXY[0] + 1 : currentXY[0];
@@ -542,12 +532,11 @@ public class ClusterLandMap {
 				}
 			} else {
 				notUniform = true;
-				
-				/*int[] newXY = */createNonOrthogonalWalkRoute(list.get(beginning), list.get((beginning + 1) % list.size()),
-						finalXY, false, gradient);
+				/* int[] newXY = */createNonOrthogonalWalkRoute(list.get(beginning),
+						list.get((beginning + 1) % list.size()), finalXY, false, gradient);
 
-				/*int []ffXY =*/ createNonOrthogonalWalkRoute(list.get(beginning), list.get((beginning + 1) % list.size()),
-						finalXY, true, gradient);
+				/* int []ffXY = */ createNonOrthogonalWalkRoute(list.get(beginning),
+						list.get((beginning + 1) % list.size()), finalXY, true, gradient);
 			}
 		} else if (direction == ClusterConstants.SOUTH || direction == ClusterConstants.NORTH) {
 			if (gradient.isInfinite()) {// means it is a route connection and a
@@ -556,7 +545,6 @@ public class ClusterLandMap {
 				// point - 6 to make
 				createClusterEntrance(currentXY, finalXY, direction);
 			} else {
-				// TODO non orthogonal case
 				notUniform = true;
 				createNonOrthogonalClusterEntrance(currentXY, finalXY, direction, gradient);
 			}
@@ -570,8 +558,6 @@ public class ClusterLandMap {
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
 
-			if (notUniform)
-				done = true;
 			if (done) {
 				if (notUniform) {
 					int newDirection = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(
@@ -592,21 +578,31 @@ public class ClusterLandMap {
 				}
 			}
 
-			lotizable = canBeLotized(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-					ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
-			if (lotizable) {
-				createDoubleLot(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 10);
-				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
-						ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
-				seed += 2;
-			} else {
-				if (gradient.isInfinite() || (gradient.doubleValue() == 0.0)) {
-					// means it is a route connection and a
-					// perfect one at it
-					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
+			if (gradient.doubleValue() == 0.0 || gradient.isInfinite()) {
+				lotizable = canBeLotized(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
+						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
+				if (lotizable) {
+					createDoubleLot(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 10);
+					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
+							ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
+					seed += 2;
 				} else {
-					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, 1, gradient, offset, direction);
+					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
+				}
+			} else {
+				if(false){
+				/*lotizable = canBeLotized(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
+						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
+				if (lotizable) {
+					createDoubleLot(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 10);
+					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
+							ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
+					seed += 2;*/
+				} else {
+					
+					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY, 1, gradient, offset);
 				}
 			}
 		}
@@ -687,37 +683,37 @@ public class ClusterLandMap {
 		double orthogonalGradient = -1 / gradient;
 		double orthogonalOffset = -orthogonalGradient * beginXY[0] + beginXY[1];
 
-		int [] initialXY = ClusterMapHelper.breakKey(initialPoint);
-		int [] finalXY = ClusterMapHelper.breakKey(finalPoint);
+		int[] initialXY = ClusterMapHelper.breakKey(initialPoint);
+		int[] finalXY = ClusterMapHelper.breakKey(finalPoint);
 		boolean down = false;
-		if(inverse){
-			if(finalXY[0]-initialXY[0]>0){
-				//EAST
+		if (inverse) {
+			if (finalXY[0] - initialXY[0] > 0) {
+				// EAST
 				down = true;
-				beginXY[0] = finalXY[0]-ClusterConfiguration.WALK_BRANCH_SIZE;
+				beginXY[0] = finalXY[0] - ClusterConfiguration.WALK_BRANCH_SIZE;
 				beginXY[1] = (int) (gradient * beginXY[0] + offset);
-			}else{
-				//WEST
+			} else {
+				// WEST
 				down = false;
-				beginXY[0] = initialXY[0]-ClusterConfiguration.WALK_BRANCH_SIZE;
+				beginXY[0] = initialXY[0] - ClusterConfiguration.WALK_BRANCH_SIZE;
 				beginXY[1] = (int) (gradient * beginXY[0] + offset);
 			}
-		}else{
-			if(finalXY[0]-initialXY[0]>0){
-				//EAST
+		} else {
+			if (finalXY[0] - initialXY[0] > 0) {
+				// EAST
 				down = true;
 				beginXY[0] = initialXY[0];
 				beginXY[1] = (int) (gradient * beginXY[0] + offset);
-			}else{
-				//WEST
+			} else {
+				// WEST
 				down = false;
 				beginXY[0] = finalXY[0];
 				beginXY[1] = (int) (gradient * beginXY[0] + offset);
 			}
 		}
-		
+
 		double variation[] = new double[2];
-	
+
 		int[] currentXY = new int[2];
 		for (int j = 0; j < ClusterConfiguration.WALK_BRANCH_SIZE; j++) {
 			currentXY[0] = beginXY[0] + j;
