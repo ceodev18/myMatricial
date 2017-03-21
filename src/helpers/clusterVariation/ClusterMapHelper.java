@@ -59,27 +59,53 @@ public class ClusterMapHelper {
 		}
 	}
 
+	/**
+	 * Due to direction being strongly related to X and Y completitude it must be passed
+	 * */
 	public static int[] moveKeyByGradientAndOffset(int[] currentXY, int[] finalXY, int size, Double gradient,
-			double offset) {
-		double[] newXY = new double[2];
-		newXY[0] = currentXY[0] - size;
-		newXY[1] = (int) (gradient * newXY[0] + offset);
-		double bottomdistance = Math.sqrt(Math.pow(finalXY[0] - newXY[0], 2) + Math.pow(finalXY[1] - newXY[1], 2));
+			double offset, int direction) {
+		if((direction == ClusterConstants.WEST) || (direction == ClusterConstants.EAST)){
+			double[] newXY = new double[2];
+			newXY[0] = currentXY[0] - size;
+			newXY[1] = (int) (gradient * newXY[0] + offset);
+			double bottomdistance = Math.sqrt(Math.pow(finalXY[0] - newXY[0], 2) + Math.pow(finalXY[1] - newXY[1], 2));
 
-		double[] newBXY = new double[2];
-		newBXY[0] = currentXY[0] + size;
-		newBXY[1] = (int) (gradient * newXY[0] + offset);
-		double upperdistance = Math.sqrt(Math.pow(finalXY[0] - newBXY[0], 2) + Math.pow(finalXY[1] - newBXY[1], 2));
+			double[] newBXY = new double[2];
+			newBXY[0] = currentXY[0] + size;
+			newBXY[1] = (int) (gradient * newXY[0] + offset);
+			double upperdistance = Math.sqrt(Math.pow(finalXY[0] - newBXY[0], 2) + Math.pow(finalXY[1] - newBXY[1], 2));
 
-		int[] responseXY = new int[2];
-		if (bottomdistance < upperdistance) {
-			responseXY[0]= (int) newXY[0];
-			responseXY[1]= (int) newXY[1];
-			return responseXY;
-		} else {
-			responseXY[0]= (int) newBXY[0];
-			responseXY[1]= (int) newBXY[1];
-			return responseXY;
+			int[] responseXY = new int[2];
+			if (bottomdistance < upperdistance) {
+				responseXY[0]= (int) newXY[0];
+				responseXY[1]= (int) newXY[1];
+				return responseXY;
+			} else {
+				responseXY[0]= (int) newBXY[0];
+				responseXY[1]= (int) newBXY[1];
+				return responseXY;
+			}			
+		}else{
+			double[] newXY = new double[2];
+			newXY[1] = currentXY[1] - size;
+			newXY[0] = (int) ((newXY[1] - offset)/gradient);
+			double bottomdistance = Math.sqrt(Math.pow(finalXY[0] - newXY[0], 2) + Math.pow(finalXY[1] - newXY[1], 2));
+
+			double[] newBXY = new double[2];
+			newBXY[1] = currentXY[1] + size;
+			newBXY[0] = (int) ((newXY[1] - offset)/gradient);
+			double upperdistance = Math.sqrt(Math.pow(finalXY[0] - newBXY[0], 2) + Math.pow(finalXY[1] - newBXY[1], 2));
+
+			int[] responseXY = new int[2];
+			if (bottomdistance < upperdistance) {
+				responseXY[0]= (int) newXY[0];
+				responseXY[1]= (int) newXY[1];
+				return responseXY;
+			} else {
+				responseXY[0]= (int) newBXY[0];
+				responseXY[1]= (int) newBXY[1];
+				return responseXY;
+			}	
 		}
 	}
 }

@@ -178,7 +178,7 @@ public class ClusterTester {
 							g.setColor(Color.YELLOW);
 							break;
 						case 6:
-							g.setColor(Color.RED);
+							g.setColor(Color.decode("#472544"));
 							break;
 						case 7:
 							g.setColor(Color.ORANGE);

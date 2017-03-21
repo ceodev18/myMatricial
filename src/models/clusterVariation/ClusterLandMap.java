@@ -624,10 +624,10 @@ public class ClusterLandMap {
 					createNonOrthogonalLot(currentXY, finalXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
 							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, gradient, seed % 10);
 					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY,
-							ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, gradient, offset);
+							ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, gradient, offset, direction);
 					seed += 2;
 				} else {
-					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY, 1, gradient, offset);
+					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY, 1, gradient, offset, direction);
 				}
 			}
 		}
@@ -640,6 +640,7 @@ public class ClusterLandMap {
 		double offset = -gradient * beginXY[0] + beginXY[1];
 		double distance = Math.sqrt(0 + Math.pow(beginXY[1] - finalXY[1], 2));
 		boolean inverse = false;
+		boolean isUpDown = false;
 
 		if (distance < houseSideSize) {
 			return false;
@@ -652,6 +653,7 @@ public class ClusterLandMap {
 			tfXY[1] = (int) finalXY[1];
 			tfXY[0] = (int) ((tfXY[1] - offset) / gradient);
 		} else {
+			isUpDown = true;
 			tbXY[1] = (int) finalXY[1];
 			tbXY[0] = (int) ((tbXY[1] - offset) / gradient);
 
@@ -678,27 +680,79 @@ public class ClusterLandMap {
 		if (tbXY[1] > tfXY[1])
 			return false;
 
-		double orthogonalGradient = -1 / gradient;
-		double orthogonalOffset;
+		// double orthogonalGradient = -1 / gradient;
+		// double orthogonalOffset = -orthogonalGradient * tbXY[0] + tbXY[1];
 		double variation[] = new double[2];
 		int[] currentXY = new int[2];
+		int countYFactor = 0;
+		int oldVariation = -1;
 
 		for (int j = 0; j < houseSideSize; j++) {
 			currentXY[0] = tbXY[0] + j;
 			currentXY[1] = (int) (gradient * currentXY[0] + offset);
-			orthogonalOffset = -orthogonalGradient * currentXY[0] + currentXY[1];
+			// orthogonalOffset = -orthogonalGradient * currentXY[0] +
+			// currentXY[1];
+
+			if (isUpDown && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
+				// we take the reminder y that are needed for an exact answer
+				for (int w = oldVariation + 1; w < currentXY[1]; w++) {
+					for (int i = 0; i < houseDepthSize; i++) {
+						variation[0] = currentXY[0] + (!inverse ? i : -i);
+						variation[1] = w;
+						// orthogonalGradient * variation[0] + orthogonalOffset;
+						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+									.getType();
+							if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
+								return false;
+						}
+					}
+					countYFactor++;
+					if (countYFactor == houseSideSize) {
+						break;
+					}
+				}
+			} else if ((oldVariation != -1) && ((oldVariation - 1) > currentXY[1])) {
+				// we take the reminder y that are needed for an exact answer
+				for (int w = currentXY[1] + 1; w < oldVariation; w++) {
+					for (int i = 0; i < houseDepthSize; i++) {
+						variation[0] = currentXY[0] + (!inverse ? i : -i);
+						variation[1] = w;
+						// orthogonalGradient * variation[0] + orthogonalOffset;
+						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+									.getType();
+							if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
+								return false;
+						}
+					}
+					countYFactor++;
+					if (countYFactor == houseSideSize) {
+						break;
+					}
+				}
+			}
+
+			if (countYFactor == houseSideSize) {
+				break;
+			}
 
 			// We need to find the furthest
 			for (int i = 0; i < houseDepthSize; i++) {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
-				variation[1] = orthogonalGradient * variation[0] + orthogonalOffset;
+				variation[1] = currentXY[1];
+				// orthogonalGradient * variation[0] + orthogonalOffset;
 				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).getType();
-					if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)) {
+					if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
 						return false;
-					}
 				}
 			}
+			countYFactor++;
+			if (countYFactor == houseSideSize) {
+				break;
+			}
+			oldVariation = (int) currentXY[1];
 		}
 		return true;
 	}
@@ -710,6 +764,7 @@ public class ClusterLandMap {
 		double offset = -gradient * beginXY[0] + beginXY[1];
 		double distance = Math.sqrt(0 + Math.pow(beginXY[1] - finalXY[1], 2));
 		boolean inverse = false;
+		boolean isUpDown = false;
 
 		if (distance < houseSideSize) {
 			return;
@@ -722,6 +777,7 @@ public class ClusterLandMap {
 			tfXY[1] = (int) finalXY[1];
 			tfXY[0] = (int) ((tfXY[1] - offset) / gradient);
 		} else {
+			isUpDown = true;
 			tbXY[1] = (int) finalXY[1];
 			tbXY[0] = (int) ((tbXY[1] - offset) / gradient);
 
@@ -748,24 +804,71 @@ public class ClusterLandMap {
 		if (tbXY[1] > tfXY[1])
 			return;
 
-		double orthogonalGradient = -1 / gradient;
-		double orthogonalOffset;
+		// double orthogonalGradient = -1 / gradient;
+		// double orthogonalOffset = -orthogonalGradient * tbXY[0] + tbXY[1];
 		double variation[] = new double[2];
 		int[] currentXY = new int[2];
+		int countYFactor = 0;
+		int oldVariation = -1;
 
 		for (int j = 0; j < houseSideSize; j++) {
 			currentXY[0] = tbXY[0] + j;
 			currentXY[1] = (int) (gradient * currentXY[0] + offset);
-			orthogonalOffset = -orthogonalGradient * currentXY[0] + currentXY[1];
+			// orthogonalOffset = -orthogonalGradient * currentXY[0] +
+			// currentXY[1];
+
+			if (isUpDown && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
+				// we take the reminder y that are needed for an exact answer
+				for (int w = oldVariation + 1; w < currentXY[1]; w++) {
+					for (int i = 0; i < houseDepthSize; i++) {
+						variation[0] = currentXY[0] + (!inverse ? i : -i);
+						variation[1] = w;
+						// orthogonalGradient * variation[0] + orthogonalOffset;
+						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+						}
+					}
+					countYFactor++;
+					if (countYFactor == houseSideSize) {
+						break;
+					}
+				}
+			} else if ((oldVariation != -1) && ((oldVariation - 1) > currentXY[1])) {
+				// we take the reminder y that are needed for an exact answer
+				for (int w = currentXY[1] + 1; w < oldVariation; w++) {
+					for (int i = 0; i < houseDepthSize; i++) {
+						variation[0] = currentXY[0] + (!inverse ? i : -i);
+						variation[1] = w;
+						// orthogonalGradient * variation[0] + orthogonalOffset;
+						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+						}
+					}
+					countYFactor++;
+					if (countYFactor == houseSideSize) {
+						break;
+					}
+				}
+			}
+
+			if (countYFactor == houseSideSize) {
+				break;
+			}
 
 			// We need to find the furthest
 			for (int i = 0; i < houseDepthSize; i++) {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
-				variation[1] = orthogonalGradient * variation[0] + orthogonalOffset;
+				variation[1] = currentXY[1];
+				// orthogonalGradient * variation[0] + orthogonalOffset;
 				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 				}
 			}
+			countYFactor++;
+			if (countYFactor == houseSideSize) {
+				break;
+			}
+			oldVariation = (int) currentXY[1];
 		}
 	}
 
@@ -776,7 +879,7 @@ public class ClusterLandMap {
 		double distance = Math.sqrt(0 + Math.pow(beginXY[1] - finalXY[1], 2));
 		boolean inverse = false;
 		boolean isUpDown = false;
-		
+
 		if (distance < ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) {
 			return;
 		}
@@ -815,19 +918,18 @@ public class ClusterLandMap {
 		if (tbXY[1] > tfXY[1])
 			return;
 
-		double orthogonalGradient = -1 / gradient;
-		double orthogonalOffset = -orthogonalGradient * tbXY[0] + tbXY[1];
-
+		// double orthogonalGradient = -1 / gradient;
+		// double orthogonalOffset = -orthogonalGradient * tbXY[0] + tbXY[1];
 		double variation[] = new double[2];
 		int[] currentXY = new int[2];
-
 		int countYFactor = 0;
 		int oldVariation = -1;
 
 		for (int j = 0; j < ClusterConfiguration.CLUSTER_ENTRANCE_SIZE; j++) {
 			currentXY[0] = tbXY[0] + j;
 			currentXY[1] = (int) (gradient * currentXY[0] + offset);
-			orthogonalOffset = -orthogonalGradient * currentXY[0] + currentXY[1];
+			// orthogonalOffset = -orthogonalGradient * currentXY[0] +
+			// currentXY[1];
 
 			if (isUpDown && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
@@ -846,9 +948,9 @@ public class ClusterLandMap {
 						break;
 					}
 				}
-			} else if((oldVariation != -1) && ((oldVariation - 1) > currentXY[1])) {
+			} else if ((oldVariation != -1) && ((oldVariation - 1) > currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
-				for (int w = currentXY[1]+1; w < oldVariation; w++) {
+				for (int w = currentXY[1] + 1; w < oldVariation; w++) {
 					for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
