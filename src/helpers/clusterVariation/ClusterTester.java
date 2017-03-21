@@ -23,6 +23,8 @@ import models.clusterVariation.ClusterLandPoint;
 
 public class ClusterTester {
 	public static void main(String[] args) {
+		long startTime = System.nanoTime();
+		
 		int large = 1834, width = 1623;
 		// 1. We create the map and set its intrinsec variables
 		ClusterLandMap landMap = new ClusterLandMap(large, width);
@@ -77,7 +79,10 @@ public class ClusterTester {
 		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
 		ClusterLotizationAlgorithm.zonify();
 
-		System.out.println("Algorithm finished");
+
+		long endTime = System.nanoTime();
+		long duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
+		System.out.println("Algorithm finished in " + duration + "s");
 		ClusterLotizationAlgorithm.landMap.printMapToFile();
 
 		TestPane.clusterLandMap = ClusterLotizationAlgorithm.landMap;
