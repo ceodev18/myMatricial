@@ -83,8 +83,14 @@ public class ClusterTester {
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
 		System.out.println("Algorithm finished in " + duration + "s");
-		ClusterLotizationAlgorithm.landMap.printMapToFile();
-
+		//ClusterLotizationAlgorithm.landMap.printMapToFile();
+		String compressedString = ClusterLotizationAlgorithm.landMap.stringify();
+		System.out.println("Compressed String lenght: " + compressedString.length());
+		
+		endTime = System.nanoTime();
+		duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
+		System.out.println("Response build finished in " + duration + "s");
+		
 		TestPane.clusterLandMap = ClusterLotizationAlgorithm.landMap;
 		TestPane.large = large;
 		TestPane.width = width;

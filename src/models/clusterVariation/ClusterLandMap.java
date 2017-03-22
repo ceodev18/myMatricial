@@ -3,8 +3,11 @@ package models.clusterVariation;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import helpers.base.MapHelper;
 import helpers.clusterVariation.ClusterDirectionHelper;
@@ -609,7 +612,7 @@ public class ClusterLandMap {
 						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
 				if (lotizable) {
 					createDoubleLot(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 10);
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 4);
 					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
 							ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
 					seed += 2;
@@ -622,12 +625,13 @@ public class ClusterLandMap {
 						direction, gradient);
 				if (lotizable) {
 					createNonOrthogonalLot(currentXY, finalXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, gradient, seed % 10);
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, gradient, seed % 4);
 					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY,
 							ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, gradient, offset, direction);
 					seed += 2;
 				} else {
-					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY, 1, gradient, offset, direction);
+					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY, 1, gradient, offset,
+							direction);
 				}
 			}
 		}
@@ -1266,14 +1270,50 @@ public class ClusterLandMap {
 				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
 					repetitions++;
 				} else {
-					mapString += type + "-" + repetitions + ",";
+					mapString += type + "" + repetitions + ",";
 					repetitions = 1;
 					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
 				}
 			}
-			mapString += type + "-" + repetitions + ",";
-			mapString += "\n";
+			mapString += type + "" + repetitions + ",";
+			mapString += "|";
 		}
+		return mapString;
+	}
+
+	public String compress() {
+		Map<String, List<Integer>> mapMap = new HashMap<>();
+
+		String mapString = "";
+		for (int j = pointsy - 1; j >= 0; j--) {
+			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
+			if (mapMap.get(type) == null) {
+				mapMap.put(type, new ArrayList<>());
+			}
+			int i;
+			for (i = 1; i < pointsx; i++) {
+				if (!type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
+					mapMap.get(type).add(ClusterMapHelper.formKey(i - 1, j));
+					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
+					if (mapMap.get(type) == null) {
+						mapMap.put(type, new ArrayList<>());
+					}
+					mapMap.get(type).add(ClusterMapHelper.formKey(i, j));
+				}
+			}
+			mapMap.get(type).add(ClusterMapHelper.formKey(i, j));
+		}
+
+		Iterator<Entry<String, List<Integer>>> it = mapMap.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, List<Integer>> pair = (Map.Entry<String, List<Integer>>) it.next();
+			mapString += pair.getKey();
+			for (int i = 0; i < pair.getValue().size(); i++) {
+				mapString += "," + pair.getValue().get(i).intValue();
+			}
+			mapString += "|";
+		}
+
 		return mapString;
 	}
 }

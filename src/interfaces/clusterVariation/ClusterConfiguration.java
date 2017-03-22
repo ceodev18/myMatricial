@@ -24,12 +24,12 @@ public interface ClusterConfiguration {
 	public static String OUTSIDE_POLYGON_MARK = " ";
 	public static String POLYGON_BORDER = ".";
 	public static String ARTERIAL_MARK = "a";
-	public static String COLLECTOR_MARK = "b";
-	public static String LOCAL_MARK = "c";
+	public static String COLLECTOR_MARK = "a";
+	public static String LOCAL_MARK = "a";
 	public static String NODE_MARK = "n";
 	public static String PARK_MARK = "p";	
-	public static String WALK_MARK = "w";
-	public static String CLUSTER_ENTRANCE_MARK = "t";
+	public static String WALK_MARK = "a";
+	public static String CLUSTER_ENTRANCE_MARK = "a";
 	public static String BORDER_MARK = "e";
 
 	public static int TYPE_SPECIAL = 0;
