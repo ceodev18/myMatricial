@@ -185,6 +185,12 @@ public class ClusterLandMap {
 	}
 
 	private boolean isPolygonBorder(int x, int y) {
+		int easternLimit = x+1;
+		int westernLimit = x-1;
+		int southLimit = y-1;
+		int northLimit = y+1;
+		
+		if(westernLimit == -1 || easternLimit ==pointsx || southLimit==-1 || northLimit==pointsy)return false;
 		return (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)
 				|| findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 				&& !findPoint(MapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK);
