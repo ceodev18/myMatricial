@@ -1,4 +1,4 @@
-package spineVariation;
+package helpers.spineVariation;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,56 +16,81 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import algorithm.clusterVariation.ClusterLotizationAlgorithm;
 import algorithm.clusterVariation.LSystemClusterAlgorithm;
+import algorithm.spineVariation.LSystemSpineAlgorithm;
 import helpers.base.MapHelper;
-import helpers.clusterVariation.ClusterDirectionHelper;
-import interfaces.clusterVariation.ClusterConfiguration;
-import models.clusterVariation.ClusterLandMap;
-import models.clusterVariation.ClusterLandPoint;
-
-
+import helpers.clusterVariation.ClusterTester;
+import helpers.spineVariation.SpineDirectionHelper;
+import interfaces.spineVariation.SpineConfiguration;
+import models.spineVariation.SpineLandPoint;
+import spineVariation.SpineTester.TestPane;
+import models.spineVariation.SpineLandMap;
+import models.spineVariation.SpineLandPoint;
+import models.spineVariation.SpineLandMap;
 
 public class SpineTester {
 	public static void main(String[] argv){
-		int large=900;
-		int width=900;
-		ClusterLandMap landMap = new ClusterLandMap(large, width);
+		long startTime = System.nanoTime();
+		int large=900,width=900;
+		SpineLandMap spineLandMap = new SpineLandMap(large, width);
 		
-		List<ClusterLandPoint> polygon = new ArrayList<>();
-		ClusterLandPoint landPoint = new ClusterLandPoint(0, 700);
+		List<SpineLandPoint> polygon = new ArrayList<>();
+		SpineLandPoint landPoint = new SpineLandPoint(0, 700);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(300, 900);
+		landPoint = new SpineLandPoint(300, 900);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(800, 900);
+		landPoint = new SpineLandPoint(800, 900);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(900, 100);
+		landPoint = new SpineLandPoint(900, 100);
 		polygon.add(landPoint);
-		// we must reuse the first one as the last
-		landPoint = new ClusterLandPoint(100, 0);
+		landPoint = new SpineLandPoint(100, 0);
 		polygon.add(landPoint);
-		landMap.createBorderFromPolygon(polygon);
-		landMap.printMapToFile();
-		
-		List<ClusterLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new ClusterLandPoint(400,0);
+		landPoint = new SpineLandPoint(0, 700);
+		polygon.add(landPoint);
+	
+		spineLandMap.createBorderFromPolygon(polygon);
+		//entry point
+		List<SpineLandPoint> entryPoints = new ArrayList<>();
+		landPoint = new SpineLandPoint(0, 400);
 		entryPoints.add(landPoint);
+		
 		// replace this LSYSTEM  by For loop
-		LSystemClusterAlgorithm.landMap = landMap;
-		for (ClusterLandPoint entryPoint : entryPoints) {
-			int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
-					landMap.getCentroid());
-			LSystemClusterAlgorithm.createRouteVariation(entryPoint.getId(), direction,
-					ClusterConfiguration.ARTERIAL_BRANCH);
+		LSystemSpineAlgorithm.landMap=spineLandMap;
+		for (SpineLandPoint entryPoint : entryPoints) {
+			int direction = SpineDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
+					spineLandMap.getCentroid());
+			LSystemSpineAlgorithm.createRouteVariation(entryPoint.getId(), direction,
+					SpineConfiguration.ARTERIAL_BRANCH);
 			break;
 		}
 		
+		// 4. We clusterize the points
+		LSystemSpineAlgorithm.clusterize();
 		
-		TestPane.clusterLandMap = LSystemClusterAlgorithm.landMap;
+		/*
+		 * // 5. Zonification
+		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
+		ClusterLotizationAlgorithm.zonify();
+		
+*/
+		LSystemSpineAlgorithm.landMap.printMapToFile();
+		changeLbyE();
+		
+		long endTime = System.nanoTime();
+		long duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
+		System.out.println("Algorithm finished in " + duration + "s");
+		//ClusterLotizationAlgorithm.landMap.printMapToFile();
+		//String compressedString = ClusterLotizationAlgorithm.landMap.stringify();
+		//System.out.println("Compressed String lenght: " + compressedString.length());
+		
+		endTime = System.nanoTime();
+		duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
+		System.out.println("Response build finished in " + duration + "s");
+		
+		TestPane.spineLandMap = LSystemSpineAlgorithm.landMap;
 		TestPane.large = large;
 		TestPane.width = width;
 		new SpineTester();
 		
-		
-	
 		
 	}
 	public SpineTester() {
@@ -93,7 +118,7 @@ public class SpineTester {
 	}
 	public static class TestPane extends JPanel {
 		private static final long serialVersionUID = 1L;
-		public static ClusterLandMap clusterLandMap;
+		public static SpineLandMap spineLandMap;
 		private int growtXY = 1;
 		public static int large = 35;
 		public static int width = 35;
@@ -107,9 +132,9 @@ public class SpineTester {
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			int growthX = 0, growthY = 0;
-			for (int y = clusterLandMap.getPointsy() - 1; y >= 0; y--) {
-				for (int x = 0; x < clusterLandMap.getPointsx(); x++) {
-					String type = clusterLandMap.findPoint(MapHelper.formKey(x, y)).getType();
+			for (int y = spineLandMap.getPointsy() - 1; y >= 0; y--) {
+				for (int x = 0; x < spineLandMap.getPointsx(); x++) {
+					String type = spineLandMap.findPoint(MapHelper.formKey(x, y)).getType();
 					switch (type) {/* 39 + 40*0 | 0+ 40*1 */
 					case "a":
 					case "b":
@@ -176,6 +201,8 @@ public class SpineTester {
 			}
 		}
 	}
-
-
+	private static void changeLbyE(){
+		 
+		
+	}
 }
