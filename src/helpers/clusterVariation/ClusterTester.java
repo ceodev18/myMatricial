@@ -14,6 +14,7 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import algorithm.clusterVariation.ClusterAlgorithm;
 import algorithm.clusterVariation.ClusterLotizationAlgorithm;
 import algorithm.clusterVariation.LSystemClusterAlgorithm;
 import helpers.base.MapHelper;
@@ -24,7 +25,11 @@ import models.clusterVariation.ClusterLandPoint;
 public class ClusterTester {
 	public static void main(String[] args) {
 		long startTime = System.nanoTime();
-		
+
+		Runtime runtime = Runtime.getRuntime();
+		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Used Memory map allocation" + usedMemoryBefore/1000000 + " in MB");
+
 		int large = 1834, width = 1623;
 		// 1. We create the map and set its intrinsec variables
 		ClusterLandMap landMap = new ClusterLandMap(large, width);
@@ -63,35 +68,51 @@ public class ClusterTester {
 		 * new ClusterLandPoint(244, 155); entryPoints.add(landPoint);
 		 */
 
-		LSystemClusterAlgorithm.landMap = landMap;
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Used Memory map allocated" + usedMemoryBefore/1000000 + " in MB");
+		
+		ClusterAlgorithm clusterAlgorithm = new ClusterAlgorithm();
+		clusterAlgorithm.setLandMap(landMap);
+		
+		//LSystemClusterAlgorithm.landMap = landMap;
 		for (ClusterLandPoint entryPoint : entryPoints) {
 			int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
 					landMap.getCentroid());
-			LSystemClusterAlgorithm.createRouteVariation(entryPoint.getId(), direction,
+			clusterAlgorithm.createRouteVariation(entryPoint.getId(), direction,
 					ClusterConfiguration.ARTERIAL_BRANCH);
 			break;
 		}
 
 		// 4. We clusterize the points
-		LSystemClusterAlgorithm.clusterize();
+		clusterAlgorithm.clusterize();
 
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Used Memory map after completed routes" + usedMemoryBefore/1000000 + " in MB");
+		
 		// 5. Zonification
-		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
-		ClusterLotizationAlgorithm.zonify();
+		clusterAlgorithm.zonify();
 
-
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Used Memory map after zonification" + usedMemoryBefore/1000000 + " in MB");
+		
 		long endTime = System.nanoTime();
-		long duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
+		long duration = (endTime - startTime) / (1000000 * 1000); // divide by
+																	// to get
+																	// milliseconds.
 		System.out.println("Algorithm finished in " + duration + "s");
-		//ClusterLotizationAlgorithm.landMap.printMapToFile();
-		String compressedString = ClusterLotizationAlgorithm.landMap.stringify();
+		// ClusterLotizationAlgorithm.landMap.printMapToFile();
+		String compressedString = clusterAlgorithm.getLandMap().stringify();
 		System.out.println("Compressed String lenght: " + compressedString.length());
-		
+
 		endTime = System.nanoTime();
-		duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
+		duration = (endTime - startTime) / (1000000 * 1000); // divide by to get
+																// milliseconds.
 		System.out.println("Response build finished in " + duration + "s");
+
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Final Memory" + usedMemoryBefore/1000000 + " in MB");
 		
-		TestPane.clusterLandMap = ClusterLotizationAlgorithm.landMap;
+		TestPane.clusterLandMap = clusterAlgorithm.getLandMap();
 		TestPane.large = large;
 		TestPane.width = width;
 		new ClusterTester();
