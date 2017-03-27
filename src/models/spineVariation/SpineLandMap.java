@@ -1,5 +1,6 @@
-package models.clusterVariation;
+package models.spineVariation;
 
+import java.awt.Polygon;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,33 +10,40 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import helpers.base.MapHelper;
-import helpers.clusterVariation.ClusterDirectionHelper;
-import helpers.clusterVariation.ClusterMapHelper;
-import interfaces.clusterVariation.ClusterConfiguration;
-import interfaces.clusterVariation.ClusterConstants;
+import helpers.spineVariation.SpineDirectionHelper;
+import helpers.spineVariation.SpineMapHelper;
+import interfaces.spineVariation.SpineConfiguration;
+import interfaces.spineVariation.SpineConfiguration;
+import interfaces.spineVariation.SpineConstants;
+import models.spineVariation.SpineBuilding;
+import models.spineVariation.SpineLandPoint;
+import models.spineVariation.SpineLandRoute;
+import models.spineVariation.SpinePolygon;
+import models.spineVariation.SpineLandPoint;
+import models.spineVariation.SpineLandRoute;
 
-public class ClusterLandMap {
+public class SpineLandMap {
 	private int pointsx = -1;
 	private int pointsy = -1;
 
-	private ClusterLandPoint centroid;
+	private SpineLandPoint centroid;
 
-	private Map<Integer, ClusterLandPoint> map;
+	private Map<Integer, SpineLandPoint> map;
 
-	private ClusterLandRoute landRoute;
+	private SpineLandRoute landRoute;
 	private List<Integer> nodes = new ArrayList<>();
 	List<List<Integer>> fullPolygon;
-	private List<ClusterLandPoint> polygonNodes;
+	private List<SpineLandPoint> polygonNodes;
 	private double polygonalArea;
 
-	public ClusterLandMap(int pointsx, int pointsy) {
+	public SpineLandMap(int pointsx, int pointsy) {
 		this.setPointsx(++pointsx);
 		this.setPointsy(++pointsy);
 
 		map = new HashMap<>();
 		for (int i = 0; i < pointsx; i++) {
 			for (int j = 0; j < pointsy; j++) {
-				map.put(ClusterMapHelper.formKey(i, j), new ClusterLandPoint(i, j));
+				map.put(SpineMapHelper.formKey(i, j), new SpineLandPoint(i, j));
 			}
 		}
 	}
@@ -56,27 +64,27 @@ public class ClusterLandMap {
 		this.pointsy = pointsy;
 	}
 
-	public ClusterLandPoint getLandPoint(int pointId) {
+	public SpineLandPoint getLandPoint(int pointId) {
 		return map.get(pointId);
 	}
 
-	public ClusterLandPoint getCentroid() {
+	public SpineLandPoint getCentroid() {
 		return centroid;
 	}
 
-	public void setCentroid(ClusterLandPoint centroid) {
+	public void setCentroid(SpineLandPoint centroid) {
 		this.centroid = centroid;
 	}
 
-	public ClusterLandPoint findPoint(int entryPointId) {
+	public SpineLandPoint findPoint(int entryPointId) {
 		return map.get(entryPointId);
 	}
 
-	public void setLandRoute(ClusterLandRoute landRoute) {
+	public void setLandRoute(SpineLandRoute landRoute) {
 		this.landRoute = landRoute;
 	}
 
-	public ClusterLandRoute getLandRoute() {
+	public SpineLandRoute getLandRoute() {
 		return landRoute;
 	}
 
@@ -85,7 +93,7 @@ public class ClusterLandMap {
 	 * restricted area. This must be an ordered set of consecutive points (after
 	 * all the input from android looks like that.
 	 */
-	public void createBorderFromPolygon(List<ClusterLandPoint> polygon) {
+	public void createBorderFromPolygon(List<SpineLandPoint> polygon) {
 		setPolygonNodes(polygon);
 		fullPolygon = new ArrayList<>();
 		// first we create the border
@@ -101,9 +109,9 @@ public class ClusterLandMap {
 						: polygon.get(j).getY();
 
 				for (int w = lower; w <= upper; w++) {
-					getLandPoint(ClusterMapHelper.formKey(polygon.get(i).getX(), w))
-							.setType(ClusterConstants.POLYGON_LIMIT);
-					truePolygon.add(ClusterMapHelper.formKey(polygon.get(i).getX(), w));
+					getLandPoint(SpineMapHelper.formKey(polygon.get(i).getX(), w))
+							.setType(SpineConstants.POLYGON_LIMIT);
+					truePolygon.add(SpineMapHelper.formKey(polygon.get(i).getX(), w));
 				}
 				continue;
 			}
@@ -114,9 +122,9 @@ public class ClusterLandMap {
 			int upper = polygon.get(i).getX() > polygon.get(j).getX() ? polygon.get(i).getX() : polygon.get(j).getX();
 			if (gradient == 0) {
 				for (int w = lower; w <= upper; w++) {
-					getLandPoint(ClusterMapHelper.formKey(w, polygon.get(i).getY()))
-							.setType(ClusterConstants.POLYGON_LIMIT);
-					truePolygon.add(ClusterMapHelper.formKey(w, polygon.get(i).getY()));
+					getLandPoint(SpineMapHelper.formKey(w, polygon.get(i).getY()))
+							.setType(SpineConstants.POLYGON_LIMIT);
+					truePolygon.add(SpineMapHelper.formKey(w, polygon.get(i).getY()));
 				}
 				continue;
 			}
@@ -124,11 +132,11 @@ public class ClusterLandMap {
 			double b = polygon.get(j).getY() - gradient * polygon.get(j).getX();
 			// 3nd the gradient is positive/negative.
 			for (int w = lower; w <= upper; w++) {
-				float y = ClusterMapHelper.round(gradient * w + b);
+				float y = SpineMapHelper.round(gradient * w + b);
 				if (y == (int) y) // quick and dirty convertion check
 				{
-					getLandPoint(ClusterMapHelper.formKey(w, (int) y)).setType(ClusterConstants.POLYGON_LIMIT);
-					truePolygon.add(ClusterMapHelper.formKey(w, (int) y));
+					getLandPoint(SpineMapHelper.formKey(w, (int) y)).setType(SpineConstants.POLYGON_LIMIT);
+					truePolygon.add(SpineMapHelper.formKey(w, (int) y));
 				}
 			}
 			fullPolygon.add(truePolygon);
@@ -146,9 +154,9 @@ public class ClusterLandMap {
 		for (int x = 0; x < fullPolygon.size(); x++) {
 			List<Integer> polygonRow = new ArrayList<>();
 			for (int y = 0; y < fullPolygon.get(x).size() - 1; y++) {
-				ClusterLandPoint initialLandPoint = getLandPoint(fullPolygon.get(x).get(y));
+				SpineLandPoint initialLandPoint = getLandPoint(fullPolygon.get(x).get(y));
 				polygonRow.add(fullPolygon.get(x).get(y));
-				ClusterLandPoint finalLandPoint = getLandPoint(fullPolygon.get(x).get(y + 1));
+				SpineLandPoint finalLandPoint = getLandPoint(fullPolygon.get(x).get(y + 1));
 
 				int wi = initialLandPoint.getX();
 				int wf = finalLandPoint.getX();
@@ -190,9 +198,9 @@ public class ClusterLandMap {
 		int northLimit = y+1;
 		
 		if(westernLimit == -1 || easternLimit ==pointsx || southLimit==-1 || northLimit==pointsy)return false;
-		return (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)
-				|| findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
-				&& !findPoint(MapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK);
+		return (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
+				|| findPoint(MapHelper.formKey(x + 1, y)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
+				&& !findPoint(MapHelper.formKey(x, y)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK);
 	}
 
 	private void fillPolygonalArea() {
@@ -202,23 +210,23 @@ public class ClusterLandMap {
 			boolean reversed = false;
 
 			for (int y = 0; y < pointsy; y++) {
-				if (getLandPoint(ClusterMapHelper.formKey(x, y)).getType() == ClusterConstants.POLYGON_LIMIT) {
+				if (getLandPoint(SpineMapHelper.formKey(x, y)).getType() == SpineConstants.POLYGON_LIMIT) {
 					count++;
 					pInitialLimit = pInitialLimit == -1 ? y : pInitialLimit;
 				}
 
 				switch (count) {
 				case 0:
-					getLandPoint(ClusterMapHelper.formKey(x, y)).setType(ClusterConfiguration.OUTSIDE_POLYGON_MARK);
+					getLandPoint(SpineMapHelper.formKey(x, y)).setType(SpineConfiguration.OUTSIDE_POLYGON_MARK);
 					break;
 				case 2:
 					if (!reversed) {
 						for (int w = pInitialLimit + 1; w < y; w++) {
-							getLandPoint(ClusterMapHelper.formKey(x, w)).setType(ClusterConfiguration.EMPTY_MARK);
+							getLandPoint(SpineMapHelper.formKey(x, w)).setType(SpineConfiguration.EMPTY_MARK);
 						}
 						reversed = true;
 					} else {
-						getLandPoint(ClusterMapHelper.formKey(x, y)).setType(ClusterConfiguration.OUTSIDE_POLYGON_MARK);
+						getLandPoint(SpineMapHelper.formKey(x, y)).setType(SpineConfiguration.OUTSIDE_POLYGON_MARK);
 					}
 					break;
 				}
@@ -229,8 +237,8 @@ public class ClusterLandMap {
 	// Variation for the creation of zones
 	public void createBorderFromPolygon(List<Integer> polygon, String markType) {
 		for (int i = 0; i < polygon.size(); i++) {
-			int xyInitial[] = ClusterMapHelper.breakKey(polygon.get(i));
-			int xyFinal[] = ClusterMapHelper.breakKey(polygon.get((i + 1) % polygon.size()));
+			int xyInitial[] = SpineMapHelper.breakKey(polygon.get(i));
+			int xyFinal[] = SpineMapHelper.breakKey(polygon.get((i + 1) % polygon.size()));
 
 			int underscore = (xyFinal[0] - xyInitial[0]);
 			if (underscore == 0) {
@@ -238,7 +246,7 @@ public class ClusterLandMap {
 				int upper = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
 
 				for (int w = lower; w <= upper; w++) {
-					getLandPoint(ClusterMapHelper.formKey(xyInitial[0], w)).setType(markType);
+					getLandPoint(SpineMapHelper.formKey(xyInitial[0], w)).setType(markType);
 				}
 				continue;
 			}
@@ -249,7 +257,7 @@ public class ClusterLandMap {
 			int upper = xyInitial[0] > xyFinal[0] ? xyInitial[0] : xyFinal[0];
 			if (gradient == 0) {
 				for (int w = lower; w <= upper; w++) {
-					getLandPoint(ClusterMapHelper.formKey(w, xyInitial[1])).setType(markType);
+					getLandPoint(SpineMapHelper.formKey(w, xyInitial[1])).setType(markType);
 				}
 				continue;
 			}
@@ -257,10 +265,10 @@ public class ClusterLandMap {
 			double b = xyFinal[1] - gradient * xyFinal[0];
 			// 3nd the gradient is positive/negative.
 			for (int w = lower; w <= upper; w++) {
-				float y = ClusterMapHelper.round(gradient * w + b);
+				float y = SpineMapHelper.round(gradient * w + b);
 				if (y == (int) y) // quick and dirty convertion check
 				{
-					getLandPoint(ClusterMapHelper.formKey(w, (int) y)).setType(markType);
+					getLandPoint(SpineMapHelper.formKey(w, (int) y)).setType(markType);
 				}
 			}
 		}
@@ -269,12 +277,12 @@ public class ClusterLandMap {
 	private void clearDottedLimits() {
 		for (int x = 0; x < fullPolygon.size(); x++) {
 			for (int i = 0; i < fullPolygon.get(x).size(); i++) {
-				getLandPoint(fullPolygon.get(x).get(i)).setType(ClusterConfiguration.EMPTY_MARK);
+				getLandPoint(fullPolygon.get(x).get(i)).setType(SpineConfiguration.EMPTY_MARK);
 			}
 		}
 	}
 
-	private void findPolygonalArea(List<ClusterLandPoint> polygon) {
+	private void findPolygonalArea(List<SpineLandPoint> polygon) {
 		int absoluteArea = 0;
 		for (int i = 0; i < polygon.size(); i++) {
 			absoluteArea += (polygon.get(i).getX() * polygon.get((i + 1) % polygon.size()).getY())
@@ -283,8 +291,8 @@ public class ClusterLandMap {
 		setPolygonalArea(Math.abs(absoluteArea) / 2);
 	}
 
-	private void findCentroid(List<ClusterLandPoint> polygon) {
-		this.setCentroid(new ClusterLandPoint(pointsx / 2, pointsy / 2));
+	private void findCentroid(List<SpineLandPoint> polygon) {
+		this.setCentroid(new SpineLandPoint(pointsx / 2, pointsy / 2));
 	}
 
 	public void printMapToFile() {
@@ -292,7 +300,7 @@ public class ClusterLandMap {
 			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
 			for (int j = pointsy - 1; j >= 0; j--) {
 				for (int i = 0; i < pointsx; i++) {
-					writer.print(getLandPoint(ClusterMapHelper.formKey(i, j)).getType());
+					writer.print(getLandPoint(SpineMapHelper.formKey(i, j)).getType());
 				}
 				writer.println();
 			}
@@ -305,17 +313,17 @@ public class ClusterLandMap {
 	public void markVariation(int entryPointId, int branchType, int nodeType) {
 		String variation = "-";
 		switch (branchType) {
-		case ClusterConfiguration.ARTERIAL_BRANCH:
-			variation = ClusterConfiguration.ARTERIAL_MARK;
+		case SpineConfiguration.ARTERIAL_BRANCH:
+			variation = SpineConfiguration.ARTERIAL_MARK;
 			break;
-		case ClusterConfiguration.COLLECTOR_BRANCH:
-			variation = ClusterConfiguration.COLLECTOR_MARK;
+		case SpineConfiguration.COLLECTOR_BRANCH:
+			variation = SpineConfiguration.COLLECTOR_MARK;
 			break;
-		case ClusterConfiguration.LOCAL_BRANCH:
-			variation = ClusterConfiguration.LOCAL_MARK;
+		case SpineConfiguration.LOCAL_BRANCH:
+			variation = SpineConfiguration.LOCAL_MARK;
 			break;
-		case ClusterConfiguration.NODE:
-			variation = ClusterConfiguration.NODE_MARK;
+		case SpineConfiguration.NODE:
+			variation = SpineConfiguration.NODE_MARK;
 			break;
 		}
 		map.get(entryPointId).setType(variation);
@@ -323,7 +331,7 @@ public class ClusterLandMap {
 	}
 
 	public boolean landPointisOnMap(int pointId) {
-		int[] xy = ClusterMapHelper.breakKey(pointId);
+		int[] xy = SpineMapHelper.breakKey(pointId);
 		return xy[0] < pointsx && xy[0] > 0 && xy[1] < pointsy && xy[1] > 0;
 	}
 
@@ -335,11 +343,11 @@ public class ClusterLandMap {
 		this.nodes = nodes;
 	}
 
-	public List<ClusterLandPoint> getPolygonNodes() {
+	public List<SpineLandPoint> getPolygonNodes() {
 		return polygonNodes;
 	}
 
-	public void setPolygonNodes(List<ClusterLandPoint> polygonNodes) {
+	public void setPolygonNodes(List<SpineLandPoint> polygonNodes) {
 		this.polygonNodes = polygonNodes;
 	}
 
@@ -353,18 +361,18 @@ public class ClusterLandMap {
 
 	public boolean isSpecialNode(int x, int y) {
 		// up,down,left,right
-		if (!findPoint(ClusterMapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+		if (!findPoint(SpineMapHelper.formKey(x, y)).getType().equals(SpineConfiguration.NODE_MARK)) {
 			return false;
 		}
 
 		if ((y + 1 != pointsy) && (y - 1 != -1) && (x - 1 != -1) && (x + 1 != pointsx)) {
-			if (findPoint(ClusterMapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)
-					&& findPoint(ClusterMapHelper.formKey(x, y - 1)).getType()
-							.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)
-					&& findPoint(ClusterMapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.EMPTY_MARK)
-					&& (!findPoint(ClusterMapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.EMPTY_MARK)
-							|| !findPoint(ClusterMapHelper.formKey(x + 1, y)).getType()
-									.equals(ClusterConfiguration.NODE_MARK))) {
+			if (findPoint(SpineMapHelper.formKey(x, y + 1)).getType().equals(SpineConfiguration.NODE_MARK)
+					&& findPoint(SpineMapHelper.formKey(x, y - 1)).getType()
+							.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
+					&& findPoint(SpineMapHelper.formKey(x + 1, y)).getType().equals(SpineConfiguration.EMPTY_MARK)
+					&& (!findPoint(SpineMapHelper.formKey(x - 1, y)).getType().equals(SpineConfiguration.EMPTY_MARK)
+							|| !findPoint(SpineMapHelper.formKey(x + 1, y)).getType()
+									.equals(SpineConfiguration.NODE_MARK))) {
 				return true;
 			}
 		}
@@ -376,9 +384,9 @@ public class ClusterLandMap {
 		int initialPoint = landRoute.getInitialPointId();
 		int finalPoint = landRoute.getFinalPointId();
 
-		int[] initialXY = ClusterMapHelper.breakKey(initialPoint);
-		int[] finalXY = ClusterMapHelper.breakKey(finalPoint);
-		int[] entryXY = ClusterMapHelper.breakKey(entryPointId);
+		int[] initialXY = SpineMapHelper.breakKey(initialPoint);
+		int[] finalXY = SpineMapHelper.breakKey(finalPoint);
+		int[] entryXY = SpineMapHelper.breakKey(entryPointId);
 
 		return (initialXY[0] < entryXY[0] && entryXY[0] < finalXY[0])
 				|| ((initialXY[1] < entryXY[1] && entryXY[1] < finalXY[1]));
@@ -386,63 +394,63 @@ public class ClusterLandMap {
 
 	public boolean isNormalNode(int x, int y) {
 		// up,down,left,right
-		if (!findPoint(ClusterMapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+		if (!findPoint(SpineMapHelper.formKey(x, y)).getType().equals(SpineConfiguration.NODE_MARK)) {
 			return false;
 		}
 		int node = 0;
 		boolean[] nodeInBorder = new boolean[] { false, false, false, false };
 		int outside = 0;
 		if (y + 1 != pointsy) {
-			if (findPoint(ClusterMapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if (findPoint(SpineMapHelper.formKey(x, y + 1)).getType().equals(SpineConfiguration.NODE_MARK)) {
 				node++;
 				nodeInBorder[0] = true;
 			}
 
-			if (findPoint(ClusterMapHelper.formKey(x, y + 1)).getType()
-					.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			if (findPoint(SpineMapHelper.formKey(x, y + 1)).getType()
+					.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
 				outside++;
 		}
 
 		if (y - 1 != -1) {
-			if (findPoint(ClusterMapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if (findPoint(SpineMapHelper.formKey(x, y - 1)).getType().equals(SpineConfiguration.NODE_MARK)) {
 				node++;
 				nodeInBorder[1] = true;
 			}
 
-			if (findPoint(ClusterMapHelper.formKey(x, y - 1)).getType()
-					.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			if (findPoint(SpineMapHelper.formKey(x, y - 1)).getType()
+					.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
 				outside++;
 		}
 
 		if (x - 1 != -1) {
-			if (findPoint(ClusterMapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if (findPoint(SpineMapHelper.formKey(x - 1, y)).getType().equals(SpineConfiguration.NODE_MARK)) {
 				node++;
 				nodeInBorder[2] = true;
 			}
 
-			if (findPoint(ClusterMapHelper.formKey(x - 1, y)).getType()
-					.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			if (findPoint(SpineMapHelper.formKey(x - 1, y)).getType()
+					.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
 				outside++;
 		}
 
 		if (x + 1 != pointsx) {
-			if (findPoint(ClusterMapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if (findPoint(SpineMapHelper.formKey(x + 1, y)).getType().equals(SpineConfiguration.NODE_MARK)) {
 				node++;
 				nodeInBorder[3] = true;
 			}
 
-			if (findPoint(ClusterMapHelper.formKey(x + 1, y)).getType()
-					.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+			if (findPoint(SpineMapHelper.formKey(x + 1, y)).getType()
+					.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
 				outside++;
 		}
 
 		if ((y + 1 != pointsy) && (y - 1 != -1) && (x - 1 != -1) && (x + 1 != pointsx)) {
-			if ((findPoint(ClusterMapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.ARTERIAL_MARK)
-					|| findPoint(ClusterMapHelper.formKey(x, y - 1)).getType().equals(ClusterConfiguration.LOCAL_MARK))
-					&& findPoint(ClusterMapHelper.formKey(x - 1, y)).getType()
-							.equals(ClusterConfiguration.COLLECTOR_MARK)
-					&& findPoint(ClusterMapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.NODE_MARK)
-					&& findPoint(ClusterMapHelper.formKey(x, y + 1)).getType().equals(ClusterConfiguration.NODE_MARK)) {
+			if ((findPoint(SpineMapHelper.formKey(x, y - 1)).getType().equals(SpineConfiguration.ARTERIAL_MARK)
+					|| findPoint(SpineMapHelper.formKey(x, y - 1)).getType().equals(SpineConfiguration.LOCAL_MARK))
+					&& findPoint(SpineMapHelper.formKey(x - 1, y)).getType()
+							.equals(SpineConfiguration.COLLECTOR_MARK)
+					&& findPoint(SpineMapHelper.formKey(x + 1, y)).getType().equals(SpineConfiguration.NODE_MARK)
+					&& findPoint(SpineMapHelper.formKey(x, y + 1)).getType().equals(SpineConfiguration.NODE_MARK)) {
 				return true;
 			}
 		}
@@ -457,9 +465,9 @@ public class ClusterLandMap {
 		return false;
 	}
 
-	public ClusterPolygon joinWithPolygonalBorder(ClusterPolygon clusterPolygon) {
-		int initialVertex = clusterPolygon.getPoints().get(0);
-		int finalVertex = clusterPolygon.getPoints().get(clusterPolygon.getPoints().size() - 1);
+	public SpinePolygon joinWithPolygonalBorder(SpinePolygon spinePolygon) {
+		int initialVertex = spinePolygon.getPoints().get(0);
+		int finalVertex = spinePolygon.getPoints().get(spinePolygon.getPoints().size() - 1);
 		int initialVertexSide = -1;
 		int finalVertexSide = -1;
 
@@ -483,8 +491,8 @@ public class ClusterLandMap {
 		}
 		// they both are on the same line. Meaning it is a triangle
 		if (initialVertexSide == finalVertexSide) {
-			clusterPolygon.setComplete(true);
-			return clusterPolygon;
+			spinePolygon.setComplete(true);
+			return spinePolygon;
 		}
 		// System.out.println("Vertexes " + initialVertexSide + "||" +
 		// finalVertexSide);
@@ -497,8 +505,8 @@ public class ClusterLandMap {
 			if ((initialVertexSide == -1 && finalVertexSide != -1)
 					|| (initialVertexSide != -1 && finalVertexSide == -1)) {
 				// System.out.println("Incomplete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
+				spinePolygon.printPolygon();
+				return spinePolygon;
 			}
 
 			int initialVertex0 = fullPolygon.get(initialVertexSide).get(0);
@@ -508,33 +516,33 @@ public class ClusterLandMap {
 			int finalVertexFinal = fullPolygon.get(finalVertexSide).get(fullPolygon.get(finalVertexSide).size() - 1);
 
 			if (initialVertex0 == finalVertex0) {
-				clusterPolygon.getPoints().add(initialVertex0);
-				clusterPolygon.setComplete(true);
+				spinePolygon.getPoints().add(initialVertex0);
+				spinePolygon.setComplete(true);
 				// System.out.println("Complete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
+				spinePolygon.printPolygon();
+				return spinePolygon;
 			} else if (initialVertex0 == finalVertexFinal) {
-				clusterPolygon.getPoints().add(initialVertex0);
-				clusterPolygon.setComplete(true);
+				spinePolygon.getPoints().add(initialVertex0);
+				spinePolygon.setComplete(true);
 				// System.out.println("Complete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
+				spinePolygon.printPolygon();
+				return spinePolygon;
 			} else if (initialVertexFinal == finalVertex0) {
-				clusterPolygon.getPoints().add(initialVertexFinal);
-				clusterPolygon.setComplete(true);
+				spinePolygon.getPoints().add(initialVertexFinal);
+				spinePolygon.setComplete(true);
 				// System.out.println("Complete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
+				spinePolygon.printPolygon();
+				return spinePolygon;
 			} else if (initialVertexFinal == finalVertexFinal) {
-				clusterPolygon.getPoints().add(initialVertexFinal);
-				clusterPolygon.setComplete(true);
+				spinePolygon.getPoints().add(initialVertexFinal);
+				spinePolygon.setComplete(true);
 				// System.out.println("Complete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
+				spinePolygon.printPolygon();
+				return spinePolygon;
 			}
 			// System.out.println("Polygon with more than 4 sides");
 		}
-		return clusterPolygon;
+		return spinePolygon;
 	}
 
 	/**
@@ -548,24 +556,24 @@ public class ClusterLandMap {
 
 		int seed = 0;
 		boolean lotizable = true, notUniform = false;
-		int[] currentXY = ClusterMapHelper.breakKey(list.get(beginning));
-		int[] finalXY = ClusterMapHelper.breakKey(list.get((beginning + 1) % list.size()));
+		int[] currentXY = SpineMapHelper.breakKey(list.get(beginning));
+		int[] finalXY = SpineMapHelper.breakKey(list.get((beginning + 1) % list.size()));
 		Double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
 		double offset = finalXY[1] - gradient * finalXY[0];
-		if (direction == ClusterConstants.EAST || direction == ClusterConstants.WEST) {
+		if (direction == SpineConstants.EAST || direction == SpineConstants.WEST) {
 			if (gradient.doubleValue() == 0.0) {
-				currentXY[0] = direction == ClusterConstants.EAST ? currentXY[0] + 1 : currentXY[0];
-				ClusterBuilding clusterBuilding = createWalkRoute(currentXY, false, direction, beginning);
+				currentXY[0] = direction == SpineConstants.EAST ? currentXY[0] + 1 : currentXY[0];
+				SpineBuilding clusterBuilding = createWalkRoute(currentXY, false, direction, beginning);
 				if (clusterBuilding != null) {
-					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
-							ClusterConfiguration.WALK_BRANCH_SIZE, direction);
+					currentXY = SpineMapHelper.moveKeyByOffsetAndDirection(currentXY,
+							SpineConfiguration.WALK_BRANCH_SIZE, direction);
 				}
 
-				finalXY[0] = direction == ClusterConstants.EAST ? finalXY[0] : finalXY[0] + 1;
+				finalXY[0] = direction == SpineConstants.EAST ? finalXY[0] : finalXY[0] + 1;
 				clusterBuilding = createWalkRoute(finalXY, true, direction, beginning);
 				if (clusterBuilding != null) {
-					finalXY = ClusterMapHelper.moveKeyByOffsetAndDirection(finalXY,
-							ClusterConfiguration.WALK_BRANCH_SIZE, ClusterDirectionHelper.oppositeDirection(direction));
+					finalXY = SpineMapHelper.moveKeyByOffsetAndDirection(finalXY,
+							SpineConfiguration.WALK_BRANCH_SIZE, SpineDirectionHelper.oppositeDirection(direction));
 				}
 			} else {
 				notUniform = true;
@@ -575,7 +583,7 @@ public class ClusterLandMap {
 				finalXY = createNonOrthogonalWalkRoute(list.get(beginning), list.get((beginning + 1) % list.size()),
 						finalXY, true, gradient);
 			}
-		} else if (direction == ClusterConstants.SOUTH || direction == ClusterConstants.NORTH) {
+		} else if (direction == SpineConstants.SOUTH || direction == SpineConstants.NORTH) {
 			if (gradient.isInfinite()) {
 				// means it is a route connection and a perfect one at it in
 				// this initial case is neccesary to find the intermediate point
@@ -589,53 +597,53 @@ public class ClusterLandMap {
 
 		while (true) {
 			boolean done = false;
-			if ((direction == ClusterConstants.EAST) || (direction == ClusterConstants.NORTH))
+			if ((direction == SpineConstants.EAST) || (direction == SpineConstants.NORTH))
 				done = currentXY[0] >= finalXY[0] && currentXY[1] >= finalXY[1];
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
 
 			if (done) {
 				if (notUniform) {
-					int newDirection = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(
+					int newDirection = SpineDirectionHelper.orthogonalDirectionFromPointToPoint(
 							list.get((beginning + 1) % list.size()), list.get((beginning + 2) % list.size()));
 					return lotize(list, newDirection, ++beginning);
 				}
 				switch (direction) {
-				case ClusterConstants.EAST:
-					return lotize(list, ClusterConstants.NORTH, ++beginning);
-				case ClusterConstants.NORTH:
-					return lotize(list, ClusterConstants.WEST, ++beginning);
-				case ClusterConstants.WEST:
-					return lotize(list, ClusterConstants.SOUTH, ++beginning);
-				case ClusterConstants.SOUTH:
+				case SpineConstants.EAST:
+					return lotize(list, SpineConstants.NORTH, ++beginning);
+				case SpineConstants.NORTH:
+					return lotize(list, SpineConstants.WEST, ++beginning);
+				case SpineConstants.WEST:
+					return lotize(list, SpineConstants.SOUTH, ++beginning);
+				case SpineConstants.SOUTH:
 					return 0;
 				}
 			}
 
 			if (gradient.doubleValue() == 0.0 || gradient.isInfinite()) {
-				lotizable = canBeLotized(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
+				lotizable = canBeLotized(currentXY, SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
+						SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
 				if (lotizable) {
-					createDoubleLot(currentXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 4);
-					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
-							ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
+					createDoubleLot(currentXY, SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
+							SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 4);
+					currentXY = SpineMapHelper.moveKeyByOffsetAndDirection(currentXY,
+							SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
 					seed += 2;
 				} else {
-					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
+					currentXY = SpineMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
 				}
 			} else {
 				lotizable = canBeNonOrthogonallyLotized(currentXY, finalXY,
-						ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
+						SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE, SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
 						direction, gradient);
 				if (lotizable) {
-					createNonOrthogonalLot(currentXY, finalXY, ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, gradient, seed % 4);
-					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY,
-							ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, gradient, offset, direction);
+					createNonOrthogonalLot(currentXY, finalXY, SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
+							SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, gradient, seed % 4);
+					currentXY = SpineMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY,
+							SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE, gradient, offset, direction);
 					seed += 2;
 				} else {
-					currentXY = ClusterMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY, 1, gradient, offset,
+					currentXY = SpineMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY, 1, gradient, offset,
 							direction);
 				}
 			}
@@ -712,7 +720,7 @@ public class ClusterLandMap {
 						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
-							if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
+							if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK))
 								return false;
 						}
 					}
@@ -731,7 +739,7 @@ public class ClusterLandMap {
 						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
-							if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
+							if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK))
 								return false;
 						}
 					}
@@ -753,7 +761,7 @@ public class ClusterLandMap {
 				// orthogonalGradient * variation[0] + orthogonalOffset;
 				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).getType();
-					if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
+					if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK))
 						return false;
 				}
 			}
@@ -889,7 +897,7 @@ public class ClusterLandMap {
 		boolean inverse = false;
 		boolean isUpDown = false;
 
-		if (distance < ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) {
+		if (distance < SpineConfiguration.CLUSTER_ENTRANCE_SIZE) {
 			return;
 		}
 
@@ -897,14 +905,14 @@ public class ClusterLandMap {
 			tbXY[1] = (int) (beginXY[1] + (distance) / 2);
 			tbXY[0] = (int) ((tbXY[1] - offset) / gradient);
 
-			tfXY[1] = (int) (finalXY[1] - (distance / 2 - ClusterConfiguration.CLUSTER_ENTRANCE_SIZE));
+			tfXY[1] = (int) (finalXY[1] - (distance / 2 - SpineConfiguration.CLUSTER_ENTRANCE_SIZE));
 			tfXY[0] = (int) ((tfXY[1] - offset) / gradient);
 		} else {
 			isUpDown = true;
 			tbXY[1] = (int) (finalXY[1] + (distance) / 2);
 			tbXY[0] = (int) ((tbXY[1] - offset) / gradient);
 
-			tfXY[1] = (int) (beginXY[1] - (distance / 2 - ClusterConfiguration.CLUSTER_ENTRANCE_SIZE));
+			tfXY[1] = (int) (beginXY[1] - (distance / 2 - SpineConfiguration.CLUSTER_ENTRANCE_SIZE));
 			tfXY[0] = (int) ((tfXY[1] - offset) / gradient);
 		}
 
@@ -934,7 +942,7 @@ public class ClusterLandMap {
 		int countYFactor = 0;
 		int oldVariation = -1;
 
-		for (int j = 0; j < ClusterConfiguration.CLUSTER_ENTRANCE_SIZE; j++) {
+		for (int j = 0; j < SpineConfiguration.CLUSTER_ENTRANCE_SIZE; j++) {
 			currentXY[0] = tbXY[0] + j;
 			currentXY[1] = (int) (gradient * currentXY[0] + offset);
 			// orthogonalOffset = -orthogonalGradient * currentXY[0] +
@@ -943,55 +951,55 @@ public class ClusterLandMap {
 			if (isUpDown && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
 				for (int w = oldVariation + 1; w < currentXY[1]; w++) {
-					for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+					for (int i = 0; i < 2 * SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
 						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
-									.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+									.setType(SpineConfiguration.CLUSTER_ENTRANCE_MARK);
 						}
 					}
 					countYFactor++;
-					if (countYFactor == ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) {
+					if (countYFactor == SpineConfiguration.CLUSTER_ENTRANCE_SIZE) {
 						break;
 					}
 				}
 			} else if ((oldVariation != -1) && ((oldVariation - 1) > currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
 				for (int w = currentXY[1] + 1; w < oldVariation; w++) {
-					for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+					for (int i = 0; i < 2 * SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
 						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
-									.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+									.setType(SpineConfiguration.CLUSTER_ENTRANCE_MARK);
 						}
 					}
 					countYFactor++;
-					if (countYFactor == ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) {
+					if (countYFactor == SpineConfiguration.CLUSTER_ENTRANCE_SIZE) {
 						break;
 					}
 				}
 			}
 
-			if (countYFactor == ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) {
+			if (countYFactor == SpineConfiguration.CLUSTER_ENTRANCE_SIZE) {
 				break;
 			}
 
 			// We need to find the furthest
-			for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+			for (int i = 0; i < 2 * SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
 				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
-							.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+							.setType(SpineConfiguration.CLUSTER_ENTRANCE_MARK);
 				}
 			}
 			countYFactor++;
-			if (countYFactor == ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) {
+			if (countYFactor == SpineConfiguration.CLUSTER_ENTRANCE_SIZE) {
 				break;
 			}
 			oldVariation = (int) currentXY[1];
@@ -1006,19 +1014,19 @@ public class ClusterLandMap {
 		double orthogonalGradient = -1 / gradient;
 		double orthogonalOffset = -orthogonalGradient * beginXY[0] + beginXY[1];
 
-		int[] initialXY = ClusterMapHelper.breakKey(initialPoint);
-		int[] finalXY = ClusterMapHelper.breakKey(finalPoint);
+		int[] initialXY = SpineMapHelper.breakKey(initialPoint);
+		int[] finalXY = SpineMapHelper.breakKey(finalPoint);
 		boolean down = false;
 		if (inverse) {
 			if (finalXY[0] - initialXY[0] > 0) {
 				// EAST
 				down = true;
-				beginXY[0] = finalXY[0] - ClusterConfiguration.WALK_BRANCH_SIZE;
+				beginXY[0] = finalXY[0] - SpineConfiguration.WALK_BRANCH_SIZE;
 				beginXY[1] = (int) (gradient * beginXY[0] + offset);
 			} else {
 				// WEST
 				down = false;
-				beginXY[0] = initialXY[0] - ClusterConfiguration.WALK_BRANCH_SIZE;
+				beginXY[0] = initialXY[0] - SpineConfiguration.WALK_BRANCH_SIZE;
 				beginXY[1] = (int) (gradient * beginXY[0] + offset);
 			}
 		} else {
@@ -1038,17 +1046,17 @@ public class ClusterLandMap {
 		double variation[] = new double[2];
 
 		int[] currentXY = new int[2];
-		for (int j = 0; j < ClusterConfiguration.WALK_BRANCH_SIZE; j++) {
+		for (int j = 0; j < SpineConfiguration.WALK_BRANCH_SIZE; j++) {
 			currentXY[0] = beginXY[0] + j;
 			currentXY[1] = (int) (gradient * currentXY[0] + offset);
 			orthogonalOffset = -orthogonalGradient * currentXY[0] + currentXY[1];
 
-			for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+			for (int i = 0; i < 2 * SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
 				variation[1] = currentXY[1] + (!down ? i : -i);
 				variation[0] = (variation[1] - orthogonalOffset) / orthogonalGradient;
-				if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+				if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
-							.setType(ClusterConfiguration.WALK_MARK);
+							.setType(SpineConfiguration.WALK_MARK);
 				}
 			}
 		}
@@ -1065,46 +1073,46 @@ public class ClusterLandMap {
 		// given that x is the same, y is our indicator for the middle
 		int upperMiddle[] = new int[2];
 		upperMiddle[0] = currentXY[0];
-		upperMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) + (ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
+		upperMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) + (SpineConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
 
 		int lowerMiddle[] = new int[2];
 		lowerMiddle[0] = currentXY[0];
-		lowerMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) - (ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
+		lowerMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) - (SpineConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
 
-		if ((direction == ClusterConstants.NORTH) && (lowerMiddle[1] < currentXY[1] || upperMiddle[1] > finalXY[1]))
+		if ((direction == SpineConstants.NORTH) && (lowerMiddle[1] < currentXY[1] || upperMiddle[1] > finalXY[1]))
 			return;
-		else if ((direction == ClusterConstants.SOUTH)
+		else if ((direction == SpineConstants.SOUTH)
 				&& (lowerMiddle[1] > currentXY[1] || upperMiddle[1] < finalXY[1]))
 			return;
-		createInsideClusterRoute(upperMiddle, ClusterMapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction,
-				ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
-				ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+		createInsideClusterRoute(upperMiddle, SpineMapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction,
+				SpineConfiguration.WALK_BRANCH, SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+				SpineConfiguration.CLUSTER_ENTRANCE_MARK);
 	}
 
-	private ClusterBuilding createWalkRoute(int[] currentXY, boolean isInverse, int direction, int rotation) {
+	private SpineBuilding createWalkRoute(int[] currentXY, boolean isInverse, int direction, int rotation) {
 		if (isInverse) {
 			return createInsideClusterRoute(currentXY,
-					ClusterMapHelper.moveKeyByOffsetAndDirection(ClusterMapHelper.formKey(currentXY[0], currentXY[1]),
-							ClusterConfiguration.WALK_BRANCH_SIZE, ClusterDirectionHelper.oppositeDirection(direction)),
-					direction, ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
-					ClusterConfiguration.WALK_MARK);
+					SpineMapHelper.moveKeyByOffsetAndDirection(SpineMapHelper.formKey(currentXY[0], currentXY[1]),
+							SpineConfiguration.WALK_BRANCH_SIZE, SpineDirectionHelper.oppositeDirection(direction)),
+					direction, SpineConfiguration.WALK_BRANCH, SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+					SpineConfiguration.WALK_MARK);
 		} else {
 			return createInsideClusterRoute(currentXY,
-					ClusterMapHelper.moveKeyByOffsetAndDirection(ClusterMapHelper.formKey(currentXY[0], currentXY[1]),
-							ClusterConfiguration.WALK_BRANCH_SIZE, direction),
-					direction, ClusterConfiguration.WALK_BRANCH, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
-					ClusterConfiguration.WALK_MARK);
+					SpineMapHelper.moveKeyByOffsetAndDirection(SpineMapHelper.formKey(currentXY[0], currentXY[1]),
+							SpineConfiguration.WALK_BRANCH_SIZE, direction),
+					direction, SpineConfiguration.WALK_BRANCH, SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+					SpineConfiguration.WALK_MARK);
 		}
 	}
 
 	private boolean canBeLotized(int[] currentXY, int houseSideSize, int doublehouseDepthSize, int direction) {
 		switch (direction) {
-		case ClusterConstants.EAST:
+		case SpineConstants.EAST:
 			for (int i = currentXY[0]; i < currentXY[0] + houseSideSize; i++) {
 				for (int j = currentXY[1]; j > currentXY[1] - doublehouseDepthSize; j--) {
-					if (landPointisOnMap(ClusterMapHelper.formKey(i, j))) {
-						String type = findPoint(ClusterMapHelper.formKey(i, j)).getType();
-						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)) {
+					if (landPointisOnMap(SpineMapHelper.formKey(i, j))) {
+						String type = findPoint(SpineMapHelper.formKey(i, j)).getType();
+						if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK)) {
 							return false;
 						}
 					} else {
@@ -1113,12 +1121,12 @@ public class ClusterLandMap {
 				}
 			}
 			break;
-		case ClusterConstants.NORTH:
+		case SpineConstants.NORTH:
 			for (int i = currentXY[1]; i < currentXY[1] + houseSideSize; i++) {
 				for (int j = currentXY[0]; j < currentXY[0] + doublehouseDepthSize; j++) {
-					if (landPointisOnMap(ClusterMapHelper.formKey(j, i))) {
-						String type = findPoint(ClusterMapHelper.formKey(j, i)).getType();
-						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)) {
+					if (landPointisOnMap(SpineMapHelper.formKey(j, i))) {
+						String type = findPoint(SpineMapHelper.formKey(j, i)).getType();
+						if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK)) {
 							return false;
 						}
 					} else {
@@ -1127,12 +1135,12 @@ public class ClusterLandMap {
 				}
 			}
 			break;
-		case ClusterConstants.WEST:
+		case SpineConstants.WEST:
 			for (int i = currentXY[0]; i >= currentXY[0] - houseSideSize; i--) {
 				for (int j = currentXY[1]; j < currentXY[1] + doublehouseDepthSize; j++) {
-					if (landPointisOnMap(ClusterMapHelper.formKey(i, j))) {
-						String type = findPoint(ClusterMapHelper.formKey(i, j)).getType();
-						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)) {
+					if (landPointisOnMap(SpineMapHelper.formKey(i, j))) {
+						String type = findPoint(SpineMapHelper.formKey(i, j)).getType();
+						if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK)) {
 							return false;
 						}
 					} else {
@@ -1141,12 +1149,12 @@ public class ClusterLandMap {
 				}
 			}
 			break;
-		case ClusterConstants.SOUTH:
+		case SpineConstants.SOUTH:
 			for (int i = currentXY[1]; i >= currentXY[1] - houseSideSize; i--) {
 				for (int j = currentXY[0]; j > currentXY[0] - doublehouseDepthSize; j--) {
-					if (landPointisOnMap(ClusterMapHelper.formKey(j, i))) {
-						String type = findPoint(ClusterMapHelper.formKey(j, i)).getType();
-						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)) {
+					if (landPointisOnMap(SpineMapHelper.formKey(j, i))) {
+						String type = findPoint(SpineMapHelper.formKey(j, i)).getType();
+						if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK)) {
 							return false;
 						}
 					} else {
@@ -1162,60 +1170,60 @@ public class ClusterLandMap {
 	private void createDoubleLot(int[] currentXY, int houseSideMinimunSize, int houseDepthMinimunSize, int direction,
 			int serialNumber) {
 		switch (direction) {
-		case ClusterConstants.EAST:
+		case SpineConstants.EAST:
 			for (int i = currentXY[0]; i < currentXY[0] + houseSideMinimunSize; i++) {
 				for (int j = currentXY[1]; j > currentXY[1] - houseDepthMinimunSize; j--) {
-					findPoint(ClusterMapHelper.formKey(i, j)).setType("" + serialNumber);
+					findPoint(SpineMapHelper.formKey(i, j)).setType("" + serialNumber);
 				}
 				for (int j = currentXY[1] - (houseDepthMinimunSize + 1); j > currentXY[1]
 						- 2 * houseDepthMinimunSize; j--) {
-					findPoint(ClusterMapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
+					findPoint(SpineMapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
 				}
 			}
 			break;
-		case ClusterConstants.NORTH:
+		case SpineConstants.NORTH:
 			for (int i = currentXY[1]; i < currentXY[1] + houseSideMinimunSize; i++) {
 				for (int j = currentXY[0]; j < currentXY[0] + houseDepthMinimunSize; j++) {
-					findPoint(ClusterMapHelper.formKey(j, i)).setType("" + serialNumber);
+					findPoint(SpineMapHelper.formKey(j, i)).setType("" + serialNumber);
 				}
 				for (int j = currentXY[0] + houseDepthMinimunSize + 1; j < currentXY[0]
 						+ 2 * houseDepthMinimunSize; j++) {
-					findPoint(ClusterMapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
+					findPoint(SpineMapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
 				}
 			}
 			break;
-		case ClusterConstants.WEST:
+		case SpineConstants.WEST:
 			for (int i = currentXY[0]; i >= currentXY[0] - houseSideMinimunSize; i--) {
 				for (int j = currentXY[1]; j < currentXY[1] + houseDepthMinimunSize; j++) {
-					findPoint(ClusterMapHelper.formKey(i, j)).setType("" + serialNumber);
+					findPoint(SpineMapHelper.formKey(i, j)).setType("" + serialNumber);
 				}
 				for (int j = currentXY[1] + houseDepthMinimunSize + 1; j < currentXY[1]
 						+ 2 * houseDepthMinimunSize; j++) {
-					findPoint(ClusterMapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
+					findPoint(SpineMapHelper.formKey(i, j)).setType("" + (serialNumber + 1));
 				}
 			}
 			break;
-		case ClusterConstants.SOUTH:
+		case SpineConstants.SOUTH:
 			for (int i = currentXY[1]; i >= currentXY[1] - houseSideMinimunSize; i--) {
 				for (int j = currentXY[0]; j > currentXY[0] - houseDepthMinimunSize; j--) {
-					findPoint(ClusterMapHelper.formKey(j, i)).setType("" + serialNumber);
+					findPoint(SpineMapHelper.formKey(j, i)).setType("" + serialNumber);
 				}
 				for (int j = currentXY[0] - (houseDepthMinimunSize + 1); j > currentXY[0]
 						- 2 * houseDepthMinimunSize; j--) {
-					findPoint(ClusterMapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
+					findPoint(SpineMapHelper.formKey(j, i)).setType("" + (serialNumber + 1));
 				}
 			}
 			break;
 		}
 	}
 
-	private ClusterBuilding createInsideClusterRoute(int[] currentXY, int finalKey, int direction, int type, int depth,
+	private SpineBuilding createInsideClusterRoute(int[] currentXY, int finalKey, int direction, int type, int depth,
 			String markType) {
-		int[] finalXY = ClusterMapHelper.breakKey(finalKey);
+		int[] finalXY = SpineMapHelper.breakKey(finalKey);
 		int lower, upper;
-		ClusterBuilding clusterBuilding = new ClusterBuilding();
+		SpineBuilding spineBuilding = new SpineBuilding();
 
-		if ((direction == ClusterConstants.NORTH) || (direction == ClusterConstants.SOUTH)) {
+		if ((direction == SpineConstants.NORTH) || (direction == SpineConstants.SOUTH)) {
 			if (currentXY[1] > finalXY[1]) {
 				lower = finalXY[1];
 				upper = currentXY[1];
@@ -1224,20 +1232,20 @@ public class ClusterLandMap {
 				upper = finalXY[1];
 			}
 
-			if (direction == ClusterConstants.SOUTH) {
+			if (direction == SpineConstants.SOUTH) {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[0]; j > currentXY[0] - depth; j--) {
-						findPoint(ClusterMapHelper.formKey(j, i)).setType(markType);
+						findPoint(SpineMapHelper.formKey(j, i)).setType(markType);
 					}
 				}
 			} else {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[0]; j < currentXY[0] + depth; j++) {
-						findPoint(ClusterMapHelper.formKey(j, i)).setType(markType);
+						findPoint(SpineMapHelper.formKey(j, i)).setType(markType);
 					}
 				}
 			}
-		} else if ((direction == ClusterConstants.EAST) || (direction == ClusterConstants.WEST)) {
+		} else if ((direction == SpineConstants.EAST) || (direction == SpineConstants.WEST)) {
 			if (currentXY[0] > finalXY[0]) {
 				lower = finalXY[0];
 				upper = currentXY[0];
@@ -1246,42 +1254,42 @@ public class ClusterLandMap {
 				upper = finalXY[0];
 			}
 
-			if (direction == ClusterConstants.EAST) {
+			if (direction == SpineConstants.EAST) {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[1]; j > currentXY[1] - depth; j--) {
-						findPoint(ClusterMapHelper.formKey(i, j)).setType(markType);
+						findPoint(SpineMapHelper.formKey(i, j)).setType(markType);
 					}
 				}
 			} else {
 				for (int i = lower; i < upper; i++) {
 					for (int j = currentXY[1]; j < currentXY[1] + depth; j++) {
-						findPoint(ClusterMapHelper.formKey(i, j)).setType(markType);
+						findPoint(SpineMapHelper.formKey(i, j)).setType(markType);
 					}
 				}
 			}
 		}
 
-		clusterBuilding.setType(markType);
-		clusterBuilding.setNumber(0);
-		return clusterBuilding;
+		spineBuilding.setType(markType);
+		spineBuilding.setNumber(0);
+		return spineBuilding;
 	}
 
 	public String stringify() {
 		String mapString = "";
 		for (int j = pointsy - 1; j >= 0; j--) {
-			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
+			String type = getLandPoint(SpineMapHelper.formKey(0, j)).getType();
 			int repetitions = 1;
 			for (int i = 1; i < pointsx; i++) {
-				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
+				if (type.equals(getLandPoint(SpineMapHelper.formKey(i, j)).getType())) {
 					repetitions++;
 				} else {
 					mapString += type + "" + repetitions + ",";
 					repetitions = 1;
-					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
+					type = getLandPoint(SpineMapHelper.formKey(i, j)).getType();
 				}
 			}
 			mapString += type + "" + repetitions + ",";
-			mapString += ".";
+			mapString += "|";
 		}
 		return mapString;
 	}
@@ -1291,22 +1299,22 @@ public class ClusterLandMap {
 
 		String mapString = "";
 		for (int j = pointsy - 1; j >= 0; j--) {
-			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
+			String type = getLandPoint(SpineMapHelper.formKey(0, j)).getType();
 			if (mapMap.get(type) == null) {
 				mapMap.put(type, new ArrayList<>());
 			}
 			int i;
 			for (i = 1; i < pointsx; i++) {
-				if (!type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
-					mapMap.get(type).add(ClusterMapHelper.formKey(i - 1, j));
-					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
+				if (!type.equals(getLandPoint(SpineMapHelper.formKey(i, j)).getType())) {
+					mapMap.get(type).add(SpineMapHelper.formKey(i - 1, j));
+					type = getLandPoint(SpineMapHelper.formKey(i, j)).getType();
 					if (mapMap.get(type) == null) {
 						mapMap.put(type, new ArrayList<>());
 					}
-					mapMap.get(type).add(ClusterMapHelper.formKey(i, j));
+					mapMap.get(type).add(SpineMapHelper.formKey(i, j));
 				}
 			}
-			mapMap.get(type).add(ClusterMapHelper.formKey(i, j));
+			mapMap.get(type).add(SpineMapHelper.formKey(i, j));
 		}
 
 		Iterator<Entry<String, List<Integer>>> it = mapMap.entrySet().iterator();
