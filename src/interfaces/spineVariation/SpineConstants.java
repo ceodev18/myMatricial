@@ -30,6 +30,7 @@ public interface SpineConstants {
 	public String OUTSIDE_POLYGON = " ";
 	public String INSIDE_POLYGON = "l";
 	public String GARDEN_LOT = "G";
+	public String EXTRA = "u";
 
 
 }

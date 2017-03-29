@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Graphics;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,8 +15,8 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import algorithm.clusterVariation.ClusterLotizationAlgorithm;
-import algorithm.clusterVariation.LSystemClusterAlgorithm;
+import algorithm.spineVariation.SpineLotizationAlgorithm;
+import algorithm.spineVariation.LSystemSpineAlgorithm;
 import algorithm.spineVariation.LSystemSpineAlgorithm;
 import helpers.base.MapHelper;
 import helpers.clusterVariation.ClusterTester;
@@ -30,27 +31,28 @@ import models.spineVariation.SpineLandMap;
 public class SpineTester {
 	public static void main(String[] argv){
 		long startTime = System.nanoTime();
-		int large=900,width=900;
+		//MAPA 1
+		int large=1600+1,width=	700+1;
 		SpineLandMap spineLandMap = new SpineLandMap(large, width);
 		
+
 		List<SpineLandPoint> polygon = new ArrayList<>();
-		SpineLandPoint landPoint = new SpineLandPoint(0, 700);
+		SpineLandPoint landPoint = new SpineLandPoint(1, 50);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(300, 900);
+		landPoint = new SpineLandPoint(400, 600);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(800, 900);
+		landPoint = new SpineLandPoint(1600, 600);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(900, 100);
+		landPoint = new SpineLandPoint( 1600, 50);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(100, 0);
+		landPoint = new SpineLandPoint(1,50);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(0, 700);
-		polygon.add(landPoint);
-	
 		spineLandMap.createBorderFromPolygon(polygon);
-		//entry point
-		List<SpineLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new SpineLandPoint(0, 400);
+		//entry point 353 31
+		List<SpineLandPoint> entryPoints = new ArrayList<>();	
+		//200 representa la distancia del borde del poligono al inicio
+		//landPoint = new SpineLandPoint(200,571);
+		landPoint = new SpineLandPoint(150,256);
 		entryPoints.add(landPoint);
 		
 		// replace this LSYSTEM  by For loop
@@ -62,18 +64,20 @@ public class SpineTester {
 					SpineConfiguration.ARTERIAL_BRANCH);
 			break;
 		}
-		
+		LSystemSpineAlgorithm.landMap.printMapToFileNew();
 		// 4. We clusterize the points
 		LSystemSpineAlgorithm.clusterize();
+		//LSystemSpineAlgorithm.landMap.printMapToFileNew();
 		
-		/*
-		 * // 5. Zonification
-		ClusterLotizationAlgorithm.landMap = LSystemClusterAlgorithm.landMap;
-		ClusterLotizationAlgorithm.zonify();
+		// 5. Zonification
+		SpineLotizationAlgorithm.spineLandMap = LSystemSpineAlgorithm.landMap;
+		SpineLotizationAlgorithm.zonify(150,256-1,large);
+		//SpineLotizationAlgorithm.zonify(31+1,353-1); //punto de inicio
 		
-*/
-		LSystemSpineAlgorithm.landMap.printMapToFile();
-		changeLbyE();
+
+		//LSystemSpineAlgorithm.landMap.printMapToFile();
+		SpineLotizationAlgorithm.spineLandMap.printMapToFileNew();
+		//changeLbyE();
 		
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
@@ -150,6 +154,8 @@ public class SpineTester {
 						g.setColor(Color.RED);
 						break;
 					case "e":
+						g.setColor(Color.BLUE);
+						break;
 					case ".":
 					case "n":
 						g.setColor(Color.MAGENTA);
@@ -200,9 +206,5 @@ public class SpineTester {
 				growthY += growtXY;
 			}
 		}
-	}
-	private static void changeLbyE(){
-		 
-		
 	}
 }
