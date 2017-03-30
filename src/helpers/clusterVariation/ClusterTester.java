@@ -28,27 +28,30 @@ public class ClusterTester {
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore/1000000 + " in MB");
 
-		int large = 925, width = 1130;
+		int large = 897, width = 588;
 		// 1. We create the map and set its intrinsec variables
 		ClusterLandMap landMap = new ClusterLandMap(large, width);
 		List<ClusterLandPoint> polygon = new ArrayList<>();
-		ClusterLandPoint landPoint = new ClusterLandPoint(726, 0);
+		ClusterLandPoint landPoint = new ClusterLandPoint(896, 0);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(924, 762);
+		landPoint = new ClusterLandPoint(821, 587);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(273, 1129);
+		landPoint = new ClusterLandPoint(0, 512);
 		polygon.add(landPoint);
 		landPoint = new ClusterLandPoint(0, 528);
 		polygon.add(landPoint);
 		// we must reuse the first one as the last
-		landPoint = new ClusterLandPoint(726, 0);
+		landPoint = new ClusterLandPoint(57, 38);
 		polygon.add(landPoint);
+		landPoint = new ClusterLandPoint(896, 0);
+		polygon.add(landPoint);
+		
 		// 2. we create the border from the polygon
 		landMap.createBorderFromPolygon(polygon);
 		// 3, We create the entry points for the main routes
 		// Entry points = [327,981][1710,742]
 		List<ClusterLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new ClusterLandPoint(487, 174);
+		landPoint = new ClusterLandPoint(547, 16);
 		entryPoints.add(landPoint);
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
@@ -162,6 +165,7 @@ public class ClusterTester {
 						g.setColor(Color.GREEN);
 						break;
 					case "l":
+					case ".":
 						g.setColor(Color.RED);
 						break;
 					case "e":
