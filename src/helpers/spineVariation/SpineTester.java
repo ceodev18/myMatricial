@@ -23,7 +23,6 @@ import helpers.clusterVariation.ClusterTester;
 import helpers.spineVariation.SpineDirectionHelper;
 import interfaces.spineVariation.SpineConfiguration;
 import models.spineVariation.SpineLandPoint;
-import spineVariation.SpineTester.TestPane;
 import models.spineVariation.SpineLandMap;
 import models.spineVariation.SpineLandPoint;
 import models.spineVariation.SpineLandMap;

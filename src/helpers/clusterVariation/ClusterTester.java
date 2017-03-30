@@ -15,8 +15,6 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import algorithm.clusterVariation.ClusterAlgorithm;
-import algorithm.clusterVariation.ClusterLotizationAlgorithm;
-import algorithm.clusterVariation.LSystemClusterAlgorithm;
 import helpers.base.MapHelper;
 import interfaces.clusterVariation.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
@@ -86,8 +84,10 @@ public class ClusterTester {
 																	// milliseconds.
 		System.out.println("Algorithm finished in " + duration + "s");
 		// ClusterLotizationAlgorithm.landMap.printMapToFile();
-		String compressedString = clusterAlgorithm.getLandMap().stringify();
-		System.out.println("Compressed String lenght: " + compressedString.length());
+		
+		clusterAlgorithm.getLandMap().printMapToFile();
+		//String compressedString = clusterAlgorithm.getLandMap().stringify();
+		//System.out.println("Compressed String lenght: " + compressedString.length());
 
 		endTime = System.nanoTime();
 		duration = (endTime - startTime) / (1000000 * 1000); // divide by to get

@@ -33,7 +33,7 @@ public class ClusterAlgorithm {
 			entryPointId = ClusterMapHelper.moveKeyByOffsetAndDirection(entryPointId,
 					ClusterConfiguration.BASE_CLUSTER_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE,
 					mainRoute.getDirection());
-			if (landMap.landPointisOnMap(entryPointId) && landMap.intersectMainRoute(entryPointId)) {
+			if (landMap.landPointisOnMap(entryPointId) /*&& landMap.intersectMainRoute(entryPointId)*/) {
 				createRouteVariation(entryPointId, orthogonalDirections.get(0), ClusterConfiguration.COLLECTOR_BRANCH);
 			} else
 				break;
@@ -44,9 +44,11 @@ public class ClusterAlgorithm {
 		int[] key = ClusterMapHelper.breakKey(upperParallelId);
 		key[0] = 1;
 		upperParallelId = ClusterMapHelper.formKey(key[0], key[1]);
+		boolean firsTime = true;
 		while (true) {
+			int extraSize = firsTime?ClusterConfiguration.ARTERIAL_BRANCH_SIZE+26:0;
 			upperParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
-					ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(0));
+					ClusterConfiguration.BASE_CLUSTER_SIZE +extraSize, orthogonalDirections.get(0));
 			if (!landMap.landPointisOnMap(upperParallelId))
 				break;
 			createRouteVariation(upperParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
