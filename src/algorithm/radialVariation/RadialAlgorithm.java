@@ -8,9 +8,9 @@ import interfaces.radialVariation.RadialConfiguration;
 import interfaces.radialVariation.RadialConstants;
 import models.RadialVariation.RadialLandMap;
 import models.RadialVariation.RadialPolygon;
-
+/*
 public static void TotAreaPolygon(){
 	ind
 }
 
-private static void organicZonification() {
+private static void organicZonification() {*/

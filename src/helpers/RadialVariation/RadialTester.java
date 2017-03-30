@@ -53,7 +53,7 @@ public class RadialTester {
 								
 		radialLandMap.printMapToFileCentroid(areaCentx,areaCenty);
 		
-		public void TotalArea {
+/*		public void TotalArea {
 			//This process will be calculated by determinants
 			int det1,det2;
 			double tot;

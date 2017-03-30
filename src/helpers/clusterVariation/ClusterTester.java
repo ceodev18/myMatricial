@@ -30,43 +30,28 @@ public class ClusterTester {
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore/1000000 + " in MB");
 
-		int large = 1834, width = 1623;
+		int large = 925, width = 1130;
 		// 1. We create the map and set its intrinsec variables
 		ClusterLandMap landMap = new ClusterLandMap(large, width);
 		List<ClusterLandPoint> polygon = new ArrayList<>();
-		ClusterLandPoint landPoint = new ClusterLandPoint(1833, 0);
+		ClusterLandPoint landPoint = new ClusterLandPoint(726, 0);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(1594, 1434);
+		landPoint = new ClusterLandPoint(924, 762);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(862, 1622);
+		landPoint = new ClusterLandPoint(273, 1129);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(0, 588);
-		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(1013, 183);
+		landPoint = new ClusterLandPoint(0, 528);
 		polygon.add(landPoint);
 		// we must reuse the first one as the last
-		landPoint = new ClusterLandPoint(1833, 0);
+		landPoint = new ClusterLandPoint(726, 0);
 		polygon.add(landPoint);
 		// 2. we create the border from the polygon
 		landMap.createBorderFromPolygon(polygon);
 		// 3, We create the entry points for the main routes
 		// Entry points = [327,981][1710,742]
 		List<ClusterLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new ClusterLandPoint(327, 981);
+		landPoint = new ClusterLandPoint(487, 174);
 		entryPoints.add(landPoint);
-
-		/*
-		 * int large = 421, width = 617; ClusterLandMap landMap = new
-		 * ClusterLandMap(large, width); List<ClusterLandPoint> polygon = new
-		 * ArrayList<>(); ClusterLandPoint landPoint = new ClusterLandPoint(92,
-		 * 0); polygon.add(landPoint); landPoint = new ClusterLandPoint(421,
-		 * 336); polygon.add(landPoint); landPoint = new ClusterLandPoint(166,
-		 * 617); polygon.add(landPoint); landPoint = new ClusterLandPoint(0,
-		 * 362); polygon.add(landPoint); landPoint = new ClusterLandPoint(92,
-		 * 0); polygon.add(landPoint); landMap.createBorderFromPolygon(polygon);
-		 * List<ClusterLandPoint> entryPoints = new ArrayList<>(); landPoint =
-		 * new ClusterLandPoint(244, 155); entryPoints.add(landPoint);
-		 */
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore/1000000 + " in MB");
