@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import algorithm.spineVariation.LSystemSpineAlgorithm;
 import helpers.base.MapHelper;
 import helpers.spineVariation.SpineDirectionHelper;
 import helpers.spineVariation.SpineMapHelper;
@@ -309,6 +310,24 @@ public class SpineLandMap {
 			e.printStackTrace();
 		}
 	}
+	public void printMapToFileCentroide(int ejex,int ejey) {
+		try {
+			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
+			for (int j = pointsy - 1; j >= 0; j--) {
+				for (int i = 0; i < pointsx; i++) {
+					//getLandPoint(SpineMapHelper.formKey(i, j)).getType()
+					if(i==ejex && j==ejey)writer.print("x");
+					else writer.print(getLandPoint(SpineMapHelper.formKey(i, j)).getType());
+				}
+				writer.println();
+			}
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+
 
 	public void markVariation(int entryPointId, int branchType, int nodeType) {
 		String variation = "-";
@@ -1329,4 +1348,42 @@ public class SpineLandMap {
 
 		return mapString;
 	}
+	
+	public void printMapToFileNew() {
+		try {
+			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
+			for (int j = pointsy - 1; j >= 0; j--) {
+				for (int i = 0; i < pointsx; i++) {
+					  /*if(getLandPoint(SpineMapHelper.formKey(i, j)).getType().equals("n")){
+						 writer.print("e");
+					 }
+					 else */
+					writer.print(getLandPoint(SpineMapHelper.formKey(i, j)).getType());
+				}
+				writer.println();
+			}
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	public void printMapToFileNewCentroide() {
+		try {
+			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
+			for (int j = pointsy - 1; j >= 0; j--) {
+				for (int i = 0; i < pointsx; i++) {
+					  /*if(getLandPoint(SpineMapHelper.formKey(i, j)).getType().equals("n")){
+						 writer.print("e");
+					 }
+					 else */
+					writer.print(getLandPoint(SpineMapHelper.formKey(i, j)).getType());
+				}
+				writer.println();
+			}
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 }

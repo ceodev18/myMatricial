@@ -2,7 +2,7 @@ package interfaces.spineVariation;
 
 public interface SpineConfiguration {
 
-	public static int BASE_CLUSTER_SIZE = 272;
+	public static int BASE_CLUSTER_SIZE = 150;
 	
 	public static int ARTERIAL_BRANCH_SIZE = 26;
 	public static int COLLECTOR_BRANCH_SIZE = 16;
@@ -32,7 +32,10 @@ public interface SpineConfiguration {
 	public static String WALK_MARK = "a";
 	public static String CLUSTER_ENTRANCE_MARK = "a";
 	public static String BORDER_MARK = "e";
-
+	
+	public static String MARK_LOT1 = "1";
+	public static String MARK_LOT2 = "2";
+	
 	public static int TYPE_SPECIAL = 0;
 	public static int TYPE_COMPLETE = 1;
 
