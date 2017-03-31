@@ -26,7 +26,7 @@ public class ClusterTester {
 
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		System.out.println("Used Memory map allocation" + usedMemoryBefore/1000000 + " in MB");
+		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
 
 		int large = 925, width = 1130;
 		// 1. We create the map and set its intrinsec variables
@@ -43,7 +43,7 @@ public class ClusterTester {
 		// we must reuse the first one as the last
 		landPoint = new ClusterLandPoint(726, 0);
 		polygon.add(landPoint);
-		
+
 		// 2. we create the border from the polygon
 		landMap.createBorderFromPolygon(polygon);
 		// 3, We create the entry points for the main routes
@@ -53,17 +53,16 @@ public class ClusterTester {
 		entryPoints.add(landPoint);
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		System.out.println("Used Memory map allocated" + usedMemoryBefore/1000000 + " in MB");
-		
+		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
+
 		ClusterAlgorithm clusterAlgorithm = new ClusterAlgorithm();
 		clusterAlgorithm.setLandMap(landMap);
-		
-		//LSystemClusterAlgorithm.landMap = landMap;
+
+		// LSystemClusterAlgorithm.landMap = landMap;
 		for (ClusterLandPoint entryPoint : entryPoints) {
 			int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
 					landMap.getCentroid());
-			clusterAlgorithm.createRouteVariation(entryPoint.getId(), direction,
-					ClusterConfiguration.ARTERIAL_BRANCH);
+			clusterAlgorithm.createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
 			break;
 		}
 
@@ -71,24 +70,25 @@ public class ClusterTester {
 		clusterAlgorithm.clusterize();
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		System.out.println("Used Memory map after completed routes" + usedMemoryBefore/1000000 + " in MB");
-		
+		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
+
 		// 5. Zonification
 		clusterAlgorithm.zonify();
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		System.out.println("Used Memory map after zonification" + usedMemoryBefore/1000000 + " in MB");
-		
+		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
+
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime) / (1000000 * 1000); // divide by
 																	// to get
 																	// milliseconds.
 		System.out.println("Algorithm finished in " + duration + "s");
 		// ClusterLotizationAlgorithm.landMap.printMapToFile();
-		
+
 		clusterAlgorithm.getLandMap().printMapToFile();
-		//String compressedString = clusterAlgorithm.getLandMap().stringify();
-		//System.out.println("Compressed String lenght: " + compressedString.length());
+		// String compressedString = clusterAlgorithm.getLandMap().stringify();
+		// System.out.println("Compressed String lenght: " +
+		// compressedString.length());
 
 		endTime = System.nanoTime();
 		duration = (endTime - startTime) / (1000000 * 1000); // divide by to get
@@ -96,8 +96,8 @@ public class ClusterTester {
 		System.out.println("Response build finished in " + duration + "s");
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		System.out.println("Final Memory" + usedMemoryBefore/1000000 + " in MB");
-		
+		System.out.println("Final Memory" + usedMemoryBefore / 1000000 + " in MB");
+
 		TestPane.clusterLandMap = clusterAlgorithm.getLandMap();
 		TestPane.large = large;
 		TestPane.width = width;
@@ -149,7 +149,7 @@ public class ClusterTester {
 			super.paintComponent(g);
 			int growthX = 0, growthY = 0;
 			for (int x = 0; x < clusterLandMap.getPointsx(); x++) {
-			for (int y = 0; y < clusterLandMap.getPointsy(); y++) {
+				for (int y = clusterLandMap.getPointsy()-1; y >= 0; y--) {
 					String type = clusterLandMap.findPoint(MapHelper.formKey(x, y)).getType();
 					switch (type) {/* 39 + 40*0 | 0+ 40*1 */
 					case "a":

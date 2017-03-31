@@ -184,12 +184,13 @@ public class ClusterLandMap {
 	}
 
 	private boolean isPolygonBorder(int x, int y) {
-		int easternLimit = x+1;
-		int westernLimit = x-1;
-		int southLimit = y-1;
-		int northLimit = y+1;
-		
-		if(westernLimit == -1 || easternLimit ==pointsx || southLimit==-1 || northLimit==pointsy)return false;
+		int easternLimit = x + 1;
+		int westernLimit = x - 1;
+		int southLimit = y - 1;
+		int northLimit = y + 1;
+
+		if (westernLimit == -1 || easternLimit == pointsx || southLimit == -1 || northLimit == pointsy)
+			return false;
 		return (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)
 				|| findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 				&& !findPoint(MapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK);
@@ -537,10 +538,6 @@ public class ClusterLandMap {
 		return clusterPolygon;
 	}
 
-	/**
-	 * TODO not squared components Lotization procedure completed for all square
-	 * like components
-	 */
 	public Object lotize(List<Integer> list, int direction, int beginning) {
 		if (beginning >= list.size()) {
 			return 0;
@@ -553,7 +550,7 @@ public class ClusterLandMap {
 		Double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
 		double offset = finalXY[1] - gradient * finalXY[0];
 		if (direction == ClusterConstants.EAST || direction == ClusterConstants.WEST) {
-			if (gradient.doubleValue() == 0.0) {
+			if (gradient.doubleValue() == 0.0) {// perfect case
 				currentXY[0] = direction == ClusterConstants.EAST ? currentXY[0] + 1 : currentXY[0];
 				ClusterBuilding clusterBuilding = createWalkRoute(currentXY, false, direction, beginning);
 				if (clusterBuilding != null) {
@@ -567,7 +564,7 @@ public class ClusterLandMap {
 					finalXY = ClusterMapHelper.moveKeyByOffsetAndDirection(finalXY,
 							ClusterConfiguration.WALK_BRANCH_SIZE, ClusterDirectionHelper.oppositeDirection(direction));
 				}
-			} else {
+			} else {// imperfect case
 				notUniform = true;
 				currentXY = createNonOrthogonalWalkRoute(list.get(beginning), list.get((beginning + 1) % list.size()),
 						finalXY, false, gradient);
@@ -581,9 +578,15 @@ public class ClusterLandMap {
 				// this initial case is neccesary to find the intermediate point
 				// - 6 to make
 				createClusterEntrance(currentXY, finalXY, direction);
+				finalXY = ClusterMapHelper.moveKeyByOffsetAndDirection(finalXY,
+						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
+						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+						ClusterDirectionHelper.oppositeDirection(direction));
 			} else {
 				notUniform = true;
 				createNonOrthogonalClusterEntrance(currentXY, finalXY, direction, gradient);
+				// TODO currentXY and finalXY move to occupy all side
 			}
 		}
 
@@ -594,8 +597,11 @@ public class ClusterLandMap {
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
 
-			if(notUniform)done = true;
-			
+			// TODO eliminate this. There was a problem with the detection of
+			// problems lol when there is a view like this.
+			if (notUniform)
+				done = true;
+
 			if (done) {
 				if (notUniform) {
 					int newDirection = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(
@@ -1106,7 +1112,7 @@ public class ClusterLandMap {
 				for (int j = currentXY[1]; j > currentXY[1] - doublehouseDepthSize; j--) {
 					if (landPointisOnMap(ClusterMapHelper.formKey(i, j))) {
 						String type = findPoint(ClusterMapHelper.formKey(i, j)).getType();
-						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)) {
+						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)||type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 							return false;
 						}
 					} else {
@@ -1120,7 +1126,7 @@ public class ClusterLandMap {
 				for (int j = currentXY[0]; j < currentXY[0] + doublehouseDepthSize; j++) {
 					if (landPointisOnMap(ClusterMapHelper.formKey(j, i))) {
 						String type = findPoint(ClusterMapHelper.formKey(j, i)).getType();
-						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)) {
+						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)||type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 							return false;
 						}
 					} else {
@@ -1134,7 +1140,7 @@ public class ClusterLandMap {
 				for (int j = currentXY[1]; j < currentXY[1] + doublehouseDepthSize; j++) {
 					if (landPointisOnMap(ClusterMapHelper.formKey(i, j))) {
 						String type = findPoint(ClusterMapHelper.formKey(i, j)).getType();
-						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)) {
+						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)||type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 							return false;
 						}
 					} else {
@@ -1148,7 +1154,7 @@ public class ClusterLandMap {
 				for (int j = currentXY[0]; j > currentXY[0] - doublehouseDepthSize; j--) {
 					if (landPointisOnMap(ClusterMapHelper.formKey(j, i))) {
 						String type = findPoint(ClusterMapHelper.formKey(j, i)).getType();
-						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)) {
+						if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK)||type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 							return false;
 						}
 					} else {
