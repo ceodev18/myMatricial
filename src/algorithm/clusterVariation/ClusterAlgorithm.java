@@ -105,12 +105,18 @@ public class ClusterAlgorithm {
 			break;
 		}
 
-		createLine(
-				ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, 1,
-						ClusterDirectionHelper.oppositeDirection(growDirection)),
-				direction, ClusterConfiguration.NODE_MARK);
-		createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, extension, growDirection), direction,
-				ClusterConfiguration.NODE_MARK);
+		// It is necessary to test that the lower and upper key are still on the
+		// map.It would be impossible otherwise to create
+		int upperLimitKey = ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, 1,
+				ClusterDirectionHelper.oppositeDirection(growDirection));
+		int lowerLimitKey = ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, extension, growDirection);
+
+		if (!landMap.landPointisOnMap(upperLimitKey) || !landMap.landPointisOnMap(lowerLimitKey)) {
+			return;
+		}
+
+		createLine(upperLimitKey, direction, ClusterConfiguration.NODE_MARK);
+		createLine(lowerLimitKey, direction, ClusterConfiguration.NODE_MARK);
 
 		for (int i = 0; i < extension; i++) {
 			if ((branchType == ClusterConfiguration.ARTERIAL_BRANCH) && (i == 0)) {
