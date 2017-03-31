@@ -233,7 +233,7 @@ public class ClusterAlgorithm {
 					createOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.EAST, clusterPolygon);
 					boolean passedThough = false;
 					if (clusterPolygon.getPoints().size() == 2) {
-						// TODO finish the polygon and detect incompleteness
+						// finish the polygon and detect incompleteness
 						completeOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.NORTH,
 								clusterPolygon);
 						clusterPolygon.rehashPolygon(ClusterConfiguration.TYPE_COMPLETE);
@@ -290,7 +290,7 @@ public class ClusterAlgorithm {
 					}
 				}
 
-				// TODO in case of special node (non regular spaced node
+				// In case of special node (non regular spaced node
 				if (!identifiedNormalNode && landMap.isSpecialNode(x, y)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
 					createSpecialCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.NORTH, clusterPolygon);
@@ -309,8 +309,12 @@ public class ClusterAlgorithm {
 					// we create the routes
 					List<List<Integer>> routes = clusterPolygon.routeZone(
 							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, ClusterConfiguration.LOCAL_BRANCH_SIZE);
-					for (int j = 0; j < routes.size(); j++) {
-						landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
+					if (routes.size() > 6) {
+						for (int j = 0; j < routes.size(); j++) {
+							landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
+						}
+					} else {
+						routes = new ArrayList<>();
 					}
 
 					// we create the houses
@@ -322,9 +326,12 @@ public class ClusterAlgorithm {
 						landMap.lotize(lowerBorder.get(0), direction, 0);
 					}
 
-					if ((routes.size() == 0) && (grass.size() == 0)) {
-						// TODO lotize as full focus (library or other).
-						// clusterPolygon.printPolygon();
+					if ((routes.size() == 0)) {
+						List<List<Integer>> contribution = clusterPolygon.contributionZone();
+						for (int j = 0; j < contribution.size(); j++) {
+							landMap.createBorderFromPolygon(contribution.get(j),
+									ClusterConfiguration.CONTRIBUTION_MARK);
+						}
 					}
 				}
 			}
@@ -333,7 +340,6 @@ public class ClusterAlgorithm {
 	}
 
 	private Object createSpecialCoverture(int initialKey, int direction, ClusterPolygon clusterPolygon) {
-		// TODO Auto-generated method stub
 		clusterPolygon.getPoints().add(initialKey);
 		boolean borderFound = false;
 		while (!borderFound) {

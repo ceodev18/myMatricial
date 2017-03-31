@@ -49,7 +49,7 @@ public class ClusterTester {
 		// 3, We create the entry points for the main routes
 		// Entry points = [327,981][1710,742]
 		List<ClusterLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new ClusterLandPoint(547, 16);
+		landPoint = new ClusterLandPoint(487, 174);
 		entryPoints.add(landPoint);
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();

@@ -590,6 +590,10 @@ public class ClusterLandMap {
 			}
 		}
 
+		int maxNumberofRepetitions =0, repetitions = 0;
+		if(notUniform){
+			maxNumberofRepetitions = (int) Math.sqrt(Math.pow(currentXY[0]-finalXY[0], 2)+Math.pow(currentXY[1]-finalXY[1], 2));
+		}
 		while (true) {
 			boolean done = false;
 			if ((direction == ClusterConstants.EAST) || (direction == ClusterConstants.NORTH))
@@ -599,8 +603,11 @@ public class ClusterLandMap {
 
 			// TODO eliminate this. There was a problem with the detection of
 			// problems lol when there is a view like this.
-			if (notUniform)
-				done = true;
+			if (notUniform){
+				if(maxNumberofRepetitions == repetitions){
+					done = true;
+				}
+			}
 
 			if (done) {
 				if (notUniform) {
@@ -647,6 +654,7 @@ public class ClusterLandMap {
 							direction);
 				}
 			}
+			repetitions++;
 		}
 	}
 
@@ -720,7 +728,7 @@ public class ClusterLandMap {
 						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
-							if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
+							if (!type.equals(ClusterConfiguration.EMPTY_MARK))
 								return false;
 						}
 					}
@@ -739,7 +747,7 @@ public class ClusterLandMap {
 						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
-							if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
+							if (!type.equals(ClusterConfiguration.EMPTY_MARK))
 								return false;
 						}
 					}
@@ -761,7 +769,7 @@ public class ClusterLandMap {
 				// orthogonalGradient * variation[0] + orthogonalOffset;
 				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).getType();
-					if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
+					if (!type.equals(ClusterConfiguration.EMPTY_MARK))
 						return false;
 				}
 			}
