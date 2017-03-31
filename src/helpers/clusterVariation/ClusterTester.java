@@ -85,7 +85,7 @@ public class ClusterTester {
 		// ClusterLotizationAlgorithm.landMap.printMapToFile();
 
 		clusterAlgorithm.getLandMap().printMapToFile();
-		// String compressedString = clusterAlgorithm.getLandMap().stringify();
+		
 		// System.out.println("Compressed String lenght: " +
 		// compressedString.length());
 
@@ -97,17 +97,17 @@ public class ClusterTester {
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Final Memory" + usedMemoryBefore / 1000000 + " in MB");
 
-		TestPane.clusterLandMap = clusterAlgorithm.getLandMap();
-		TestPane.large = large;
-		TestPane.width = width;
-		new ClusterTester();
-		//
-		/*
-		 * System.out.print(ClusterLotizationAlgorithm.landMap.stringify());
-		 */
+
+		//2 variants
+		ClusterTestPane clusterTestPane = new ClusterTestPane(true,
+				clusterAlgorithm.getLandMap().stringify(), large, width);		
+		//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
+		//clusterTestPane.large = large;
+		//clusterTestPane.width = width;
+		new ClusterTester(clusterTestPane);
 	}
 
-	public ClusterTester() {
+	public ClusterTester(ClusterTestPane clusterTestPane) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -120,7 +120,7 @@ public class ClusterTester {
 				JFrame frame = new JFrame("Testing");
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setLayout(new BorderLayout());
-				JScrollPane scrPane = new JScrollPane(new TestPane());
+				JScrollPane scrPane = new JScrollPane(clusterTestPane);
 				frame.add(scrPane); // similar to getContentPane().add(scrPane);
 
 				// frame.add(new TestPane());
@@ -129,79 +129,5 @@ public class ClusterTester {
 				frame.setVisible(true);
 			}
 		});
-	}
-
-	public static class TestPane extends JPanel {
-		private static final long serialVersionUID = 1L;
-		public static ClusterLandMap clusterLandMap;
-		private int growtXY = 1;
-		public static int large = 35;
-		public static int width = 35;
-
-		@Override
-		public Dimension getPreferredSize() {
-			return new Dimension(large, width);
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			int growthX = 0, growthY = 0;
-			for (int x = 0; x < clusterLandMap.getPointsx(); x++) {
-				for (int y = clusterLandMap.getPointsy()-1; y >= 0; y--) {
-					String type = clusterLandMap.findPoint(MapHelper.formKey(x, y)).getType();
-					switch (type) {/* 39 + 40*0 | 0+ 40*1 */
-					case "a":
-					case "b":
-					case "c":
-					case "w":
-					case "t":
-						g.setColor(Color.GRAY);
-						break;
-					case "p":
-						g.setColor(Color.GREEN);
-						break;
-					case "l":
-					case ".":
-						g.setColor(Color.RED);
-						break;
-					case "e":
-					case "n":
-						g.setColor(Color.MAGENTA);
-						break;
-					case "z"://contributions
-						g.setColor(Color.YELLOW);
-						break;
-					case " ":
-						g.setColor(Color.WHITE);
-						break;
-					default: // is an avenue or a street
-						int houseLot = Integer.valueOf(type);
-						switch (houseLot % 9) {
-						case 1:
-							g.setColor(Color.BLACK);
-							break;
-						case 2:
-							g.setColor(Color.LIGHT_GRAY);
-							break;
-						case 3:
-							g.setColor(Color.CYAN);
-							break;
-						default:
-							g.setColor(Color.PINK);
-							break;
-						}
-
-						break;
-					}
-
-					g.fillRect(growthX, growthY, (growthX + growtXY), (growthY + growtXY));
-					growthX += growtXY;
-
-				}
-				growthX = 0;
-				growthY += growtXY;
-			}
-		}
 	}
 }
