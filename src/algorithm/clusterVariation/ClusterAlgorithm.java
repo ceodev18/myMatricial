@@ -21,7 +21,7 @@ public class ClusterAlgorithm {
 	public void setLandMap(ClusterLandMap landMap) {
 		this.landMap = landMap;
 	}
-	
+
 	public void clusterize() {
 		// 1. we need to now the main route size
 		ClusterLandRoute mainRoute = landMap.getLandRoute();
@@ -38,8 +38,8 @@ public class ClusterAlgorithm {
 			} else
 				break;
 		}
-		
-		//Principal routes
+
+		// Principal routes
 		int upperParallelId = mainRoute.getInitialPointId();
 		while (true) {
 			upperParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
@@ -52,10 +52,10 @@ public class ClusterAlgorithm {
 		int lowerParallelId = mainRoute.getInitialPointId();
 		boolean first = true;
 		while (true) {
-			int extraSpace = first?ClusterConfiguration.ARTERIAL_BRANCH_SIZE:0;
+			int extraSpace = first ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE : 0;
 			first = false;
 			lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
-					ClusterConfiguration.BASE_CLUSTER_SIZE+extraSpace, orthogonalDirections.get(1));
+					ClusterConfiguration.BASE_CLUSTER_SIZE + extraSpace, orthogonalDirections.get(1));
 			if (!landMap.landPointisOnMap(lowerParallelId))
 				break;
 			createRouteVariation(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
@@ -198,20 +198,17 @@ public class ClusterAlgorithm {
 		}
 		return changed;
 	}
-	
+
 	public void zonify() {
 		// findZonificationAreas();
 		organicZonification();
 	}
 
+	// Organic zonification: This zonification searchs the figure and
+	// reduces it in a reason configured by the user. if it can be done, it
+	// becomes a new cluster. If not, it becomes simply defaults into a
+	// perfect zonification
 	private void organicZonification() {
-		// Organic zonification: This zonification searchs the figure and
-		// reduces it in a reason configured by the user. if it can be done, it
-		// becomes a new cluster. If not, it becomes simply defaults into a
-		// perfect zonification
-		// System.out.println("Limit x:" + landMap.getPointsx() + "Limit y:" +
-		// landMap.getPointsy());
-		// we should save the Ns used
 		for (int y = landMap.getPointsy() - 1; y >= 0; y--) {
 			boolean insidePolygon = false;
 			for (int x = 0; x < landMap.getPointsx(); x++) {
@@ -247,18 +244,16 @@ public class ClusterAlgorithm {
 						System.out.println("Pre polygon join with border ");
 						clusterPolygon.printPolygon();
 						// clusterPolygon =
-						// landMap.joinWithPolygonalBorder(clusterPolygon);
+						// joinWithPolygonalBorder(clusterPolygon);
 					}
 
 					if (!passedThough && !clusterPolygon.isComplete() && clusterPolygon.getPoints().size() == 3) {
-						// TODO solve the problem of unresolved polygon
 						completeOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.NORTH,
 								clusterPolygon);
 						clusterPolygon.rehashPolygon(ClusterConfiguration.TYPE_COMPLETE);
 						// clusterPolygon =
-						// landMap.joinWithPolygonalBorder(clusterPolygon);
+						// joinWithPolygonalBorder(clusterPolygon);
 					}
-					// clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 
 					// we create the park
@@ -284,7 +279,6 @@ public class ClusterAlgorithm {
 
 					if ((routes.size() == 0) && (grass.size() == 0)) {
 						// TODO lotize as full focus (library or other).
-						// clusterPolygon.printPolygon();
 					}
 				}
 
@@ -295,7 +289,6 @@ public class ClusterAlgorithm {
 					System.out.println("Special polygon");
 					clusterPolygon.printPolygon();
 					clusterPolygon.rehashPolygon(ClusterConfiguration.TYPE_SPECIAL);
-					// clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 
 					// we create the park

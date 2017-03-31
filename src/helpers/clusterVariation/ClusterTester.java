@@ -74,7 +74,7 @@ public class ClusterTester {
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore/1000000 + " in MB");
 		
 		// 5. Zonification
-		//clusterAlgorithm.zonify();
+		clusterAlgorithm.zonify();
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore/1000000 + " in MB");
@@ -149,7 +149,7 @@ public class ClusterTester {
 			super.paintComponent(g);
 			int growthX = 0, growthY = 0;
 			for (int x = 0; x < clusterLandMap.getPointsx(); x++) {
-			for (int y = clusterLandMap.getPointsy() - 1; y >= 0; y--) {
+			for (int y = 0; y < clusterLandMap.getPointsy(); y++) {
 					String type = clusterLandMap.findPoint(MapHelper.formKey(x, y)).getType();
 					switch (type) {/* 39 + 40*0 | 0+ 40*1 */
 					case "a":

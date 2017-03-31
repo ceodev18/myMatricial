@@ -594,6 +594,8 @@ public class ClusterLandMap {
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
 
+			if(notUniform)done = true;
+			
 			if (done) {
 				if (notUniform) {
 					int newDirection = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(
