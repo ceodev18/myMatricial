@@ -14,8 +14,6 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import algorithm.clusterVariation.ClusterLotizationAlgorithm;
-import algorithm.clusterVariation.LSystemClusterAlgorithm;
 import algorithm.radialVariation.LSystemRadialAlgorithm;
 import helpers.base.MapHelper;
 import helpers.clusterVariation.ClusterTester;
