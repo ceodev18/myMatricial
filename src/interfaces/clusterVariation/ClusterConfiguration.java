@@ -29,9 +29,10 @@ public interface ClusterConfiguration {
 	public static String NODE_MARK = "n";
 	public static String PARK_MARK = "p";	
 	public static String WALK_MARK = "a";
-	public static String CLUSTER_ENTRANCE_MARK = "a";
+	public static String CLUSTER_ENTRANCE_MARK = "w";
 	public static String BORDER_MARK = "e";
-
+	public static String CONTRIBUTION_MARK = "z";
+	
 	public static int TYPE_SPECIAL = 0;
 	public static int TYPE_COMPLETE = 1;
 }

@@ -58,7 +58,6 @@ public class ClusterTester {
 		ClusterAlgorithm clusterAlgorithm = new ClusterAlgorithm();
 		clusterAlgorithm.setLandMap(landMap);
 
-		// LSystemClusterAlgorithm.landMap = landMap;
 		for (ClusterLandPoint entryPoint : entryPoints) {
 			int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
 					landMap.getCentroid());
@@ -170,6 +169,9 @@ public class ClusterTester {
 					case "n":
 						g.setColor(Color.MAGENTA);
 						break;
+					case "z"://contributions
+						g.setColor(Color.YELLOW);
+						break;
 					case " ":
 						g.setColor(Color.WHITE);
 						break;
@@ -184,21 +186,6 @@ public class ClusterTester {
 							break;
 						case 3:
 							g.setColor(Color.CYAN);
-							break;
-						case 4:
-							g.setColor(Color.WHITE);
-							break;
-						case 5:
-							g.setColor(Color.YELLOW);
-							break;
-						case 6:
-							g.setColor(Color.decode("#472544"));
-							break;
-						case 7:
-							g.setColor(Color.ORANGE);
-							break;
-						case 8:
-							g.setColor(Color.BLUE);
 							break;
 						default:
 							g.setColor(Color.PINK);

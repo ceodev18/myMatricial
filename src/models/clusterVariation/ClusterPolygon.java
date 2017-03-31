@@ -302,6 +302,25 @@ public class ClusterPolygon {
 		return areas;
 	}
 
+	public List<List<Integer>> contributionZone() {
+		List<List<Integer>> areas = new ArrayList<>();
+		List<Integer> area = vectorShrinking(0);
+		int goDeeper = 0;
+		if (area.size() != 0) {
+			areas.add(area);
+			while (minimunDistanceBetweenVertex(area) > 1) {
+				goDeeper++;
+				area = vectorShrinking(goDeeper);
+				if (area.size() != 0) {
+					areas.add(area);
+				} else {
+					break;
+				}
+			}
+		}
+		return areas;
+	}
+
 	private double minimunDistanceBetweenVertex(List<Integer> area) {
 		double minimunDistance = 30000000;
 		for (int i = 0; i < area.size(); i++) {
@@ -333,11 +352,11 @@ public class ClusterPolygon {
 			points = reorderedPoints;
 		} else {
 			if (expansions > 0) {
-				for (int i = expansions+1; i < points.size(); i++) {
+				for (int i = expansions + 1; i < points.size(); i++) {
 					reorderedPoints.add(points.get(i));
 				}
 
-				for (int i = 0; i < expansions+1; i++) {
+				for (int i = 0; i < expansions + 1; i++) {
 					reorderedPoints.add(points.get(i));
 				}
 				points = reorderedPoints;
