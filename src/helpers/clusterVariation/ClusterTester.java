@@ -28,22 +28,20 @@ public class ClusterTester {
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore/1000000 + " in MB");
 
-		int large = 897, width = 588;
+		int large = 925, width = 1130;
 		// 1. We create the map and set its intrinsec variables
 		ClusterLandMap landMap = new ClusterLandMap(large, width);
 		List<ClusterLandPoint> polygon = new ArrayList<>();
-		ClusterLandPoint landPoint = new ClusterLandPoint(896, 0);
+		ClusterLandPoint landPoint = new ClusterLandPoint(726, 0);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(821, 587);
+		landPoint = new ClusterLandPoint(924, 762);
 		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(0, 512);
+		landPoint = new ClusterLandPoint(273, 1129);
 		polygon.add(landPoint);
 		landPoint = new ClusterLandPoint(0, 528);
 		polygon.add(landPoint);
 		// we must reuse the first one as the last
-		landPoint = new ClusterLandPoint(57, 38);
-		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(896, 0);
+		landPoint = new ClusterLandPoint(726, 0);
 		polygon.add(landPoint);
 		
 		// 2. we create the border from the polygon
@@ -76,7 +74,7 @@ public class ClusterTester {
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore/1000000 + " in MB");
 		
 		// 5. Zonification
-		clusterAlgorithm.zonify();
+		//clusterAlgorithm.zonify();
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore/1000000 + " in MB");
@@ -150,8 +148,8 @@ public class ClusterTester {
 		protected void paintComponent(Graphics g) {
 			super.paintComponent(g);
 			int growthX = 0, growthY = 0;
+			for (int x = 0; x < clusterLandMap.getPointsx(); x++) {
 			for (int y = clusterLandMap.getPointsy() - 1; y >= 0; y--) {
-				for (int x = 0; x < clusterLandMap.getPointsx(); x++) {
 					String type = clusterLandMap.findPoint(MapHelper.formKey(x, y)).getType();
 					switch (type) {/* 39 + 40*0 | 0+ 40*1 */
 					case "a":

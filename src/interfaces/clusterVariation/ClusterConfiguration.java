@@ -1,7 +1,7 @@
 package interfaces.clusterVariation;
 
 public interface ClusterConfiguration {
-	public static int BASE_CLUSTER_SIZE = 272;
+	public static int BASE_CLUSTER_SIZE = 144;
 	
 	public static int ARTERIAL_BRANCH_SIZE = 26;
 	public static int COLLECTOR_BRANCH_SIZE = 16;

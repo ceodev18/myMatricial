@@ -25,15 +25,15 @@ public class ClusterAlgorithm {
 	public void clusterize() {
 		// 1. we need to now the main route size
 		ClusterLandRoute mainRoute = landMap.getLandRoute();
-		int entryPointId = mainRoute.getInitialPointId();
 		// Once the collector branches are created we need to create the non
 		// collector running orthogonal to the main
 		List<Integer> orthogonalDirections = ClusterDirectionHelper.orthogonalDirections(mainRoute.getDirection());
+		int entryPointId = mainRoute.getInitialPointId();
 		while (true) {
 			entryPointId = ClusterMapHelper.moveKeyByOffsetAndDirection(entryPointId,
 					ClusterConfiguration.BASE_CLUSTER_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE,
 					mainRoute.getDirection());
-			if (landMap.landPointisOnMap(entryPointId) /*&& landMap.intersectMainRoute(entryPointId)*/) {
+			if (landMap.landPointisOnMap(entryPointId)) {
 				createRouteVariation(entryPointId, orthogonalDirections.get(0), ClusterConfiguration.COLLECTOR_BRANCH);
 			} else
 				break;
@@ -41,24 +41,21 @@ public class ClusterAlgorithm {
 		
 		//Principal routes
 		int upperParallelId = mainRoute.getInitialPointId();
-		int[] key = ClusterMapHelper.breakKey(upperParallelId);
-		key[0] = 1;
-		upperParallelId = ClusterMapHelper.formKey(key[0], key[1]);
 		while (true) {
 			upperParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
-					ClusterConfiguration.BASE_CLUSTER_SIZE , orthogonalDirections.get(0));
+					ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(0));
 			if (!landMap.landPointisOnMap(upperParallelId))
 				break;
 			createRouteVariation(upperParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
 		}
 
 		int lowerParallelId = mainRoute.getInitialPointId();
-		key = ClusterMapHelper.breakKey(lowerParallelId);
-		key[0] = 1;
-		lowerParallelId = ClusterMapHelper.formKey(key[0], key[1]);
+		boolean first = true;
 		while (true) {
+			int extraSpace = first?ClusterConfiguration.ARTERIAL_BRANCH_SIZE:0;
+			first = false;
 			lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
-					ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(1));
+					ClusterConfiguration.BASE_CLUSTER_SIZE+extraSpace, orthogonalDirections.get(1));
 			if (!landMap.landPointisOnMap(lowerParallelId))
 				break;
 			createRouteVariation(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
