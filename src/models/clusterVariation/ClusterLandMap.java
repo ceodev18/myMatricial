@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import helpers.base.MapHelper;
 import helpers.clusterVariation.ClusterDirectionHelper;
 import helpers.clusterVariation.ClusterMapHelper;
 import interfaces.clusterVariation.ClusterConfiguration;
@@ -157,23 +156,23 @@ public class ClusterLandMap {
 					for (int z = initialLandPoint.getY() - 1; z >= finalLandPoint.getY() + 1; z--) {
 						if (wi != wf) {
 							if (isPolygonBorder(wi, z)) {
-								polygonRow.add(MapHelper.formKey(wi, z));
+								polygonRow.add(ClusterMapHelper.formKey(wi, z));
 							}
 						}
 
 						if (isPolygonBorder(wf, z)) {
-							polygonRow.add(MapHelper.formKey(wf, z));
+							polygonRow.add(ClusterMapHelper.formKey(wf, z));
 						}
 					}
 				} else {
 					for (int z = initialLandPoint.getY() + 1; z <= finalLandPoint.getY() - 1; z++) {
 						if (wi != wf) {
 							if (isPolygonBorder(wi, z)) {
-								polygonRow.add(MapHelper.formKey(wi, z));
+								polygonRow.add(ClusterMapHelper.formKey(wi, z));
 							}
 						}
 						if (isPolygonBorder(wf, z)) {
-							polygonRow.add(MapHelper.formKey(wf, z));
+							polygonRow.add(ClusterMapHelper.formKey(wf, z));
 						}
 					}
 				}
@@ -191,9 +190,9 @@ public class ClusterLandMap {
 
 		if (westernLimit == -1 || easternLimit == pointsx || southLimit == -1 || northLimit == pointsy)
 			return false;
-		return (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)
-				|| findPoint(MapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
-				&& !findPoint(MapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK);
+		return (findPoint(ClusterMapHelper.formKey(x - 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)
+				|| findPoint(ClusterMapHelper.formKey(x + 1, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+				&& !findPoint(ClusterMapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK);
 	}
 
 	private void fillPolygonalArea() {
@@ -725,8 +724,8 @@ public class ClusterLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							String type = findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
 							if (!type.equals(ClusterConfiguration.EMPTY_MARK))
 								return false;
@@ -744,8 +743,8 @@ public class ClusterLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							String type = findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
 							if (!type.equals(ClusterConfiguration.EMPTY_MARK))
 								return false;
@@ -767,8 +766,8 @@ public class ClusterLandMap {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
-				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).getType();
+				if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+					String type = findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1])).getType();
 					if (!type.equals(ClusterConfiguration.EMPTY_MARK))
 						return false;
 				}
@@ -849,8 +848,8 @@ public class ClusterLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 						}
 					}
 					countYFactor++;
@@ -865,8 +864,8 @@ public class ClusterLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 						}
 					}
 					countYFactor++;
@@ -885,8 +884,8 @@ public class ClusterLandMap {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
-				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+				if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+					findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 				}
 			}
 			countYFactor++;
@@ -963,8 +962,8 @@ public class ClusterLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
 						}
 					}
@@ -980,8 +979,8 @@ public class ClusterLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
 						}
 					}
@@ -1001,8 +1000,8 @@ public class ClusterLandMap {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
-				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+				if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+					findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 							.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
 				}
 			}
@@ -1063,7 +1062,7 @@ public class ClusterLandMap {
 				variation[1] = currentXY[1] + (!down ? i : -i);
 				variation[0] = (variation[1] - orthogonalOffset) / orthogonalGradient;
 				if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+					findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 							.setType(ClusterConfiguration.WALK_MARK);
 				}
 			}
