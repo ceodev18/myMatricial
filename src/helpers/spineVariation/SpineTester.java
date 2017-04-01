@@ -1,35 +1,19 @@
 package helpers.spineVariation;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Graphics;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import algorithm.spineVariation.SpineLotizationAlgorithm;
-import algorithm.clusterVariation.ClusterAlgorithm;
 import algorithm.spineVariation.LSystemSpineAlgorithm;
 import algorithm.spineVariation.SpineAlgorithm;
-import algorithm.spineVariation.LSystemSpineAlgorithm;
-import helpers.base.MapHelper;
-import helpers.clusterVariation.ClusterDirectionHelper;
-import helpers.clusterVariation.ClusterTestPane;
-import helpers.clusterVariation.ClusterTester;
 import helpers.spineVariation.SpineDirectionHelper;
-import interfaces.clusterVariation.ClusterConfiguration;
 import interfaces.spineVariation.SpineConfiguration;
-import models.spineVariation.SpineLandPoint;
-import models.clusterVariation.ClusterLandPoint;
-import models.spineVariation.SpineLandMap;
 import models.spineVariation.SpineLandPoint;
 import models.spineVariation.SpineLandMap;
 
