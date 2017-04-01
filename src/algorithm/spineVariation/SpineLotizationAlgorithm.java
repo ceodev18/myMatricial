@@ -50,7 +50,7 @@ public class SpineLotizationAlgorithm {
 		etq2=SpineConfiguration.MARK_LOT2+"";
 		int cambio=0;
 		boolean key=true;
-		for(int i=indice;i<large;i++){
+		for(int i=0;i<large;i++){
 			tp1=0;
 			 tp2=0;
 			 int counterFive=0;
@@ -126,7 +126,7 @@ public class SpineLotizationAlgorithm {
 		}
 		tp3=tp4=0;
 
-		for(int i=100;i<large;i++){
+		for(int i=0;i<large;i++){
 			 tp1=0;
 			 tp2=0;
 			 int counterFive=0;
@@ -140,7 +140,7 @@ public class SpineLotizationAlgorithm {
 						 ||spineLandMap.findPoint(MapHelper.formKey(i,yy+j)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))break;
 				 
 				 if(spineLandMap.findPoint(MapHelper.formKey(i,yy+j)).getType().equals(SpineConfiguration.EMPTY_MARK)){
-				/*	 int div =(j)/180;
+					 int div =(j)/180;
 					 if(div>=1 && j>=180 && (j%180)==0 ){
 						 System.out.print("valo j: ");
 						 System.out.println(j);
@@ -170,10 +170,10 @@ public class SpineLotizationAlgorithm {
 						 j+=27;
 						 if(spineLandMap.findPoint(MapHelper.formKey(i,yy-j)).getType().equals(SpineConfiguration.POLYGON_BORDER) ||
 								 spineLandMap.findPoint(MapHelper.formKey(i,yy-j)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))break;
-						 r
+						// r
 						// spineLandMap.getLandPoint(SpineMapHelper.formKey(i,yy-j)).setType("p");
 						 //continue;
-					 }*/
+					 }
 					 	if(tp3<27){
 					 		 //este caso es obligatorio si o si
 							spineLandMap.getLandPoint(SpineMapHelper.formKey(i,yy+j)).setType(SpineConfiguration.PARK_MARK);	

@@ -16,13 +16,19 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import algorithm.spineVariation.SpineLotizationAlgorithm;
+import algorithm.clusterVariation.ClusterAlgorithm;
 import algorithm.spineVariation.LSystemSpineAlgorithm;
+import algorithm.spineVariation.SpineAlgorithm;
 import algorithm.spineVariation.LSystemSpineAlgorithm;
 import helpers.base.MapHelper;
+import helpers.clusterVariation.ClusterDirectionHelper;
+import helpers.clusterVariation.ClusterTestPane;
 import helpers.clusterVariation.ClusterTester;
 import helpers.spineVariation.SpineDirectionHelper;
+import interfaces.clusterVariation.ClusterConfiguration;
 import interfaces.spineVariation.SpineConfiguration;
 import models.spineVariation.SpineLandPoint;
+import models.clusterVariation.ClusterLandPoint;
 import models.spineVariation.SpineLandMap;
 import models.spineVariation.SpineLandPoint;
 import models.spineVariation.SpineLandMap;
@@ -31,6 +37,9 @@ public class SpineTester {
 	public static void main(String[] argv){
 		long startTime = System.nanoTime();
 		//MAPA 1
+		Runtime runtime = Runtime.getRuntime();
+		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		
 		int large=1600+1,width=	700+1;
 		SpineLandMap spineLandMap = new SpineLandMap(large, width);
 		
@@ -53,29 +62,40 @@ public class SpineTester {
 		//landPoint = new SpineLandPoint(200,571);
 		landPoint = new SpineLandPoint(150,256);
 		entryPoints.add(landPoint);
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		
 		// replace this LSYSTEM  by For loop
 		LSystemSpineAlgorithm.landMap=spineLandMap;
+		SpineAlgorithm spineAlgorithm = new SpineAlgorithm();
+		spineAlgorithm.setLandMap(spineLandMap);
+		spineAlgorithm.setEntryX(150);
+		spineAlgorithm.setEntryY(256);
+		spineAlgorithm.setLarge(large);
 		for (SpineLandPoint entryPoint : entryPoints) {
-			int direction = SpineDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
+			int direction =SpineDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
 					spineLandMap.getCentroid());
-			LSystemSpineAlgorithm.createRouteVariation(entryPoint.getId(), direction,
-					SpineConfiguration.ARTERIAL_BRANCH);
+			spineAlgorithm.createRouteVariation(entryPoint.getId(), direction,SpineConfiguration.ARTERIAL_BRANCH);
 			break;
 		}
-		LSystemSpineAlgorithm.landMap.printMapToFileNew();
+		
+		//spineAlgorithm.clusterize();
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		
+		//spineAlgorithm.zonify();
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		//LSystemSpineAlgorithm.landMap.printMapToFileNew();
 		// 4. We clusterize the points
-		LSystemSpineAlgorithm.clusterize();
+		//LSystemSpineAlgorithm.clusterize();
 		//LSystemSpineAlgorithm.landMap.printMapToFileNew();
 		
 		// 5. Zonification
-		SpineLotizationAlgorithm.spineLandMap = LSystemSpineAlgorithm.landMap;
-		SpineLotizationAlgorithm.zonify(150,256-1,large);
+		//SpineLotizationAlgorithm.spineLandMap = LSystemSpineAlgorithm.landMap;
+		//SpineLotizationAlgorithm.zonify(150,256-1,large);
 		//SpineLotizationAlgorithm.zonify(31+1,353-1); //punto de inicio
 		
 
 		//LSystemSpineAlgorithm.landMap.printMapToFile();
-		SpineLotizationAlgorithm.spineLandMap.printMapToFileNew();
+		
 		//changeLbyE();
 		
 		long endTime = System.nanoTime();
@@ -85,18 +105,25 @@ public class SpineTester {
 		//String compressedString = ClusterLotizationAlgorithm.landMap.stringify();
 		//System.out.println("Compressed String lenght: " + compressedString.length());
 		
+		
+		
+		spineAlgorithm.getLandMap().printMapToFileNew();
+		
 		endTime = System.nanoTime();
 		duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
 		System.out.println("Response build finished in " + duration + "s");
 		
-		TestPane.spineLandMap = LSystemSpineAlgorithm.landMap;
-		TestPane.large = large;
-		TestPane.width = width;
-		new SpineTester();
+		//2 variants
+		SpineTestPane spineTestPane = new SpineTestPane(true,
+						spineAlgorithm.getLandMap().stringify(), large, width);		
+				//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
+				//clusterTestPane.large = large;
+				//clusterTestPane.width = width;
+		new SpineTester(spineTestPane);
 		
 		
 	}
-	public SpineTester() {
+	public SpineTester(SpineTestPane spineTestPane) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -109,7 +136,7 @@ public class SpineTester {
 				JFrame frame = new JFrame("Testing");
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setLayout(new BorderLayout());
-				JScrollPane scrPane = new JScrollPane(new TestPane());
+				JScrollPane scrPane = new JScrollPane(spineTestPane);
 				frame.add(scrPane); // similar to getContentPane().add(scrPane);
 
 				// frame.add(new TestPane());
@@ -118,92 +145,5 @@ public class SpineTester {
 				frame.setVisible(true);
 			}
 		});
-	}
-	public static class TestPane extends JPanel {
-		private static final long serialVersionUID = 1L;
-		public static SpineLandMap spineLandMap;
-		private int growtXY = 1;
-		public static int large = 35;
-		public static int width = 35;
-
-		@Override
-		public Dimension getPreferredSize() {
-			return new Dimension(large, width);
-		}
-
-		@Override
-		protected void paintComponent(Graphics g) {
-			super.paintComponent(g);
-			int growthX = 0, growthY = 0;
-			for (int y = spineLandMap.getPointsy() - 1; y >= 0; y--) {
-				for (int x = 0; x < spineLandMap.getPointsx(); x++) {
-					String type = spineLandMap.findPoint(MapHelper.formKey(x, y)).getType();
-					switch (type) {/* 39 + 40*0 | 0+ 40*1 */
-					case "a":
-					case "b":
-					case "c":
-					case "w":
-					case "t":
-						g.setColor(Color.GRAY);
-						break;
-					case "p":
-						g.setColor(Color.GREEN);
-						break;
-					case "l":
-						g.setColor(Color.RED);
-						break;
-					case "e":
-						g.setColor(Color.BLUE);
-						break;
-					case ".":
-					case "n":
-						g.setColor(Color.MAGENTA);
-						break;
-					case " ":
-						g.setColor(Color.WHITE);
-						break;
-					default: // is an avenue or a street
-						int houseLot = Integer.valueOf(type);
-						switch (houseLot % 9) {
-						case 1:
-							g.setColor(Color.BLACK);
-							break;
-						case 2:
-							g.setColor(Color.LIGHT_GRAY);
-							break;
-						case 3:
-							g.setColor(Color.CYAN);
-							break;
-						case 4:
-							g.setColor(Color.WHITE);
-							break;
-						case 5:
-							g.setColor(Color.YELLOW);
-							break;
-						case 6:
-							g.setColor(Color.decode("#472544"));
-							break;
-						case 7:
-							g.setColor(Color.ORANGE);
-							break;
-						case 8:
-							g.setColor(Color.BLUE);
-							break;
-						default:
-							g.setColor(Color.PINK);
-							break;
-						}
-
-						break;
-					}
-
-					g.fillRect(growthX, growthY, (growthX + growtXY), (growthY + growtXY));
-					growthX += growtXY;
-
-				}
-				growthX = 0;
-				growthY += growtXY;
-			}
-		}
 	}
 }
