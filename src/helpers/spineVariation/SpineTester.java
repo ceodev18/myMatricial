@@ -78,20 +78,19 @@ public class SpineTester {
 			break;
 		}
 		
-		//spineAlgorithm.clusterize();
-		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		
-		//spineAlgorithm.zonify();
-		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		//LSystemSpineAlgorithm.landMap.printMapToFileNew();
+		
+		
+		
 		// 4. We clusterize the points
-		//LSystemSpineAlgorithm.clusterize();
-		//LSystemSpineAlgorithm.landMap.printMapToFileNew();
+		spineAlgorithm.clusterize();
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+
 		
 		// 5. Zonification
-		//SpineLotizationAlgorithm.spineLandMap = LSystemSpineAlgorithm.landMap;
-		//SpineLotizationAlgorithm.zonify(150,256-1,large);
-		//SpineLotizationAlgorithm.zonify(31+1,353-1); //punto de inicio
+		spineAlgorithm.zonify();
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+
 		
 
 		//LSystemSpineAlgorithm.landMap.printMapToFile();
