@@ -102,13 +102,14 @@ public class SpineTestPane extends JPanel {
 
 	private void gramaticalSimulation(Graphics g) {
         Color color;
-        String[] mapLines = spineString.split("\\.");
+        String[] mapLines = spineString.split("\\|");
         int growthX = 0, growthY = 0;
         for (int y = mapLines.length - 1; y >= 0; y--) {
             String [] lineSymbol = mapLines[y].split("\\,");
             int growtXY = 1;
             for (int x = 0; x < lineSymbol.length; x++) {
                 String type = String.valueOf(lineSymbol[x].charAt(0));
+                                
                 switch (type) {/* 39 + 40*0 | 0+ 40*1 */
                     case "a":
                     case "b":
@@ -121,16 +122,20 @@ public class SpineTestPane extends JPanel {
                         color = Color.GREEN;
                         break;
                     case "l":
-                        color = Color.RED;
-                        break;
                     case "e":
                     case "n":
                         color = Color.MAGENTA;
                         break;
+                    case ".":
+                        color = Color.WHITE;
                     case " ":
                         color = Color.WHITE;
                         break;
+                    case "z":
+                        color = Color.YELLOW;
+                        break;
                     default: // is an avenue or a street
+                        System.out.println("With type=" + type + " Christian error " + lineSymbol[x]);
                         int houseLot = Integer.valueOf(type);
                         switch (houseLot % 4) {
                             case 0:

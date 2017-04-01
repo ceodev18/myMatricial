@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import algorithm.spineVariation.LSystemSpineAlgorithm;
 import helpers.base.MapHelper;
+import helpers.clusterVariation.ClusterMapHelper;
 import helpers.spineVariation.SpineDirectionHelper;
 import helpers.spineVariation.SpineMapHelper;
 import interfaces.spineVariation.SpineConfiguration;
@@ -1296,15 +1297,15 @@ public class SpineLandMap {
 	public String stringify() {
 		String mapString = "";
 		for (int j = pointsy - 1; j >= 0; j--) {
-			String type = getLandPoint(SpineMapHelper.formKey(0, j)).getType();
+			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
 			int repetitions = 1;
 			for (int i = 1; i < pointsx; i++) {
-				if (type.equals(getLandPoint(SpineMapHelper.formKey(i, j)).getType())) {
+				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
 					repetitions++;
 				} else {
 					mapString += type + "" + repetitions + ",";
 					repetitions = 1;
-					type = getLandPoint(SpineMapHelper.formKey(i, j)).getType();
+					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
 				}
 			}
 			mapString += type + "" + repetitions + ",";
