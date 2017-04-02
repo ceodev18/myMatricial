@@ -69,7 +69,7 @@ public class ClusterLandPoint {
 
 	public int findDirection(ClusterLandPoint mainRouteExit) {
 		int xDiff = mainRouteExit.getX() - this.getX();
-		int yDiff = mainRouteExit.getX() - this.getY();
+		int yDiff = mainRouteExit.getY() - this.getY();
 
 		if (yDiff > 0) {
 			return ClusterConstants.NORTH;

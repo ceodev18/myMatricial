@@ -1,7 +1,6 @@
-package helpers.RadialVariation;
+package helpers.radialVariation;
 
-import interfaces.spineVariation.SpineConstants;
-
+import interfaces.radialVariation.RadialConstants;
 public class RadialMapHelper {
 	public static int formKey(int x, int y) {
 		return x * 10000 + y;
@@ -17,13 +16,13 @@ public class RadialMapHelper {
 	public static int moveKeyByOffsetAndDirection(int entryPointId, int size, int direction) {
 		int[] xy = breakKey(entryPointId);
 		switch (direction) {
-		case SpineConstants.NORTH:
+		case RadialConstants.NORTH:
 			return formKey(xy[0], xy[1] + size);
-		case SpineConstants.SOUTH:
+		case RadialConstants.SOUTH:
 			return formKey(xy[0], xy[1] - size);
-		case SpineConstants.EAST:
+		case RadialConstants.EAST:
 			return formKey(xy[0] + size, xy[1]);
-		case SpineConstants.WEST:
+		case RadialConstants.WEST:
 			return formKey(xy[0] - size, xy[1]);
 		}
 		return -1;
@@ -31,16 +30,16 @@ public class RadialMapHelper {
 
 	public static int[] moveKeyByOffsetAndDirection(int[] xy, int size, int direction) {
 		switch (direction) {
-		case SpineConstants.NORTH:
+		case RadialConstants.NORTH:
 			xy[1] = xy[1] + size;
 			return xy;
-		case SpineConstants.SOUTH:
+		case RadialConstants.SOUTH:
 			xy[1] = xy[1] - size;
 			return xy;
-		case SpineConstants.EAST:
+		case RadialConstants.EAST:
 			xy[0] = xy[0] + size;
 			return xy;
-		case SpineConstants.WEST:
+		case RadialConstants.WEST:
 			xy[0] = xy[0] - size;
 			return xy;
 		}
@@ -63,7 +62,7 @@ public class RadialMapHelper {
 	 * */
 	public static int[] moveKeyByGradientAndOffset(int[] currentXY, int[] finalXY, int size, Double gradient,
 			double offset, int direction) {
-		if((direction == SpineConstants.WEST) || (direction == SpineConstants.EAST)){
+		if((direction == RadialConstants.WEST) || (direction == RadialConstants.EAST)){
 			double[] newXY = new double[2];
 			newXY[0] = currentXY[0] - size;
 			newXY[1] = (int) (gradient * newXY[0] + offset);

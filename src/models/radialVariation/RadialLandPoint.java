@@ -1,16 +1,17 @@
-package models.RadialVariation;
+package models.radialVariation;
 
-import helpers.clusterVariation.ClusterMapHelper;
+import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 import interfaces.radialVariation.RadialConstants;
+import models.radialVariation.RadialLandPoint;
 
 public class RadialLandPoint {
 	private int id = -1;
 	private int x = -1;
 	private int y = -1;
-	private String type = RadialConfiguration.EMPTY_MARK;
+	private String type = RadialConfiguration.OUTSIDE_POLYGON_MARK;
 	private int nodeType;
-    public RadialLandPoint(int x, int y) {
+	public RadialLandPoint(int x, int y){
 		this.x = x;
 		this.y = y;
 		this.id = x * 10000 + y; /* Result space = y: 0 -9999 y x = 0 9999 */
@@ -55,20 +56,20 @@ public class RadialLandPoint {
 	public int findNeighbour(int direction) {
 		switch (direction) {
 		case RadialConstants.EAST:
-			return ClusterMapHelper.formKey(x + 1, y);
+			return RadialMapHelper.formKey(x + 1, y);
 		case RadialConstants.WEST:
-			return ClusterMapHelper.formKey(x - 1, y);
+			return RadialMapHelper.formKey(x - 1, y);
 		case RadialConstants.NORTH:
-			return ClusterMapHelper.formKey(x, y - 1);
+			return RadialMapHelper.formKey(x, y - 1);
 		case RadialConstants.SOUTH:
-			return ClusterMapHelper.formKey(x, y + 1);
+			return RadialMapHelper.formKey(x, y + 1);
 		}
 		return -1;
 	}
 
 	public int findDirection(RadialLandPoint mainRouteExit) {
 		int xDiff = mainRouteExit.getX() - this.getX();
-		int yDiff = mainRouteExit.getX() - this.getY();
+		int yDiff = mainRouteExit.getY() - this.getY();
 
 		if (yDiff > 0) {
 			return RadialConstants.NORTH;

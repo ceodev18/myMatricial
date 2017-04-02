@@ -1,6 +1,5 @@
-package models.RadialVariation;
+package models.radialVariation;
 
-import java.awt.Polygon;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,18 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import helpers.base.MapHelper;
-import helpers.RadialVariation.RadialDirectionHelper;
-import helpers.RadialVariation.RadialMapHelper;
-import interfaces.radialVariation.RadialConfiguration;
+
+import helpers.radialVariation.RadialDirectionHelper;
+import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 import interfaces.radialVariation.RadialConstants;
-import models.RadialVariation.RadialBuilding;
-import models.RadialVariation.RadialLandPoint;
-import models.RadialVariation.RadialLandRoute;
-import models.RadialVariation.RadialPolygon;
-import models.RadialVariation.RadialLandPoint;
-import models.RadialVariation.RadialLandRoute;
+
 
 public class RadialLandMap {
 	private int pointsx = -1;
@@ -165,23 +158,23 @@ public class RadialLandMap {
 					for (int z = initialLandPoint.getY() - 1; z >= finalLandPoint.getY() + 1; z--) {
 						if (wi != wf) {
 							if (isPolygonBorder(wi, z)) {
-								polygonRow.add(MapHelper.formKey(wi, z));
+								polygonRow.add(RadialMapHelper.formKey(wi, z));
 							}
 						}
 
 						if (isPolygonBorder(wf, z)) {
-							polygonRow.add(MapHelper.formKey(wf, z));
+							polygonRow.add(RadialMapHelper.formKey(wf, z));
 						}
 					}
 				} else {
 					for (int z = initialLandPoint.getY() + 1; z <= finalLandPoint.getY() - 1; z++) {
 						if (wi != wf) {
 							if (isPolygonBorder(wi, z)) {
-								polygonRow.add(MapHelper.formKey(wi, z));
+								polygonRow.add(RadialMapHelper.formKey(wi, z));
 							}
 						}
 						if (isPolygonBorder(wf, z)) {
-							polygonRow.add(MapHelper.formKey(wf, z));
+							polygonRow.add(RadialMapHelper.formKey(wf, z));
 						}
 					}
 				}
@@ -192,15 +185,16 @@ public class RadialLandMap {
 	}
 
 	private boolean isPolygonBorder(int x, int y) {
-		int easternLimit = x+1;
-		int westernLimit = x-1;
-		int southLimit = y-1;
-		int northLimit = y+1;
-		
-		if(westernLimit == -1 || easternLimit ==pointsx || southLimit==-1 || northLimit==pointsy)return false;
-		return (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)
-				|| findPoint(MapHelper.formKey(x + 1, y)).getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK))
-				&& !findPoint(MapHelper.formKey(x, y)).getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK);
+		int easternLimit = x + 1;
+		int westernLimit = x - 1;
+		int southLimit = y - 1;
+		int northLimit = y + 1;
+
+		if (westernLimit == -1 || easternLimit == pointsx || southLimit == -1 || northLimit == pointsy)
+			return false;
+		return (findPoint(RadialMapHelper.formKey(x - 1, y)).getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)
+				|| findPoint(RadialMapHelper.formKey(x + 1, y)).getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK))
+				&& !findPoint(RadialMapHelper.formKey(x, y)).getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK);
 	}
 
 	private void fillPolygonalArea() {
@@ -297,35 +291,13 @@ public class RadialLandMap {
 
 	public void printMapToFile() {
 		try {
-			
-			
 			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
 			for (int j = pointsy - 1; j >= 0; j--) {
 				for (int i = 0; i < pointsx; i++) {
-				writer.print(getLandPoint(RadialMapHelper.formKey(i, j)).getType());
-					} 	
+					writer.print(getLandPoint(RadialMapHelper.formKey(i, j)).getType());
 				}
 				writer.println();
-			
-			writer.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}public void printMapToFileCentroid(int x, int y) {
-		try {
-			
-			PrintWriter writer = new PrintWriter("printed-map radial.txt", "UTF-8");
-			for (int j = pointsy - 1; j >= 0; j--) {
-				for (int i = 0; i < pointsx; i++) {
-					//if (j==y && i==x) writer.print(getCentroid(RadialConfiguration.CENTROID));
-					if (j==y && i==x) writer.print("P"); 
-					else 
-				      writer.print(getLandPoint(RadialMapHelper.formKey(i, j)).getType());
-					} 	
-				}
-				writer.println();
-			
+			}
 			writer.close();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -567,10 +539,6 @@ public class RadialLandMap {
 		return RadialPolygon;
 	}
 
-	/**
-	 * TODO not squared components Lotization procedure completed for all square
-	 * like components
-	 */
 	public Object lotize(List<Integer> list, int direction, int beginning) {
 		if (beginning >= list.size()) {
 			return 0;
@@ -583,21 +551,21 @@ public class RadialLandMap {
 		Double gradient = (currentXY[1] - finalXY[1]) * 1.0 / (currentXY[0] - finalXY[0]);
 		double offset = finalXY[1] - gradient * finalXY[0];
 		if (direction == RadialConstants.EAST || direction == RadialConstants.WEST) {
-			if (gradient.doubleValue() == 0.0) {
+			if (gradient.doubleValue() == 0.0) {// perfect case
 				currentXY[0] = direction == RadialConstants.EAST ? currentXY[0] + 1 : currentXY[0];
-				RadialBuilding clusterBuilding = createWalkRoute(currentXY, false, direction, beginning);
-				if (clusterBuilding != null) {
+				RadialBuilding RadialBuilding = createWalkRoute(currentXY, false, direction, beginning);
+				if (RadialBuilding != null) {
 					currentXY = RadialMapHelper.moveKeyByOffsetAndDirection(currentXY,
 							RadialConfiguration.WALK_BRANCH_SIZE, direction);
 				}
 
 				finalXY[0] = direction == RadialConstants.EAST ? finalXY[0] : finalXY[0] + 1;
-				clusterBuilding = createWalkRoute(finalXY, true, direction, beginning);
-				if (clusterBuilding != null) {
+				RadialBuilding = createWalkRoute(finalXY, true, direction, beginning);
+				if (RadialBuilding != null) {
 					finalXY = RadialMapHelper.moveKeyByOffsetAndDirection(finalXY,
 							RadialConfiguration.WALK_BRANCH_SIZE, RadialDirectionHelper.oppositeDirection(direction));
 				}
-			} else {
+			} else {// imperfect case
 				notUniform = true;
 				currentXY = createNonOrthogonalWalkRoute(list.get(beginning), list.get((beginning + 1) % list.size()),
 						finalXY, false, gradient);
@@ -610,19 +578,37 @@ public class RadialLandMap {
 				// means it is a route connection and a perfect one at it in
 				// this initial case is neccesary to find the intermediate point
 				// - 6 to make
-				createClusterEntrance(currentXY, finalXY, direction);
+				createRadialEntrance(currentXY, finalXY, direction);
+				finalXY = RadialMapHelper.moveKeyByOffsetAndDirection(finalXY,
+						RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
+				currentXY = RadialMapHelper.moveKeyByOffsetAndDirection(currentXY,
+						RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+						RadialDirectionHelper.oppositeDirection(direction));
 			} else {
 				notUniform = true;
-				createNonOrthogonalClusterEntrance(currentXY, finalXY, direction, gradient);
+				createNonOrthogonalRadialEntrance(currentXY, finalXY, direction, gradient);
+				// TODO currentXY and finalXY move to occupy all side
 			}
 		}
 
+		int maxNumberofRepetitions =0, repetitions = 0;
+		if(notUniform){
+			maxNumberofRepetitions = (int) Math.sqrt(Math.pow(currentXY[0]-finalXY[0], 2)+Math.pow(currentXY[1]-finalXY[1], 2));
+		}
 		while (true) {
 			boolean done = false;
 			if ((direction == RadialConstants.EAST) || (direction == RadialConstants.NORTH))
 				done = currentXY[0] >= finalXY[0] && currentXY[1] >= finalXY[1];
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
+
+			// TODO eliminate this. There was a problem with the detection of
+			// problems lol when there is a view like this.
+			if (notUniform){
+				if(maxNumberofRepetitions == repetitions){
+					done = true;
+				}
+			}
 
 			if (done) {
 				if (notUniform) {
@@ -669,6 +655,7 @@ public class RadialLandMap {
 							direction);
 				}
 			}
+			repetitions++;
 		}
 	}
 
@@ -739,10 +726,10 @@ public class RadialLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							String type = findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
-							if (type.equals(RadialConfiguration.CLUSTER_ENTRANCE_MARK))
+							if (!type.equals(RadialConfiguration.EMPTY_MARK))
 								return false;
 						}
 					}
@@ -758,10 +745,10 @@ public class RadialLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							String type = findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
-							if (type.equals(RadialConfiguration.CLUSTER_ENTRANCE_MARK))
+							if (!type.equals(RadialConfiguration.EMPTY_MARK))
 								return false;
 						}
 					}
@@ -781,9 +768,9 @@ public class RadialLandMap {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
-				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).getType();
-					if (type.equals(RadialConfiguration.CLUSTER_ENTRANCE_MARK))
+				if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+					String type = findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1])).getType();
+					if (!type.equals(RadialConfiguration.EMPTY_MARK))
 						return false;
 				}
 			}
@@ -863,8 +850,8 @@ public class RadialLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+						if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 						}
 					}
 					countYFactor++;
@@ -879,8 +866,8 @@ public class RadialLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+						if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 						}
 					}
 					countYFactor++;
@@ -899,8 +886,8 @@ public class RadialLandMap {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
-				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+				if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+					findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 				}
 			}
 			countYFactor++;
@@ -911,7 +898,7 @@ public class RadialLandMap {
 		}
 	}
 
-	private void createNonOrthogonalClusterEntrance(int[] beginXY, int[] finalXY, int direction, Double gradient) {
+	private void createNonOrthogonalRadialEntrance(int[] beginXY, int[] finalXY, int direction, Double gradient) {
 		int[] tbXY = new int[2];
 		int[] tfXY = new int[2];
 		double offset = -gradient * beginXY[0] + beginXY[1];
@@ -919,7 +906,7 @@ public class RadialLandMap {
 		boolean inverse = false;
 		boolean isUpDown = false;
 
-		if (distance < RadialConfiguration.CLUSTER_ENTRANCE_SIZE) {
+		if (distance < RadialConfiguration.RADIAL_ENTRANCE_SIZE) {
 			return;
 		}
 
@@ -927,14 +914,14 @@ public class RadialLandMap {
 			tbXY[1] = (int) (beginXY[1] + (distance) / 2);
 			tbXY[0] = (int) ((tbXY[1] - offset) / gradient);
 
-			tfXY[1] = (int) (finalXY[1] - (distance / 2 - RadialConfiguration.CLUSTER_ENTRANCE_SIZE));
+			tfXY[1] = (int) (finalXY[1] - (distance / 2 - RadialConfiguration.RADIAL_ENTRANCE_SIZE));
 			tfXY[0] = (int) ((tfXY[1] - offset) / gradient);
 		} else {
 			isUpDown = true;
 			tbXY[1] = (int) (finalXY[1] + (distance) / 2);
 			tbXY[0] = (int) ((tbXY[1] - offset) / gradient);
 
-			tfXY[1] = (int) (beginXY[1] - (distance / 2 - RadialConfiguration.CLUSTER_ENTRANCE_SIZE));
+			tfXY[1] = (int) (beginXY[1] - (distance / 2 - RadialConfiguration.RADIAL_ENTRANCE_SIZE));
 			tfXY[0] = (int) ((tfXY[1] - offset) / gradient);
 		}
 
@@ -964,7 +951,7 @@ public class RadialLandMap {
 		int countYFactor = 0;
 		int oldVariation = -1;
 
-		for (int j = 0; j < RadialConfiguration.CLUSTER_ENTRANCE_SIZE; j++) {
+		for (int j = 0; j < RadialConfiguration.RADIAL_ENTRANCE_SIZE; j++) {
 			currentXY[0] = tbXY[0] + j;
 			currentXY[1] = (int) (gradient * currentXY[0] + offset);
 			// orthogonalOffset = -orthogonalGradient * currentXY[0] +
@@ -977,13 +964,13 @@ public class RadialLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
-									.setType(RadialConfiguration.CLUSTER_ENTRANCE_MARK);
+						if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))
+									.setType(RadialConfiguration.RADIAL_ENTRANCE_MARK);
 						}
 					}
 					countYFactor++;
-					if (countYFactor == RadialConfiguration.CLUSTER_ENTRANCE_SIZE) {
+					if (countYFactor == RadialConfiguration.RADIAL_ENTRANCE_SIZE) {
 						break;
 					}
 				}
@@ -994,19 +981,19 @@ public class RadialLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
-									.setType(RadialConfiguration.CLUSTER_ENTRANCE_MARK);
+						if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))
+									.setType(RadialConfiguration.RADIAL_ENTRANCE_MARK);
 						}
 					}
 					countYFactor++;
-					if (countYFactor == RadialConfiguration.CLUSTER_ENTRANCE_SIZE) {
+					if (countYFactor == RadialConfiguration.RADIAL_ENTRANCE_SIZE) {
 						break;
 					}
 				}
 			}
 
-			if (countYFactor == RadialConfiguration.CLUSTER_ENTRANCE_SIZE) {
+			if (countYFactor == RadialConfiguration.RADIAL_ENTRANCE_SIZE) {
 				break;
 			}
 
@@ -1015,13 +1002,13 @@ public class RadialLandMap {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
-				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
-							.setType(RadialConfiguration.CLUSTER_ENTRANCE_MARK);
+				if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+					findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))
+							.setType(RadialConfiguration.RADIAL_ENTRANCE_MARK);
 				}
 			}
 			countYFactor++;
-			if (countYFactor == RadialConfiguration.CLUSTER_ENTRANCE_SIZE) {
+			if (countYFactor == RadialConfiguration.RADIAL_ENTRANCE_SIZE) {
 				break;
 			}
 			oldVariation = (int) currentXY[1];
@@ -1030,7 +1017,7 @@ public class RadialLandMap {
 
 	private int[] createNonOrthogonalWalkRoute(Integer initialPoint, Integer finalPoint, int[] beginXY, boolean inverse,
 			Double gradient) {
-		// f lines are perpendicular, M1× M2 = − 1
+		// f lines are perpendicular, M1ﾃ� M2 = 竏� 1
 		double offset = -gradient * beginXY[0] + beginXY[1];
 
 		double orthogonalGradient = -1 / gradient;
@@ -1077,7 +1064,7 @@ public class RadialLandMap {
 				variation[1] = currentXY[1] + (!down ? i : -i);
 				variation[0] = (variation[1] - orthogonalOffset) / orthogonalGradient;
 				if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+					findPoint(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))
 							.setType(RadialConfiguration.WALK_MARK);
 				}
 			}
@@ -1089,37 +1076,37 @@ public class RadialLandMap {
 		return currentXY;
 	}
 
-	private void createClusterEntrance(int[] currentXY, int[] finalXY, int direction) {
+	private void createRadialEntrance(int[] currentXY, int[] finalXY, int direction) {
 		// NORTH then it goes toward x+
 		// SOUTH toward x-
 		// given that x is the same, y is our indicator for the middle
 		int upperMiddle[] = new int[2];
 		upperMiddle[0] = currentXY[0];
-		upperMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) + (RadialConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
+		upperMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) + (RadialConfiguration.RADIAL_ENTRANCE_SIZE) / 2;
 
 		int lowerMiddle[] = new int[2];
 		lowerMiddle[0] = currentXY[0];
-		lowerMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) - (RadialConfiguration.CLUSTER_ENTRANCE_SIZE) / 2;
+		lowerMiddle[1] = ((currentXY[1] + finalXY[1]) / 2) - (RadialConfiguration.RADIAL_ENTRANCE_SIZE) / 2;
 
 		if ((direction == RadialConstants.NORTH) && (lowerMiddle[1] < currentXY[1] || upperMiddle[1] > finalXY[1]))
 			return;
 		else if ((direction == RadialConstants.SOUTH)
 				&& (lowerMiddle[1] > currentXY[1] || upperMiddle[1] < finalXY[1]))
 			return;
-		createInsideClusterRoute(upperMiddle, RadialMapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction,
+		createInsideRadialRoute(upperMiddle, RadialMapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction,
 				RadialConfiguration.WALK_BRANCH, RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
-				RadialConfiguration.CLUSTER_ENTRANCE_MARK);
+				RadialConfiguration.RADIAL_ENTRANCE_MARK);
 	}
 
 	private RadialBuilding createWalkRoute(int[] currentXY, boolean isInverse, int direction, int rotation) {
 		if (isInverse) {
-			return createInsideClusterRoute(currentXY,
+			return createInsideRadialRoute(currentXY,
 					RadialMapHelper.moveKeyByOffsetAndDirection(RadialMapHelper.formKey(currentXY[0], currentXY[1]),
 							RadialConfiguration.WALK_BRANCH_SIZE, RadialDirectionHelper.oppositeDirection(direction)),
 					direction, RadialConfiguration.WALK_BRANCH, RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
 					RadialConfiguration.WALK_MARK);
 		} else {
-			return createInsideClusterRoute(currentXY,
+			return createInsideRadialRoute(currentXY,
 					RadialMapHelper.moveKeyByOffsetAndDirection(RadialMapHelper.formKey(currentXY[0], currentXY[1]),
 							RadialConfiguration.WALK_BRANCH_SIZE, direction),
 					direction, RadialConfiguration.WALK_BRANCH, RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
@@ -1134,7 +1121,7 @@ public class RadialLandMap {
 				for (int j = currentXY[1]; j > currentXY[1] - doublehouseDepthSize; j--) {
 					if (landPointisOnMap(RadialMapHelper.formKey(i, j))) {
 						String type = findPoint(RadialMapHelper.formKey(i, j)).getType();
-						if (type.equals(RadialConfiguration.CLUSTER_ENTRANCE_MARK)) {
+						if (type.equals(RadialConfiguration.RADIAL_ENTRANCE_MARK)||type.equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)) {
 							return false;
 						}
 					} else {
@@ -1148,7 +1135,7 @@ public class RadialLandMap {
 				for (int j = currentXY[0]; j < currentXY[0] + doublehouseDepthSize; j++) {
 					if (landPointisOnMap(RadialMapHelper.formKey(j, i))) {
 						String type = findPoint(RadialMapHelper.formKey(j, i)).getType();
-						if (type.equals(RadialConfiguration.CLUSTER_ENTRANCE_MARK)) {
+						if (type.equals(RadialConfiguration.RADIAL_ENTRANCE_MARK)||type.equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)) {
 							return false;
 						}
 					} else {
@@ -1162,7 +1149,7 @@ public class RadialLandMap {
 				for (int j = currentXY[1]; j < currentXY[1] + doublehouseDepthSize; j++) {
 					if (landPointisOnMap(RadialMapHelper.formKey(i, j))) {
 						String type = findPoint(RadialMapHelper.formKey(i, j)).getType();
-						if (type.equals(RadialConfiguration.CLUSTER_ENTRANCE_MARK)) {
+						if (type.equals(RadialConfiguration.RADIAL_ENTRANCE_MARK)||type.equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)) {
 							return false;
 						}
 					} else {
@@ -1176,7 +1163,7 @@ public class RadialLandMap {
 				for (int j = currentXY[0]; j > currentXY[0] - doublehouseDepthSize; j--) {
 					if (landPointisOnMap(RadialMapHelper.formKey(j, i))) {
 						String type = findPoint(RadialMapHelper.formKey(j, i)).getType();
-						if (type.equals(RadialConfiguration.CLUSTER_ENTRANCE_MARK)) {
+						if (type.equals(RadialConfiguration.RADIAL_ENTRANCE_MARK)||type.equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)) {
 							return false;
 						}
 					} else {
@@ -1239,7 +1226,7 @@ public class RadialLandMap {
 		}
 	}
 
-	private RadialBuilding createInsideClusterRoute(int[] currentXY, int finalKey, int direction, int type, int depth,
+	private RadialBuilding createInsideRadialRoute(int[] currentXY, int finalKey, int direction, int type, int depth,
 			String markType) {
 		int[] finalXY = RadialMapHelper.breakKey(finalKey);
 		int lower, upper;
@@ -1311,7 +1298,7 @@ public class RadialLandMap {
 				}
 			}
 			mapString += type + "" + repetitions + ",";
-			mapString += "|";
+			mapString += ".";
 		}
 		return mapString;
 	}

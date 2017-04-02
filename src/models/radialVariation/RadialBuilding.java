@@ -1,7 +1,8 @@
-package models.RadialVariation;
+package models.radialVariation;
 
 import java.util.ArrayList;
 import java.util.List;
+
 
 public class RadialBuilding {
 

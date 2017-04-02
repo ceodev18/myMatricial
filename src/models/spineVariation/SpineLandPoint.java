@@ -1,6 +1,6 @@
 package models.spineVariation;
 
-import helpers.clusterVariation.ClusterMapHelper;
+import helpers.spineVariation.SpineMapHelper;
 import interfaces.spineVariation.SpineConfiguration;
 import interfaces.spineVariation.SpineConstants;
 import models.clusterVariation.ClusterLandPoint;
@@ -56,20 +56,20 @@ public class SpineLandPoint {
 	public int findNeighbour(int direction) {
 		switch (direction) {
 		case SpineConstants.EAST:
-			return ClusterMapHelper.formKey(x + 1, y);
+			return SpineMapHelper.formKey(x + 1, y);
 		case SpineConstants.WEST:
-			return ClusterMapHelper.formKey(x - 1, y);
+			return SpineMapHelper.formKey(x - 1, y);
 		case SpineConstants.NORTH:
-			return ClusterMapHelper.formKey(x, y - 1);
+			return SpineMapHelper.formKey(x, y - 1);
 		case SpineConstants.SOUTH:
-			return ClusterMapHelper.formKey(x, y + 1);
+			return SpineMapHelper.formKey(x, y + 1);
 		}
 		return -1;
 	}
 
 	public int findDirection(ClusterLandPoint mainRouteExit) {
 		int xDiff = mainRouteExit.getX() - this.getX();
-		int yDiff = mainRouteExit.getX() - this.getY();
+		int yDiff = mainRouteExit.getY() - this.getY();
 
 		if (yDiff > 0) {
 			return SpineConstants.NORTH;

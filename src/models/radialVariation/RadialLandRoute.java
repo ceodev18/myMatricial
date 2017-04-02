@@ -1,20 +1,13 @@
-package models.RadialVariation;
+package models.radialVariation;
 
-import interfaces.Constants;
+import interfaces.radialVariation.RadialConstants;
+
 
 public class RadialLandRoute {
-	private int type = Constants.ARTERIAL_BRANCH;
 	private int initialPointId = -1;
 	private int finalPointId = -1;
-	private int direction = Constants.ORTHOGONAL;
-	private int extension = 0;
+	private int direction = RadialConstants.ORTHOGONAL;
 	
-	public int getType() {
-		return type;
-	}
-	public void setType(int branchType) {
-		this.type = branchType;
-	}
 	public int getInitialPointId() {
 		return initialPointId;
 	}
@@ -26,12 +19,6 @@ public class RadialLandRoute {
 	}
 	public void setDirection(int direction) {
 		this.direction = direction;
-	}
-	public int getExtension() {
-		return extension;
-	}
-	public void setExtension(int extension) {
-		this.extension = extension;
 	}
 	public int getFinalPointId() {
 		return finalPointId;

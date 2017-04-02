@@ -1,12 +1,10 @@
-package helpers.RadialVariation;
-
+package helpers.radialVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-import helpers.RadialVariation.RadialMapHelper;
-import interfaces.radialVariation.RadialConstants;
-import models.RadialVariation.RadialLandPoint;
 
+import interfaces.radialVariation.RadialConstants;
+import models.radialVariation.RadialLandPoint;
 public class RadialDirectionHelper {
 	public static List<Integer> orthogonalDirections(final int direction) {
 		List<Integer> directions = new ArrayList<>();
