@@ -10,12 +10,12 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-//import algorithm.radialVariation.RadialAlgorithm;
+
+import algorithm.radialVariation.radialAlgorithm;
 import helpers.radialVariation.RadialDirectionHelper;
 import helpers.radialVariation.RadialTestPane;
 import helpers.radialVariation.RadialTester;
 import interfaces.radialVariation.RadialConfiguration;
-import models.clusterVariation.ClusterLandPoint;
 import models.radialVariation.RadialLandMap;
 import models.radialVariation.RadialLandPoint;
 
@@ -48,11 +48,62 @@ public class RadialTester {
 		landMap.createBorderFromPolygon(polygon);
 		
 		List<RadialLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new RadialLandPoint(208, 146);
+		landPoint = new RadialLandPoint(468, 88);
 		entryPoints.add(landPoint);
 		
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
+		/*
+		radialAlgorithm radialAlgorithm = new radialAlgorithm();
+		radialAlgorithm.setLandMap(landMap);
+
+		
+		for (RadialLandPoint entryPoint : entryPoints) {
+			int direction = RadialDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
+					landMap.getCentroid());
+			radialAlgorithm.createRouteVariation(entryPoint.getId(), direction, RadialConfiguration.ARTERIAL_BRANCH);
+			break;
+		}
+		*/
 		landMap.printMapToFile();
 
+		
+		///////////////////////////////////
+		
+		/*
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
+
+		long endTime = System.nanoTime();
+		long duration = (endTime - startTime) / (1000000 * 1000); // divide by
+																	// to get
+																	// milliseconds.
+		System.out.println("Algorithm finished in " + duration + "s");
+		// ClusterLotizationAlgorithm.landMap.printMapToFile();
+
+		RadialAlgorithm.getLandMap().printMapToFile();
+		
+		// System.out.println("Compressed String lenght: " +
+		// compressedString.length());
+
+		endTime = System.nanoTime();
+		duration = (endTime - startTime) / (1000000 * 1000); // divide by to get
+																// milliseconds.
+		System.out.println("Response build finished in " + duration + "s");
+
+		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Final Memory" + usedMemoryBefore / 1000000 + " in MB");
+
+
+		//2 variants
+		ClusterTestPane clusterTestPane = new ClusterTestPane(true,
+				RadialAlgorithm.getLandMap().stringify(), large, width);		
+		//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
+		//clusterTestPane.large = large;
+		//clusterTestPane.width = width;
+		new ClusterTester(clusterTestPane);
+		
+	*/
 	
 	}
 	public RadialTester(RadialTestPane clusterTestPane) {
