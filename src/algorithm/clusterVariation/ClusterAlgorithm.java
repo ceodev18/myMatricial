@@ -30,9 +30,19 @@ public class ClusterAlgorithm {
 		// collector running orthogonal to the main
 		List<Integer> orthogonalDirections = ClusterDirectionHelper.orthogonalDirections(mainRoute.getDirection());
 		int entryPointId = mainRoute.getInitialPointId();
+		if(mainRoute.getDirection()==ClusterConstants.EAST || mainRoute.getDirection()== ClusterConstants.WEST){
+			int [] xy = ClusterMapHelper.breakKey(entryPointId);
+			xy[0] = 1;
+			entryPointId = ClusterMapHelper.formKey(xy[0], xy[1]);
+		} else {
+			int [] xy = ClusterMapHelper.breakKey(entryPointId);
+			xy[1] = 1;
+			entryPointId = ClusterMapHelper.formKey(xy[0], xy[1]);
+		}
+		
 		while (true) {
 			entryPointId = ClusterMapHelper.moveKeyByOffsetAndDirection(entryPointId,
-					ClusterConfiguration.BASE_CLUSTER_SIZE + ClusterConfiguration.COLLECTOR_BRANCH_SIZE,
+					ClusterConfiguration.BASE_CLUSTER_SIZE,
 					mainRoute.getDirection());
 			if (landMap.landPointisOnMap(entryPointId)) {
 				createRouteVariation(entryPointId, orthogonalDirections.get(0), ClusterConfiguration.COLLECTOR_BRANCH);
