@@ -63,7 +63,7 @@ public class ClusterAlgorithm {
 		int lowerParallelId = mainRoute.getInitialPointId();
 		boolean first = true;
 		while (true) {
-			int extraSpace = first ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE : 0;
+			int extraSpace = first ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE-12 : 0;
 			first = false;
 			lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
 					ClusterConfiguration.BASE_CLUSTER_SIZE + extraSpace, orthogonalDirections.get(1));
