@@ -902,20 +902,18 @@ public class ClusterLandMap {
 		double offset = -gradient * beginXY[0] + beginXY[1];
 		double distance = Math.sqrt(0 + Math.pow(beginXY[1] - finalXY[1], 2));
 		boolean inverse = false;
-		boolean isUpDown = false;
 
 		if (distance < ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) {
 			return;
 		}
 
-		if (beginXY[1] < finalXY[1]) {
+		if (direction == ClusterConstants.SOUTH) {
 			tbXY[1] = (int) (beginXY[1] + (distance) / 2);
 			tbXY[0] = (int) ((tbXY[1] - offset) / gradient);
 
 			tfXY[1] = (int) (finalXY[1] - (distance / 2 - ClusterConfiguration.CLUSTER_ENTRANCE_SIZE));
 			tfXY[0] = (int) ((tfXY[1] - offset) / gradient);
 		} else {
-			isUpDown = true;
 			tbXY[1] = (int) (finalXY[1] + (distance) / 2);
 			tbXY[0] = (int) ((tbXY[1] - offset) / gradient);
 
@@ -941,9 +939,7 @@ public class ClusterLandMap {
 
 		if (tbXY[1] > tfXY[1])
 			return;
-
-		// double orthogonalGradient = -1 / gradient;
-		// double orthogonalOffset = -orthogonalGradient * tbXY[0] + tbXY[1];
+		
 		double variation[] = new double[2];
 		int[] currentXY = new int[2];
 		int countYFactor = 0;
