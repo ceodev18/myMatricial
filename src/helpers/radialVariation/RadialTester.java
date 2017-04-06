@@ -27,11 +27,12 @@ public class RadialTester {
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
 
-		int large = 950, width = 750;
+		int large = 925, width = 1130;
+		//int large = 950, width = 750;
 		// 1. We create the map and set its intrinsec variables
 		RadialLandMap landMap = new RadialLandMap(large, width);
 		List<RadialLandPoint> polygon = new ArrayList<>();
-		RadialLandPoint landPoint = new RadialLandPoint(450,48);
+		/*RadialLandPoint landPoint = new RadialLandPoint(450,48);
 		polygon.add(landPoint);
 		landPoint = new RadialLandPoint(908, 286);
 		polygon.add(landPoint);
@@ -44,6 +45,22 @@ public class RadialTester {
 		// we must reuse the first one as the last
 		landPoint = new RadialLandPoint(450, 48);
 		polygon.add(landPoint);
+		*/
+	
+		RadialLandPoint landPoint = new RadialLandPoint(726, 20);
+		polygon.add(landPoint);
+		landPoint = new RadialLandPoint(924, 762);
+		polygon.add(landPoint);
+		landPoint = new RadialLandPoint(273, 1129);
+		polygon.add(landPoint);
+		landPoint = new RadialLandPoint(0, 528);
+		polygon.add(landPoint);
+		// we must reuse the first one as the last
+		landPoint = new RadialLandPoint(726,20);
+		polygon.add(landPoint);
+
+		
+		
 		// 2. we create the border from the polygon
 		landMap.createBorderFromPolygon(polygon);
 		
@@ -53,11 +70,15 @@ public class RadialTester {
 		
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
-		/*
+		
+		
 		radialAlgorithm radialAlgorithm = new radialAlgorithm();
 		radialAlgorithm.setLandMap(landMap);
-
 		
+		//radialAlgorithm.CreateRadialWeb();
+		/*
+		 * 
+		 * 
 		for (RadialLandPoint entryPoint : entryPoints) {
 			int direction = RadialDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
 					landMap.getCentroid());
@@ -65,12 +86,14 @@ public class RadialTester {
 			break;
 		}
 		*/
+		
+		
+		
 		landMap.printMapToFile();
 
 		
 		///////////////////////////////////
-		
-		/*
+	
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
 
@@ -81,7 +104,7 @@ public class RadialTester {
 		System.out.println("Algorithm finished in " + duration + "s");
 		// ClusterLotizationAlgorithm.landMap.printMapToFile();
 
-		RadialAlgorithm.getLandMap().printMapToFile();
+		radialAlgorithm.getLandMap().printMapToFile();
 		
 		// System.out.println("Compressed String lenght: " +
 		// compressedString.length());
@@ -96,17 +119,17 @@ public class RadialTester {
 
 
 		//2 variants
-		ClusterTestPane clusterTestPane = new ClusterTestPane(true,
-				RadialAlgorithm.getLandMap().stringify(), large, width);		
+		RadialTestPane radialTestPane = new RadialTestPane(true,
+				radialAlgorithm.getLandMap().stringify(), large, width);		
 		//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
 		//clusterTestPane.large = large;
 		//clusterTestPane.width = width;
-		new ClusterTester(clusterTestPane);
-		
-	*/
+		new RadialTester(radialTestPane);
+
+
 	
 	}
-	public RadialTester(RadialTestPane clusterTestPane) {
+	public RadialTester(RadialTestPane radialTestPane) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -119,7 +142,7 @@ public class RadialTester {
 				JFrame frame = new JFrame("Testing");
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setLayout(new BorderLayout());
-				JScrollPane scrPane = new JScrollPane(clusterTestPane);
+				JScrollPane scrPane = new JScrollPane(radialTestPane);
 				frame.add(scrPane); // similar to getContentPane().add(scrPane);
 
 				// frame.add(new TestPane());

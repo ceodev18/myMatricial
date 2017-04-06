@@ -25,6 +25,34 @@ public class radialAlgorithm {
 		this.landMap = landMap;
 	}
 
+	public void CreateRadialWeb(){
+		List<List<Integer>> layersPolygon = new ArrayList<>();
+		List<Integer> localLayer;
+		RadialPolygon polygon = new RadialPolygon();
+		//select the first layer
+		localLayer = landMap.getNodes();
+		layersPolygon.add(localLayer);
+		localLayer = polygon.vectorShrinking(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE);
+		layersPolygon.add(localLayer);
+		localLayer = polygon.vectorShrinking(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2);
+		layersPolygon.add(localLayer);
+		
+		
+		
+		// we create the routes
+		List<List<Integer>> routes = polygon.routeZone(
+				RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2, RadialConfiguration.LOCAL_BRANCH_SIZE);
+		if (routes.size() > 6) {
+			for (int j = 0; j < routes.size(); j++) {
+				landMap.createBorderFromPolygon(routes.get(j), RadialConfiguration.LOCAL_MARK);
+			}
+		} else {
+			routes = new ArrayList<>();
+		}
+		
+	}
+	
+	
 	public void Radialize() {
 		// 1. we need to now the main route size
 		RadialLandRoute mainRoute = landMap.getLandRoute();
