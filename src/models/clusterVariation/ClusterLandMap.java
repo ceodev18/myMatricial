@@ -902,12 +902,12 @@ public class ClusterLandMap {
 		double offset = -gradient * beginXY[0] + beginXY[1];
 		double distance = Math.sqrt(0 + Math.pow(beginXY[1] - finalXY[1], 2));
 		boolean inverse = false;
-
+		
 		if (distance < ClusterConfiguration.CLUSTER_ENTRANCE_SIZE) {
 			return;
 		}
 
-		if (direction == ClusterConstants.SOUTH) {
+		if (direction == ClusterConstants.NORTH) {
 			tbXY[1] = (int) (beginXY[1] + (distance) / 2);
 			tbXY[0] = (int) ((tbXY[1] - offset) / gradient);
 
@@ -939,7 +939,9 @@ public class ClusterLandMap {
 
 		if (tbXY[1] > tfXY[1])
 			return;
-		
+
+		// double orthogonalGradient = -1 / gradient;
+		// double orthogonalOffset = -orthogonalGradient * tbXY[0] + tbXY[1];
 		double variation[] = new double[2];
 		int[] currentXY = new int[2];
 		int countYFactor = 0;
@@ -951,7 +953,7 @@ public class ClusterLandMap {
 			// orthogonalOffset = -orthogonalGradient * currentXY[0] +
 			// currentXY[1];
 
-			if (isUpDown && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
+			if ((direction==ClusterConstants.NORTH) && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
 				for (int w = oldVariation + 1; w < currentXY[1]; w++) {
 					for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
