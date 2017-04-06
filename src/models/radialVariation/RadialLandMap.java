@@ -1298,7 +1298,7 @@ public class RadialLandMap {
 				}
 			}
 			mapString += type + "" + repetitions + ",";
-			mapString += ".";
+			mapString += "|";
 		}
 		return mapString;
 	}

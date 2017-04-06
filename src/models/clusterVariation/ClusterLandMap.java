@@ -955,18 +955,18 @@ public class ClusterLandMap {
 
 		for (int j = 0; j < ClusterConfiguration.CLUSTER_ENTRANCE_SIZE; j++) {
 			if (isWiderX) {
-			currentXY[0] = tbXY[0] + j;
-			currentXY[1] = (int) (gradient * currentXY[0] + offset);
+				currentXY[0] = tbXY[0] + j;
+				currentXY[1] = (int) (gradient * currentXY[0] + offset);
 			} else {
 				currentXY[1] = tbXY[1] + j;
-				currentXY[0] = (int) ((currentXY[1] - offset)/gradient);
+				currentXY[0] = (int) ((currentXY[1] - offset) / gradient);
 			}
 			if ((direction == ClusterConstants.NORTH) && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
 				for (int w = oldVariation + 1; w < currentXY[1]; w++) {
 					for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
-							variation[0] = currentXY[0] + (!inverse ? i : -i);
-							variation[1] = w;
+						variation[0] = currentXY[0] + (!inverse ? i : -i);
+						variation[1] = w;
 						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
@@ -981,8 +981,8 @@ public class ClusterLandMap {
 				// we take the reminder y that are needed for an exact answer
 				for (int w = currentXY[1] + 1; w < oldVariation; w++) {
 					for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
-							variation[0] = currentXY[0] + (!inverse ? i : -i);
-							variation[1] = w;
+						variation[0] = currentXY[0] + (!inverse ? i : -i);
+						variation[1] = w;
 						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
@@ -1001,8 +1001,9 @@ public class ClusterLandMap {
 
 			// We need to find the furthest
 			for (int i = 0; i < 2 * ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
-					variation[0] = currentXY[0] + (!inverse ? i : -i);
-					variation[1] = currentXY[1];
+				variation[0] = currentXY[0] + (!inverse ? i : -i);
+				variation[1] = currentXY[1];
+
 				if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 							.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
