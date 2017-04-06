@@ -282,13 +282,15 @@ public class ClusterAlgorithm {
 					// we create the routes
 					List<List<Integer>> routes = clusterPolygon.routeZone(
 							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, ClusterConfiguration.LOCAL_BRANCH_SIZE);
-					if (routes.size() > 6) {
-						for (int j = 0; j < routes.size(); j++) {
-							landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
-						}
+					
+					for (int j = 0; j < routes.size(); j++) {
+						landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
+					}
+					/*if (routes.size() > 6) {
+						
 					} else {
 						routes = new ArrayList<>();
-					}
+					}*/
 
 					// we create the houses
 					List<List<Integer>> lowerBorder = clusterPolygon
