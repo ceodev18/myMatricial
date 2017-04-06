@@ -731,7 +731,7 @@ public class ClusterLandMap {
 						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							String type = findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
-							if (!type.equals(ClusterConfiguration.EMPTY_MARK))
+							if (type.equals(ClusterConfiguration.EMPTY_MARK))
 								return false;
 						}
 					}
@@ -794,6 +794,9 @@ public class ClusterLandMap {
 		boolean inverse = false;
 		boolean isUpDown = false;
 
+		boolean isWiderX = Math.abs(beginXY[0] - finalXY[0]) > Math.abs(beginXY[1] - finalXY[1]) ? true : false;
+
+		
 		if (distance < houseSideSize) {
 			return;
 		}
@@ -832,18 +835,19 @@ public class ClusterLandMap {
 		if (tbXY[1] > tfXY[1])
 			return;
 
-		// double orthogonalGradient = -1 / gradient;
-		// double orthogonalOffset = -orthogonalGradient * tbXY[0] + tbXY[1];
 		double variation[] = new double[2];
 		int[] currentXY = new int[2];
 		int countYFactor = 0;
 		int oldVariation = -1;
 
 		for (int j = 0; j < houseSideSize; j++) {
-			currentXY[0] = tbXY[0] + j;
-			currentXY[1] = (int) (gradient * currentXY[0] + offset);
-			// orthogonalOffset = -orthogonalGradient * currentXY[0] +
-			// currentXY[1];
+			if(isWiderX){
+				currentXY[0] = tbXY[0] + j;
+				currentXY[1] = (int) (gradient * currentXY[0] + offset);				
+			}else{
+				currentXY[1] = tbXY[1] + j;
+				currentXY[0] = (int) ((currentXY[1] - offset) / gradient);
+			}
 
 			if (isUpDown && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
@@ -851,7 +855,6 @@ public class ClusterLandMap {
 					for (int i = 0; i < houseDepthSize; i++) {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
-						// orthogonalGradient * variation[0] + orthogonalOffset;
 						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType("" + seed);
@@ -868,7 +871,6 @@ public class ClusterLandMap {
 					for (int i = 0; i < houseDepthSize; i++) {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
-						// orthogonalGradient * variation[0] + orthogonalOffset;
 						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType("" + seed);
@@ -889,7 +891,6 @@ public class ClusterLandMap {
 			for (int i = 0; i < houseDepthSize; i++) {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
-				// orthogonalGradient * variation[0] + orthogonalOffset;
 				if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 				}
