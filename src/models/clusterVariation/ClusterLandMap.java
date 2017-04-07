@@ -1298,10 +1298,10 @@ public class ClusterLandMap {
 	public String stringify() {
 		String mapString = "";
 
-		for (int i = pointsx -1; i >= 0 ; i--) {
+		for (int i = 0; i < pointsx ; i++) {
 			String type = getLandPoint(ClusterMapHelper.formKey(i, 0)).getType();
 			int repetitions = 1;
-			for (int j = pointsy - 1; j >= 0; j--) {		
+			for (int j = 0; j < pointsy; j++) {		
 				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
 					repetitions++;
 				} else {
