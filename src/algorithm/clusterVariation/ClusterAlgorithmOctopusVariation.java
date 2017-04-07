@@ -223,14 +223,14 @@ public class ClusterAlgorithmOctopusVariation {
 			boolean insidePolygon = false;
 			for (int x = 0; x < landMap.getPointsx(); x++) {
 				
-				/*if (insidePolygon && landMap.findPoint(ClusterMapHelper.formKey(x, y)).getType()
+				if (insidePolygon && landMap.findPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 					break;
 				}
 				if (!insidePolygon && !landMap.findPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 					insidePolygon = true;
-				}*/
+				}
 
 				if (landMap.findPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.NODE_MARK)) {

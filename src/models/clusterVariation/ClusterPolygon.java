@@ -188,7 +188,8 @@ public class ClusterPolygon {
 	}
 
 	private boolean areaCheck(List<Integer> shrinkedList) {
-		int areaSum = 0;
+		return true;
+		/*int areaSum = 0;
 		for (int i = 0; i < shrinkedList.size(); i++) {
 			int[] initialXY = ClusterMapHelper.breakKey(shrinkedList.get(i));
 			int[] finalXY = ClusterMapHelper.breakKey(shrinkedList.get((i + 1) % shrinkedList.size()));
@@ -200,7 +201,7 @@ public class ClusterPolygon {
 			return false;
 		} else {
 			return true;
-		}
+		}*/
 	}
 
 	private boolean insidePolygon(List<Integer> shrinkedList) {
