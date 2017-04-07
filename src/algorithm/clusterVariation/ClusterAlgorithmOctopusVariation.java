@@ -310,44 +310,12 @@ public class ClusterAlgorithmOctopusVariation {
 		}
 
 		if (nonOctopian) {
-			// IT S AN ORCHIAN SQUARE
-			nodeKey = extendMembraneSection(
-					ClusterMapHelper.moveKeyByOffsetAndDirection(roadLeft, 1, ClusterConstants.NORTH),
-					ClusterConstants.NORTH);
-			if (nodeKey != -1) {
-				clusterPolygon.getPoints().add(roadLeft);
-				clusterPolygon.getPoints().add(nodeKey);
-				clusterPolygon.getPoints().add(roadUp);
-			} else {
 				// non square, ABOMINATION LINE
 				clusterPolygon.getPoints().add(0, roadLeft);
 				clusterPolygon.getPoints().add(roadUp);
 				// continued from right
 				int bipolarNodeKey = roadLeft;
 				nodeKey = roadUp;
-
-				roadUp = 0;
-				roadDown = 0;
-				roadLeft = 0;
-				roadRight = 0;
-				while ((roadUp != -1) || (roadDown != -1) || (roadLeft != -1) || (roadRight != -1)) {
-					roadUp = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.NORTH),
-							ClusterConstants.NORTH);
-					roadDown = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.SOUTH),
-							ClusterConstants.SOUTH);
-					roadLeft = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.EAST),
-							ClusterConstants.EAST);
-					roadRight = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.WEST),
-							ClusterConstants.WEST);
-
-					bipolarNodeKey = Math.abs(roadUp * roadDown * roadLeft * roadRight);
-					if (bipolarNodeKey != 1)
-						clusterPolygon.getPoints().add(0, bipolarNodeKey);
-				}
 
 				roadUp = 0;
 				roadDown = 0;
@@ -371,7 +339,29 @@ public class ClusterAlgorithmOctopusVariation {
 					if (nodeKey != 1)
 						clusterPolygon.getPoints().add(nodeKey);
 				}
-			}
+				
+				roadUp = 0;
+				roadDown = 0;
+				roadLeft = 0;
+				roadRight = 0;
+				while ((roadUp != -1) || (roadDown != -1) || (roadLeft != -1) || (roadRight != -1)) {
+					roadUp = extendMembraneSection(
+							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.NORTH),
+							ClusterConstants.NORTH);
+					roadDown = extendMembraneSection(
+							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.SOUTH),
+							ClusterConstants.SOUTH);
+					roadLeft = extendMembraneSection(
+							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.EAST),
+							ClusterConstants.EAST);
+					roadRight = extendMembraneSection(
+							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.WEST),
+							ClusterConstants.WEST);
+
+					bipolarNodeKey = Math.abs(roadUp * roadDown * roadLeft * roadRight);
+					if (bipolarNodeKey != 1)
+						clusterPolygon.getPoints().add(0, bipolarNodeKey);
+				}
 		}
 
 	}
