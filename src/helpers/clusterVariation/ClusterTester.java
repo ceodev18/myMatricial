@@ -20,6 +20,7 @@ import helpers.base.MapHelper;
 import interfaces.clusterVariation.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
+import models.clusterVariation.ClusterPolygon;
 
 public class ClusterTester {
 	public static void main(String[] args) {
@@ -74,7 +75,7 @@ public class ClusterTester {
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
 
 		// 5. Zonification
-		clusterAlgorithm.zonify();
+		List<ClusterPolygon> orcs= clusterAlgorithm.zonify();
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
@@ -96,13 +97,16 @@ public class ClusterTester {
 		System.out.println("Final Memory" + usedMemoryBefore / 1000000 + " in MB");
 
 
+		ClusterPolygonTester clusterPolygonTester = new ClusterPolygonTester(orcs);
+		new ClusterTester(clusterPolygonTester);
+
 		//2 variants
-		ClusterTestPane clusterTestPane = new ClusterTestPane(true,
-				clusterAlgorithm.getLandMap().stringify(), large, width);		
+		//ClusterTestPane clusterTestPane = new ClusterTestPane(true,
+		//		clusterAlgorithm.getLandMap().stringify(), large, width);		
 		//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
 		//clusterTestPane.large = large;
 		//clusterTestPane.width = width;
-		new ClusterTester(clusterTestPane);
+		//new ClusterTester(clusterTestPane);
 	}
 
 	public ClusterTester(ClusterTestPane clusterTestPane) {
@@ -119,6 +123,30 @@ public class ClusterTester {
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setLayout(new BorderLayout());
 				JScrollPane scrPane = new JScrollPane(clusterTestPane);
+				frame.add(scrPane); // similar to getContentPane().add(scrPane);
+
+				// frame.add(new TestPane());
+				frame.pack();
+				frame.setLocationRelativeTo(null);
+				frame.setVisible(true);
+			}
+		});
+	}
+
+	public ClusterTester(ClusterPolygonTester clusterPolygonTester) {
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+						| UnsupportedLookAndFeelException ex) {
+				}
+
+				JFrame frame = new JFrame("Testing");
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setLayout(new BorderLayout());
+				JScrollPane scrPane = new JScrollPane(clusterPolygonTester);
 				frame.add(scrPane); // similar to getContentPane().add(scrPane);
 
 				// frame.add(new TestPane());

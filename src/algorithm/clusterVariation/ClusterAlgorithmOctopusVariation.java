@@ -1,5 +1,6 @@
 package algorithm.clusterVariation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import helpers.clusterVariation.ClusterDirectionHelper;
@@ -218,11 +219,12 @@ public class ClusterAlgorithmOctopusVariation {
 	// reduces it in a reason configured by the user. if it can be done, it
 	// becomes a new cluster. If not, it becomes simply defaults into a
 	// perfect zonification
-	public void zonify() {
+	public List<ClusterPolygon> zonify() {
+		List<ClusterPolygon> clusterPolygons = new ArrayList<ClusterPolygon>();
 		for (int y = 0; y < landMap.getPointsy(); y++) {
 			boolean insidePolygon = false;
 			for (int x = 0; x < landMap.getPointsx(); x++) {
-				
+
 				if (insidePolygon && landMap.findPoint(ClusterMapHelper.formKey(x, y)).getType()
 						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 					break;
@@ -236,6 +238,7 @@ public class ClusterAlgorithmOctopusVariation {
 						.equals(ClusterConfiguration.NODE_MARK)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
 					createOctopianCoverture(ClusterMapHelper.formKey(x, y), clusterPolygon);
+					clusterPolygons.add(clusterPolygon);
 					clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 					// we create the park
@@ -270,6 +273,8 @@ public class ClusterAlgorithmOctopusVariation {
 				}
 			}
 		}
+
+		return clusterPolygons;
 	}
 
 	private void createOctopianCoverture(int nodeKey, ClusterPolygon clusterPolygon) {
@@ -299,12 +304,13 @@ public class ClusterAlgorithmOctopusVariation {
 				break;
 			} else {
 				nodeKey = Math.abs(roadUp * roadDown * roadLeft * roadRight);
-				if(nodeKey != 1) clusterPolygon.getPoints().add(nodeKey);
+				if (nodeKey != 1)
+					clusterPolygon.getPoints().add(nodeKey);
 			}
 		}
 
 		if (nonOctopian) {
-			// square
+			// IT S AN ORCHIAN SQUARE
 			nodeKey = extendMembraneSection(
 					ClusterMapHelper.moveKeyByOffsetAndDirection(roadLeft, 1, ClusterConstants.NORTH),
 					ClusterConstants.NORTH);
@@ -313,18 +319,28 @@ public class ClusterAlgorithmOctopusVariation {
 				clusterPolygon.getPoints().add(nodeKey);
 				clusterPolygon.getPoints().add(roadUp);
 			} else {
-				// non square, deformed
+				// non square, ABOMINATION LINE
 				clusterPolygon.getPoints().add(0, roadLeft);
 				clusterPolygon.getPoints().add(roadUp);
+				// continued from right
+				int bipolarNodeKey =0;
+				
+				
+				nodeKey = extendMembraneSection(
+						ClusterMapHelper.moveKeyByOffsetAndDirection(roadLeft, 1, ClusterConstants.NORTH),
+						ClusterConstants.NORTH);
+				if (nodeKey != -1) {
+					clusterPolygon.getPoints().add(0, nodeKey);
+				}
 
-				roadLeft = extendMembraneSection(
+				// continued from up
+				nodeKey = extendMembraneSection(
 						ClusterMapHelper.moveKeyByOffsetAndDirection(roadUp, 1, ClusterConstants.EAST),
 						ClusterConstants.EAST);
-
-				if (roadLeft != -1) {
-					clusterPolygon.getPoints().add(roadLeft);
+				if (nodeKey != -1) {
+					clusterPolygon.getPoints().add(nodeKey);
 					roadDown = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(roadLeft, 1, ClusterConstants.SOUTH),
+							ClusterMapHelper.moveKeyByOffsetAndDirection(nodeKey, 1, ClusterConstants.SOUTH),
 							ClusterConstants.SOUTH);
 					if (roadDown != -1) {
 						clusterPolygon.getPoints().add(roadDown);
@@ -336,14 +352,15 @@ public class ClusterAlgorithmOctopusVariation {
 	}
 
 	private int extendMembraneSection(int beginKey, int direction) {
-		if (!landMap.landPointisOnMap(beginKey) || !landMap.findPoint(beginKey).getType().equals(ClusterConfiguration.NODE_MARK)) {
+		if (!landMap.landPointisOnMap(beginKey)
+				|| !landMap.findPoint(beginKey).getType().equals(ClusterConfiguration.NODE_MARK)) {
 			return -1;
 		}
 
-		int oldKey=-1;
+		int oldKey = -1;
 		while (landMap.findPoint(beginKey).getType().equals(ClusterConfiguration.NODE_MARK)) {
 			oldKey = beginKey;
-			landMap.findPoint(beginKey).setType(ClusterConfiguration.BORDER_MARK);			
+			landMap.findPoint(beginKey).setType(ClusterConfiguration.BORDER_MARK);
 			beginKey = ClusterMapHelper.moveKeyByOffsetAndDirection(beginKey, 1, direction);
 		}
 		return oldKey;
