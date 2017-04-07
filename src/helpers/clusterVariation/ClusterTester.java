@@ -15,6 +15,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import algorithm.clusterVariation.ClusterAlgorithm;
+import algorithm.clusterVariation.ClusterAlgorithmOctopusVariation;
 import helpers.base.MapHelper;
 import interfaces.clusterVariation.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
@@ -56,7 +57,7 @@ public class ClusterTester {
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
 
-		ClusterAlgorithm clusterAlgorithm = new ClusterAlgorithm();
+		ClusterAlgorithmOctopusVariation clusterAlgorithm = new ClusterAlgorithmOctopusVariation();
 		clusterAlgorithm.setLandMap(landMap);
 
 		for (ClusterLandPoint entryPoint : entryPoints) {
@@ -83,13 +84,9 @@ public class ClusterTester {
 																	// to get
 																	// milliseconds.
 		System.out.println("Algorithm finished in " + duration + "s");
-		// ClusterLotizationAlgorithm.landMap.printMapToFile();
 
 		clusterAlgorithm.getLandMap().printMapToFile();
 		
-		// System.out.println("Compressed String lenght: " +
-		// compressedString.length());
-
 		endTime = System.nanoTime();
 		duration = (endTime - startTime) / (1000000 * 1000); // divide by to get
 																// milliseconds.

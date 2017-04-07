@@ -293,8 +293,9 @@ public class ClusterLandMap {
 	public void printMapToFile() {
 		try {
 			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
-			for (int j = pointsy - 1; j >= 0; j--) {
-				for (int i = 0; i < pointsx; i++) {
+
+			for (int i = pointsx-1; i >= 0; i--) {
+				for (int j = 0; j < pointsy; j++) {
 					writer.print(getLandPoint(ClusterMapHelper.formKey(i, j)).getType());
 				}
 				writer.println();
@@ -641,7 +642,7 @@ public class ClusterLandMap {
 					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
 				}
 			} else {
-				//TODO needs revising
+				// TODO needs revising
 				lotizable = canBeNonOrthogonallyLotized(currentXY, finalXY,
 						ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
 						direction, gradient);
@@ -1298,10 +1299,10 @@ public class ClusterLandMap {
 	public String stringify() {
 		String mapString = "";
 
-		for (int i = 0; i < pointsx ; i++) {
+		for (int i = 0; i < pointsx; i++) {
 			String type = getLandPoint(ClusterMapHelper.formKey(i, 0)).getType();
 			int repetitions = 1;
-			for (int j = 0; j < pointsy; j++) {		
+			for (int j = 0; j < pointsy; j++) {
 				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
 					repetitions++;
 				} else {
