@@ -604,8 +604,6 @@ public class ClusterLandMap {
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
 
-			// TODO eliminate this. There was a problem with the detection of
-			// problems lol when there is a view like this.
 			if (notUniform) {
 				if (maxNumberofRepetitions == repetitions) {
 					done = true;
@@ -643,6 +641,7 @@ public class ClusterLandMap {
 					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
 				}
 			} else {
+				//TODO needs revising
 				lotizable = canBeNonOrthogonallyLotized(currentXY, finalXY,
 						ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
 						direction, gradient);
@@ -1298,10 +1297,11 @@ public class ClusterLandMap {
 
 	public String stringify() {
 		String mapString = "";
-		for (int j = pointsy - 1; j >= 0; j--) {
-			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
+
+		for (int i = pointsx -1; i >= 0 ; i--) {
+			String type = getLandPoint(ClusterMapHelper.formKey(i, 0)).getType();
 			int repetitions = 1;
-			for (int i = 1; i < pointsx; i++) {
+			for (int j = pointsy - 1; j >= 0; j--) {		
 				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
 					repetitions++;
 				} else {
@@ -1313,42 +1313,6 @@ public class ClusterLandMap {
 			mapString += type + "" + repetitions + ",";
 			mapString += ".";
 		}
-		return mapString;
-	}
-
-	public String compress() {
-		Map<String, List<Integer>> mapMap = new HashMap<>();
-
-		String mapString = "";
-		for (int j = pointsy - 1; j >= 0; j--) {
-			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
-			if (mapMap.get(type) == null) {
-				mapMap.put(type, new ArrayList<>());
-			}
-			int i;
-			for (i = 1; i < pointsx; i++) {
-				if (!type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
-					mapMap.get(type).add(ClusterMapHelper.formKey(i - 1, j));
-					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
-					if (mapMap.get(type) == null) {
-						mapMap.put(type, new ArrayList<>());
-					}
-					mapMap.get(type).add(ClusterMapHelper.formKey(i, j));
-				}
-			}
-			mapMap.get(type).add(ClusterMapHelper.formKey(i, j));
-		}
-
-		Iterator<Entry<String, List<Integer>>> it = mapMap.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, List<Integer>> pair = (Map.Entry<String, List<Integer>>) it.next();
-			mapString += pair.getKey();
-			for (int i = 0; i < pair.getValue().size(); i++) {
-				mapString += "," + pair.getValue().get(i).intValue();
-			}
-			mapString += "|";
-		}
-
 		return mapString;
 	}
 }

@@ -215,17 +215,12 @@ public class ClusterAlgorithm {
 		}
 		return changed;
 	}
-
-	public void zonify() {
-		// findZonificationAreas();
-		organicZonification();
-	}
-
+	
 	// Organic zonification: This zonification searchs the figure and
 	// reduces it in a reason configured by the user. if it can be done, it
 	// becomes a new cluster. If not, it becomes simply defaults into a
 	// perfect zonification
-	private void organicZonification() {
+	public void zonify() {
 		for (int y = landMap.getPointsy() - 1; y >= 0; y--) {
 			boolean insidePolygon = false;
 			for (int x = 0; x < landMap.getPointsx(); x++) {
@@ -245,9 +240,9 @@ public class ClusterAlgorithm {
 								.equals(ClusterConfiguration.EMPTY_MARK)) {
 					identifiedNormalNode = true;
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
-					/* int nextPoint= */
 					createOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.EAST, clusterPolygon);
 					boolean passedThough = false;
+					
 					if (clusterPolygon.getPoints().size() == 2) {
 						// finish the polygon and detect incompleteness
 						completeOrganicCoverture(ClusterMapHelper.formKey(x, y), ClusterConstants.NORTH,
@@ -286,11 +281,6 @@ public class ClusterAlgorithm {
 					for (int j = 0; j < routes.size(); j++) {
 						landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
 					}
-					/*if (routes.size() > 6) {
-						
-					} else {
-						routes = new ArrayList<>();
-					}*/
 
 					// we create the houses
 					List<List<Integer>> lowerBorder = clusterPolygon
@@ -354,7 +344,6 @@ public class ClusterAlgorithm {
 				}
 			}
 		}
-		// perfectZonification();
 	}
 
 	private Object createSpecialCoverture(int initialKey, int direction, ClusterPolygon clusterPolygon) {

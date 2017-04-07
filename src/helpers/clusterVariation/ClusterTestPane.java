@@ -2,7 +2,6 @@ package helpers.clusterVariation;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
@@ -43,8 +42,8 @@ public class ClusterTestPane extends JPanel {
 
 	private void normalSimulation(Graphics g) {
 		int growthX = 0, growthY = 0;
-		for (int x = 0; x < clusterLandMap.getPointsx(); x++) {
-			for (int y = clusterLandMap.getPointsy() - 1; y >= 0; y--) {
+		for (int x = clusterLandMap.getPointsx()-1; x >= 0; x--) {
+			for (int y = clusterLandMap.getPointsy()-1; y >= 0 ; y--) {
 				String type = clusterLandMap.findPoint(MapHelper.formKey(x, y)).getType();
 				switch (type) {/* 39 + 40*0 | 0+ 40*1 */
 				case "a":
