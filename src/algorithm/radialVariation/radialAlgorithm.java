@@ -1,6 +1,5 @@
 package algorithm.radialVariation;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +12,6 @@ import models.radialVariation.RadialLandPoint;
 import models.radialVariation.RadialLandRoute;
 import models.radialVariation.RadialPolygon;
 
-
 public class radialAlgorithm {
 	private RadialLandMap landMap;
 
@@ -25,23 +23,32 @@ public class radialAlgorithm {
 		this.landMap = landMap;
 	}
 
-	public void CreateRadialWeb(){
+	public void CreateRadialWeb() {
 		List<List<Integer>> layersPolygon = new ArrayList<>();
 		List<Integer> localLayer;
 		RadialPolygon polygon = new RadialPolygon();
-		//select the first layer
-		localLayer = landMap.getNodes();
+
+		// select the first layer
+		localLayer = new ArrayList<>();
+		for(int i=0; i<landMap.getPolygonNodes().size(); i++){
+			localLayer.add(landMap.getPolygonNodes().get(i).getId());
+		}
+
+		polygon.setPoints(localLayer);
+		polygon.setComplete(true);
 		layersPolygon.add(localLayer);
+		
 		localLayer = polygon.vectorShrinking(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE);
 		layersPolygon.add(localLayer);
-		localLayer = polygon.vectorShrinking(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2);
+		localLayer = polygon.vectorShrinking(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2);
 		layersPolygon.add(localLayer);
-		
-		
-		
-		// we create the routes
-		List<List<Integer>> routes = polygon.routeZone(
-				RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2, RadialConfiguration.LOCAL_BRANCH_SIZE);
+		for (int j = 0; j < layersPolygon.size(); j++) {
+			landMap.createBorderFromPolygon(layersPolygon.get(j), RadialConfiguration.LOCAL_MARK);
+		}
+
+		// create the routes
+		List<List<Integer>> routes = polygon.routeZone(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2,
+				RadialConfiguration.LOCAL_BRANCH_SIZE);
 		if (routes.size() > 6) {
 			for (int j = 0; j < routes.size(); j++) {
 				landMap.createBorderFromPolygon(routes.get(j), RadialConfiguration.LOCAL_MARK);
@@ -49,10 +56,9 @@ public class radialAlgorithm {
 		} else {
 			routes = new ArrayList<>();
 		}
-		
+
 	}
-	
-	
+
 	public void Radialize() {
 		// 1. we need to now the main route size
 		RadialLandRoute mainRoute = landMap.getLandRoute();
@@ -270,8 +276,7 @@ public class radialAlgorithm {
 					boolean passedThough = false;
 					if (RadialPolygon.getPoints().size() == 2) {
 						// finish the polygon and detect incompleteness
-						completeOrganicCoverture(RadialMapHelper.formKey(x, y), RadialConstants.NORTH,
-								RadialPolygon);
+						completeOrganicCoverture(RadialMapHelper.formKey(x, y), RadialConstants.NORTH, RadialPolygon);
 						RadialPolygon.rehashPolygon(RadialConfiguration.TYPE_COMPLETE);
 						passedThough = true;
 					}
@@ -284,8 +289,7 @@ public class radialAlgorithm {
 					}
 
 					if (!passedThough && !RadialPolygon.isComplete() && RadialPolygon.getPoints().size() == 3) {
-						completeOrganicCoverture(RadialMapHelper.formKey(x, y), RadialConstants.NORTH,
-								RadialPolygon);
+						completeOrganicCoverture(RadialMapHelper.formKey(x, y), RadialConstants.NORTH, RadialPolygon);
 						RadialPolygon.rehashPolygon(RadialConfiguration.TYPE_COMPLETE);
 						// RadialPolygon =
 						// joinWithPolygonalBorder(RadialPolygon);
@@ -320,8 +324,7 @@ public class radialAlgorithm {
 					if ((routes.size() == 0)) {
 						List<List<Integer>> contribution = RadialPolygon.contributionZone();
 						for (int j = 0; j < contribution.size(); j++) {
-							landMap.createBorderFromPolygon(contribution.get(j),
-									RadialConfiguration.CONTRIBUTION_MARK);
+							landMap.createBorderFromPolygon(contribution.get(j), RadialConfiguration.CONTRIBUTION_MARK);
 						}
 					}
 				}
@@ -365,8 +368,7 @@ public class radialAlgorithm {
 					if ((routes.size() == 0)) {
 						List<List<Integer>> contribution = RadialPolygon.contributionZone();
 						for (int j = 0; j < contribution.size(); j++) {
-							landMap.createBorderFromPolygon(contribution.get(j),
-									RadialConfiguration.CONTRIBUTION_MARK);
+							landMap.createBorderFromPolygon(contribution.get(j), RadialConfiguration.CONTRIBUTION_MARK);
 						}
 					}
 				}
@@ -562,6 +564,5 @@ public class radialAlgorithm {
 		}
 		return initialKey;
 	}
-
 
 }

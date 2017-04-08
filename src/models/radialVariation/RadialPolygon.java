@@ -38,11 +38,14 @@ public class RadialPolygon {
 	public List<Integer> getPoints() {
 		return points;
 	}
+	public void setPoints(List<Integer> listPoints){
+		this.points = listPoints;
+	}
 
 	public void setComplete(boolean complete) {
 		this.complete = complete;
 		if (complete) {
-			findCentroid();
+			centroid = findCentroid();
 		}
 	}
 
@@ -175,8 +178,8 @@ public class RadialPolygon {
 				continue;
 			}
 
-			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
+			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			shrinkedList.add(RadialMapHelper.formKey(xy[0], xy[1]));
 		}
 
