@@ -3,10 +3,8 @@ package models.clusterVariation;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import helpers.clusterVariation.ClusterDirectionHelper;
 import helpers.clusterVariation.ClusterMapHelper;
@@ -293,8 +291,9 @@ public class ClusterLandMap {
 	public void printMapToFile() {
 		try {
 			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
-			for (int j = pointsy - 1; j >= 0; j--) {
-				for (int i = 0; i < pointsx; i++) {
+
+			for (int i = pointsx-1; i >= 0; i--) {
+				for (int j = 0; j < pointsy; j++) {
 					writer.print(getLandPoint(ClusterMapHelper.formKey(i, j)).getType());
 				}
 				writer.println();
@@ -604,8 +603,6 @@ public class ClusterLandMap {
 			else
 				done = currentXY[0] <= finalXY[0] && currentXY[1] <= finalXY[1];
 
-			// TODO eliminate this. There was a problem with the detection of
-			// problems lol when there is a view like this.
 			if (notUniform) {
 				if (maxNumberofRepetitions == repetitions) {
 					done = true;
@@ -643,6 +640,7 @@ public class ClusterLandMap {
 					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
 				}
 			} else {
+				// TODO needs revising
 				lotizable = canBeNonOrthogonallyLotized(currentXY, finalXY,
 						ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
 						direction, gradient);
@@ -715,9 +713,17 @@ public class ClusterLandMap {
 		int countYFactor = 0;
 		int oldVariation = -1;
 
+		boolean isWiderX = Math.abs(beginXY[0] - finalXY[0]) > Math.abs(beginXY[1] - finalXY[1]) ? true : false;
+
 		for (int j = 0; j < houseSideSize; j++) {
-			currentXY[0] = tbXY[0] + j;
-			currentXY[1] = (int) (gradient * currentXY[0] + offset);
+			if (isWiderX) {
+				currentXY[0] = tbXY[0] + j;
+				currentXY[1] = (int) (gradient * currentXY[0] + offset);
+			} else {
+				currentXY[1] = tbXY[1] + j;
+				currentXY[0] = (int) ((currentXY[1] - offset) / gradient);
+			}
+
 			// orthogonalOffset = -orthogonalGradient * currentXY[0] +
 			// currentXY[1];
 
@@ -731,7 +737,7 @@ public class ClusterLandMap {
 						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							String type = findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
-							if (!type.equals(ClusterConfiguration.EMPTY_MARK))
+							if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
 								return false;
 						}
 					}
@@ -750,7 +756,7 @@ public class ClusterLandMap {
 						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							String type = findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
-							if (!type.equals(ClusterConfiguration.EMPTY_MARK))
+							if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
 								return false;
 						}
 					}
@@ -769,10 +775,9 @@ public class ClusterLandMap {
 			for (int i = 0; i < houseDepthSize; i++) {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
-				// orthogonalGradient * variation[0] + orthogonalOffset;
 				if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					String type = findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1])).getType();
-					if (!type.equals(ClusterConfiguration.EMPTY_MARK))
+					if (type.equals(ClusterConfiguration.CLUSTER_ENTRANCE_MARK))
 						return false;
 				}
 			}
@@ -793,6 +798,8 @@ public class ClusterLandMap {
 		double distance = Math.sqrt(0 + Math.pow(beginXY[1] - finalXY[1], 2));
 		boolean inverse = false;
 		boolean isUpDown = false;
+
+		boolean isWiderX = Math.abs(beginXY[0] - finalXY[0]) > Math.abs(beginXY[1] - finalXY[1]) ? true : false;
 
 		if (distance < houseSideSize) {
 			return;
@@ -832,18 +839,19 @@ public class ClusterLandMap {
 		if (tbXY[1] > tfXY[1])
 			return;
 
-		// double orthogonalGradient = -1 / gradient;
-		// double orthogonalOffset = -orthogonalGradient * tbXY[0] + tbXY[1];
 		double variation[] = new double[2];
 		int[] currentXY = new int[2];
 		int countYFactor = 0;
 		int oldVariation = -1;
 
 		for (int j = 0; j < houseSideSize; j++) {
-			currentXY[0] = tbXY[0] + j;
-			currentXY[1] = (int) (gradient * currentXY[0] + offset);
-			// orthogonalOffset = -orthogonalGradient * currentXY[0] +
-			// currentXY[1];
+			if (isWiderX) {
+				currentXY[0] = tbXY[0] + j;
+				currentXY[1] = (int) (gradient * currentXY[0] + offset);
+			} else {
+				currentXY[1] = tbXY[1] + j;
+				currentXY[0] = (int) ((currentXY[1] - offset) / gradient);
+			}
 
 			if (isUpDown && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
@@ -851,7 +859,6 @@ public class ClusterLandMap {
 					for (int i = 0; i < houseDepthSize; i++) {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
-						// orthogonalGradient * variation[0] + orthogonalOffset;
 						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType("" + seed);
@@ -868,7 +875,6 @@ public class ClusterLandMap {
 					for (int i = 0; i < houseDepthSize; i++) {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
-						// orthogonalGradient * variation[0] + orthogonalOffset;
 						if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 							findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType("" + seed);
@@ -889,7 +895,6 @@ public class ClusterLandMap {
 			for (int i = 0; i < houseDepthSize; i++) {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
-				// orthogonalGradient * variation[0] + orthogonalOffset;
 				if (landPointisOnMap(ClusterMapHelper.formKey((int) variation[0], (int) variation[1]))) {
 					findPoint(ClusterMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 				}
@@ -1291,10 +1296,11 @@ public class ClusterLandMap {
 
 	public String stringify() {
 		String mapString = "";
-		for (int j = pointsy - 1; j >= 0; j--) {
-			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
+
+		for (int i = 0; i < pointsx; i++) {
+			String type = getLandPoint(ClusterMapHelper.formKey(i, 0)).getType();
 			int repetitions = 1;
-			for (int i = 1; i < pointsx; i++) {
+			for (int j = 0; j < pointsy; j++) {
 				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
 					repetitions++;
 				} else {
@@ -1306,42 +1312,6 @@ public class ClusterLandMap {
 			mapString += type + "" + repetitions + ",";
 			mapString += ".";
 		}
-		return mapString;
-	}
-
-	public String compress() {
-		Map<String, List<Integer>> mapMap = new HashMap<>();
-
-		String mapString = "";
-		for (int j = pointsy - 1; j >= 0; j--) {
-			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
-			if (mapMap.get(type) == null) {
-				mapMap.put(type, new ArrayList<>());
-			}
-			int i;
-			for (i = 1; i < pointsx; i++) {
-				if (!type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
-					mapMap.get(type).add(ClusterMapHelper.formKey(i - 1, j));
-					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
-					if (mapMap.get(type) == null) {
-						mapMap.put(type, new ArrayList<>());
-					}
-					mapMap.get(type).add(ClusterMapHelper.formKey(i, j));
-				}
-			}
-			mapMap.get(type).add(ClusterMapHelper.formKey(i, j));
-		}
-
-		Iterator<Entry<String, List<Integer>>> it = mapMap.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, List<Integer>> pair = (Map.Entry<String, List<Integer>>) it.next();
-			mapString += pair.getKey();
-			for (int i = 0; i < pair.getValue().size(); i++) {
-				mapString += "," + pair.getValue().get(i).intValue();
-			}
-			mapString += "|";
-		}
-
 		return mapString;
 	}
 }
