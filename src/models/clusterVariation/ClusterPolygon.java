@@ -184,8 +184,7 @@ public class ClusterPolygon {
 		}
 
 		// validity check
-		if (/* !crossCheck(shrinkedList) && */ insidePolygon(
-				shrinkedList) /* && areaCheck(shrinkedList) */) {
+		if (/* !crossCheck(shrinkedList) && */ insidePolygon(shrinkedList)) {
 			return shrinkedList;
 		} else {
 			return new ArrayList<>();
@@ -208,20 +207,6 @@ public class ClusterPolygon {
 		}
 	}
 
-	private boolean areaCheck(List<Integer> shrinkedList) {
-		return true;
-		/*
-		 * int areaSum = 0; for (int i = 0; i < shrinkedList.size(); i++) {
-		 * int[] initialXY = ClusterMapHelper.breakKey(shrinkedList.get(i));
-		 * int[] finalXY = ClusterMapHelper.breakKey(shrinkedList.get((i + 1) %
-		 * shrinkedList.size())); areaSum += initialXY[0] * finalXY[1] -
-		 * initialXY[1] * finalXY[0]; }
-		 * 
-		 * areaSum = areaSum / 2; if (areaSum < 900) { return false; } else {
-		 * return true; }
-		 */
-	}
-
 	private boolean insidePolygon(List<Integer> shrinkedList) {
 		for (int i = 0; i < shrinkedList.size(); i++) {
 			if (!isInsidePolygon(shrinkedList.get(i))) {
@@ -231,6 +216,7 @@ public class ClusterPolygon {
 		return true;
 	}
 
+	//NOT WORKING CORRECTLY
 	private boolean crossCheck(List<Integer> shrinkedList) {
 		for (int i = 0; i < shrinkedList.size(); i++) {
 			int[] in1XY = ClusterMapHelper.breakKey(shrinkedList.get(i));
@@ -285,14 +271,6 @@ public class ClusterPolygon {
 				c = !c;
 		}
 		return c;
-	}
-
-	private double distanceToCentroid(int[] initial) {
-		return Math.sqrt(Math.pow(centroid[0] - initial[0], 2) + Math.pow(centroid[1] - initial[1], 2));
-	}
-
-	private double distanceToCentroid(double[] variation) {
-		return Math.sqrt(Math.pow(centroid[0] - variation[0], 2) + Math.pow(centroid[1] - variation[1], 2));
 	}
 
 	public int[] findCentroid() {
