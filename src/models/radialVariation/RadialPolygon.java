@@ -3,6 +3,7 @@ package models.radialVariation;
 import java.util.ArrayList;
 import java.util.List;
 
+import helpers.clusterVariation.ClusterMapHelper;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 
@@ -37,7 +38,8 @@ public class RadialPolygon {
 	public List<Integer> getPoints() {
 		return points;
 	}
-	public void setPoints(List<Integer> pnts){
+
+	public void setPoints(List<Integer> pnts) {
 		this.points = pnts;
 	}
 
@@ -105,18 +107,22 @@ public class RadialPolygon {
 			variationB[0] = xyInitial[0] - size * perpendicularUnitVector[0];
 			variationB[1] = xyInitial[1] - size * perpendicularUnitVector[1];
 
-			double distanceToCentroidA = distanceToCentroid(variationA);
-			double distanceToCentroid = distanceToCentroid(variationB);
+			double bA;
+			bA = variationA[1] - gradient * variationA[0];
+			variations.add(variationA);
+			double distanceToCentroidA = distancefromProjectedPointToCentroid(variationA, gradient, bA);
 
-			double b;
-			if (distanceToCentroid > distanceToCentroidA) {
-				b = variationA[1] - gradient * variationA[0];
-				variations.add(variationA);
+			double bB;
+			bB = variationB[1] - gradient * variationB[0];
+			variations.add(variationB);
+			double distanceToCentroidB = distancefromProjectedPointToCentroid(variationB, gradient, bB);
+
+			if (distanceToCentroidB < distanceToCentroidA) {
+				offsets.add(bB);
 			} else {
-				b = variationB[1] - gradient * variationB[0];
-				variations.add(variationB);
+				offsets.add(bA);
 			}
-			offsets.add(b);
+
 		}
 
 		// Special cases. When infinity and when 0 if infinity y=has a
@@ -177,34 +183,48 @@ public class RadialPolygon {
 				continue;
 			}
 
-			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
+			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			shrinkedList.add(RadialMapHelper.formKey(xy[0], xy[1]));
 		}
 
 		// validity check
-		if (/*!crossCheck(shrinkedList) &&*/ insidePolygon(shrinkedList) && areaCheck(shrinkedList)) {
+		if (insidePolygon(shrinkedList)) {
 			return shrinkedList;
+
 		} else {
 			return new ArrayList<>();
 		}
+
+		/*
+		 * if (!crossCheck(shrinkedList) && insidePolygon(shrinkedList) &&
+		 * areaCheck(shrinkedList)) { return shrinkedList; } else { return new
+		 * ArrayList<>(); }
+		 */
+	}
+
+	private double distancefromProjectedPointToCentroid(double[] variation, double gradient, double b) {
+		double orthogonalGradient = -1 / gradient;
+		double orthogonalB = centroid[1] - centroid[0] * orthogonalGradient;
+		double[] variationP = new double[2];
+
+		variationP[0] = (orthogonalB - b) / (gradient - orthogonalGradient);
+		variationP[1] = orthogonalGradient * variationP[1] + orthogonalB;
+		return Math.sqrt(Math.pow(centroid[0] - variationP[0], 2) + Math.pow(centroid[1] - variationP[1], 2));
 	}
 
 	private boolean areaCheck(List<Integer> shrinkedList) {
 		return true;
-		/*int areaSum = 0;
-		for (int i = 0; i < shrinkedList.size(); i++) {
-			int[] initialXY = RadialMapHelper.breakKey(shrinkedList.get(i));
-			int[] finalXY = RadialMapHelper.breakKey(shrinkedList.get((i + 1) % shrinkedList.size()));
-			areaSum += initialXY[0] * finalXY[1] - initialXY[1] * finalXY[0];
-		}
-
-		areaSum = areaSum / 2;
-		if (areaSum < 900) {
-			return false;
-		} else {
-			return true;
-		}*/
+		/*
+		 * int areaSum = 0; for (int i = 0; i < shrinkedList.size(); i++) {
+		 * int[] initialXY = RadialMapHelper.breakKey(shrinkedList.get(i));
+		 * int[] finalXY = RadialMapHelper.breakKey(shrinkedList.get((i + 1) %
+		 * shrinkedList.size())); areaSum += initialXY[0] * finalXY[1] -
+		 * initialXY[1] * finalXY[0]; }
+		 * 
+		 * areaSum = areaSum / 2; if (areaSum < 900) { return false; } else {
+		 * return true; }
+		 */
 	}
 
 	private boolean insidePolygon(List<Integer> shrinkedList) {
@@ -428,5 +448,10 @@ public class RadialPolygon {
 				points = reorderedPoints;
 			}
 		}
+	}
+
+	public void setMapPoints(List<Integer> localLayer) {
+		localLayer.remove(localLayer.size() - 1);
+		this.points = localLayer;
 	}
 }

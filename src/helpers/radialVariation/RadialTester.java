@@ -12,10 +12,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 
 import algorithm.radialVariation.radialAlgorithm;
-import helpers.radialVariation.RadialDirectionHelper;
+
 import helpers.radialVariation.RadialTestPane;
 import helpers.radialVariation.RadialTester;
-import interfaces.radialVariation.RadialConfiguration;
 import models.radialVariation.RadialLandMap;
 import models.radialVariation.RadialLandPoint;
 
