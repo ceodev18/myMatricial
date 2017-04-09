@@ -292,7 +292,7 @@ public class ClusterLandMap {
 		try {
 			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
 
-			for (int i = pointsx-1; i >= 0; i--) {
+			for (int i = pointsx - 1; i >= 0; i--) {
 				for (int j = 0; j < pointsy; j++) {
 					writer.print(getLandPoint(ClusterMapHelper.formKey(i, j)).getType());
 				}
@@ -1313,5 +1313,63 @@ public class ClusterLandMap {
 			mapString += ".";
 		}
 		return mapString;
+	}
+
+	public void impreciseLotization(ClusterPolygon clusterPolygon) {
+		for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
+			// detect whereas the kind of side it is 0.0 or infinite if not
+			// we simply ignore it (for now)
+			int[] initialXY = ClusterMapHelper.breakKey(clusterPolygon.getPoints().get(i));
+			int[] finalXY = ClusterMapHelper
+					.breakKey(clusterPolygon.getPoints().get((i + 1) % clusterPolygon.getPoints().size()));
+			int growDirection = -1;
+			int driveDirection = -1;
+
+			if (initialXY[0] == finalXY[0]) {// infinite
+				growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterPolygon.getCentroid(),
+						ClusterConstants.NORTH);
+				driveDirection = initialXY[1] < finalXY[1] ? ClusterConstants.NORTH : ClusterConstants.SOUTH;
+
+			} else if (initialXY[1] == finalXY[1]) {
+				growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterPolygon.getCentroid(),
+						ClusterConstants.EAST);
+				driveDirection = initialXY[0] < finalXY[0] ? ClusterConstants.EAST : ClusterConstants.WEST;
+			} else {
+				System.out.println("Non orthogonal detected");
+				continue;
+			}
+			// TODO lotization
+			int[] currentXY = initialXY;
+			while (currentXY[0] != finalXY[0] && currentXY[1] != finalXY[1]) {
+				if (canBeLotized(currentXY, finalXY, driveDirection, growDirection)) {
+					lotize(currentXY, finalXY, driveDirection, growDirection);
+				} else {
+					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
+				}
+			}
+		}
+	}
+
+	private boolean canBeLotized(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
+		int times = ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE;
+		int [] currentXY = initialXY;
+		while(times != 0){
+			if(currentXY[0] == finalXY[0] && currentXY[1] == finalXY[1]){
+				return false;
+			}
+			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
+			while(growTimes != 0){
+				
+				growTimes--;
+			}
+			times--;
+		}
+
+		return true;
+	}
+
+	private void lotize(int[] currentXY, int[] finalXY, int driveDirection, int growDirection) {
+		// TODO Auto-generated method stub
+
 	}
 }

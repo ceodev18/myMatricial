@@ -365,8 +365,8 @@ public class ClusterPolygon {
 
 	public List<List<Integer>> contributionZone() {
 		List<List<Integer>> areas = new ArrayList<>();
-		List<Integer> area = vectorShrinking(0);
-		int goDeeper = 0;
+		List<Integer> area = vectorShrinking(1);
+		int goDeeper = 1;
 		if (area.size() != 0) {
 			areas.add(area);
 			while (minimunDistanceBetweenVertex(area) > 1) {

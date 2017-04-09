@@ -67,11 +67,11 @@ public class ClusterDirectionHelper {
 		}
 		return -1;
 	}
-	
+
 	public static int orthogonalDirectionFromPointToPoint(Integer initialPoint, Integer finalPoint) {
-		int [] xyI = ClusterMapHelper.breakKey(initialPoint);
-		int [] xyF = ClusterMapHelper.breakKey(finalPoint);
-		
+		int[] xyI = ClusterMapHelper.breakKey(initialPoint);
+		int[] xyF = ClusterMapHelper.breakKey(finalPoint);
+
 		int xDifference = xyF[0] - xyI[0];
 		int yDifference = xyF[1] - xyI[1];
 
@@ -90,27 +90,25 @@ public class ClusterDirectionHelper {
 		if ((xDifference < 0) && (yDifference == 0)) {
 			return ClusterConstants.WEST;
 		}
-		
-		
-		if ((yDifference > 0) && ((yDifference > xDifference)|| (xDifference == 0))) {
+
+		if ((yDifference > 0) && ((yDifference > xDifference) || (xDifference == 0))) {
 			return ClusterConstants.NORTH;
 		}
 
-		if ((yDifference < 0) && ((yDifference > xDifference)|| (xDifference == 0))) {
+		if ((yDifference < 0) && ((yDifference > xDifference) || (xDifference == 0))) {
 			return ClusterConstants.SOUTH;
 		}
 
-		if ((xDifference > 0) && ((yDifference < xDifference)|| (yDifference == 0))) {
+		if ((xDifference > 0) && ((yDifference < xDifference) || (yDifference == 0))) {
 			return ClusterConstants.EAST;
 		}
 
-		if ((xDifference < 0) && ((yDifference < xDifference)|| (yDifference == 0))) {
+		if ((xDifference < 0) && ((yDifference < xDifference) || (yDifference == 0))) {
 			return ClusterConstants.WEST;
 		}
 		return -1;
 	}
-	
-	
+
 	public static int directionFromPointToPoint(ClusterLandPoint currentPoint, ClusterLandPoint centroid) {
 		int xDifference = centroid.getX() - currentPoint.getX();
 		int yDifference = centroid.getY() - currentPoint.getY();
@@ -131,5 +129,21 @@ public class ClusterDirectionHelper {
 			return ClusterConstants.WEST;
 		}
 		return -1;
+	}
+
+	public static int perpendicularDirection(int[] initialXY, int[] centroid, int direction) {
+		if (direction == ClusterConstants.NORTH || direction == ClusterConstants.SOUTH) {
+			if(initialXY[0]<centroid[0]){
+				return ClusterConstants.EAST;
+			}else{
+				return ClusterConstants.WEST;
+			}
+		} else {
+			if(initialXY[1]<centroid[1]){
+				return ClusterConstants.NORTH;
+			}else{
+				return ClusterConstants.SOUTH;
+			}
+		}
 	}
 }

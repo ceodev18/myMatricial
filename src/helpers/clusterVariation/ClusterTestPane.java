@@ -126,6 +126,9 @@ public class ClusterTestPane extends JPanel {
                     case "n":
                         color = Color.MAGENTA;
                         break;
+                    case "z":
+                        color = Color.YELLOW;
+                        break;
                     case " ":
                         color = Color.WHITE;
                         break;
