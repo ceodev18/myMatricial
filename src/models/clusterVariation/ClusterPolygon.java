@@ -75,8 +75,9 @@ public class ClusterPolygon {
 		List<Double> offsets = new ArrayList<>();
 		List<double[]> variations = new ArrayList<>();
 
-		//TODO here, if the polygon has a non tolerable lateral distance between point and point, then we should apply reduction formula
-		
+		// TODO here, if the polygon has a non tolerable lateral distance
+		// between point and point, then we should apply reduction formula
+
 		for (int i = 0; i < points.size(); i++) {
 			int[] xyInitial = ClusterMapHelper.breakKey(points.get(i));
 			int[] xyFinal = ClusterMapHelper.breakKey(points.get((i + 1) % points.size()));
@@ -91,7 +92,7 @@ public class ClusterPolygon {
 			double[] perpendicularUnitVector = new double[2];
 			perpendicularUnitVector[0] = unitVector[1];
 			perpendicularUnitVector[1] = -unitVector[0];
-		
+
 			double[] variationA = new double[2];
 			double[] variationB = new double[2];
 			variationA[0] = xyInitial[0] + size * perpendicularUnitVector[0];
@@ -104,18 +105,18 @@ public class ClusterPolygon {
 
 			double bA;
 			bA = variationA[1] - gradient * variationA[0];
-			variations.add(variationA);
 			double distanceToCentroidA = distancefromProjectedPointToCentroid(variationA, gradient, bA);
 
 			double bB;
 			bB = variationB[1] - gradient * variationB[0];
-			variations.add(variationB);
 			double distanceToCentroidB = distancefromProjectedPointToCentroid(variationB, gradient, bB);
 
 			if (distanceToCentroidB < distanceToCentroidA) {
 				offsets.add(bB);
+				variations.add(variationB);
 			} else {
 				offsets.add(bA);
+				variations.add(variationA);
 			}
 		}
 
@@ -183,39 +184,42 @@ public class ClusterPolygon {
 		}
 
 		// validity check
-		if (/*!crossCheck(shrinkedList) &&*/ insidePolygon(shrinkedList) /*&& areaCheck(shrinkedList)*/) {
+		if (/* !crossCheck(shrinkedList) && */ insidePolygon(
+				shrinkedList) /* && areaCheck(shrinkedList) */) {
 			return shrinkedList;
 		} else {
 			return new ArrayList<>();
 		}
 	}
-	
-	private double distancefromProjectedPointToCentroid(double[] variation, double gradient, double b) {
-		double orthogonalGradient = -1 / gradient;
-		double orthogonalB = centroid[1] - centroid[0] * orthogonalGradient;
-		double[] variationP = new double[2];
 
-		variationP[0] = (orthogonalB - b) / (gradient - orthogonalGradient);
-		variationP[1] = orthogonalGradient * variationP[1] + orthogonalB;
-		return Math.sqrt(Math.pow(centroid[0] - variationP[0], 2) + Math.pow(centroid[1] - variationP[1], 2));
+	private double distancefromProjectedPointToCentroid(double[] variation, Double gradient, double b) {
+		if (gradient == 0) {
+			return Math.abs(centroid[1] - variation[1]);
+		} else if (gradient.isInfinite()) {
+			return Math.abs(centroid[0] - variation[0]);
+		} else {
+			double orthogonalGradient = -1 / gradient;
+			double orthogonalB = centroid[1] - centroid[0] * orthogonalGradient;
+			double[] variationP = new double[2];
+
+			variationP[0] = (orthogonalB - b) / (gradient - orthogonalGradient);
+			variationP[1] = orthogonalGradient * variationP[1] + orthogonalB;
+			return Math.sqrt(Math.pow(centroid[0] - variationP[0], 2) + Math.pow(centroid[1] - variationP[1], 2));
+		}
 	}
-	
 
 	private boolean areaCheck(List<Integer> shrinkedList) {
 		return true;
-		/*int areaSum = 0;
-		for (int i = 0; i < shrinkedList.size(); i++) {
-			int[] initialXY = ClusterMapHelper.breakKey(shrinkedList.get(i));
-			int[] finalXY = ClusterMapHelper.breakKey(shrinkedList.get((i + 1) % shrinkedList.size()));
-			areaSum += initialXY[0] * finalXY[1] - initialXY[1] * finalXY[0];
-		}
-
-		areaSum = areaSum / 2;
-		if (areaSum < 900) {
-			return false;
-		} else {
-			return true;
-		}*/
+		/*
+		 * int areaSum = 0; for (int i = 0; i < shrinkedList.size(); i++) {
+		 * int[] initialXY = ClusterMapHelper.breakKey(shrinkedList.get(i));
+		 * int[] finalXY = ClusterMapHelper.breakKey(shrinkedList.get((i + 1) %
+		 * shrinkedList.size())); areaSum += initialXY[0] * finalXY[1] -
+		 * initialXY[1] * finalXY[0]; }
+		 * 
+		 * areaSum = areaSum / 2; if (areaSum < 900) { return false; } else {
+		 * return true; }
+		 */
 	}
 
 	private boolean insidePolygon(List<Integer> shrinkedList) {
