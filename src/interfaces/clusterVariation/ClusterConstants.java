@@ -30,6 +30,7 @@ public interface ClusterConstants {
 	public String OUTSIDE_POLYGON = " ";
 	public String INSIDE_POLYGON = "l";
 	public String GARDEN_LOT = "G";
+	public int MAX_HOUSE_COMBINATION = 4;
 
 
 }

@@ -1338,11 +1338,13 @@ public class ClusterLandMap {
 				System.out.println("Non orthogonal detected");
 				continue;
 			}
-			// TODO lotization
+
 			int[] currentXY = initialXY;
-			while (currentXY[0] != finalXY[0] && currentXY[1] != finalXY[1]) {
+			int seed = 0;
+			while (currentXY[0] != finalXY[0] || currentXY[1] != finalXY[1]) {
 				if (canBeLotized(currentXY, finalXY, driveDirection, growDirection)) {
-					lotize(currentXY, finalXY, driveDirection, growDirection);
+					currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, seed%ClusterConstants.MAX_HOUSE_COMBINATION);
+					seed++;
 				} else {
 					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
 				}
@@ -1352,24 +1354,42 @@ public class ClusterLandMap {
 
 	private boolean canBeLotized(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
 		int times = ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE;
-		int [] currentXY = initialXY;
+		int [] currentXY = new int[]{initialXY[0],initialXY[1]};
 		while(times != 0){
 			if(currentXY[0] == finalXY[0] && currentXY[1] == finalXY[1]){
 				return false;
 			}
 			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
+			int [] currentOrthXY = new int[]{currentXY[0],currentXY[1]};
 			while(growTimes != 0){
-				
+				if(!this.landPointisOnMap(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1]))) return false;
+				String type = this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType();
+				if(!type.equals(ClusterConfiguration.EMPTY_MARK)&&!type.equals(ClusterConfiguration.PARK_MARK)&&
+						!type.equals(ClusterConfiguration.LOCAL_MARK)&&!type.equals(ClusterConfiguration.BORDER_MARK))
+					return false;
+				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
 				growTimes--;
 			}
+			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
 			times--;
 		}
-
 		return true;
 	}
 
-	private void lotize(int[] currentXY, int[] finalXY, int driveDirection, int growDirection) {
-		// TODO Auto-generated method stub
-
+	private int[] lotize(int[] initialXY, int[] finalXY, int driveDirection, int growDirection, int seed) {
+		int times = ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE;
+		int [] currentXY = initialXY;
+		while(times != 0){
+			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
+			int [] currentOrthXY = new int[]{currentXY[0], currentXY[1]};
+			while(growTimes != 0){
+				this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).setType(""+seed);
+				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
+			times--;
+		}				
+		return currentXY;
 	}
 }

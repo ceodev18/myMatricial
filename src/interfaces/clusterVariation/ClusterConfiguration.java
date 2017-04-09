@@ -25,10 +25,10 @@ public interface ClusterConfiguration {
 	public static String POLYGON_BORDER = ".";
 	public static String ARTERIAL_MARK = "a";
 	public static String COLLECTOR_MARK = "a";
-	public static String LOCAL_MARK = "a";
+	public static String LOCAL_MARK = "c";
 	public static String NODE_MARK = "n";
 	public static String PARK_MARK = "p";	
-	public static String WALK_MARK = "a";
+	public static String WALK_MARK = "b";
 	public static String CLUSTER_ENTRANCE_MARK = "w";
 	public static String BORDER_MARK = "e";
 	public static String CONTRIBUTION_MARK = "z";
