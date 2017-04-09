@@ -238,37 +238,43 @@ public class ClusterAlgorithmOctopusVariation {
 						.equals(ClusterConfiguration.NODE_MARK)) {
 					ClusterPolygon clusterPolygon = new ClusterPolygon();
 					createOctopianCoverture(ClusterMapHelper.formKey(x, y), clusterPolygon);
+					if (clusterPolygon.getPoints().size() < 3)
+						continue;
 					clusterPolygons.add(clusterPolygon);
+					System.out.print(clusterPolygons.size() + ")");
 					clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 					// we create the park
 					List<List<Integer>> grass = clusterPolygon.parkZone(
 							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
-					for (int j = 0; j < grass.size(); j++) {
-						landMap.createBorderFromPolygon(grass.get(j), ClusterConfiguration.PARK_MARK);
-					}
-
-					// we create the routes
-					List<List<Integer>> routes = clusterPolygon.routeZone(
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, ClusterConfiguration.LOCAL_BRANCH_SIZE);
-
-					for (int j = 0; j < routes.size(); j++) {
-						landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
-					}
-
-					// we create the houses
-					List<List<Integer>> lowerBorder = clusterPolygon
-							.routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
-					if (lowerBorder.size() > 0) {
-						landMap.lotize(lowerBorder.get(0), ClusterConstants.EAST, 0);
-					}
-
-					if ((routes.size() == 0)) {
+					if (grass.size() == 0) {
+						System.out.println("0 grassland...");
+						// perfect for imprecise lotization
 						List<List<Integer>> contribution = clusterPolygon.contributionZone();
 						for (int j = 0; j < contribution.size(); j++) {
 							landMap.createBorderFromPolygon(contribution.get(j),
 									ClusterConfiguration.CONTRIBUTION_MARK);
 						}
+					} else {
+						for (int j = 0; j < grass.size(); j++) {
+							landMap.createBorderFromPolygon(grass.get(j), ClusterConfiguration.PARK_MARK);
+						}
+
+						// we create the routes
+						List<List<Integer>> routes = clusterPolygon.routeZone(
+								ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+								ClusterConfiguration.LOCAL_BRANCH_SIZE);
+						for (int j = 0; j < routes.size(); j++) {
+							landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
+						}
+
+						// we create the houses
+						List<List<Integer>> lowerBorder = clusterPolygon
+								.routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
+						if (lowerBorder.size() > 0) {
+							landMap.lotize(lowerBorder.get(0), ClusterConstants.EAST, 0);
+						}
+
 					}
 				}
 			}
@@ -278,7 +284,6 @@ public class ClusterAlgorithmOctopusVariation {
 	}
 
 	private void createOctopianCoverture(int nodeKey, ClusterPolygon clusterPolygon) {
-		// TODO Auto-generated method stub
 		clusterPolygon.getPoints().add(nodeKey);
 		landMap.findPoint(nodeKey).setType(ClusterConfiguration.BORDER_MARK);
 
@@ -310,60 +315,72 @@ public class ClusterAlgorithmOctopusVariation {
 		}
 
 		if (nonOctopian) {
-				// non square, ABOMINATION LINE
-				clusterPolygon.getPoints().add(0, roadLeft);
-				clusterPolygon.getPoints().add(roadUp);
-				// continued from right
-				int bipolarNodeKey = roadLeft;
-				nodeKey = roadUp;
+			// non square, ABOMINATION LINE
+			clusterPolygon.getPoints().add(0, roadLeft);
+			clusterPolygon.getPoints().add(roadUp);
+			// continued from right
+			int bipolarNodeKey = roadLeft;
+			nodeKey = roadUp;
 
-				roadUp = 0;
-				roadDown = 0;
-				roadLeft = 0;
-				roadRight = 0;
-				while ((roadUp != -1) || (roadDown != -1) || (roadLeft != -1) || (roadRight != -1)) {
-					roadUp = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(nodeKey, 1, ClusterConstants.NORTH),
-							ClusterConstants.NORTH);
-					roadDown = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(nodeKey, 1, ClusterConstants.SOUTH),
-							ClusterConstants.SOUTH);
-					roadLeft = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(nodeKey, 1, ClusterConstants.EAST),
-							ClusterConstants.EAST);
-					roadRight = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(nodeKey, 1, ClusterConstants.WEST),
-							ClusterConstants.WEST);
+			roadUp = 0;
+			roadDown = 0;
+			roadLeft = 0;
+			roadRight = 0;
+			while ((roadUp != -1) || (roadDown != -1) || (roadLeft != -1) || (roadRight != -1)) {
+				roadUp = extendMembraneSection(
+						ClusterMapHelper.moveKeyByOffsetAndDirection(nodeKey, 1, ClusterConstants.NORTH),
+						ClusterConstants.NORTH);
+				roadDown = extendMembraneSection(
+						ClusterMapHelper.moveKeyByOffsetAndDirection(nodeKey, 1, ClusterConstants.SOUTH),
+						ClusterConstants.SOUTH);
+				roadLeft = extendMembraneSection(
+						ClusterMapHelper.moveKeyByOffsetAndDirection(nodeKey, 1, ClusterConstants.EAST),
+						ClusterConstants.EAST);
+				roadRight = extendMembraneSection(
+						ClusterMapHelper.moveKeyByOffsetAndDirection(nodeKey, 1, ClusterConstants.WEST),
+						ClusterConstants.WEST);
 
-					nodeKey = Math.abs(roadUp * roadDown * roadLeft * roadRight);
-					if (nodeKey != 1)
-						clusterPolygon.getPoints().add(nodeKey);
-				}
-				
-				roadUp = 0;
-				roadDown = 0;
-				roadLeft = 0;
-				roadRight = 0;
-				while ((roadUp != -1) || (roadDown != -1) || (roadLeft != -1) || (roadRight != -1)) {
-					roadUp = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.NORTH),
-							ClusterConstants.NORTH);
-					roadDown = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.SOUTH),
-							ClusterConstants.SOUTH);
-					roadLeft = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.EAST),
-							ClusterConstants.EAST);
-					roadRight = extendMembraneSection(
-							ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.WEST),
-							ClusterConstants.WEST);
+				nodeKey = Math.abs(roadUp * roadDown * roadLeft * roadRight);
+				if (nodeKey != 1)
+					clusterPolygon.getPoints().add(nodeKey);
+			}
 
-					bipolarNodeKey = Math.abs(roadUp * roadDown * roadLeft * roadRight);
-					if (bipolarNodeKey != 1)
-						clusterPolygon.getPoints().add(0, bipolarNodeKey);
-				}
+			roadUp = 0;
+			roadDown = 0;
+			roadLeft = 0;
+			roadRight = 0;
+			while ((roadUp != -1) || (roadDown != -1) || (roadLeft != -1) || (roadRight != -1)) {
+				roadUp = extendMembraneSection(
+						ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.NORTH),
+						ClusterConstants.NORTH);
+				roadDown = extendMembraneSection(
+						ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.SOUTH),
+						ClusterConstants.SOUTH);
+				roadLeft = extendMembraneSection(
+						ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.EAST),
+						ClusterConstants.EAST);
+				roadRight = extendMembraneSection(
+						ClusterMapHelper.moveKeyByOffsetAndDirection(bipolarNodeKey, 1, ClusterConstants.WEST),
+						ClusterConstants.WEST);
+
+				bipolarNodeKey = Math.abs(roadUp * roadDown * roadLeft * roadRight);
+				if (bipolarNodeKey != 1)
+					clusterPolygon.getPoints().add(0, bipolarNodeKey);
+			}
+		}
+		simplifyOctopian(clusterPolygon);
+	}
+
+	private void simplifyOctopian(ClusterPolygon clusterPolygon) {
+
+		if ((clusterPolygon.getPoints().get(0) + 1) == clusterPolygon.getPoints()
+				.get(clusterPolygon.getPoints().size() - 1)) {
+			clusterPolygon.getPoints().remove(clusterPolygon.getPoints().size() - 1);
 		}
 
+		if ((clusterPolygon.getPoints().get(0) + 10000) == clusterPolygon.getPoints().get(1)) {
+			clusterPolygon.getPoints().remove(0);
+		}
 	}
 
 	private int extendMembraneSection(int beginKey, int direction) {

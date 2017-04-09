@@ -75,6 +75,8 @@ public class ClusterPolygon {
 		List<Double> offsets = new ArrayList<>();
 		List<double[]> variations = new ArrayList<>();
 
+		//TODO here, if the polygon has a non tolerable lateral distance between point and point, then we should apply reduction formula
+		
 		for (int i = 0; i < points.size(); i++) {
 			int[] xyInitial = ClusterMapHelper.breakKey(points.get(i));
 			int[] xyFinal = ClusterMapHelper.breakKey(points.get((i + 1) % points.size()));
@@ -85,26 +87,22 @@ public class ClusterPolygon {
 					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
 			unitVector[1] = (xyFinal[1] - xyInitial[1])
 					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
-
-			double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / (xyFinal[0] - xyInitial[0]);
-			gradients.add(gradient);
 			// then the perpendicular
 			double[] perpendicularUnitVector = new double[2];
 			perpendicularUnitVector[0] = unitVector[1];
 			perpendicularUnitVector[1] = -unitVector[0];
-
+		
 			double[] variationA = new double[2];
 			double[] variationB = new double[2];
-
 			variationA[0] = xyInitial[0] + size * perpendicularUnitVector[0];
 			variationA[1] = xyInitial[1] + size * perpendicularUnitVector[1];
-
 			variationB[0] = xyInitial[0] - size * perpendicularUnitVector[0];
 			variationB[1] = xyInitial[1] - size * perpendicularUnitVector[1];
-
 			double distanceToCentroidA = distanceToCentroid(variationA);
-			double distanceToCentroid = distanceToCentroid(xyInitial);
+			double distanceToCentroid = distanceToCentroid(variationB);
 
+			double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / (xyFinal[0] - xyInitial[0]);
+			gradients.add(gradient);
 			double b;
 			if (distanceToCentroid > distanceToCentroidA) {
 				b = variationA[1] - gradient * variationA[0];
@@ -180,7 +178,7 @@ public class ClusterPolygon {
 		}
 
 		// validity check
-		if (/*!crossCheck(shrinkedList) &&*/ insidePolygon(shrinkedList) && areaCheck(shrinkedList)) {
+		if (/*!crossCheck(shrinkedList) &&*/ insidePolygon(shrinkedList) /*&& areaCheck(shrinkedList)*/) {
 			return shrinkedList;
 		} else {
 			return new ArrayList<>();

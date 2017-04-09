@@ -1,22 +1,16 @@
 package helpers.clusterVariation;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.EventQueue;
-import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import algorithm.clusterVariation.ClusterAlgorithm;
 import algorithm.clusterVariation.ClusterAlgorithmOctopusVariation;
-import helpers.base.MapHelper;
 import interfaces.clusterVariation.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
@@ -50,7 +44,6 @@ public class ClusterTester {
 		landMap.createBorderFromPolygon(polygon);
 		
 		// 3, We create the entry points for the main routes
-		// Entry points = [327,981][1710,742]
 		List<ClusterLandPoint> entryPoints = new ArrayList<>();
 		landPoint = new ClusterLandPoint(487, 174);
 		entryPoints.add(landPoint);
@@ -97,16 +90,12 @@ public class ClusterTester {
 		System.out.println("Final Memory" + usedMemoryBefore / 1000000 + " in MB");
 
 
-		ClusterPolygonTester clusterPolygonTester = new ClusterPolygonTester(orcs);
-		new ClusterTester(clusterPolygonTester);
+		//ClusterPolygonTester clusterPolygonTester = new ClusterPolygonTester(orcs);
+		//new ClusterTester(clusterPolygonTester);
 
 		//2 variants
-		//ClusterTestPane clusterTestPane = new ClusterTestPane(true,
-		//		clusterAlgorithm.getLandMap().stringify(), large, width);		
-		//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
-		//clusterTestPane.large = large;
-		//clusterTestPane.width = width;
-		//new ClusterTester(clusterTestPane);
+		ClusterTestPane clusterTestPane = new ClusterTestPane(true, clusterAlgorithm.getLandMap().stringify(), large, width);		
+		new ClusterTester(clusterTestPane);
 	}
 
 	public ClusterTester(ClusterTestPane clusterTestPane) {

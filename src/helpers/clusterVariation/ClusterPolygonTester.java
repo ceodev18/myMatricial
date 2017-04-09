@@ -19,7 +19,7 @@ public class ClusterPolygonTester extends JPanel {
 
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(2000, 2000);
+		return new Dimension(1000, 1300);
 	}
 
 	@Override
@@ -50,14 +50,19 @@ public class ClusterPolygonTester extends JPanel {
 				break;
 			}
 			
+			int[] up = ClusterMapHelper.breakKey(clusterPolygon.getPoints().get(0));
+			int[] down = ClusterMapHelper
+					.breakKey(clusterPolygon.getPoints().get((1) % clusterPolygon.getPoints().size()));
+			
 			for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
-				int[] up = ClusterMapHelper.breakKey(clusterPolygon.getPoints().get(i));
-				int[] down = ClusterMapHelper
+				up = ClusterMapHelper.breakKey(clusterPolygon.getPoints().get(i));
+				down = ClusterMapHelper
 						.breakKey(clusterPolygon.getPoints().get((i + 1) % clusterPolygon.getPoints().size()));
 				g.drawLine(up[0], up[1], down[0], down[1]);
 			}
 			
 			count++;
+			g.drawChars((""+count).toCharArray(), 0, (""+count).length(), up[0], up[1]);
 		}
 	}
 
