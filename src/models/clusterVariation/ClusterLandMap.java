@@ -1343,7 +1343,8 @@ public class ClusterLandMap {
 			int seed = 0;
 			while (currentXY[0] != finalXY[0] || currentXY[1] != finalXY[1]) {
 				if (canBeLotized(currentXY, finalXY, driveDirection, growDirection)) {
-					currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, seed%ClusterConstants.MAX_HOUSE_COMBINATION);
+					currentXY = lotize(currentXY, finalXY, driveDirection, growDirection,
+							seed % ClusterConstants.MAX_HOUSE_COMBINATION);
 					seed++;
 				} else {
 					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
@@ -1354,18 +1355,20 @@ public class ClusterLandMap {
 
 	private boolean canBeLotized(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
 		int times = ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE;
-		int [] currentXY = new int[]{initialXY[0],initialXY[1]};
-		while(times != 0){
-			if(currentXY[0] == finalXY[0] && currentXY[1] == finalXY[1]){
+		int[] currentXY = new int[] { initialXY[0], initialXY[1] };
+		while (times != 0) {
+			if (currentXY[0] == finalXY[0] && currentXY[1] == finalXY[1]) {
 				return false;
 			}
 			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
-			int [] currentOrthXY = new int[]{currentXY[0],currentXY[1]};
-			while(growTimes != 0){
-				if(!this.landPointisOnMap(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1]))) return false;
+			int[] currentOrthXY = new int[] { currentXY[0], currentXY[1] };
+			while (growTimes != 0) {
+				if (!this.landPointisOnMap(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])))
+					return false;
 				String type = this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType();
-				if(!type.equals(ClusterConfiguration.EMPTY_MARK)&&!type.equals(ClusterConfiguration.PARK_MARK)&&
-						!type.equals(ClusterConfiguration.LOCAL_MARK)&&!type.equals(ClusterConfiguration.BORDER_MARK))
+				if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals(ClusterConfiguration.PARK_MARK)
+						&& !type.equals(ClusterConfiguration.LOCAL_MARK)
+						&& !type.equals(ClusterConfiguration.BORDER_MARK))
 					return false;
 				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
 				growTimes--;
@@ -1378,18 +1381,124 @@ public class ClusterLandMap {
 
 	private int[] lotize(int[] initialXY, int[] finalXY, int driveDirection, int growDirection, int seed) {
 		int times = ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE;
-		int [] currentXY = initialXY;
-		while(times != 0){
+		int[] currentXY = initialXY;
+		while (times != 0) {
 			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
-			int [] currentOrthXY = new int[]{currentXY[0], currentXY[1]};
-			while(growTimes != 0){
-				this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).setType(""+seed);
+			int[] currentOrthXY = new int[] { currentXY[0], currentXY[1] };
+			while (growTimes != 0) {
+				this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).setType("" + seed);
 				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
 				growTimes--;
 			}
 			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
 			times--;
-		}				
+		}
 		return currentXY;
+	}
+
+	public void preciseLotization(ClusterPolygon clusterPolygon) {
+		for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
+			// detect whereas the kind of side it is 0.0 or infinite if not
+			// we simply ignore it (for now)
+			int[] initialXY = ClusterMapHelper.breakKey(clusterPolygon.getPoints().get(i));
+			int[] finalXY = ClusterMapHelper
+					.breakKey(clusterPolygon.getPoints().get((i + 1) % clusterPolygon.getPoints().size()));
+			int growDirection = -1;
+			int driveDirection = -1;
+
+			if (initialXY[0] == finalXY[0]) {// infinite
+				growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterPolygon.getCentroid(),
+						ClusterConstants.NORTH);
+				driveDirection = initialXY[1] < finalXY[1] ? ClusterConstants.NORTH : ClusterConstants.SOUTH;
+				createEntranceRoute(initialXY, finalXY, driveDirection, growDirection);
+			} else if (initialXY[1] == finalXY[1]) {
+				growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterPolygon.getCentroid(),
+						ClusterConstants.EAST);
+				driveDirection = initialXY[0] < finalXY[0] ? ClusterConstants.EAST : ClusterConstants.WEST;
+				createWalkRoute(initialXY, finalXY, driveDirection, growDirection);
+			} else {
+				System.out.println("Non orthogonal detected");
+				continue;
+			}
+
+			int[] currentXY = initialXY;
+			int seed = 0;
+			while (currentXY[0] != finalXY[0] || currentXY[1] != finalXY[1]) {
+				if (canBeLotized(currentXY, finalXY, driveDirection, growDirection)) {
+					currentXY = lotize(currentXY, finalXY, driveDirection, growDirection,
+							seed % ClusterConstants.MAX_HOUSE_COMBINATION);
+					seed++;
+				} else {
+					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
+				}
+			}
+		}
+	}
+
+	private void createEntranceRoute(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
+		int times = ClusterConfiguration.CLUSTER_ENTRANCE_SIZE;
+		int[] currentXY = new int[]{initialXY[0], initialXY[1]};
+		int distance = (int) Math.sqrt(Math.pow(initialXY[0]-finalXY[0], 2)+Math.pow(initialXY[1]-finalXY[1], 2));
+		if(distance<30){
+			return;
+		}
+		int[] lowerXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, distance/2, driveDirection);
+		int[] upperXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, (distance/2)+1, driveDirection);
+		
+		while (times != 0) {
+			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2;
+			int[] lowerOrthXY = new int[] { lowerXY[0], lowerXY[1] };
+			while (growTimes != 0) {
+				this.findPoint(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1])).setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+				lowerOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			lowerXY = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerXY, 1, ClusterDirectionHelper.oppositeDirection(driveDirection));
+			times--;
+
+			if(times==0)continue;
+			
+			growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2;
+			int[] upperOrthXY = new int[] { upperXY[0], upperXY[1] };
+			while (growTimes != 0) {
+				this.findPoint(ClusterMapHelper.formKey(upperOrthXY[0], upperOrthXY[1])).setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+				upperOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(upperOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			upperXY = ClusterMapHelper.moveKeyByOffsetAndDirection(upperXY, 1, driveDirection);
+			times--;
+		}
+	}
+
+	private void createWalkRoute(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
+		int times = ClusterConfiguration.WALK_BRANCH_SIZE*2;
+		int distance = (int) Math.sqrt(Math.pow(initialXY[0]-finalXY[0], 2)+Math.pow(initialXY[1]-finalXY[1], 2));
+		if(distance<30){
+			return;
+		}
+		int[] lowerXY = ClusterMapHelper.moveKeyByOffsetAndDirection(initialXY, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2, driveDirection);
+		int[] upperXY = ClusterMapHelper.moveKeyByOffsetAndDirection(finalXY, ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2, ClusterDirectionHelper.oppositeDirection(driveDirection));
+		
+		while (times != 0) {
+			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2;
+			int[] lowerOrthXY = new int[] { lowerXY[0], lowerXY[1] };
+			while (growTimes != 0) {
+				this.findPoint(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1])).setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+				lowerOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			lowerXY = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerXY, 1, driveDirection);
+			times--;
+			
+			growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2;
+			int[] upperOrthXY = new int[] { upperXY[0], upperXY[1] };
+			while (growTimes != 0) {
+				this.findPoint(ClusterMapHelper.formKey(upperOrthXY[0], upperOrthXY[1])).setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+				upperOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(upperOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			upperXY = ClusterMapHelper.moveKeyByOffsetAndDirection(upperXY, 1, ClusterDirectionHelper.oppositeDirection(driveDirection));
+			times--;
+		}
 	}
 }

@@ -31,19 +31,20 @@ public class ClusterMapHelper {
 	}
 
 	public static int[] moveKeyByOffsetAndDirection(int[] xy, int size, int direction) {
+		int[] movedXY = new int[]{xy[0],xy[1]};
 		switch (direction) {
 		case ClusterConstants.NORTH:
-			xy[1] = xy[1] + size;
-			return xy;
+			movedXY[1] = movedXY[1] + size;
+			return movedXY;
 		case ClusterConstants.SOUTH:
-			xy[1] = xy[1] - size;
-			return xy;
+			movedXY[1] = movedXY[1] - size;
+			return movedXY;
 		case ClusterConstants.EAST:
-			xy[0] = xy[0] + size;
-			return xy;
+			movedXY[0] = movedXY[0] + size;
+			return movedXY;
 		case ClusterConstants.WEST:
-			xy[0] = xy[0] - size;
-			return xy;
+			movedXY[0] = movedXY[0] - size;
+			return movedXY;
 		}
 		return null;
 	}

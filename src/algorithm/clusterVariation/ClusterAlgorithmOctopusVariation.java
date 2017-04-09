@@ -264,6 +264,7 @@ public class ClusterAlgorithmOctopusVariation {
 							landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
 						}
 
+						landMap.preciseLotization(clusterPolygon);
 						// we create the houses
 						/*List<List<Integer>> lowerBorder = clusterPolygon
 								.routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
