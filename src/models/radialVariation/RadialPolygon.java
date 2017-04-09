@@ -3,7 +3,6 @@ package models.radialVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 
@@ -38,8 +37,8 @@ public class RadialPolygon {
 	public List<Integer> getPoints() {
 		return points;
 	}
-	public void setPoints(List<Integer> listPoints){
-		this.points = listPoints;
+	public void setPoints(List<Integer> pnts){
+		this.points = pnts;
 	}
 
 	public void setComplete(boolean complete) {
@@ -107,7 +106,7 @@ public class RadialPolygon {
 			variationB[1] = xyInitial[1] - size * perpendicularUnitVector[1];
 
 			double distanceToCentroidA = distanceToCentroid(variationA);
-			double distanceToCentroid = distanceToCentroid(xyInitial);
+			double distanceToCentroid = distanceToCentroid(variationB);
 
 			double b;
 			if (distanceToCentroid > distanceToCentroidA) {
@@ -178,19 +177,82 @@ public class RadialPolygon {
 				continue;
 			}
 
-			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
 			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
+			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
 			shrinkedList.add(RadialMapHelper.formKey(xy[0], xy[1]));
 		}
 
 		// validity check
+		if (/*!crossCheck(shrinkedList) &&*/ insidePolygon(shrinkedList) && areaCheck(shrinkedList)) {
+			return shrinkedList;
+		} else {
+			return new ArrayList<>();
+		}
+	}
+
+	private boolean areaCheck(List<Integer> shrinkedList) {
+		return true;
+		/*int areaSum = 0;
 		for (int i = 0; i < shrinkedList.size(); i++) {
-			if (!isInsidePolygon(shrinkedList.get(i))) {
-				shrinkedList = new ArrayList<>();
-			}
+			int[] initialXY = RadialMapHelper.breakKey(shrinkedList.get(i));
+			int[] finalXY = RadialMapHelper.breakKey(shrinkedList.get((i + 1) % shrinkedList.size()));
+			areaSum += initialXY[0] * finalXY[1] - initialXY[1] * finalXY[0];
 		}
 
-		return shrinkedList;
+		areaSum = areaSum / 2;
+		if (areaSum < 900) {
+			return false;
+		} else {
+			return true;
+		}*/
+	}
+
+	private boolean insidePolygon(List<Integer> shrinkedList) {
+		for (int i = 0; i < shrinkedList.size(); i++) {
+			if (!isInsidePolygon(shrinkedList.get(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private boolean crossCheck(List<Integer> shrinkedList) {
+		for (int i = 0; i < shrinkedList.size(); i++) {
+			int[] in1XY = RadialMapHelper.breakKey(shrinkedList.get(i));
+			int[] fi1XY = RadialMapHelper.breakKey(shrinkedList.get((i + 1) % shrinkedList.size()));
+			int j = 0;
+
+			while ((i + 3 + j) % shrinkedList.size() != i) {
+				int[] in2XY = RadialMapHelper.breakKey(shrinkedList.get((i + 2 + j) % shrinkedList.size()));
+				int[] fi2XY = RadialMapHelper.breakKey(shrinkedList.get((i + 3 + j) % shrinkedList.size()));
+				if (segmentsIntersect(in1XY, fi1XY, in2XY, fi2XY)) {
+					return false;
+				}
+				j++;
+			}
+		}
+		return true;
+	}
+
+	private boolean segmentsIntersect(int[] in1xy, int[] fi1xy, int[] in2xy, int[] fi2xy) {
+		float s1_x, s1_y, s2_x, s2_y;
+		s1_x = fi1xy[0] - in1xy[0];
+		s1_y = fi1xy[1] - in1xy[1];
+		s2_x = fi2xy[0] - in2xy[0];
+		s2_y = fi2xy[1] - in2xy[1];
+		float s, t;
+
+		if ((-s2_x * s1_y + s1_x * s2_y) == 0 || ((-s2_x * s1_y + s1_x * s2_y) == 0)) {
+			return false;
+		}
+
+		s = (-s1_y * (in1xy[0] - in2xy[0]) + s1_x * (in1xy[1] - in2xy[1])) / (-s2_x * s1_y + s1_x * s2_y);
+		t = (s2_x * (in1xy[1] - in2xy[1]) - s2_y * (in1xy[0] - in2xy[0])) / (-s2_x * s1_y + s1_x * s2_y);
+		if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
+			return true;
+		}
+
+		return false; // No collision
 	}
 
 	private boolean isInsidePolygon(Integer vertexId) {
@@ -367,5 +429,4 @@ public class RadialPolygon {
 			}
 		}
 	}
-
 }

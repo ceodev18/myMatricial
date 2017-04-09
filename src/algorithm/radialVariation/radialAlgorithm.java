@@ -36,8 +36,7 @@ public class radialAlgorithm {
 
 		polygon.setPoints(localLayer);
 		polygon.setComplete(true);
-		layersPolygon.add(localLayer);
-		
+		layersPolygon.add(localLayer); 
 		localLayer = polygon.vectorShrinking(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE);
 		layersPolygon.add(localLayer);
 		localLayer = polygon.vectorShrinking(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2);
