@@ -3,7 +3,7 @@ package models.spineVariation;
 import helpers.spineVariation.SpineMapHelper;
 import interfaces.spineVariation.SpineConfiguration;
 import interfaces.spineVariation.SpineConstants;
-import models.clusterVariation.ClusterLandPoint;
+import models.spineVariation.SpineLandPoint;
 
 public class SpineLandPoint {
 	private int id = -1;
@@ -67,7 +67,7 @@ public class SpineLandPoint {
 		return -1;
 	}
 
-	public int findDirection(ClusterLandPoint mainRouteExit) {
+	public int findDirection(SpineLandPoint mainRouteExit) {
 		int xDiff = mainRouteExit.getX() - this.getX();
 		int yDiff = mainRouteExit.getY() - this.getY();
 
