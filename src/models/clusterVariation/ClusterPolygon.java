@@ -98,20 +98,25 @@ public class ClusterPolygon {
 			variationA[1] = xyInitial[1] + size * perpendicularUnitVector[1];
 			variationB[0] = xyInitial[0] - size * perpendicularUnitVector[0];
 			variationB[1] = xyInitial[1] - size * perpendicularUnitVector[1];
-			double distanceToCentroidA = distanceToCentroid(variationA);
-			double distanceToCentroid = distanceToCentroid(variationB);
 
 			double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / (xyFinal[0] - xyInitial[0]);
 			gradients.add(gradient);
-			double b;
-			if (distanceToCentroid > distanceToCentroidA) {
-				b = variationA[1] - gradient * variationA[0];
-				variations.add(variationA);
+
+			double bA;
+			bA = variationA[1] - gradient * variationA[0];
+			variations.add(variationA);
+			double distanceToCentroidA = distancefromProjectedPointToCentroid(variationA, gradient, bA);
+
+			double bB;
+			bB = variationB[1] - gradient * variationB[0];
+			variations.add(variationB);
+			double distanceToCentroidB = distancefromProjectedPointToCentroid(variationB, gradient, bB);
+
+			if (distanceToCentroidB < distanceToCentroidA) {
+				offsets.add(bB);
 			} else {
-				b = variationB[1] - gradient * variationB[0];
-				variations.add(variationB);
+				offsets.add(bA);
 			}
-			offsets.add(b);
 		}
 
 		// Special cases. When infinity and when 0 if infinity y=has a
@@ -172,8 +177,8 @@ public class ClusterPolygon {
 				continue;
 			}
 
-			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
+			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			shrinkedList.add(ClusterMapHelper.formKey(xy[0], xy[1]));
 		}
 
@@ -184,6 +189,17 @@ public class ClusterPolygon {
 			return new ArrayList<>();
 		}
 	}
+	
+	private double distancefromProjectedPointToCentroid(double[] variation, double gradient, double b) {
+		double orthogonalGradient = -1 / gradient;
+		double orthogonalB = centroid[1] - centroid[0] * orthogonalGradient;
+		double[] variationP = new double[2];
+
+		variationP[0] = (orthogonalB - b) / (gradient - orthogonalGradient);
+		variationP[1] = orthogonalGradient * variationP[1] + orthogonalB;
+		return Math.sqrt(Math.pow(centroid[0] - variationP[0], 2) + Math.pow(centroid[1] - variationP[1], 2));
+	}
+	
 
 	private boolean areaCheck(List<Integer> shrinkedList) {
 		return true;

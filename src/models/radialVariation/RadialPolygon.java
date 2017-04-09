@@ -122,7 +122,6 @@ public class RadialPolygon {
 			} else {
 				offsets.add(bA);
 			}
-
 		}
 
 		// Special cases. When infinity and when 0 if infinity y=has a
