@@ -135,7 +135,7 @@ public class SpineTestPane extends JPanel {
                         color = Color.YELLOW;
                         break;
                     default: // is an avenue or a street
-                        System.out.println("With type=" + type + " Christian error " + lineSymbol[x]);
+                      //  System.out.println("With type=" + type + " Christian error " + lineSymbol[x]);
                         int houseLot = Integer.valueOf(type);
                         switch (houseLot % 4) {
                             case 0:

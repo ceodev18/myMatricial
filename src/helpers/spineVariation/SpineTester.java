@@ -23,7 +23,7 @@ public class SpineTester {
 		//MAPA 1
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		
+		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
 		int large=1600+1,width=	700+1;
 		SpineLandMap spineLandMap = new SpineLandMap(large, width);
 		
@@ -40,6 +40,7 @@ public class SpineTester {
 		landPoint = new SpineLandPoint(1,50);
 		polygon.add(landPoint);
 		spineLandMap.createBorderFromPolygon(polygon);
+		//spineLandMap.compress();
 		//entry point 353 31
 		List<SpineLandPoint> entryPoints = new ArrayList<>();	
 		//200 representa la distancia del borde del poligono al inicio
@@ -47,14 +48,18 @@ public class SpineTester {
 		landPoint = new SpineLandPoint(150,256);
 		entryPoints.add(landPoint);
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
 		
 		// replace this LSYSTEM  by For loop
-		LSystemSpineAlgorithm.landMap=spineLandMap;
+		//spineLandMap.clearDottedLimits();
+		
 		SpineAlgorithm spineAlgorithm = new SpineAlgorithm();
 		spineAlgorithm.setLandMap(spineLandMap);
+		spineAlgorithm.setWidth(256);
 		spineAlgorithm.setEntryX(150);
 		spineAlgorithm.setEntryY(256);
 		spineAlgorithm.setLarge(large);
+		
 		for (SpineLandPoint entryPoint : entryPoints) {
 			int direction =SpineDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
 					spineLandMap.getCentroid());
@@ -62,20 +67,18 @@ public class SpineTester {
 			break;
 		}
 		
-		
-		
-		
-		
 		// 4. We clusterize the points
-		spineAlgorithm.clusterize();
+		spineAlgorithm.spineize();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-
+		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
+			
 		
 		// 5. Zonification
 		spineAlgorithm.zonify();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
+		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
 
-		
+		spineAlgorithm.clearDotsSpine();
 
 		//LSystemSpineAlgorithm.landMap.printMapToFile();
 		
