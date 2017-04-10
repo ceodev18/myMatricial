@@ -1339,4 +1339,30 @@ public class RadialLandMap {
 		return mapString;
 	}
 	
+	public void fillCentralPark() {
+		for (int x = 0; x < pointsx; x++) {
+			int count = 0;
+			int pInitialLimit = -1;
+			boolean reversed = false;
+
+			for (int y = 0; y < pointsy; y++) {
+				if (getLandPoint(RadialMapHelper.formKey(x, y)).getType() == RadialConstants.POLYGON_LIMIT) {
+					count++;
+					pInitialLimit = pInitialLimit == -1 ? y : pInitialLimit;
+				}
+
+				if (count==2) {
+					if (!reversed) {
+						for (int w = pInitialLimit + 1; w < y; w++) {
+							getLandPoint(RadialMapHelper.formKey(x, w)).setType(RadialConfiguration.PARK_MARK);
+						}
+						reversed = true;
+					} 
+					break;
+				}
+			}
+		}
+	}
+
+	
 }

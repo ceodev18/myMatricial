@@ -488,16 +488,7 @@ public class RadialPolygon {
 		int[] valxy = RadialMapHelper.breakKey(aux.get(0));
 		landPoint = new RadialLandPoint(valxy[0],valxy[1]);		
 		auxPolygon.add(landPoint);
-		
-		int pointsx = auxLandMap.getPointsx();
-		int pointsy = auxLandMap.getPointsy();
-		
-		for (int x = 0; x < pointsx; x++) {
-			for (int y = 0; y < pointsy; y++) {
-				if (isInsidePolygon(RadialMapHelper.formKey(x, y))) {
-					auxLandMap.getLandPoint(RadialMapHelper.formKey(x, y)).setType(RadialConfiguration.PARK_MARK);
-				}
-			}
-		}
+
+		auxLandMap.fillCentralPark();
 	}
 }
