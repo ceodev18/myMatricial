@@ -420,7 +420,8 @@ public class SpineAlgorithm {
 			out11="1";
 			out22="2";
 			//comentar while
-			while(true){
+			
+			/*while(true){
 				if(landMap.findPoint(SpineMapHelper.formKey(j,37+yy+26+six)).getType().equals(SpineConfiguration.POLYGON_BORDER))break;
 				for(int iii=0;iii<6;iii++){
 					
@@ -438,7 +439,7 @@ public class SpineAlgorithm {
 				aux2=out11;
 					out11=out22;
 				out22=aux2;
-			}
+			}*/
 
 			counter++;
 			if(counter>nmbrParksSpine)break;
@@ -522,6 +523,7 @@ public class SpineAlgorithm {
 							
 							
 					}
+					//cambiar valores 6 y 15
 					for(int ii=0;ii<6;ii++){
 						if(landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,starBlockyAfterPark+ii+plus6)).getType().equals(SpineConfiguration.ARTERIAL_MARK))break;
 						for(int jj=0;jj<15;jj++){						
@@ -562,9 +564,58 @@ public class SpineAlgorithm {
 				if(c_30==30)break;
 			}
 			if(c_30<30)break;//IF THE FINAL BLOCK DONT SIZE 30 WIDTH
-		}
 			
+		}
+		
+		//we print the other block 
+		//to the other side of the ARTERIAL_BRANCH_SIZE
+		printNewBlocksNextToArterialUp();
 	}
 
-
+	private void printNewBlocksNextToArterialUp(){
+		
+		//j==pointStart,yy+26+i
+		int pointStartXUp,pointStartYUp;
+		out1="1";out2="2";
+		boolean stateOut=false;
+		boolean stateOut2=true;
+		int counterj,incX,incY;
+		counterj=0;
+		String valueToCompare="";
+		pointStartXUp=pointStart;
+		while(true){
+			//every block
+			pointStartYUp=yy-1;
+			 System.out.println("New Block");
+			while(true){
+				for(int i=0;i<6;i++){
+					for(int j=0;j<15;j++){
+						 valueToCompare=landMap.getLandPoint(SpineMapHelper.formKey(pointStartXUp+j,pointStartYUp-i)).getType();
+						if(valueToCompare.equals(SpineConfiguration.ARTERIAL_BRANCH)||valueToCompare.equals(SpineConfiguration.POLYGON_BORDER)||
+								valueToCompare.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))break;
+						landMap.getLandPoint(SpineMapHelper.formKey(pointStartXUp+j,pointStartYUp-i)).setType(out1);
+						landMap.getLandPoint(SpineMapHelper.formKey(pointStartXUp+j+15,pointStartYUp-i)).setType(out2);
+					}
+				}
+				pointStartYUp-=6;
+				//
+				
+				if(valueToCompare.equals(SpineConfiguration.ARTERIAL_BRANCH)||valueToCompare.equals(SpineConfiguration.POLYGON_BORDER)||
+						valueToCompare.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)){
+					 System.out.println("Char End " +valueToCompare);
+					stateOut=true;
+					break;
+				}else{
+					aux=out1;
+					out1=out2;
+					out2=aux;
+				}
+			}
+			pointStartXUp+=46;
+			counterj++;
+			
+			if(counterj>25)break;
+		}
+		
+	}
 }

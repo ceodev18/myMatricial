@@ -105,6 +105,7 @@ public class SpineTester {
 				//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
 				//clusterTestPane.large = large;
 				//clusterTestPane.width = width;
+		System.out.println("Start canvas");
 		new SpineTester(spineTestPane);
 		
 		
