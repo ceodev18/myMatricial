@@ -6,6 +6,7 @@ import models.radialVariation.RadialLandPoint;
 import models.radialVariation.RadialLandMap;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
+import interfaces.radialVariation.RadialConstants;
 
 public class RadialPolygon {
 	private List<Integer> points;
@@ -474,4 +475,29 @@ public class RadialPolygon {
 		return localArea;
 	}
 	
+	public void parkArea(int size){
+		List<Integer> aux= vectorShrinking(size);
+		RadialLandMap auxLandMap = new RadialLandMap(1400, 1400);
+		RadialLandPoint landPoint;
+		List<RadialLandPoint> auxPolygon = new ArrayList<>();		
+		for(int i = 0; i < aux.size();i++){
+			int[] valxy = RadialMapHelper.breakKey(aux.get(i));
+			landPoint = new RadialLandPoint(valxy[0],valxy[1]);
+			auxPolygon.add(landPoint);
+		}
+		int[] valxy = RadialMapHelper.breakKey(aux.get(0));
+		landPoint = new RadialLandPoint(valxy[0],valxy[1]);		
+		auxPolygon.add(landPoint);
+		
+		int pointsx = auxLandMap.getPointsx();
+		int pointsy = auxLandMap.getPointsy();
+		
+		for (int x = 0; x < pointsx; x++) {
+			for (int y = 0; y < pointsy; y++) {
+				if (isInsidePolygon(RadialMapHelper.formKey(x, y))) {
+					auxLandMap.getLandPoint(RadialMapHelper.formKey(x, y)).setType(RadialConfiguration.PARK_MARK);
+				}
+			}
+		}
+	}
 }

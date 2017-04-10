@@ -197,7 +197,7 @@ public class RadialLandMap {
 				&& !findPoint(RadialMapHelper.formKey(x, y)).getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK);
 	}
 
-	private void fillPolygonalArea() {
+	public void fillPolygonalArea() {
 		for (int x = 0; x < pointsx; x++) {
 			int count = 0;
 			int pInitialLimit = -1;
@@ -1338,4 +1338,5 @@ public class RadialLandMap {
 
 		return mapString;
 	}
+	
 }

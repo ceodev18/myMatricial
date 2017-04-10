@@ -77,10 +77,12 @@ public class radialAlgorithm {
 		}
 		// create the park
 			List<List<Integer>> grass = polygon.parkZone(
-				(valuePlus-1)*RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE);
+				(valuePlus-1)*(RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE));
 			for (int j = 0; j < grass.size(); j++) {
 				landMap.createBorderFromPolygon(grass.get(j), RadialConfiguration.PARK_MARK);
 			}
+		
+		//polygon.parkArea((valuePlus-1)*(RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE));
 
 	}
 
