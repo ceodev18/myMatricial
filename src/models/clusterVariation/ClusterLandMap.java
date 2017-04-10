@@ -534,7 +534,6 @@ public class ClusterLandMap {
 				clusterPolygon.printPolygon();
 				return clusterPolygon;
 			}
-			// System.out.println("Polygon with more than 4 sides");
 		}
 		return clusterPolygon;
 	}
@@ -561,6 +560,10 @@ public class ClusterLandMap {
 	}
 
 	public void impreciseLotization(ClusterPolygon clusterPolygon) {
+		if(!clusterPolygon.canBelotized()){
+			return;
+		}
+		
 		for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
 			// detect whereas the kind of side it is 0.0 or infinite if not
 			// we simply ignore it (for now)
@@ -597,8 +600,60 @@ public class ClusterLandMap {
 				}
 			}
 		}
-		// TODO we create a local route and try to create a new polygon to ocupy
-		// the side
+		// TODO we create an inner route and try to create a new polygon to
+		// take hold of the side
+		List<Integer> reducedPoints = clusterPolygon
+				.translateTowardCenter(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE);
+		for (int i = 0; i < reducedPoints.size(); i++) {
+			// detect whereas the kind of side it is 0.0 or infinite if not
+			// we simply ignore it (for now)
+			int[] initialXY = ClusterMapHelper.breakKey(reducedPoints.get(i));
+			int[] finalXY = ClusterMapHelper.breakKey(reducedPoints.get((i + 1) % clusterPolygon.getPoints().size()));
+			int growDirection = -1;
+			int driveDirection = -1;
+			if (initialXY[0] == finalXY[0]) {// infinite
+				growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterPolygon.getCentroid(),
+						ClusterConstants.NORTH);
+				driveDirection = initialXY[1] < finalXY[1] ? ClusterConstants.NORTH : ClusterConstants.SOUTH;
+
+			} else if (initialXY[1] == finalXY[1]) {
+				growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterPolygon.getCentroid(),
+						ClusterConstants.EAST);
+				driveDirection = initialXY[0] < finalXY[0] ? ClusterConstants.EAST : ClusterConstants.WEST;
+			} else {
+				System.out.println("Non orthogonal detected");
+				continue;
+			}
+			innerRoad(initialXY, finalXY, driveDirection, growDirection);
+		}
+
+		reducedPoints = clusterPolygon.translateTowardCenter(
+				ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE + ClusterConfiguration.LOCAL_BRANCH_SIZE);
+		if(reducedPoints.size()!=0){
+			ClusterPolygon innerPolygon = new ClusterPolygon();
+			innerPolygon.setPoints(reducedPoints);
+			innerPolygon.setComplete(true);
+			impreciseLotization(innerPolygon);
+		}
+	}
+
+	private void innerRoad(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
+		int times = (int) Math.sqrt(Math.pow(initialXY[0] - finalXY[0], 2) + Math.pow(initialXY[1] - finalXY[1], 2));
+		while (times != 0) {
+			int growTimes = ClusterConfiguration.LOCAL_BRANCH_SIZE;
+			int[] currentOrthXY = new int[] { initialXY[0], initialXY[1] };
+			while (growTimes != 0) {
+				if (this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType()
+						.equals(ClusterConfiguration.EMPTY_MARK)) {
+					this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1]))
+							.setType(ClusterConfiguration.LOCAL_MARK);
+				}
+				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			initialXY = ClusterMapHelper.moveKeyByOffsetAndDirection(initialXY, 1, driveDirection);
+			times--;
+		}
 	}
 
 	private boolean canBeLotized(int[] initialXY, int[] finalXY, int driveDirection, int growDirection, int depth) {

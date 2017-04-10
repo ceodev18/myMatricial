@@ -248,8 +248,6 @@ public class ClusterAlgorithmOctopusVariation {
 					List<List<Integer>> grass = clusterPolygon.parkZone(
 							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
 					if (grass.size() == 0) {
-						System.out.println("0 grassland...");
-						//TODO perfect for imprecise lotization
 						landMap.impreciseLotization(clusterPolygon);
 					} else {
 						for (int j = 0; j < grass.size(); j++) {
@@ -263,14 +261,7 @@ public class ClusterAlgorithmOctopusVariation {
 						for (int j = 0; j < routes.size(); j++) {
 							landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
 						}
-
 						landMap.preciseLotization(clusterPolygon);
-						// we create the houses
-						/*List<List<Integer>> lowerBorder = clusterPolygon
-								.routeZone(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
-						if (lowerBorder.size() > 0) {
-							landMap.lotize(lowerBorder.get(0), ClusterConstants.EAST, 0);
-						}*/
 					}
 				}
 			}

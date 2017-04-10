@@ -41,7 +41,7 @@ public class ClusterPolygon {
 	public void setComplete(boolean complete) {
 		this.complete = complete;
 		if (complete) {
-			findCentroid();
+			centroid = findCentroid();
 		}
 	}
 
@@ -184,7 +184,7 @@ public class ClusterPolygon {
 		}
 
 		// validity check
-		if (/* !crossCheck(shrinkedList) && */ insidePolygon(shrinkedList)) {
+		if (insidePolygon(shrinkedList)) {
 			return shrinkedList;
 		} else {
 			return new ArrayList<>();
@@ -214,46 +214,6 @@ public class ClusterPolygon {
 			}
 		}
 		return true;
-	}
-
-	//NOT WORKING CORRECTLY
-	private boolean crossCheck(List<Integer> shrinkedList) {
-		for (int i = 0; i < shrinkedList.size(); i++) {
-			int[] in1XY = ClusterMapHelper.breakKey(shrinkedList.get(i));
-			int[] fi1XY = ClusterMapHelper.breakKey(shrinkedList.get((i + 1) % shrinkedList.size()));
-			int j = 0;
-
-			while ((i + 3 + j) % shrinkedList.size() != i) {
-				int[] in2XY = ClusterMapHelper.breakKey(shrinkedList.get((i + 2 + j) % shrinkedList.size()));
-				int[] fi2XY = ClusterMapHelper.breakKey(shrinkedList.get((i + 3 + j) % shrinkedList.size()));
-				if (segmentsIntersect(in1XY, fi1XY, in2XY, fi2XY)) {
-					return false;
-				}
-				j++;
-			}
-		}
-		return true;
-	}
-
-	private boolean segmentsIntersect(int[] in1xy, int[] fi1xy, int[] in2xy, int[] fi2xy) {
-		float s1_x, s1_y, s2_x, s2_y;
-		s1_x = fi1xy[0] - in1xy[0];
-		s1_y = fi1xy[1] - in1xy[1];
-		s2_x = fi2xy[0] - in2xy[0];
-		s2_y = fi2xy[1] - in2xy[1];
-		float s, t;
-
-		if ((-s2_x * s1_y + s1_x * s2_y) == 0 || ((-s2_x * s1_y + s1_x * s2_y) == 0)) {
-			return false;
-		}
-
-		s = (-s1_y * (in1xy[0] - in2xy[0]) + s1_x * (in1xy[1] - in2xy[1])) / (-s2_x * s1_y + s1_x * s2_y);
-		t = (s2_x * (in1xy[1] - in2xy[1]) - s2_y * (in1xy[0] - in2xy[0])) / (-s2_x * s1_y + s1_x * s2_y);
-		if (s >= 0 && s <= 1 && t >= 0 && t <= 1) {
-			return true;
-		}
-
-		return false; // No collision
 	}
 
 	private boolean isInsidePolygon(Integer vertexId) {
@@ -402,24 +362,153 @@ public class ClusterPolygon {
 		this.expansions = expansions;
 	}
 
-	public void rehashPolygon(int type) {
-		List<Integer> reorderedPoints = new ArrayList<>();
-		if (type == ClusterConfiguration.TYPE_SPECIAL) {
-			for (int i = points.size() - 1; i >= 0; i--) {
-				reorderedPoints.add(points.get(i));
-			}
-			points = reorderedPoints;
-		} else {
-			if (expansions > 0) {
-				for (int i = expansions + 1; i < points.size(); i++) {
-					reorderedPoints.add(points.get(i));
-				}
+	public void setPoints(List<Integer> points) {
+		this.points = points;
+	}
 
-				for (int i = 0; i < expansions + 1; i++) {
-					reorderedPoints.add(points.get(i));
+	public List<Integer> translateTowardCenter(int size) {
+		List<Integer> shrinkedList = new ArrayList<>();
+		List<Double> gradients = new ArrayList<>();
+		List<Double> offsets = new ArrayList<>();
+		List<double[]> variations = new ArrayList<>();
+
+		// TODO here, if the polygon has a non tolerable lateral distance
+		// between point and point, then we should apply reduction formula
+		for (int i = 0; i < points.size(); i++) {
+			int[] xyInitial = ClusterMapHelper.breakKey(points.get(i));
+			int[] xyFinal = ClusterMapHelper.breakKey(points.get((i + 1) % points.size()));
+
+			// we find the unit vector
+			double[] unitVector = new double[2];
+			unitVector[0] = (xyFinal[0] - xyInitial[0])
+					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
+			unitVector[1] = (xyFinal[1] - xyInitial[1])
+					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
+			// then the perpendicular
+			double[] perpendicularUnitVector = new double[2];
+			perpendicularUnitVector[0] = unitVector[1];
+			perpendicularUnitVector[1] = -unitVector[0];
+
+			double[] variationA = new double[2];
+			double[] variationB = new double[2];
+			variationA[0] = xyInitial[0] + size * perpendicularUnitVector[0];
+			variationA[1] = xyInitial[1] + size * perpendicularUnitVector[1];
+			variationB[0] = xyInitial[0] - size * perpendicularUnitVector[0];
+			variationB[1] = xyInitial[1] - size * perpendicularUnitVector[1];
+
+			Double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / (xyFinal[0] - xyInitial[0]);
+			gradients.add(gradient);
+
+			if (gradient == 0 || gradient.isInfinite()) {
+				double bA;
+				bA = variationA[1] - gradient * variationA[0];
+				double distanceToCentroidA = distancefromProjectedPointToCentroid(variationA, gradient, bA);
+
+				double bB;
+				bB = variationB[1] - gradient * variationB[0];
+				double distanceToCentroidB = distancefromProjectedPointToCentroid(variationB, gradient, bB);
+
+				if (distanceToCentroidB < distanceToCentroidA) {
+					offsets.add(bB);
+					variations.add(variationB);
+				} else {
+					offsets.add(bA);
+					variations.add(variationA);
 				}
-				points = reorderedPoints;
+			} else {
+				double b = -xyInitial[0] * gradient + xyInitial[1];
+				variations.add(new double[2]);
+				offsets.add(b);
+			}
+
+		}
+
+		// Special cases. When infinity and when 0 if infinity y=has a
+		// number and the other is perpendicular. Such xy
+		for (int i = 0; i < offsets.size(); i++) {
+			int xy[] = new int[2];
+			int previous = i - 1;
+			if (i == 0) {
+				previous = offsets.size() - 1;
+			}
+
+			int infinite = 0, zero = 0;
+			if (gradients.get(i).isInfinite()) {
+				infinite = 1;
+				xy[0] = (int) variations.get(i)[0];
+			}
+
+			if (gradients.get(previous).isInfinite()) {
+				infinite = 2;
+				xy[0] = (int) variations.get(previous)[0];
+			}
+
+			if (gradients.get(i) == 0.0) {
+				zero = 1;
+				xy[1] = (int) variations.get(i)[1];
+			}
+
+			if (gradients.get(previous) == 0.0) {
+				zero = 2;
+				xy[1] = (int) variations.get(previous)[1];
+			}
+
+			// squared box
+			if (infinite > 0 && zero > 0) {
+				shrinkedList.add(ClusterMapHelper.formKey(xy[0], xy[1]));
+				continue;
+			}
+
+			// square and non linear up and side
+			if (infinite > 0) {
+				if (infinite == 1) {
+					xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
+				} else {
+					xy[1] = (int) (gradients.get(i) * xy[0] + offsets.get(i));
+				}
+				shrinkedList.add(ClusterMapHelper.formKey(xy[0], xy[1]));
+				continue;
+			}
+
+			// square and non linear down and side
+			if (zero > 0) {
+				if (zero == 1) {
+					xy[0] = (int) ((xy[1] - offsets.get(previous)) / gradients.get(previous));
+				} else {
+					xy[0] = (int) ((xy[1] - offsets.get(i)) / gradients.get(i));
+				}
+				shrinkedList.add(ClusterMapHelper.formKey(xy[0], xy[1]));
+				continue;
+			}
+
+			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
+			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
+			shrinkedList.add(ClusterMapHelper.formKey(xy[0], xy[1]));
+		}
+		return shrinkedList;
+	}
+
+	public int getArea() {
+		int area = 0;
+		for (int i = 0; i < points.size(); i++) {
+			int[] xyInitial = ClusterMapHelper.breakKey(points.get(i));
+			int[] xyFinal = ClusterMapHelper.breakKey(points.get((i + 1) % points.size()));
+			area += xyInitial[0] * xyFinal[1] - xyInitial[1] * xyFinal[0];
+		}
+		return area / 2;
+	}
+
+	public boolean canBelotized() {
+		for (int i = 0; i < points.size(); i++) {
+			int[] xyInitial = ClusterMapHelper.breakKey(points.get(i));
+			int[] xyFinal = ClusterMapHelper.breakKey(points.get((i + 1) % points.size()));
+			int distance = (int) Math
+					.sqrt(Math.pow(xyInitial[0] - xyFinal[0], 2) + Math.pow(xyInitial[1] - xyFinal[1], 2));
+			if (distance < (ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE + ClusterConfiguration.LOCAL_BRANCH)) {
+				return false;
 			}
 		}
+		return true;
 	}
+
 }
