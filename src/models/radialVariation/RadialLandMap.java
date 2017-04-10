@@ -276,7 +276,7 @@ public class RadialLandMap {
 		}
 	}
 
-	private void findPolygonalArea(List<RadialLandPoint> polygon) {
+	public void findPolygonalArea(List<RadialLandPoint> polygon) {
 		int absoluteArea = 0;
 		for (int i = 0; i < polygon.size(); i++) {
 			absoluteArea += (polygon.get(i).getX() * polygon.get((i + 1) % polygon.size()).getY())

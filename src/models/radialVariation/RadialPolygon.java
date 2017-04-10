@@ -2,8 +2,8 @@ package models.radialVariation;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import helpers.clusterVariation.ClusterMapHelper;
+import models.radialVariation.RadialLandPoint;
+import models.radialVariation.RadialLandMap;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 
@@ -291,11 +291,11 @@ public class RadialPolygon {
 		return c;
 	}
 
-	private double distanceToCentroid(int[] initial) {
+	public double distanceToCentroid(int[] initial) {
 		return Math.sqrt(Math.pow(centroid[0] - initial[0], 2) + Math.pow(centroid[1] - initial[1], 2));
 	}
 
-	private double distanceToCentroid(double[] variation) {
+	public double distanceToCentroid(double[] variation) {
 		return Math.sqrt(Math.pow(centroid[0] - variation[0], 2) + Math.pow(centroid[1] - variation[1], 2));
 	}
 
@@ -453,4 +453,25 @@ public class RadialPolygon {
 		localLayer.remove(localLayer.size() - 1);
 		this.points = localLayer;
 	}
+	
+	public double areaShrinking(int size){
+		List<Integer> aux= vectorShrinking(size);
+		RadialLandMap auxLandMap = new RadialLandMap(800, 800);
+		List<RadialLandPoint> auxPolygon = new ArrayList<>();		
+		for(int i = 0; i < aux.size();i++){
+			int[] valxy = RadialMapHelper.breakKey(aux.get(i));
+			RadialLandPoint landPoint = new RadialLandPoint(valxy[0],valxy[1]);
+			auxPolygon.add(landPoint);
+		}
+		int[] valxy = RadialMapHelper.breakKey(aux.get(0));
+		RadialLandPoint landPoint = new RadialLandPoint(valxy[0],valxy[1]);
+		auxPolygon.add(landPoint);
+		
+		auxLandMap.findPolygonalArea(auxPolygon);
+		
+		double localArea= auxLandMap.getPolygonalArea();
+		
+		return localArea;
+	}
+	
 }

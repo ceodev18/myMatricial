@@ -37,24 +37,50 @@ public class radialAlgorithm {
 		polygon.setMapPoints(localLayer);
 		polygon.setComplete(true);
 		layersPolygon.add(localLayer); 
-		localLayer = polygon.vectorShrinking(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE);
-		layersPolygon.add(localLayer);
-		localLayer = polygon.vectorShrinking(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2);
-		layersPolygon.add(localLayer);
-		for (int j = 0; j < layersPolygon.size(); j++) {
-			landMap.createBorderFromPolygon(layersPolygon.get(j), RadialConfiguration.LOCAL_MARK);
-		}
-
-		// create the routes
-		List<List<Integer>> routes = polygon.routeZone(RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2,
-				RadialConfiguration.LOCAL_BRANCH_SIZE);
-		if (routes.size() > 6) {
-			for (int j = 0; j < routes.size(); j++) {
-				landMap.createBorderFromPolygon(routes.get(j), RadialConfiguration.LOCAL_MARK);
+		/// calculate the aprox of layers on the polygon
+		int valueSeparation = RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE;
+		double areaTotal = landMap.getPolygonalArea();
+		double areaPark = (33*areaTotal)/100;
+		//int[] xypoint = RadialMapHelper.breakKey(localLayer.get(0));
+		//double  distancetoCentroid =  polygon.distanceToCentroid(xypoint);
+		//double distancePark = distancetoCentroid*areaPark /(areaTotal);
+		//int valueRepticion = (int)((distancetoCentroid - distancePark) % valueSeparation);
+		//System.out.println("el bucle se dara:" + valueRepticion);
+		///
+		int valuePlus=1;
+		while(true){
+			int aux = valueSeparation*valuePlus;
+			double possibleArea = polygon.areaShrinking(aux);
+			if(possibleArea <= areaPark)break;
+			localLayer = polygon.vectorShrinking(valuePlus*RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE);
+			layersPolygon.add(localLayer);
+			localLayer = polygon.vectorShrinking(valuePlus*RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2);
+			layersPolygon.add(localLayer);
+			/*
+				for (int j = 0; j < layersPolygon.size(); j++) {
+				landMap.createBorderFromPolygon(layersPolygon.get(j), RadialConfiguration.LOCAL_MARK);
 			}
-		} else {
-			routes = new ArrayList<>();
+			 */
+
+			// create the routes
+			List<List<Integer>> routes = polygon.routeZone(valuePlus*RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2,
+					RadialConfiguration.LOCAL_BRANCH_SIZE);
+			if (routes.size() > 6) {
+			for (int j = 0; j < routes.size(); j++) {
+					landMap.createBorderFromPolygon(routes.get(j), RadialConfiguration.LOCAL_MARK);
+			}
+			} else {
+				routes = new ArrayList<>();
+			}
+			valuePlus++;
+		
 		}
+		// create the park
+			List<List<Integer>> grass = polygon.parkZone(
+				(valuePlus-1)*RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE);
+			for (int j = 0; j < grass.size(); j++) {
+				landMap.createBorderFromPolygon(grass.get(j), RadialConfiguration.PARK_MARK);
+			}
 
 	}
 
