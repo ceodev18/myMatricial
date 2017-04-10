@@ -560,10 +560,11 @@ public class ClusterLandMap {
 	}
 
 	public void impreciseLotization(ClusterPolygon clusterPolygon) {
-		if(!clusterPolygon.canBelotized()){
+		if (!clusterPolygon.canBelotized()) {
 			return;
 		}
-		
+
+		boolean entranceCreated = false;
 		for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
 			// detect whereas the kind of side it is 0.0 or infinite if not
 			// we simply ignore it (for now)
@@ -590,6 +591,10 @@ public class ClusterLandMap {
 			int[] currentXY = initialXY;
 			int seed = 0;
 			while (currentXY[0] != finalXY[0] || currentXY[1] != finalXY[1]) {
+				if (!entranceCreated) {
+					createSmallEntranceRoute(initialXY, finalXY, driveDirection, growDirection);
+					entranceCreated = true;
+				}
 				if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
 						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE)) {
 					currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, false,
@@ -600,8 +605,7 @@ public class ClusterLandMap {
 				}
 			}
 		}
-		// TODO we create an inner route and try to create a new polygon to
-		// take hold of the side
+		//we create an inner route and try to create a new polygon to take hold of the side
 		List<Integer> reducedPoints = clusterPolygon
 				.translateTowardCenter(ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE);
 		for (int i = 0; i < reducedPoints.size(); i++) {
@@ -629,11 +633,52 @@ public class ClusterLandMap {
 
 		reducedPoints = clusterPolygon.translateTowardCenter(
 				ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE + ClusterConfiguration.LOCAL_BRANCH_SIZE);
-		if(reducedPoints.size()!=0){
+		if (reducedPoints.size() != 0) {
 			ClusterPolygon innerPolygon = new ClusterPolygon();
 			innerPolygon.setPoints(reducedPoints);
 			innerPolygon.setComplete(true);
 			impreciseLotization(innerPolygon);
+		}
+	}
+
+	private void createSmallEntranceRoute(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
+		// TODO Auto-generated method stub
+		int times = ClusterConfiguration.LOCAL_BRANCH_SIZE;
+		int[] currentXY = new int[] { initialXY[0], initialXY[1] };
+		int distance = (int) Math.sqrt(Math.pow(initialXY[0] - finalXY[0], 2) + Math.pow(initialXY[1] - finalXY[1], 2));
+		if (distance < 30) {
+			return;
+		}
+		int[] lowerXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, distance / 2, driveDirection);
+		int[] upperXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, (distance / 2) + 1, driveDirection);
+
+		while (times != 0) {
+			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
+			int[] lowerOrthXY = new int[] { lowerXY[0], lowerXY[1] };
+			while (growTimes != 0) {
+				if(!this.findPoint(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1])).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
+				this.findPoint(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1]))
+						.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+				lowerOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			lowerXY = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerXY, 1,
+					ClusterDirectionHelper.oppositeDirection(driveDirection));
+			times--;
+
+			if (times == 0)
+				continue;
+
+			growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
+			int[] upperOrthXY = new int[] { upperXY[0], upperXY[1] };
+			while (growTimes != 0) {
+				this.findPoint(ClusterMapHelper.formKey(upperOrthXY[0], upperOrthXY[1]))
+						.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
+				upperOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(upperOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			upperXY = ClusterMapHelper.moveKeyByOffsetAndDirection(upperXY, 1, driveDirection);
+			times--;
 		}
 	}
 
