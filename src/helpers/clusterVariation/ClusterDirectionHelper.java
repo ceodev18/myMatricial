@@ -132,7 +132,7 @@ public class ClusterDirectionHelper {
 	}
 
 	public static int perpendicularDirection(int[] initialXY, int[] centroid, int direction) {
-		if (direction == ClusterConstants.NORTH || direction == ClusterConstants.SOUTH) {
+		if ((direction == ClusterConstants.NORTH) || (direction == ClusterConstants.SOUTH)) {
 			if(initialXY[0]<centroid[0]){
 				return ClusterConstants.EAST;
 			}else{

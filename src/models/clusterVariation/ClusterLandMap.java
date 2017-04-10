@@ -73,6 +73,10 @@ public class ClusterLandMap {
 		this.nodes = nodes;
 	}
 	
+	public ClusterLandPoint getCentroid() {
+		return new ClusterLandPoint(pointsx/2, pointsy/2);
+	}
+	
 	/**
 	 * This method marks all points that are not inside the polygon border as
 	 * restricted area. This must be an ordered set of consecutive points (after
@@ -519,8 +523,90 @@ public class ClusterLandMap {
 		}
 	}
 
+	private void orthogonallyLotize(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
+		int[] currentXY = initialXY;
+		int seed = 0;
+		int distance = (int) Math.sqrt(Math.pow(currentXY[0] - finalXY[0], 2) + Math.pow(currentXY[1] - finalXY[1], 2));
+		while (distance>0) {
+			if (canBeOrthogonallyLotized(currentXY, finalXY, driveDirection, growDirection,
+					ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE )) {
+				currentXY = orthogonalLotize(currentXY, finalXY, driveDirection, growDirection,
+						seed % ClusterConstants.MAX_HOUSE_COMBINATION);
+				seed += 2;
+				distance-=6;
+			} else {
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
+				distance--;
+			}
+		}
+	}
+
+	private int[] orthogonalLotize(int[] initialXY, int[] finalXY, int driveDirection, int growDirection, int seed) {
+		int times = ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE;
+		int[] currentXY = new int[] { initialXY[0], initialXY[1] };		
+		while (times != 0) {
+			String type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+			while(!type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)){
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, ClusterDirectionHelper.oppositeDirection(growDirection));
+				type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+			}			
+			while(type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)){
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, growDirection);
+				type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+			}		
+			
+			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2;
+			int[] currentOrthXY = new int[] { currentXY[0], currentXY[1] };
+			while (growTimes != 0) {
+				this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).setType(""+seed);
+				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
+			times--;
+		}
+		return currentXY;
+	}
+
+	private boolean canBeOrthogonallyLotized(int[] initialXY, int[] finalXY, int driveDirection, int growDirection,
+			int i) {
+		int times = ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE;
+		int[] currentXY = new int[] { initialXY[0], initialXY[1] };		
+		while (times != 0) {
+			String type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+			while(!type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)){
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, ClusterDirectionHelper.oppositeDirection(growDirection));
+				type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+			}			
+			while(type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)){
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, growDirection);
+				type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+			}			
+			
+			if (currentXY[0] == finalXY[0] && currentXY[1] == finalXY[1]) {
+				return false;
+			}
+			
+			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2;
+			int[] currentOrthXY = new int[] { currentXY[0], currentXY[1] };
+			while (growTimes != 0) {
+				if (!this.landPointisOnMap(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])))
+					return false;
+				type = this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType();
+				if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals(ClusterConfiguration.PARK_MARK)
+						&& !type.equals(ClusterConfiguration.LOCAL_MARK)
+						&& !type.equals(ClusterConfiguration.BORDER_MARK))
+					return false;
+				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
+			times--;
+		}
+		return true;
+	}
+
 	private void createSmallEntranceRoute(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
-		// TODO Auto-generated method stub
 		int times = ClusterConfiguration.LOCAL_BRANCH_SIZE;
 		int[] currentXY = new int[] { initialXY[0], initialXY[1] };
 		int distance = (int) Math.sqrt(Math.pow(initialXY[0] - finalXY[0], 2) + Math.pow(initialXY[1] - finalXY[1], 2));
@@ -655,6 +741,18 @@ public class ClusterLandMap {
 				driveDirection = initialXY[0] < finalXY[0] ? ClusterConstants.EAST : ClusterConstants.WEST;
 				createWalkRoute(initialXY, finalXY, driveDirection, growDirection);
 			} else {
+				if(Math.abs(initialXY[0]-finalXY[0])>Math.abs(initialXY[1]-finalXY[1])){
+					driveDirection = initialXY[0] < finalXY[0] ? ClusterConstants.EAST : ClusterConstants.WEST;
+					growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterPolygon.getCentroid(),
+							ClusterConstants.EAST);	
+				}else{
+					driveDirection = initialXY[1] < finalXY[1] ? ClusterConstants.NORTH : ClusterConstants.SOUTH;
+					growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterPolygon.getCentroid(),
+							ClusterConstants.NORTH);
+					
+
+				}
+				//orthogonallyLotize(initialXY, finalXY, driveDirection, growDirection);
 				System.out.println("Non orthogonal detected");
 				continue;
 			}
@@ -751,8 +849,4 @@ public class ClusterLandMap {
 		}
 	}
 
-	
-	public ClusterLandPoint getCentroid() {
-		return new ClusterLandPoint(pointsx/2, pointsy/2);
-	}
 }
