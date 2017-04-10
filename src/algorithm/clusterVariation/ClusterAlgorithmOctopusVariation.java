@@ -267,7 +267,38 @@ public class ClusterAlgorithmOctopusVariation {
 			}
 		}
 
+		/*
+		 * TODO code that used to be on the lotization side, whereas used on the
+		 * non orthogonal ones
+		 */
+		nonOrthogonalMapLotization();
+
 		return clusterPolygons;
+	}
+
+	private void nonOrthogonalMapLotization() {
+		ClusterPolygon clusterMap = landMap.getAsClusterPolygon();
+		for (int i = 0; i < clusterMap.getPoints().size(); i++) {
+			int[] initialXY = ClusterMapHelper.breakKey(clusterMap.getPoints().get(i));
+			int[] finalXY = ClusterMapHelper
+					.breakKey(clusterMap.getPoints().get((i + 1) % clusterMap.getPoints().size()));
+
+			int driveDirection = -1;
+			int growDirection = -1;
+
+			if ((initialXY[0] != finalXY[0]) && (initialXY[1] != finalXY[1])) {
+				if (Math.abs(initialXY[0] - finalXY[0]) > Math.abs(initialXY[1] - finalXY[1])) {
+					driveDirection = initialXY[0] < finalXY[0] ? ClusterConstants.EAST : ClusterConstants.WEST;
+					growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterMap.getCentroid(),
+							ClusterConstants.EAST);
+				} else {
+					driveDirection = initialXY[1] < finalXY[1] ? ClusterConstants.NORTH : ClusterConstants.SOUTH;
+					growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterMap.getCentroid(),
+							ClusterConstants.NORTH);
+				}
+				landMap.orthogonalLotization(initialXY, finalXY, driveDirection, growDirection);
+			}
+		}
 	}
 
 	private void createOctopianCoverture(int nodeKey, ClusterPolygon clusterPolygon) {

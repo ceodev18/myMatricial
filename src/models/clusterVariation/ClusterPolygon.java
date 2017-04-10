@@ -11,11 +11,16 @@ public class ClusterPolygon {
 	private int[] centroid;
 	private int[] squareLimits;
 	private boolean complete;
-	private int expansions;
 
 	public ClusterPolygon() {
 		points = new ArrayList<>();
-		setExpansions(0);
+	}
+
+	public ClusterPolygon(List<Integer> nodes) {
+		points = new ArrayList<>();
+		for (int i = 0; i < nodes.size(); i++) {
+			points.add(nodes.get(i));
+		}
 	}
 
 	public int[] getCentroid() {
@@ -352,14 +357,6 @@ public class ClusterPolygon {
 			}
 		}
 		return minimunDistance;
-	}
-
-	public int getExpansions() {
-		return expansions;
-	}
-
-	public void setExpansions(int expansions) {
-		this.expansions = expansions;
 	}
 
 	public void setPoints(List<Integer> points) {
