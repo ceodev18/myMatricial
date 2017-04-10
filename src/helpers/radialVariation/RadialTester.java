@@ -26,14 +26,14 @@ public class RadialTester {
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
 
-		int large = 925, width = 1130;
-		//int large = 950, width = 750;
+		//int large = 925, width = 1130;
+		int large = 950, width = 750;
 		// 1. We create the map and set its intrinsec variables
 		
 		RadialLandMap landMap = new RadialLandMap(large, width);
 		List<RadialLandPoint> polygon = new ArrayList<>();
 		
-		/*
+		
 		RadialLandPoint landPoint = new RadialLandPoint(450,48);
 		polygon.add(landPoint);
 		landPoint = new RadialLandPoint(908, 286);
@@ -47,8 +47,8 @@ public class RadialTester {
 		// we must reuse the first one as the last
 		landPoint = new RadialLandPoint(450, 48);
 		polygon.add(landPoint);
-		*/
 		
+		/*
 		RadialLandPoint landPoint = new RadialLandPoint(726, 20);
 		polygon.add(landPoint);
 		landPoint = new RadialLandPoint(924, 762);
@@ -61,7 +61,7 @@ public class RadialTester {
 		landPoint = new RadialLandPoint(726,20);
 		polygon.add(landPoint);
 
-		
+		*/
 		
 		// 2. we create the border from the polygon
 		landMap.createBorderFromPolygon(polygon);
