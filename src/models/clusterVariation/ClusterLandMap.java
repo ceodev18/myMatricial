@@ -14,16 +14,12 @@ import interfaces.clusterVariation.ClusterConstants;
 public class ClusterLandMap {
 	private int pointsx = -1;
 	private int pointsy = -1;
-
-	private ClusterLandPoint centroid;
-
+	
 	private Map<Integer, ClusterLandPoint> map;
-
 	private ClusterLandRoute landRoute;
 	private List<Integer> nodes = new ArrayList<>();
 	List<List<Integer>> fullPolygon;
-	private List<ClusterLandPoint> polygonNodes;
-	private double polygonalArea;
+
 
 	public ClusterLandMap(int pointsx, int pointsy) {
 		this.setPointsx(++pointsx);
@@ -57,14 +53,6 @@ public class ClusterLandMap {
 		return map.get(pointId);
 	}
 
-	public ClusterLandPoint getCentroid() {
-		return centroid;
-	}
-
-	public void setCentroid(ClusterLandPoint centroid) {
-		this.centroid = centroid;
-	}
-
 	public ClusterLandPoint findPoint(int entryPointId) {
 		return map.get(entryPointId);
 	}
@@ -77,13 +65,20 @@ public class ClusterLandMap {
 		return landRoute;
 	}
 
+	public List<Integer> getNodes() {
+		return nodes;
+	}
+
+	public void setNodes(List<Integer> nodes) {
+		this.nodes = nodes;
+	}
+	
 	/**
 	 * This method marks all points that are not inside the polygon border as
 	 * restricted area. This must be an ordered set of consecutive points (after
 	 * all the input from android looks like that.
 	 */
-	public void createBorderFromPolygon(List<ClusterLandPoint> polygon) {
-		setPolygonNodes(polygon);
+	public void createMapBorder(List<ClusterLandPoint> polygon) {
 		fullPolygon = new ArrayList<>();
 		// first we create the border
 		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
@@ -133,8 +128,6 @@ public class ClusterLandMap {
 
 		// we fill everything outside of it with Xs
 		fillPolygonalArea();
-		findPolygonalArea(polygon);
-		findCentroid(polygon);
 		clearDottedLimits();
 		updatePolygonLimits();
 	}
@@ -178,6 +171,7 @@ public class ClusterLandMap {
 			polygonRow.add(fullPolygon.get(x).get(fullPolygon.get(x).size() - 1));
 			fullPolygon.set(x, polygonRow);
 		}
+		fullPolygon = null;
 	}
 
 	private boolean isPolygonBorder(int x, int y) {
@@ -275,19 +269,6 @@ public class ClusterLandMap {
 		}
 	}
 
-	private void findPolygonalArea(List<ClusterLandPoint> polygon) {
-		int absoluteArea = 0;
-		for (int i = 0; i < polygon.size(); i++) {
-			absoluteArea += (polygon.get(i).getX() * polygon.get((i + 1) % polygon.size()).getY())
-					- (polygon.get(i).getY() * polygon.get((i + 1) % polygon.size()).getX());
-		}
-		setPolygonalArea(Math.abs(absoluteArea) / 2);
-	}
-
-	private void findCentroid(List<ClusterLandPoint> polygon) {
-		this.setCentroid(new ClusterLandPoint(pointsx / 2, pointsy / 2));
-	}
-
 	public void printMapToFile() {
 		try {
 			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
@@ -327,30 +308,6 @@ public class ClusterLandMap {
 	public boolean landPointisOnMap(int pointId) {
 		int[] xy = ClusterMapHelper.breakKey(pointId);
 		return xy[0] < pointsx && xy[0] > 0 && xy[1] < pointsy && xy[1] > 0;
-	}
-
-	public List<Integer> getNodes() {
-		return nodes;
-	}
-
-	public void setNodes(List<Integer> nodes) {
-		this.nodes = nodes;
-	}
-
-	public List<ClusterLandPoint> getPolygonNodes() {
-		return polygonNodes;
-	}
-
-	public void setPolygonNodes(List<ClusterLandPoint> polygonNodes) {
-		this.polygonNodes = polygonNodes;
-	}
-
-	public double getPolygonalArea() {
-		return polygonalArea;
-	}
-
-	public void setPolygonalArea(double polygonalArea) {
-		this.polygonalArea = polygonalArea;
 	}
 
 	public boolean isSpecialNode(int x, int y) {
@@ -458,86 +415,7 @@ public class ClusterLandMap {
 		}
 		return false;
 	}
-
-	public ClusterPolygon joinWithPolygonalBorder(ClusterPolygon clusterPolygon) {
-		int initialVertex = clusterPolygon.getPoints().get(0);
-		int finalVertex = clusterPolygon.getPoints().get(clusterPolygon.getPoints().size() - 1);
-		int initialVertexSide = -1;
-		int finalVertexSide = -1;
-
-		for (int x = 0; x < fullPolygon.size(); x++) {
-			for (int i = 0; i < fullPolygon.get(x).size(); i++) {
-				// System.out.print(fullPolygon.get(x).get(i) + ",");
-
-				if ((fullPolygon.get(x).get(i) == initialVertex) && (initialVertexSide == -1)) {
-					initialVertexSide = x;
-				}
-
-				if ((fullPolygon.get(x).get(i) == finalVertex) && (finalVertexSide == -1)) {
-					finalVertexSide = x;
-				}
-
-				if ((initialVertexSide != -1) && (finalVertexSide != -1))
-					break;
-			}
-			if ((initialVertexSide != -1) && (finalVertexSide != -1))
-				break;
-		}
-		// they both are on the same line. Meaning it is a triangle
-		if (initialVertexSide == finalVertexSide) {
-			clusterPolygon.setComplete(true);
-			return clusterPolygon;
-		}
-		// System.out.println("Vertexes " + initialVertexSide + "||" +
-		// finalVertexSide);
-
-		if (initialVertexSide != finalVertexSide) {
-			// simple complex figure
-			// This polygons should be treated as if another procedure is
-			// missing (going up from initial point
-			// before trying again this strategy
-			if ((initialVertexSide == -1 && finalVertexSide != -1)
-					|| (initialVertexSide != -1 && finalVertexSide == -1)) {
-				// System.out.println("Incomplete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
-			}
-
-			int initialVertex0 = fullPolygon.get(initialVertexSide).get(0);
-			int initialVertexFinal = fullPolygon.get(initialVertexSide)
-					.get(fullPolygon.get(initialVertexSide).size() - 1);
-			int finalVertex0 = fullPolygon.get(finalVertexSide).get(0);
-			int finalVertexFinal = fullPolygon.get(finalVertexSide).get(fullPolygon.get(finalVertexSide).size() - 1);
-
-			if (initialVertex0 == finalVertex0) {
-				clusterPolygon.getPoints().add(initialVertex0);
-				clusterPolygon.setComplete(true);
-				// System.out.println("Complete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
-			} else if (initialVertex0 == finalVertexFinal) {
-				clusterPolygon.getPoints().add(initialVertex0);
-				clusterPolygon.setComplete(true);
-				// System.out.println("Complete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
-			} else if (initialVertexFinal == finalVertex0) {
-				clusterPolygon.getPoints().add(initialVertexFinal);
-				clusterPolygon.setComplete(true);
-				// System.out.println("Complete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
-			} else if (initialVertexFinal == finalVertexFinal) {
-				clusterPolygon.getPoints().add(initialVertexFinal);
-				clusterPolygon.setComplete(true);
-				// System.out.println("Complete data polygon");
-				clusterPolygon.printPolygon();
-				return clusterPolygon;
-			}
-		}
-		return clusterPolygon;
-	}
-
+	
 	public String stringify() {
 		String mapString = "";
 
@@ -628,7 +506,7 @@ public class ClusterLandMap {
 				System.out.println("Non orthogonal detected");
 				continue;
 			}
-			innerRoad(initialXY, finalXY, driveDirection, growDirection);
+			createInnerRoad(initialXY, finalXY, driveDirection, growDirection);
 		}
 
 		reducedPoints = clusterPolygon.translateTowardCenter(
@@ -682,7 +560,7 @@ public class ClusterLandMap {
 		}
 	}
 
-	private void innerRoad(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
+	private void createInnerRoad(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
 		int times = (int) Math.sqrt(Math.pow(initialXY[0] - finalXY[0], 2) + Math.pow(initialXY[1] - finalXY[1], 2));
 		while (times != 0) {
 			int growTimes = ClusterConfiguration.LOCAL_BRANCH_SIZE;
@@ -871,5 +749,10 @@ public class ClusterLandMap {
 					ClusterDirectionHelper.oppositeDirection(driveDirection));
 			times--;
 		}
+	}
+
+	
+	public ClusterLandPoint getCentroid() {
+		return new ClusterLandPoint(pointsx/2, pointsy/2);
 	}
 }

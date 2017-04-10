@@ -41,7 +41,7 @@ public class ClusterTester {
 		polygon.add(landPoint);
 
 		// 2. we create the border from the polygon
-		landMap.createBorderFromPolygon(polygon);
+		landMap.createMapBorder(polygon);
 		
 		// 3, We create the entry points for the main routes
 		List<ClusterLandPoint> entryPoints = new ArrayList<>();
