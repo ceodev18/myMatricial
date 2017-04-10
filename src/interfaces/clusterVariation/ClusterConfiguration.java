@@ -25,7 +25,8 @@ public interface ClusterConfiguration {
 	public static String POLYGON_BORDER = ".";
 	public static String ARTERIAL_MARK = "a";
 	public static String COLLECTOR_MARK = "a";
-	public static String LOCAL_MARK = "c";
+	public static String INTERNAL_LOCAL_MARK = "c";
+	public static String LOCAL_MARK = "a";
 	public static String NODE_MARK = "n";
 	public static String PARK_MARK = "p";	
 	public static String WALK_MARK = "b";

@@ -578,7 +578,7 @@ public class ClusterLandMap {
 					return false;
 				type = this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType();
 				if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals(ClusterConfiguration.PARK_MARK)
-						&& !type.equals(ClusterConfiguration.LOCAL_MARK)
+						&& !type.equals(ClusterConfiguration.INTERNAL_LOCAL_MARK)
 						&& !type.equals(ClusterConfiguration.BORDER_MARK))
 					return false;
 				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
@@ -690,9 +690,10 @@ public class ClusterLandMap {
 			while (growTimes != 0) {
 				if (!this.landPointisOnMap(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])))
 					return false;
-				String type = this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType();
-				if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals(ClusterConfiguration.PARK_MARK)
-						&& !type.equals(ClusterConfiguration.LOCAL_MARK)
+				String type = this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType();				
+				if (!type.equals(ClusterConfiguration.EMPTY_MARK) 
+						&& !type.equals(ClusterConfiguration.PARK_MARK)
+						&& !type.equals(ClusterConfiguration.INTERNAL_LOCAL_MARK)
 						&& !type.equals(ClusterConfiguration.BORDER_MARK))
 					return false;
 				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
