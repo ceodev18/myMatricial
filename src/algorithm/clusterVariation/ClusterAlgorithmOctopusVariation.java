@@ -223,6 +223,7 @@ public class ClusterAlgorithmOctopusVariation {
 		List<ClusterPolygon> clusterPolygons = new ArrayList<ClusterPolygon>();
 		for (int y = 0; y < landMap.getPointsy(); y++) {
 			boolean insidePolygon = false;
+			boolean withContribution = true;
 			for (int x = 0; x < landMap.getPointsx(); x++) {
 
 				if (insidePolygon && landMap.findPoint(ClusterMapHelper.formKey(x, y)).getType()
@@ -241,7 +242,6 @@ public class ClusterAlgorithmOctopusVariation {
 					if (clusterPolygon.getPoints().size() < 3)
 						continue;
 					clusterPolygons.add(clusterPolygon);
-					System.out.print(clusterPolygons.size() + ")");
 					clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 					// we create the park
@@ -261,7 +261,8 @@ public class ClusterAlgorithmOctopusVariation {
 						for (int j = 0; j < routes.size(); j++) {
 							landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
 						}
-						landMap.preciseLotization(clusterPolygon);
+						landMap.preciseLotization(clusterPolygon, withContribution);
+						withContribution = !withContribution;
 					}
 				}
 			}

@@ -70,7 +70,7 @@ public class ClusterLandMap {
 
 	public void setNodes(List<ClusterLandPoint> polygon) {
 		this.nodes = new ArrayList<>();
-		for(int i=0; i<polygon.size();i++){
+		for (int i = 0; i < polygon.size(); i++) {
 			nodes.add(polygon.get(i).getId());
 		}
 	}
@@ -469,7 +469,7 @@ public class ClusterLandMap {
 						ClusterConstants.EAST);
 				driveDirection = initialXY[0] < finalXY[0] ? ClusterConstants.EAST : ClusterConstants.WEST;
 			} else {
-				System.out.println("Non orthogonal detected");
+				// The master polygon takes care of this
 				continue;
 			}
 
@@ -511,7 +511,7 @@ public class ClusterLandMap {
 						ClusterConstants.EAST);
 				driveDirection = initialXY[0] < finalXY[0] ? ClusterConstants.EAST : ClusterConstants.WEST;
 			} else {
-				System.out.println("Non orthogonal detected");
+				// The map polygon takes care of this
 				continue;
 			}
 			createInnerRoad(initialXY, finalXY, driveDirection, growDirection);
@@ -690,9 +690,8 @@ public class ClusterLandMap {
 			while (growTimes != 0) {
 				if (!this.landPointisOnMap(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])))
 					return false;
-				String type = this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType();				
-				if (!type.equals(ClusterConfiguration.EMPTY_MARK) 
-						&& !type.equals(ClusterConfiguration.PARK_MARK)
+				String type = this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType();
+				if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals(ClusterConfiguration.PARK_MARK)
 						&& !type.equals(ClusterConfiguration.INTERNAL_LOCAL_MARK)
 						&& !type.equals(ClusterConfiguration.BORDER_MARK))
 					return false;
@@ -706,7 +705,7 @@ public class ClusterLandMap {
 	}
 
 	private int[] lotize(int[] initialXY, int[] finalXY, int driveDirection, int growDirection, boolean dual,
-			int seed) {
+			int seed, boolean withContribution) {
 		int times = ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE;
 		int[] currentXY = initialXY;
 		while (times != 0) {
@@ -734,7 +733,7 @@ public class ClusterLandMap {
 		return currentXY;
 	}
 
-	public void preciseLotization(ClusterPolygon clusterPolygon) {
+	public void preciseLotization(ClusterPolygon clusterPolygon, boolean withContribution) {
 		for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
 			// detect whereas the kind of side it is 0.0 or infinite if not
 			// we simply ignore it (for now)
@@ -755,7 +754,8 @@ public class ClusterLandMap {
 				driveDirection = initialXY[0] < finalXY[0] ? ClusterConstants.EAST : ClusterConstants.WEST;
 				createWalkRoute(initialXY, finalXY, driveDirection, growDirection);
 			} else {
-				//Not interest in the partial solution but the global one done by the map itself
+				// Not interest in the partial solution but the global one done
+				// by the map itself
 				continue;
 			}
 
@@ -765,7 +765,9 @@ public class ClusterLandMap {
 				if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
 						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2)) {
 					currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, true,
-							seed % ClusterConstants.MAX_HOUSE_COMBINATION);
+							seed % ClusterConstants.MAX_HOUSE_COMBINATION, withContribution);
+					if (withContribution)
+						withContribution = !withContribution;
 					seed += 2;
 				} else {
 					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
