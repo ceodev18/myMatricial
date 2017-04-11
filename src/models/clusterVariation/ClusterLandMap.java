@@ -705,7 +705,7 @@ public class ClusterLandMap {
 	}
 
 	private int[] lotize(int[] initialXY, int[] finalXY, int driveDirection, int growDirection, boolean dual,
-			int seed, boolean withContribution) {
+			int seed) {
 		int times = ClusterConfiguration.HOUSE_SIDE_MINIMUN_SIZE;
 		int[] currentXY = initialXY;
 		while (times != 0) {
@@ -734,6 +734,7 @@ public class ClusterLandMap {
 	}
 
 	public void preciseLotization(ClusterPolygon clusterPolygon, boolean withContribution) {
+		boolean contribute = false;
 		for (int i = 0; i < clusterPolygon.getPoints().size(); i++) {
 			// detect whereas the kind of side it is 0.0 or infinite if not
 			// we simply ignore it (for now)
@@ -748,6 +749,10 @@ public class ClusterLandMap {
 						ClusterConstants.NORTH);
 				driveDirection = initialXY[1] < finalXY[1] ? ClusterConstants.NORTH : ClusterConstants.SOUTH;
 				createEntranceRoute(initialXY, finalXY, driveDirection, growDirection);
+				if(withContribution) {
+					withContribution = false;
+					contribute = true;
+				}
 			} else if (initialXY[1] == finalXY[1]) {
 				growDirection = ClusterDirectionHelper.perpendicularDirection(initialXY, clusterPolygon.getCentroid(),
 						ClusterConstants.EAST);
@@ -762,17 +767,45 @@ public class ClusterLandMap {
 			int[] currentXY = initialXY;
 			int seed = 0;
 			while (currentXY[0] != finalXY[0] || currentXY[1] != finalXY[1]) {
-				if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
-						ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2)) {
-					currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, true,
-							seed % ClusterConstants.MAX_HOUSE_COMBINATION, withContribution);
-					if (withContribution)
-						withContribution = !withContribution;
-					seed += 2;
-				} else {
-					currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
+				if (contribute){
+					createConribution(currentXY, finalXY, driveDirection, growDirection);
+					contribute=false;
+				}else{
+					if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
+							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2)) {
+						currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, true,
+								seed % ClusterConstants.MAX_HOUSE_COMBINATION);
+						if (withContribution)
+							withContribution = !withContribution;
+						seed += 2;
+					} else {
+						currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
+					}					
 				}
 			}
+		}
+	}
+
+	private void createConribution(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
+		int times = ClusterConfiguration.CONTRIBUTION_SIDE_MINIMUN_SIZE;
+		int[] currentXY = new int[] { initialXY[0], initialXY[1] };
+		int distance = (int) Math.sqrt(Math.pow(initialXY[0] - finalXY[0], 2) + Math.pow(initialXY[1] - finalXY[1], 2));
+		if (distance < times) {
+			return;
+		}
+		
+		while (times != 0) {
+			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2;
+			int[] lowerOrthXY = new int[] { currentXY[0], currentXY[1] };
+			while (growTimes != 0) {
+				this.findPoint(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1]))
+						.setType(ClusterConfiguration.CONTRIBUTION_MARK);
+				lowerOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerOrthXY, 1, growDirection);
+				growTimes--;
+			}
+			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1,
+					ClusterDirectionHelper.oppositeDirection(driveDirection));
+			times--;
 		}
 	}
 
