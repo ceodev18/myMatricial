@@ -9,7 +9,7 @@ public interface ClusterConfiguration {
 	public static int CLUSTER_ENTRANCE_SIZE = 12;
 	
 	public static int HOUSE_SIDE_MINIMUN_SIZE = 8;
-	public static int CONTRIBUTION_SIDE_MINIMUN_SIZE = 30;
+	public static int CONTRIBUTION_SIDE_MINIMUN_SIZE = 24;
 	public static int HOUSE_SIDE_MAXIMUN_SIZE = 15;
 	public static int HOUSE_DEPTH_MINIMUN_SIZE = 12; 
 	public static int HOUSE_DEPTH_MAXIMUN_SIZE = 20; 
