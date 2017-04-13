@@ -40,13 +40,8 @@ public class radialAlgorithm {
 		/// calculate the aprox of layers on the polygon
 		int valueSeparation = RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE;
 		double areaTotal = landMap.getPolygonalArea();
-		double areaPark = (33*areaTotal)/100;
-		//int[] xypoint = RadialMapHelper.breakKey(localLayer.get(0));
-		//double  distancetoCentroid =  polygon.distanceToCentroid(xypoint);
-		//double distancePark = distancetoCentroid*areaPark /(areaTotal);
-		//int valueRepticion = (int)((distancetoCentroid - distancePark) % valueSeparation);
-		//System.out.println("el bucle se dara:" + valueRepticion);
-		///
+		double areaPark = (areaTotal*2.4)/100;
+		
 		int valuePlus=1;
 		while(true){
 			int aux = valueSeparation*valuePlus;
@@ -70,16 +65,26 @@ public class radialAlgorithm {
 			List<List<Integer>> routes = polygon.routeZone(valuePlus*RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE*(valuePlus-1),
 					RadialConfiguration.LOCAL_BRANCH_SIZE);
 			if (routes.size() > 6) {
-			for (int j = 0; j < routes.size(); j++) {
+				for (int j = 0; j < routes.size(); j++) {
 					landMap.createBorderFromPolygon(routes.get(j), RadialConfiguration.LOCAL_MARK);
-			}
+				}
 			} else {
-				routes = new ArrayList<>();
+					routes = new ArrayList<>();
 			}
 			valuePlus++;
 		
 		}
-		localLayer = polygon.vectorShrinking((valuePlus-1)*valueSeparation);
+		//complete a arteral branch size
+		List<List<Integer>> routesAux = polygon.routeZone((valuePlus-1)*valueSeparation, 16);
+		if (routesAux.size() > 6) {
+			for (int j = 0; j < routesAux.size(); j++) {
+				landMap.createBorderFromPolygon(routesAux.get(j), RadialConfiguration.LOCAL_MARK);
+			} 
+		}else {
+			routesAux = new ArrayList<>();
+		}
+		/////
+		localLayer = polygon.vectorShrinking(((valuePlus-1)*valueSeparation)+16);
 		layersPolygon.add(localLayer);
 		
 		
@@ -89,13 +94,13 @@ public class radialAlgorithm {
 		// create the park
 				
 				List<List<Integer>> grass = polygon.parkZone(
-					(valuePlus-1)*valueSeparation);
+					(valuePlus-1)*valueSeparation+16);
 				for (int j = 0; j < grass.size(); j++) {
 					landMap.createBorderFromPolygon(grass.get(j), RadialConfiguration.PARK_MARK);
 				}
 		//
 		
-		polygon.parkArea((valuePlus-1)*valueSeparation);
+		polygon.parkArea((valuePlus-1)*valueSeparation + 16);
 
 	}
 
