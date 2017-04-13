@@ -337,19 +337,7 @@ public class ClusterLandMap {
 
 		return false;
 	}
-
-	public boolean intersectMainRoute(int entryPointId) {
-		int initialPoint = landRoute.getInitialPointId();
-		int finalPoint = landRoute.getFinalPointId();
-
-		int[] initialXY = ClusterMapHelper.breakKey(initialPoint);
-		int[] finalXY = ClusterMapHelper.breakKey(finalPoint);
-		int[] entryXY = ClusterMapHelper.breakKey(entryPointId);
-
-		return (initialXY[0] < entryXY[0] && entryXY[0] < finalXY[0])
-				|| ((initialXY[1] < entryXY[1] && entryXY[1] < finalXY[1]));
-	}
-
+	
 	public boolean isNormalNode(int x, int y) {
 		// up,down,left,right
 		if (!findPoint(ClusterMapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {

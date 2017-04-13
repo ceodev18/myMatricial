@@ -14,6 +14,7 @@ import models.clusterVariation.ClusterPolygon;
 
 public class ClusterAlgorithmOctopusVariation {
 	private ClusterLandMap landMap;
+	private List<ClusterLandRoute> landRoute = new ArrayList<>();
 
 	public ClusterLandMap getLandMap() {
 		return landMap;
@@ -23,7 +24,11 @@ public class ClusterAlgorithmOctopusVariation {
 		this.landMap = landMap;
 	}
 
-	public void clusterize() {
+	public void clusterize(ClusterLandPoint entryPoint) {		
+		int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
+					landMap.getCentroid());
+		createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
+		
 		// 1. we need to now the main route size
 		ClusterLandRoute mainRoute = landMap.getLandRoute();
 		// Once the collector branches are created we need to create the non
@@ -131,7 +136,6 @@ public class ClusterAlgorithmOctopusVariation {
 			if ((branchType == ClusterConfiguration.ARTERIAL_BRANCH) && (i == 0)) {
 				int finalPointid = createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection),
 						direction, markType);
-				clusterLandRoute.setFinalPointId(finalPointid);
 				landMap.setLandRoute(clusterLandRoute);
 			} else {
 				createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction,
@@ -219,8 +223,8 @@ public class ClusterAlgorithmOctopusVariation {
 	// reduces it in a reason configured by the user. if it can be done, it
 	// becomes a new cluster. If not, it becomes simply defaults into a
 	// perfect zonification
-	public List<ClusterPolygon> zonify() {
-		List<ClusterPolygon> clusterPolygons = new ArrayList<ClusterPolygon>();
+	public /*List<ClusterPolygon>*/void zonify() {
+		//List<ClusterPolygon> clusterPolygons = new ArrayList<ClusterPolygon>();
 		for (int y = 0; y < landMap.getPointsy(); y++) {
 			boolean insidePolygon = false;
 			for (int x = 0; x < landMap.getPointsx(); x++) {
@@ -240,7 +244,7 @@ public class ClusterAlgorithmOctopusVariation {
 					createOctopianCoverture(ClusterMapHelper.formKey(x, y), clusterPolygon);
 					if (clusterPolygon.getPoints().size() < 3)
 						continue;
-					clusterPolygons.add(clusterPolygon);
+					//clusterPolygons.add(clusterPolygon);
 					clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 					// we create the park
@@ -266,14 +270,8 @@ public class ClusterAlgorithmOctopusVariation {
 				}
 			}
 		}
-
-		/*
-		 * TODO code that used to be on the lotization side, whereas used on the
-		 * non orthogonal ones
-		 */
 		nonOrthogonalMapLotization();
-
-		return clusterPolygons;
+		/*return clusterPolygons;*/
 	}
 
 	private void nonOrthogonalMapLotization() {

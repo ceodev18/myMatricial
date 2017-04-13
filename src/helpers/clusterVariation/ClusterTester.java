@@ -11,10 +11,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import algorithm.clusterVariation.ClusterAlgorithmOctopusVariation;
-import interfaces.clusterVariation.ClusterConfiguration;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
-import models.clusterVariation.ClusterPolygon;
 
 public class ClusterTester {
 	public static void main(String[] args) {
@@ -54,21 +52,14 @@ public class ClusterTester {
 		ClusterAlgorithmOctopusVariation clusterAlgorithm = new ClusterAlgorithmOctopusVariation();
 		clusterAlgorithm.setLandMap(landMap);
 
-		for (ClusterLandPoint entryPoint : entryPoints) {
-			int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
-					landMap.getCentroid());
-			clusterAlgorithm.createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
-			break;
-		}
-
 		// 4. We clusterize the points
-		clusterAlgorithm.clusterize();
+		clusterAlgorithm.clusterize(entryPoints.get(0));
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
 
 		// 5. Zonification
-		List<ClusterPolygon> orcs= clusterAlgorithm.zonify();
+		/*List<ClusterPolygon> orcs= */clusterAlgorithm.zonify();
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
