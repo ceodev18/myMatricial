@@ -4,6 +4,12 @@ public class ClusterLandRoute {
 	private int initialPointId = -1;
 	private int direction = -1;
 	private String type = "";
+	
+	public ClusterLandRoute(int initialPointId, int direction, String type){
+		this.initialPointId = initialPointId;
+		this.direction = direction; 
+		this.type = type;
+	}
 
 	public int getInitialPointId() {
 		return initialPointId;
@@ -31,6 +37,6 @@ public class ClusterLandRoute {
 
 	@Override
 	public String toString() {
-		return type + " " + initialPointId;
+		return direction + "" + type + "" + initialPointId;
 	}
 }

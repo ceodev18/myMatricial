@@ -16,7 +16,7 @@ public class ClusterLandMap {
 	private int pointsy = -1;
 
 	private Map<Integer, ClusterLandPoint> map;
-	private ClusterLandRoute landRoute;
+	private List<ClusterLandRoute> landRoutes = new ArrayList<>();
 	private List<Integer> nodes = new ArrayList<>();
 	List<List<Integer>> fullPolygon;
 
@@ -56,14 +56,14 @@ public class ClusterLandMap {
 		return map.get(entryPointId);
 	}
 
-	public void setLandRoute(ClusterLandRoute landRoute) {
-		this.landRoute = landRoute;
+	public List<ClusterLandRoute> getLandRoutes() {
+		return landRoutes;
 	}
 
-	public ClusterLandRoute getLandRoute() {
-		return landRoute;
+	public void setLandRoutes(List<ClusterLandRoute> landRoutes) {
+		this.landRoutes = landRoutes;
 	}
-
+	
 	public List<Integer> getNodes() {
 		return nodes;
 	}
@@ -878,5 +878,4 @@ public class ClusterLandMap {
 		clusterPolygon.setComplete(true);
 		return clusterPolygon;
 	}
-
 }

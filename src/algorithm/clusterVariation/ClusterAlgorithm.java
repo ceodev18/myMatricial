@@ -1,6 +1,5 @@
 package algorithm.clusterVariation;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import helpers.clusterVariation.ClusterDirectionHelper;
@@ -12,9 +11,8 @@ import models.clusterVariation.ClusterLandPoint;
 import models.clusterVariation.ClusterLandRoute;
 import models.clusterVariation.ClusterPolygon;
 
-public class ClusterAlgorithmOctopusVariation {
+public class ClusterAlgorithm {
 	private ClusterLandMap landMap;
-	private List<ClusterLandRoute> landRoute = new ArrayList<>();
 
 	public ClusterLandMap getLandMap() {
 		return landMap;
@@ -24,13 +22,11 @@ public class ClusterAlgorithmOctopusVariation {
 		this.landMap = landMap;
 	}
 
-	public void clusterize(ClusterLandPoint entryPoint) {		
-		int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
-					landMap.getCentroid());
-		createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
-		
+	public void clusterize(ClusterLandPoint entryPoint) {
 		// 1. we need to now the main route size
-		ClusterLandRoute mainRoute = landMap.getLandRoute();
+		int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint, landMap.getCentroid());
+		createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
+		ClusterLandRoute mainRoute = landMap.getLandRoutes().get(0);
 		// Once the collector branches are created we need to create the non
 		// collector running orthogonal to the main
 		List<Integer> orthogonalDirections = ClusterDirectionHelper.orthogonalDirections(mainRoute.getDirection());
@@ -82,21 +78,26 @@ public class ClusterAlgorithmOctopusVariation {
 		String markType = "";
 		int growDirection = -1;
 		ClusterLandRoute clusterLandRoute = null;
+		int trueAxis = axisPoint;
+		while (landMap.landPointisOnMap(trueAxis) && landMap.getLandPoint(trueAxis).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+			trueAxis = ClusterMapHelper.moveKeyByOffsetAndDirection(trueAxis, 1, direction);
+		}
+
 		switch (branchType) {
 		case ClusterConfiguration.ARTERIAL_BRANCH:
-			clusterLandRoute = new ClusterLandRoute();
-			clusterLandRoute.setInitialPointId(axisPoint);
-			clusterLandRoute.setDirection(direction);
 			extension = ClusterConfiguration.ARTERIAL_BRANCH_SIZE;
 			markType = ClusterConfiguration.ARTERIAL_MARK;
+			clusterLandRoute = new ClusterLandRoute(trueAxis, direction, "a");
 			break;
 		case ClusterConfiguration.COLLECTOR_BRANCH:
 			extension = ClusterConfiguration.COLLECTOR_BRANCH_SIZE;
 			markType = ClusterConfiguration.COLLECTOR_MARK;
+			clusterLandRoute = new ClusterLandRoute(trueAxis, direction, "b");
 			break;
 		case ClusterConfiguration.LOCAL_BRANCH:
 			extension = ClusterConfiguration.LOCAL_BRANCH_SIZE;
 			markType = ClusterConfiguration.LOCAL_MARK;
+			clusterLandRoute = new ClusterLandRoute(trueAxis, direction, "c");
 			break;
 		case ClusterConfiguration.WALK_BRANCH:
 			extension = ClusterConfiguration.WALK_BRANCH_SIZE;
@@ -132,15 +133,9 @@ public class ClusterAlgorithmOctopusVariation {
 		createLine(upperLimitKey, direction, ClusterConfiguration.NODE_MARK);
 		createLine(lowerLimitKey, direction, ClusterConfiguration.NODE_MARK);
 
+		landMap.getLandRoutes().add(clusterLandRoute);
 		for (int i = 0; i < extension; i++) {
-			if ((branchType == ClusterConfiguration.ARTERIAL_BRANCH) && (i == 0)) {
-				int finalPointid = createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection),
-						direction, markType);
-				landMap.setLandRoute(clusterLandRoute);
-			} else {
-				createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction,
-						markType);
-			}
+			createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction, markType);
 		}
 	}
 
@@ -165,7 +160,6 @@ public class ClusterAlgorithmOctopusVariation {
 				if (out.booleanValue()) {
 					newXY[0] = xy[0];
 					newXY[1] = i - 1;
-					return ClusterMapHelper.formKey(newXY[0], newXY[1]);
 				}
 			}
 		} else {
@@ -185,7 +179,6 @@ public class ClusterAlgorithmOctopusVariation {
 				if (out.booleanValue()) {
 					newXY[0] = i - 1;
 					newXY[1] = xy[1];
-					return ClusterMapHelper.formKey(newXY[0], newXY[1]);
 				}
 			}
 		}
@@ -223,8 +216,9 @@ public class ClusterAlgorithmOctopusVariation {
 	// reduces it in a reason configured by the user. if it can be done, it
 	// becomes a new cluster. If not, it becomes simply defaults into a
 	// perfect zonification
-	public /*List<ClusterPolygon>*/void zonify() {
-		//List<ClusterPolygon> clusterPolygons = new ArrayList<ClusterPolygon>();
+	public /* List<ClusterPolygon> */void zonify() {
+		// List<ClusterPolygon> clusterPolygons = new
+		// ArrayList<ClusterPolygon>();
 		for (int y = 0; y < landMap.getPointsy(); y++) {
 			boolean insidePolygon = false;
 			for (int x = 0; x < landMap.getPointsx(); x++) {
@@ -244,7 +238,7 @@ public class ClusterAlgorithmOctopusVariation {
 					createOctopianCoverture(ClusterMapHelper.formKey(x, y), clusterPolygon);
 					if (clusterPolygon.getPoints().size() < 3)
 						continue;
-					//clusterPolygons.add(clusterPolygon);
+					// clusterPolygons.add(clusterPolygon);
 					clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 					// we create the park
@@ -265,13 +259,14 @@ public class ClusterAlgorithmOctopusVariation {
 							landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
 						}
 
-						landMap.preciseLotization(clusterPolygon, true);//with contribution
+						landMap.preciseLotization(clusterPolygon, true);// with
+																		// contribution
 					}
 				}
 			}
 		}
 		nonOrthogonalMapLotization();
-		/*return clusterPolygons;*/
+		/* return clusterPolygons; */
 	}
 
 	private void nonOrthogonalMapLotization() {

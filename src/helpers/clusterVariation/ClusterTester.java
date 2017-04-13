@@ -10,7 +10,7 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import algorithm.clusterVariation.ClusterAlgorithmOctopusVariation;
+import algorithm.clusterVariation.ClusterAlgorithm;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
 
@@ -49,7 +49,7 @@ public class ClusterTester {
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
 
-		ClusterAlgorithmOctopusVariation clusterAlgorithm = new ClusterAlgorithmOctopusVariation();
+		ClusterAlgorithm clusterAlgorithm = new ClusterAlgorithm();
 		clusterAlgorithm.setLandMap(landMap);
 
 		// 4. We clusterize the points
@@ -80,12 +80,12 @@ public class ClusterTester {
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Final Memory" + usedMemoryBefore / 1000000 + " in MB");
 
-
 		//ClusterPolygonTester clusterPolygonTester = new ClusterPolygonTester(orcs);
 		//new ClusterTester(clusterPolygonTester);
 
 		//2 variants
-		ClusterTestPane clusterTestPane = new ClusterTestPane(true, clusterAlgorithm.getLandMap().stringify(), large, width);		
+		ClusterTestPane clusterTestPane = new ClusterTestPane(clusterAlgorithm.getLandMap(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
+		//ClusterTestPane clusterTestPane = new ClusterTestPane(true, clusterAlgorithm.getLandMap().stringify(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);		
 		new ClusterTester(clusterTestPane);
 	}
 
