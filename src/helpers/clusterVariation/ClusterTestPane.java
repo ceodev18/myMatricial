@@ -123,11 +123,11 @@ public class ClusterTestPane extends JPanel {
 		Color color;
 		String[] mapLines = clusterString.split("\\.");
 		int growthX = 0, growthY = 0;
-		for (int x = 0; x < mapLines.length; x++) {
-			String[] lineSymbol = mapLines[x].split("\\,");
+		for (int y = 0; y < mapLines.length; y++) {
+			String[] lineSymbol = mapLines[y].split("\\,");
 			int growtXY = 1;
-			for (int y = 0; y < lineSymbol.length; y++) {
-				String type = String.valueOf(lineSymbol[y].charAt(0));
+			for (int x = 0; x < lineSymbol.length; x++) {
+				String type = String.valueOf(lineSymbol[x].charAt(0));
 				switch (type) {/* 39 + 40*0 | 0+ 40*1 */
 				case "a":
 				case "b":

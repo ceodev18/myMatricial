@@ -63,7 +63,7 @@ public class ClusterLandMap {
 	public void setLandRoutes(List<ClusterLandRoute> landRoutes) {
 		this.landRoutes = landRoutes;
 	}
-	
+
 	public List<Integer> getNodes() {
 		return nodes;
 	}
@@ -337,7 +337,7 @@ public class ClusterLandMap {
 
 		return false;
 	}
-	
+
 	public boolean isNormalNode(int x, int y) {
 		// up,down,left,right
 		if (!findPoint(ClusterMapHelper.formKey(x, y)).getType().equals(ClusterConfiguration.NODE_MARK)) {
@@ -409,27 +409,6 @@ public class ClusterLandMap {
 			return true;
 		}
 		return false;
-	}
-
-	public String stringify() {
-		String mapString = "";
-
-		for (int i = 0; i < pointsx; i++) {
-			String type = getLandPoint(ClusterMapHelper.formKey(i, 0)).getType();
-			int repetitions = 1;
-			for (int j = 0; j < pointsy; j++) {
-				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
-					repetitions++;
-				} else {
-					mapString += type + "" + repetitions + ",";
-					repetitions = 1;
-					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
-				}
-			}
-			mapString += type + "" + repetitions + ",";
-			mapString += ".";
-		}
-		return mapString;
 	}
 
 	public void impreciseLotization(ClusterPolygon clusterPolygon) {
@@ -737,7 +716,7 @@ public class ClusterLandMap {
 						ClusterConstants.NORTH);
 				driveDirection = initialXY[1] < finalXY[1] ? ClusterConstants.NORTH : ClusterConstants.SOUTH;
 				createEntranceRoute(initialXY, finalXY, driveDirection, growDirection);
-				if(withContribution) {
+				if (withContribution) {
 					withContribution = false;
 					contribute = true;
 				}
@@ -755,10 +734,10 @@ public class ClusterLandMap {
 			int[] currentXY = initialXY;
 			int seed = 0;
 			while (currentXY[0] != finalXY[0] || currentXY[1] != finalXY[1]) {
-				if (contribute){
+				if (contribute) {
 					currentXY = createConribution(currentXY, finalXY, driveDirection, growDirection);
-					contribute=false;
-				}else{
+					contribute = false;
+				} else {
 					if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
 							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2)) {
 						currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, true,
@@ -766,7 +745,7 @@ public class ClusterLandMap {
 						seed += 2;
 					} else {
 						currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
-					}					
+					}
 				}
 			}
 		}
@@ -779,7 +758,7 @@ public class ClusterLandMap {
 		if (distance < times) {
 			return currentXY;
 		}
-		
+
 		while (times != 0) {
 			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2;
 			int[] lowerOrthXY = new int[] { currentXY[0], currentXY[1] };
@@ -873,9 +852,28 @@ public class ClusterLandMap {
 	}
 
 	public ClusterPolygon getAsClusterPolygon() {
-		// TODO Auto-generated method stub
 		ClusterPolygon clusterPolygon = new ClusterPolygon(this.getNodes());
 		clusterPolygon.setComplete(true);
 		return clusterPolygon;
+	}
+
+	public String stringify() {
+		String mapString = "";
+		for (int j = 0; j < pointsy; j++) {
+			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
+			int repetitions = 1;
+			for (int i = 0; i < pointsx; i++) {
+				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
+					repetitions++;
+				} else {
+					mapString += type + "" + repetitions + ",";
+					repetitions = 1;
+					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
+				}
+			}
+			mapString += type + "" + repetitions + ",";
+			mapString += ".";
+		}
+		return mapString;
 	}
 }

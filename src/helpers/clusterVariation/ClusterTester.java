@@ -83,9 +83,9 @@ public class ClusterTester {
 		//ClusterPolygonTester clusterPolygonTester = new ClusterPolygonTester(orcs);
 		//new ClusterTester(clusterPolygonTester);
 
-		//2 variants
-		ClusterTestPane clusterTestPane = new ClusterTestPane(clusterAlgorithm.getLandMap(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
-		//ClusterTestPane clusterTestPane = new ClusterTestPane(true, clusterAlgorithm.getLandMap().stringify(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);		
+		//First variant to test directly on the map. Second for the ws response
+		//ClusterTestPane clusterTestPane = new ClusterTestPane(clusterAlgorithm.getLandMap(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
+		ClusterTestPane clusterTestPane = new ClusterTestPane(true, clusterAlgorithm.getLandMap().stringify(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);		
 		new ClusterTester(clusterTestPane);
 	}
 
