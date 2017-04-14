@@ -18,6 +18,7 @@ public class SpineAlgorithm {
 	public static int large;
 	public static int pointStart;
 	public static int nmbrParksSpine;
+	public static int nmbrParksLong;
 	public String out1,out2,out11,out22,aux,aux2;
 	
 	public SpineLandMap getLandMap() {
@@ -93,7 +94,6 @@ public class SpineAlgorithm {
 			createRouteVariation(lowerParallelId, mainRoute.getDirection(), SpineConfiguration.LOCAL_BRANCH);
 		}
 	}
-	
 	public  void createRouteVariation(int axisPoint, int direction, int branchType) {
 		int extension = 0;
 		String markType = "";
@@ -231,10 +231,17 @@ public class SpineAlgorithm {
 	/**TODO here begins the lotization part of the algorithm
 	 * */
 	public void zonify() {
-		// findZonificationAreas();
-		//clearBorderByEmptyMark();
-		//clearNodeByEmptyMark();
+		setLongPark();
 		organicZonification();
+	}
+	private void setLongPark(){
+		int total =48+3*(2*SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE)*SpineConfiguration.BASE_CLUSTER_SIZE;
+		int eightPorc=(total/100)*10;
+		int result =eightPorc/(2*SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE);
+		nmbrParksLong =result;
+		System.out.println("nmbrParksLong");
+		System.out.println(nmbrParksLong);
+		
 	}
 	private void organicZonification() {
 		 indice=0;		
@@ -254,8 +261,8 @@ public class SpineAlgorithm {
 		System.out.println(yy);
 		
 		System.out.print("landMap.getPointsy()/2 = ");
-		System.out.println(landMap.getPointsy()/2);
-		if(yy<(landMap.getPointsy()/2)){
+		System.out.println(landMap.getPointsy()/2);		
+		/*if(yy<(landMap.getPointsy()/2)){
 			//park start up
 			System.out.println("Working Up");
 			printFirstLineParkUp();
@@ -263,7 +270,9 @@ public class SpineAlgorithm {
 			//park start down
 			System.out.println("Working Down");
 			printFirstLineParkDown();
-		}
+		}*/
+		setPointStart();
+		printParksSideArterial();
 	}
 	private void clearBorderByEmptyMark(){
 		for (int j = landMap.getPointsy() - 1; j >= 0; j--) {
@@ -400,7 +409,6 @@ public class SpineAlgorithm {
 			for(int k=0;k<SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2;k++){
 				for(int i=0;i<(SpineConfiguration.MIN_SIDE_PARK_BY_HOUSE + SpineConfiguration.LOCAL_BRANCH_SIZE);i++){
 					if(landMap.findPoint(SpineMapHelper.formKey(j+k,yy+26+i)).getType().equals(SpineConfiguration.POLYGON_BORDER)){
-						System.out.println("We out!");
 						state=true;
 						break;
 					}else {
@@ -420,27 +428,42 @@ public class SpineAlgorithm {
 			out11="1";
 			out22="2";
 			//comentar while
-			
-			/*while(true){
-				if(landMap.findPoint(SpineMapHelper.formKey(j,37+yy+26+six)).getType().equals(SpineConfiguration.POLYGON_BORDER))break;
-				for(int iii=0;iii<6;iii++){
-					
-					if(landMap.findPoint(SpineMapHelper.formKey(j,37+yy+26+six)).getType().equals(SpineConfiguration.ARTERIAL_MARK)){
-						six+=10;
+			boolean outNow=false;
+			while(true){
+				String comparableStringOut=landMap.findPoint(SpineMapHelper.formKey(j,37+yy+26+six)).getType();
+				if(comparableStringOut.equals(SpineConfiguration.ARTERIAL_MARK)){
+					six+=7;
+				}
+				if(comparableStringOut.equals(SpineConfiguration.POLYGON_BORDER)||comparableStringOut.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)){
+					System.out.println("wE OUT BY "+comparableStringOut);
 						break;
-					}
-					for(int jjj=0;jjj<15;jjj++){
-							landMap.getLandPoint(SpineMapHelper.formKey(j+jjj,37+yy+26+six)).setType(out11);
-							landMap.getLandPoint(SpineMapHelper.formKey(j+jjj+15,37+yy+26+six)).setType(out22);
 						}
-					six++;
+				
+				for(int indI=0;indI<6;indI++){
+					//String outWayInside=landMap.getLandPoint(SpineMapHelper.formKey(j+indJ,37+yy+26+six)).getType();
+					//if(outWayInside.equals(" ")||)
+					for(int indJ=0;indJ<15;indJ++){
+						String outWay=landMap.getLandPoint(SpineMapHelper.formKey(j+indJ,37+yy+26+six)).getType();
+						/*if(outWay.equals(".")||outWay.equals(" ")){
+							System.out.println("wE OUT BY "+outWay);
+							outNow=true;
+							break;
+						}*/
+						if(!outWay.equals(" ")&& !outWay.endsWith(".")&&!outWay.endsWith("a") ){
+							landMap.getLandPoint(SpineMapHelper.formKey(j+indJ,37+yy+26+six)).setType(out11);
+							landMap.getLandPoint(SpineMapHelper.formKey(j+indJ+15,37+yy+26+six)).setType(out22);
+						}
+						
 					}
-				if(landMap.findPoint(SpineMapHelper.formKey(j,37+yy+26+six)).getType().equals(SpineConfiguration.POLYGON_BORDER))break;
+					six++;
+				}
 				aux2=out11;
-					out11=out22;
+				out11=out22;
 				out22=aux2;
-			}*/
-
+				
+				
+			}
+			System.out.println("LAST VALUE OF SIX: "+six);
 			counter++;
 			if(counter>nmbrParksSpine)break;
 			System.out.println("EVALUATION AFTER PRINT NEXT PARK");
@@ -449,14 +472,16 @@ public class SpineAlgorithm {
 				if(landMap.findPoint(SpineMapHelper.formKey(j+i,yy+26)).getType().equals(SpineConfiguration.POLYGON_BORDER)){
 					state2=true;
 					break;
-				}else j++;
+				}else{
+					j++;
+					if(landMap.findPoint(SpineMapHelper.formKey(j+i,yy+26)).getType().equals(SpineConfiguration.POLYGON_BORDER))break;
+				}
 				//System.out.println(landMap.findPoint(SpineMapHelper.formKey(j+i,yy-1)).getType());
-				if(landMap.findPoint(SpineMapHelper.formKey(j+i,yy+26)).getType().equals(SpineConfiguration.POLYGON_BORDER))break;
+				
 			}
 			if(state2)break;
-			
 			else if(landMap.findPoint(SpineMapHelper.formKey(j,yy+26)).getType().equals(SpineConfiguration.NODE_MARK)){
-				System.out.println("last caracter was n");
+				//System.out.println("last caracter was n");
 				//comeback to find the first 'n'
 				int x=0;
 				while(true){
@@ -467,10 +492,8 @@ public class SpineAlgorithm {
 					}
 					x++;
 				}
-					
-				
 			}else if(landMap.findPoint(SpineMapHelper.formKey(j,yy+26)).getType().equals(SpineConfiguration.ARTERIAL_MARK)){
-				System.out.println("last caracter was a");
+			//	System.out.println("last caracter was a");
 				int x=0;
 				while(true){
 					if(landMap.findPoint(SpineMapHelper.formKey(j-x,yy+26)).getType().equals(SpineConfiguration.NODE_MARK)){
@@ -480,13 +503,9 @@ public class SpineAlgorithm {
 					}
 					x++;
 				}
-					
-				
+
 			}
-			
-				
-			
-			
+
 		}
 		//print blocks
 		
@@ -497,43 +516,45 @@ public class SpineAlgorithm {
 		out1="1";
 		out2="2";
 		aux="";
+		boolean stateInside=true;
 		while(true){
 			//every loop for a extend block
 			if(landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,starBlockyAfterPark)).getType().equals(SpineConfiguration.NODE_MARK)){
-				System.out.print("X = ");
-				System.out.println(pointStart+counterBlock);
-				System.out.print("Y = ");
-				System.out.println(starBlockyAfterPark);
-				landMap.getLandPoint(SpineMapHelper.formKey(pointStart+counterBlock,starBlockyAfterPark)).setType("X");
-				
-				//replace node by X
-				//landMap.getLandPoint(SpineMapHelper.formKey(pointStart+counterBlock,starBlockyAfterPark)).setType("X");
 				int way_out=0;
 				int plus6=0;
-				boolean stateInside=false;
+				
 				while(true){
-					if(landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,plus6 +starBlockyAfterPark)).getType().equals(SpineConfiguration.POLYGON_BORDER)  ||
-									landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,plus6+starBlockyAfterPark)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))break;
+					String comparableOutChar=landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,plus6 +starBlockyAfterPark)).getType();
+					//we break all the large blocks // and go on to the next one
+					if(comparableOutChar.equals(SpineConfiguration.POLYGON_BORDER)  ||comparableOutChar.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))break;
 					else if(landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,plus6+starBlockyAfterPark)).getType().equals(SpineConfiguration.ARTERIAL_MARK)){
-							
-								for(int aa=0;aa<8;aa++){
+					//	System.out.println("We found a");
+						//break;
+								for(int aa=0;aa<5;aa++){
 									plus6++;
-									if(landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,plus6+starBlockyAfterPark)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))break;
+									String comparable=landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,plus6+starBlockyAfterPark)).getType();
+									if(comparable.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)||
+											comparable.equals(SpineConfiguration.POLYGON_BORDER)){
+											//System.out.println("We found : "+comparable);
+											break;
+										}
 								}
-							
-							
 					}
 					//cambiar valores 6 y 15
 					for(int ii=0;ii<6;ii++){
-						if(landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,starBlockyAfterPark+ii+plus6)).getType().equals(SpineConfiguration.ARTERIAL_MARK))break;
-						for(int jj=0;jj<15;jj++){						
-							if(!landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock+ jj,starBlockyAfterPark)).getType().equals(SpineConfiguration.POLYGON_BORDER) &&
-									!landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock+ jj,starBlockyAfterPark)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK ) && 
-									!landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock+ jj,starBlockyAfterPark)).getType().equals(SpineConfiguration.ARTERIAL_MARK ))
-								landMap.getLandPoint(SpineMapHelper.formKey(pointStart+counterBlock+jj,starBlockyAfterPark+ii+plus6)).setType(out1); 
-							if(!landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock+jj+15,starBlockyAfterPark)).getType().equals(SpineConfiguration.POLYGON_BORDER) && 
-									!landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock+jj+15,starBlockyAfterPark)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) && 
-									!landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock+ jj,starBlockyAfterPark)).getType().equals(SpineConfiguration.ARTERIAL_MARK ))						
+						String comparable=landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,starBlockyAfterPark+ii+plus6)).getType();
+						if(comparable.equals(SpineConfiguration.ARTERIAL_MARK)|| comparable.equals(SpineConfiguration.POLYGON_BORDER)){
+							//System.out.println("We out by "+comparable);
+							break;}
+						for(int jj=0;jj<15;jj++){
+							String compareValue1=landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock+ jj,starBlockyAfterPark)).getType();
+							if(compareValue1.equals("."))break;
+							if(!compareValue1.equals(SpineConfiguration.POLYGON_BORDER) && !compareValue1.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK ) && 
+									!compareValue1.equals(SpineConfiguration.ARTERIAL_MARK ))
+								landMap.getLandPoint(SpineMapHelper.formKey(pointStart+counterBlock+jj,starBlockyAfterPark+ii+plus6)).setType(out1);
+							String compareValue2=landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock+jj+15,starBlockyAfterPark)).getType();
+							if(!compareValue2.equals(SpineConfiguration.POLYGON_BORDER) && !compareValue2.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) && 
+									!compareValue2.equals(SpineConfiguration.ARTERIAL_MARK ))			
 								landMap.getLandPoint(SpineMapHelper.formKey(pointStart+counterBlock+jj+15,starBlockyAfterPark+ii+plus6)).setType(out2);
 						}
 					}
@@ -541,13 +562,18 @@ public class SpineAlgorithm {
 					aux=out1;
 					out1=out2;
 					out2=aux;
-					plus6+=6;
+					for(int incSix=0;incSix<6;incSix++){
+						String compareValue1=landMap.findPoint(SpineMapHelper.formKey(pointStart+counterBlock,plus6 +starBlockyAfterPark)).getType();
+						if(compareValue1.equals("a"))break;
+						plus6++;
+					}
+					//plus6+=6;
 					way_out++;
 					//if(way_out>15)break;
 				}
-				
 				//break;
 			}
+			
 			//DONT TOUCH
 			for(int jj=0;jj<46;jj++){
 				counterBlock++;
@@ -578,19 +604,16 @@ public class SpineAlgorithm {
 		int pointStartXUp,pointStartYUp;
 		out1="1";out2="2";
 		boolean stateOut=false;
-		boolean stateOut2=true;
-		int counterj,incX,incY;
-		counterj=0;
 		String valueToCompare="";
 		pointStartXUp=pointStart;
 		while(true){
 			//every block
 			pointStartYUp=yy-1;
-			 System.out.println("New Block");
 			while(true){
 				for(int i=0;i<6;i++){
 					for(int j=0;j<15;j++){
 						 valueToCompare=landMap.getLandPoint(SpineMapHelper.formKey(pointStartXUp+j,pointStartYUp-i)).getType();
+						 if(valueToCompare.equals("a"))break;
 						if(valueToCompare.equals(SpineConfiguration.ARTERIAL_BRANCH)||valueToCompare.equals(SpineConfiguration.POLYGON_BORDER)||
 								valueToCompare.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))break;
 						landMap.getLandPoint(SpineMapHelper.formKey(pointStartXUp+j,pointStartYUp-i)).setType(out1);
@@ -602,8 +625,7 @@ public class SpineAlgorithm {
 				
 				if(valueToCompare.equals(SpineConfiguration.ARTERIAL_BRANCH)||valueToCompare.equals(SpineConfiguration.POLYGON_BORDER)||
 						valueToCompare.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)){
-					 System.out.println("Char End " +valueToCompare);
-					stateOut=true;
+					//stateOut=true;
 					break;
 				}else{
 					aux=out1;
@@ -611,11 +633,180 @@ public class SpineAlgorithm {
 					out2=aux;
 				}
 			}
-			pointStartXUp+=46;
-			counterj++;
-			
-			if(counterj>25)break;
+			//verify on this point
+			for(int inc=0;inc<46;inc++){
+				 valueToCompare=landMap.getLandPoint(SpineMapHelper.formKey(pointStartXUp+inc,yy-1)).getType();
+				if(valueToCompare.equals(" ")){
+					stateOut=true;
+					break;
+				}
+				pointStartXUp++;
+			}
+			//stop printting
+			if(stateOut)break;
 		}
 		
 	}
+	private void printNewBlocksNextToArterialDown(){
+		
+	}
+	private void setPointStart(){
+		nmbrParksSpine=(int)(large-xx)/SpineConfiguration.SEPARATION_PARK_SIZE;
+		System.out.println(nmbrParksSpine);
+		int value=0;
+		while(true){
+			if(landMap.findPoint(SpineMapHelper.formKey(xx+value,yy+27)).getType().equals(SpineConfiguration.COLLECTOR_MARK))break;
+			value++;
+		}
+		pointStart=xx+value+16;//park start
+		
+	}
+	private void printParksSideArterial(){
+		//start print parks
+		int j=pointStart;
+		boolean state=false;
+		boolean state2=false;
+		boolean stateOutPark=false;
+		int counter=0;	
+		while(true){
+			//changing way to print 
+			System.out.println("New set of parks");
+			int breakPrintingPark=SpineConfiguration.BASE_CLUSTER_SIZE;
+			stateOutPark=false;
+			while(true){
+				String comparable=landMap.findPoint(SpineMapHelper.formKey(j,yy+breakPrintingPark)).getType();
+				if(comparable.equals(" ")||comparable.equals("."))break;
+				for(int k=SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2;k>0;k--){
+					for(int i=0;i<(nmbrParksLong + SpineConfiguration.LOCAL_BRANCH_SIZE);i++){
+						String insideCompare=landMap.findPoint(SpineMapHelper.formKey(j+k-1,yy+breakPrintingPark-i-1)).getType();
+						if(insideCompare.equals(SpineConfiguration.POLYGON_BORDER)){
+							state=true;
+							break;
+						}else {
+							if(i<nmbrParksLong)
+								landMap.getLandPoint(SpineMapHelper.formKey(j+k-1,yy+breakPrintingPark-i-1)).setType(SpineConfiguration.PARK_MARK);
+							else
+								landMap.getLandPoint(SpineMapHelper.formKey(j+k-1,yy+breakPrintingPark-i-1)).setType(SpineConfiguration.LOCAL_MARK);
+						}
+						
+					}
+				}
+				
+				//it works good
+				//DO NOT change
+				for(int i=0;i<SpineConfiguration.BASE_CLUSTER_SIZE;i++){
+					breakPrintingPark++;
+					String comparableInside=landMap.findPoint(SpineMapHelper.formKey(j,yy+breakPrintingPark)).getType();
+					if(comparableInside.equals(" ")||comparableInside.equals(".")){
+						stateOutPark=true;
+						break;
+					}
+					
+				}
+				if(stateOutPark)break;
+			}
+		//	landMap.getLandPoint(SpineMapHelper.formKey(j,yy+26)).setType("X");
+			int verticalStop=yy-1;
+			boolean outNowbyPark=false;
+			//landMap.getLandPoint(SpineMapHelper.formKey(j,verticalStop)).setType("X");
+			while(true){
+				int checker=0;
+				for(int k=0;k<SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2;k++){
+					for(int i=0;i<(nmbrParksLong + SpineConfiguration.LOCAL_BRANCH_SIZE);i++){
+						String insideCompare=landMap.findPoint(SpineMapHelper.formKey(j+k,verticalStop-i)).getType();
+						if(insideCompare.equals(SpineConfiguration.POLYGON_BORDER)){
+							state=true;
+							break;
+						}else {
+							if(i<nmbrParksLong)
+								landMap.getLandPoint(SpineMapHelper.formKey(j+k,verticalStop-i)).setType(SpineConfiguration.PARK_MARK);
+							else
+								landMap.getLandPoint(SpineMapHelper.formKey(j+k,verticalStop-i)).setType(SpineConfiguration.LOCAL_MARK);
+						}
+						
+					}
+					checker++;
+				}
+				if(checker==SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2)verticalStop-=nmbrParksLong+10;
+				while(true){
+					verticalStop--;
+					String compareValue=landMap.getLandPoint(SpineMapHelper.formKey(j,verticalStop)).getType();
+					if(compareValue.equals("a")){
+						//analizar+
+						verticalStop-=10;
+						break;
+					}else if(compareValue.equals(".")||(compareValue.equals(" "))){
+						outNowbyPark=true;
+						break;
+					}
+					
+				}
+				//big while
+				if(outNowbyPark)break;
+			}
+			counter++;
+			if(counter>nmbrParksSpine)break;
+			
+			System.out.println("EVALUATION AFTER PRINT NEXT PARK");
+			//DO NOT TOUCH
+			System.out.println("before value for j");
+			System.out.println(j);
+			for(int i=0;i<SpineConfiguration.SEPARATION_PARK_SIZE;i++){
+				
+				if(landMap.findPoint(SpineMapHelper.formKey(j+i,yy+26)).getType().equals(SpineConfiguration.POLYGON_BORDER)){
+					state2=true;
+					break;
+				}else{
+					System.out.println(landMap.findPoint(SpineMapHelper.formKey(j+i,yy+26)).getType());
+					j++;
+					if(landMap.findPoint(SpineMapHelper.formKey(j+i,yy+26)).getType().equals(SpineConfiguration.POLYGON_BORDER)){
+						System.out.println("We broke by if inside for");
+						state2=true;
+						break;
+					}
+				}
+				//System.out.println(landMap.findPoint(SpineMapHelper.formKey(j+i,yy-1)).getType());
+				
+			}
+			
+			System.out.println("new value for j");
+			System.out.println(j);
+			if(state2)break;
+			else if(landMap.findPoint(SpineMapHelper.formKey(j,yy+26)).getType().equals(SpineConfiguration.NODE_MARK)){
+				//System.out.println("last caracter was n");
+				//comeback to find the first 'n'
+				int x=0;
+				while(true){
+					if(landMap.findPoint(SpineMapHelper.formKey(j-x,yy+26)).getType().equals(SpineConfiguration.ARTERIAL_MARK)){
+						System.out.println("j-=x");
+						j-=x;
+						System.out.println(j);
+						System.out.println("j");
+						j++;
+						System.out.println(j);
+						break;
+					}
+					x++;
+				}
+			}else if(landMap.findPoint(SpineMapHelper.formKey(j,yy+26)).getType().equals(SpineConfiguration.ARTERIAL_MARK)){
+				
+				//System.out.println("last caracter was a");
+				int x=0;				
+				while(true){
+					if(landMap.findPoint(SpineMapHelper.formKey(j-x,yy+26)).getType().equals(SpineConfiguration.NODE_MARK)){
+						System.out.println(j);
+						j-=x;
+						j++;
+						break;
+					}
+					x++;
+				}
+				
+			}
+			
+			
+		}
+		
+	}
+
 }

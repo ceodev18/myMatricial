@@ -14,7 +14,10 @@ public interface SpineConfiguration {
 	public static int HOUSE_DEPTH_MINIMUN_SIZE = 15; //8*12=96	
 	public static int HOUSE_DEPTH_MAXIMUN_SIZE = 20; //8*12=96	
 	public static int CLUSTER_ENTRANCE_SIZE = 12;
-	public static int MIN_SIDE_PARK_BY_HOUSE = 27;
+	
+	public static int MIN_SIDE_PARK_BY_HOUSE = 40;
+	
+	public static int SEPARATION_PARK_SIZE = 150;
 	
 	public static int ARTERIAL_BRANCH = 0;
 	public static int COLLECTOR_BRANCH = 1;

@@ -24,7 +24,7 @@ public class SpineTester {
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
-		int large=1600+1,width=	700+1;
+		int large=1500+1,width=	700+1;
 		SpineLandMap spineLandMap = new SpineLandMap(large, width);
 		
 
@@ -33,9 +33,9 @@ public class SpineTester {
 		polygon.add(landPoint);
 		landPoint = new SpineLandPoint(400, 600);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(1600, 600);
+		landPoint = new SpineLandPoint(1500, 600);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint( 1600, 50);
+		landPoint = new SpineLandPoint(1500, 50);
 		polygon.add(landPoint);
 		landPoint = new SpineLandPoint(1,50);
 		polygon.add(landPoint);
@@ -78,7 +78,7 @@ public class SpineTester {
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
 
-		spineAlgorithm.clearDotsSpine();
+		//spineAlgorithm.clearDotsSpine();
 
 		//LSystemSpineAlgorithm.landMap.printMapToFile();
 		
