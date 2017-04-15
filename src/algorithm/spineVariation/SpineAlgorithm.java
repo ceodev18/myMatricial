@@ -449,6 +449,9 @@ public class SpineAlgorithm {
 			value2="2";
 			if(dotValue.equals("p")){
 				//case "p"
+				valueY+=-nmbrParksLong-SpineConfiguration.LOCAL_BRANCH_SIZE;
+				landMap.findPoint(SpineMapHelper.formKey(valueX,valueY)).setType("9");
+				//break;
 			}else{
 				//case "a"
 				while(true){
@@ -521,10 +524,49 @@ public class SpineAlgorithm {
 						if(aux1.equals("p")){
 							valueY+=nmbrParksLong+ SpineConfiguration.LOCAL_BRANCH_SIZE*2;
 							i=0;
+							//we made a loopback
+							int loopback=valueY-(nmbrParksLong+ SpineConfiguration.LOCAL_BRANCH_SIZE*2);
+							loopback--;
+							int saveValue=loopback;
+							String value=landMap.findPoint(SpineMapHelper.formKey(valueX,loopback)).getType();
+							int counter=0;
+							while(value.equals(landMap.findPoint(SpineMapHelper.formKey(valueX,loopback)).getType())){
+								loopback--;
+								counter++;
+							}
+							//this paint 1 data down 
+							System.out.println(counter);
+							for(int ii=0;ii<counter;ii++){
+								for(int jj=0;jj<15;jj++){
+									landMap.findPoint(SpineMapHelper.formKey(valueX+jj,saveValue)).setType(value2);
+									landMap.findPoint(SpineMapHelper.formKey(valueX+jj+SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE,saveValue)).setType(value1);
+								}
+								saveValue--;
+							}
 						}
 						else{
 							valueY+=SpineConfiguration.LOCAL_BRANCH_SIZE;
 							i=0;
+							//we made a loopback
+							int loopback=valueY-SpineConfiguration.LOCAL_BRANCH_SIZE;
+							loopback--;
+							int saveValue=loopback;
+							String value=landMap.findPoint(SpineMapHelper.formKey(valueX,loopback)).getType();
+							int counter=0;
+							while(value.equals(landMap.findPoint(SpineMapHelper.formKey(valueX,loopback)).getType())){
+								loopback--;
+								counter++;
+							}
+							//this paint 1 data down 
+							System.out.println(counter);
+							for(int ii=0;ii<counter;ii++){
+								for(int jj=0;jj<15;jj++){
+									landMap.findPoint(SpineMapHelper.formKey(valueX+jj,saveValue)).setType(value2);
+									landMap.findPoint(SpineMapHelper.formKey(valueX+jj+SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE,saveValue)).setType(value1);
+								}
+								saveValue--;
+							}
+							
 						}
 					}
 					for(int j=0;j<15;j++){
