@@ -637,9 +637,15 @@ public class SpineAlgorithm {
 						val1="1";
 						val2="2";
 						val3="";
+						//int ccc=0;
 						while(true){
+							System.out.println(topeX);
 							for(int ii=0;ii<6;ii++){
 								if(landMap.findPoint(SpineMapHelper.formKey(topeX,topeY)).getType().equals("a")){
+									topeY-=10;
+									//emergency=true;
+									//break;
+								}else if(landMap.findPoint(SpineMapHelper.formKey(topeX,topeY)).getType().equals(".")){
 									emergency=true;
 									break;
 								}
@@ -648,10 +654,12 @@ public class SpineAlgorithm {
 								}
 								topeY-=1;	
 							}
+							
 							val3=val1;
 							val1=val2;
-							val2=val1;
+							val2=val3;
 							if(emergency)break;
+							//if(ccc>3)break;
 						}
 						/*for(int ii=0;ii<6;ii++){
 							for(int jj=0;jj<15;jj++){

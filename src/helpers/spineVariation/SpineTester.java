@@ -45,7 +45,7 @@ public class SpineTester {
 		List<SpineLandPoint> entryPoints = new ArrayList<>();	
 		//200 representa la distancia del borde del poligono al inicio
 		//landPoint = new SpineLandPoint(200,571);
-		landPoint = new SpineLandPoint(150,456);
+		landPoint = new SpineLandPoint(150,256);
 		entryPoints.add(landPoint);
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
@@ -55,9 +55,9 @@ public class SpineTester {
 		
 		SpineAlgorithm spineAlgorithm = new SpineAlgorithm();
 		spineAlgorithm.setLandMap(spineLandMap);
-		spineAlgorithm.setWidth(456);
+		spineAlgorithm.setWidth(256);
 		spineAlgorithm.setEntryX(150);
-		spineAlgorithm.setEntryY(456);
+		spineAlgorithm.setEntryY(256);
 		spineAlgorithm.setLarge(large);
 		
 		for (SpineLandPoint entryPoint : entryPoints) {
