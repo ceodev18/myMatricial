@@ -74,7 +74,7 @@ public class radialAlgorithm {
 			valuePlus++;
 		
 		}
-		//complete a arteral branch size
+		//complete a arterial branch size
 		List<List<Integer>> routesAux = polygon.routeZone((valuePlus-1)*valueSeparation, 16);
 		if (routesAux.size() > 6) {
 			for (int j = 0; j < routesAux.size(); j++) {
@@ -83,7 +83,7 @@ public class radialAlgorithm {
 		}else {
 			routesAux = new ArrayList<>();
 		}
-		/////
+		///// 
 		localLayer = polygon.vectorShrinking(((valuePlus-1)*valueSeparation)+16);
 		layersPolygon.add(localLayer);
 		
@@ -91,19 +91,79 @@ public class radialAlgorithm {
 		int auxvalue = ((valuePlus - 1)*3);
 		landMap.createBorderFromPolygon(layersPolygon.get(auxvalue), RadialConstants.POLYGON_LIMIT);
 		
-		// create the park
+		// create the park //incomplete
 				
-				List<List<Integer>> grass = polygon.parkZone(
-					(valuePlus-1)*valueSeparation+16);
-				for (int j = 0; j < grass.size(); j++) {
-					landMap.createBorderFromPolygon(grass.get(j), RadialConfiguration.PARK_MARK);
-				}
+		//		List<List<Integer>> grass = polygon.parkZone(
+		//			(valuePlus-1)*valueSeparation+16);
+		//		for (int j = 0; j < grass.size(); j++) {
+		//			landMap.createBorderFromPolygon(grass.get(j), RadialConfiguration.PARK_MARK);
+		//		}
 		//
 		
-		polygon.parkArea((valuePlus-1)*valueSeparation + 16);
+		polygon.parkArea((valuePlus-1)*valueSeparation + 16); //reparar
+		
+		/////////////do vertix branch
+		
+		
+		createVertixBranch(layersPolygon);
+		
 
 	}
 
+	
+	public void createVertixBranch(List<List<Integer>> layersPolygon){
+		
+		List<Integer> extLayer = layersPolygon.get(0);
+		List<Integer> auxLayer = new ArrayList<>();
+		List<Integer> intLayer = layersPolygon.get(layersPolygon.size()-1);
+		int k =0;
+		//check change of number of sizes
+		int numSize = extLayer.size();
+		for(int n = 0;n < layersPolygon.size();n=n+3){
+			auxLayer = layersPolygon.get(n);
+			if(numSize != auxLayer.size()){
+				auxLayer = layersPolygon.get(n-3);
+				break;
+			}
+		}
+		
+		for (int i = 0; i < intLayer.size(); i++) {
+			double grad1 = landMap.findGradient(extLayer.get(k), auxLayer.get(k));
+			double grad2 = landMap.findGradient(extLayer.get(k), intLayer.get(i));
+			
+			
+			if(Math.abs(grad1 - grad2) < 0.35){// normal case
+				landMap.createALine(extLayer.get(k), intLayer.get(i), RadialConfiguration.ARTERIAL_MARK);
+				k++;
+			}else{//find the problematic layer
+				if(i == 0){ //special case
+					 grad1 = landMap.findGradient(extLayer.get(i+1), auxLayer.get(i+1));
+					 grad2 = landMap.findGradient(extLayer.get(i+1), intLayer.get(i+1));
+					 
+					 if(Math.abs(grad1 - grad2) < 0.35){ //if are equals  is the special case
+						 int pointIntersection = landMap.findIntersectionPointIntoTwoStraight
+								 (extLayer.get((extLayer.size()-1)), auxLayer.get((extLayer.size()-1)), extLayer.get(i), auxLayer.get(i), false);
+						 landMap.createALine(extLayer.get(extLayer.size()-1),pointIntersection, RadialConfiguration.ARTERIAL_MARK);
+						 landMap.createALine(extLayer.get(i),pointIntersection , RadialConfiguration.ARTERIAL_MARK);
+						 landMap.createALine(pointIntersection,intLayer.get(i) , RadialConfiguration.ARTERIAL_MARK);
+						 k++;
+						 continue;
+					 }
+				}
+				
+				int pointIntersection = landMap.findIntersectionPointIntoTwoStraight
+						(extLayer.get(k), auxLayer.get(k), extLayer.get(k+1), auxLayer.get(k+1), false);
+				//draw special case
+				landMap.createALine(extLayer.get(k),pointIntersection , RadialConfiguration.ARTERIAL_MARK);
+				landMap.createALine(extLayer.get(k+1),pointIntersection , RadialConfiguration.ARTERIAL_MARK);
+				landMap.createALine(pointIntersection,intLayer.get(i) , RadialConfiguration.ARTERIAL_MARK);
+				k=k+2;
+			}
+			
+		}
+	}
+	
+	
 	public void Radialize() {
 		// 1. we need to now the main route size
 		RadialLandRoute mainRoute = landMap.getLandRoute();
