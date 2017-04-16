@@ -187,14 +187,20 @@ public class RadialPolygon {
 			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			shrinkedList.add(RadialMapHelper.formKey(xy[0], xy[1]));
 		}
-
+	
+		/// reduce polygon
+		List<Integer> auxList = new ArrayList<>();
+		
+		auxList = verifyRedutionPolygon(shrinkedList);
+		//auxList = shrinkedList;
 		// validity check
-		if (insidePolygon(shrinkedList)) {
-			return shrinkedList;
+		if (insidePolygon(auxList)) {
+			return auxList;
 
 		} else {
 			return new ArrayList<>();
 		}
+		
 
 		/*
 		 * if (!crossCheck(shrinkedList) && insidePolygon(shrinkedList) &&
@@ -355,10 +361,14 @@ public class RadialPolygon {
 	public List<List<Integer>> routeZone(int initialShrink, int size) {
 		List<List<Integer>> areas = new ArrayList<>();
 		List<Integer> area = vectorShrinking(initialShrink);
+		RadialPolygon polygonAux = new RadialPolygon();
+		polygonAux.setPoints(area);
+		polygonAux.setComplete(true);
+		
 		if (area.size() != 0) {
 			areas.add(area);
-			for (int i = initialShrink + 1; i < initialShrink + size; i++) {
-				area = vectorShrinking(i);
+			for (int i = 2; i < size+1; i++) {
+				area = polygonAux.vectorShrinking(i+1);
 				if (area.size() != 0) {
 					areas.add(area);
 				} else {
@@ -372,12 +382,15 @@ public class RadialPolygon {
 	public List<List<Integer>> parkZone(int initialDepth) {
 		List<List<Integer>> areas = new ArrayList<>();
 		List<Integer> area = vectorShrinking(initialDepth);
-		int goDeeper = initialDepth;
+		RadialPolygon polygonAux = new RadialPolygon();
+		polygonAux.setPoints(area);
+		polygonAux.setComplete(true);
+		int goDeeper = 0;
 		if (area.size() != 0) {
 			areas.add(area);
 			while (minimunDistanceBetweenVertex(area) > 1) {
 				goDeeper++;
-				area = vectorShrinking(goDeeper);
+				area = polygonAux.vectorShrinking(goDeeper);
 				if (area.size() != 0) {
 					areas.add(area);
 				} else {
@@ -455,9 +468,37 @@ public class RadialPolygon {
 		this.points = localLayer;
 	}
 	
+	public List<Integer> verifyRedutionPolygon( List<Integer> shrinkedList){
+		List<Integer>  auxList = new ArrayList<>();
+		RadialLandMap auxLandMap = new RadialLandMap(0, 0);
+		int lados = shrinkedList.size();
+		
+		for(int k = 0;k < shrinkedList.size();k++){
+			int interscPoint = auxLandMap.findIntersectionPointIntoTwoStraight
+					(shrinkedList.get(k % shrinkedList.size()),shrinkedList.get((k+1) % shrinkedList.size()),
+							shrinkedList.get((k+2) % shrinkedList.size()),shrinkedList.get((k+3) % shrinkedList.size()),true);
+			
+			if(interscPoint != -1){ 
+				for(int i = 0;i < (shrinkedList.size());i++){
+					if(i == (k +1)){
+						auxList.add(interscPoint);
+						i++;
+					}else{
+					    auxList.add(shrinkedList.get(i));
+					}
+				}
+				shrinkedList = auxList;
+				if(shrinkedList.size() == 3) return shrinkedList;
+			}
+		}
+		if(shrinkedList.size() == lados) auxList = shrinkedList;
+		
+		return auxList;
+	}
+	
 	public double areaShrinking(int size){
 		List<Integer> aux= vectorShrinking(size);
-		RadialLandMap auxLandMap = new RadialLandMap(800, 800);
+		RadialLandMap auxLandMap = new RadialLandMap(0, 0);
 		List<RadialLandPoint> auxPolygon = new ArrayList<>();		
 		for(int i = 0; i < aux.size();i++){
 			int[] valxy = RadialMapHelper.breakKey(aux.get(i));
@@ -475,9 +516,9 @@ public class RadialPolygon {
 		return localArea;
 	}
 	
-	public void parkArea(int size){
+	public void parkArea(int size){ /// esto esta mal, pinta otro landmap que luego se borra
 		List<Integer> aux= vectorShrinking(size);
-		RadialLandMap auxLandMap = new RadialLandMap(1400, 1400);
+		RadialLandMap auxLandMap = new RadialLandMap(0,0);
 		RadialLandPoint landPoint;
 		List<RadialLandPoint> auxPolygon = new ArrayList<>();		
 		for(int i = 0; i < aux.size();i++){

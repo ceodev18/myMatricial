@@ -267,6 +267,139 @@ public class RadialLandMap {
 			}
 		}
 	}
+	
+	public void createALine(int inicialPoint, int finalPoint, String markType) {
+			int xyInitial[] = RadialMapHelper.breakKey(inicialPoint);
+			int xyFinal[] = RadialMapHelper.breakKey(finalPoint);
+
+			int underscore = (xyFinal[0] - xyInitial[0]);
+			if (underscore == 0) {
+				int lower = xyInitial[1] < xyFinal[1] ? xyInitial[1] : xyFinal[1];
+				int upper = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
+
+				for (int w = lower; w <= upper; w++) {
+					getLandPoint(RadialMapHelper.formKey(xyInitial[0], w)).setType(markType);
+				}
+				return;
+			}
+
+			double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
+			// 2nd, gradient=0; straight in the X axis
+			int lowerx = xyInitial[0] < xyFinal[0] ? xyInitial[0] : xyFinal[0];
+			int upperx = xyInitial[0] > xyFinal[0] ? xyInitial[0] : xyFinal[0];
+			if (gradient == 0) {
+				for (int w = lowerx; w <= upperx; w++) {
+					getLandPoint(RadialMapHelper.formKey(w, xyInitial[1])).setType(markType);
+				}
+				return;
+			}
+			int lowery = xyInitial[1] < xyFinal[1] ? xyInitial[1] : xyFinal[1];
+			int uppery = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
+
+			double b = xyFinal[1] - gradient * xyFinal[0];
+			// 3nd the gradient is positive/negative.
+			for (int w = lowerx; w <= upperx; w++) {
+				float y = RadialMapHelper.round(gradient * w + b);
+				if (y == (int) y) // quick and dirty convertion check
+				{
+					getLandPoint(RadialMapHelper.formKey(w, (int) y)).setType(markType);
+				}
+			}
+			for (int w = lowery; w <= uppery; w++) {
+				float x = RadialMapHelper.round( (w - b)/gradient);
+				if (x == (int) x) // quick and dirty convertion check
+				{
+					getLandPoint(RadialMapHelper.formKey((int) x, w)).setType(markType);
+				}
+			}
+			
+			
+	}
+	
+	//just works when the point belongs to both Straight
+	//added a bool parameter to allow find a point that no belongs to any straigt
+	public int findIntersectionPointIntoTwoStraight(int rect1Ini, int rect1End, int rect2Ini, int rect2End, boolean belong){
+		int pointSolution =-1;
+		int xyRec1Ini[] = RadialMapHelper.breakKey(rect1Ini);
+		int xyRec1End[] = RadialMapHelper.breakKey(rect1End);
+		int xyRec2Ini[] = RadialMapHelper.breakKey(rect2Ini);
+		int xyRec2End[] = RadialMapHelper.breakKey(rect2End);
+		
+		int underscore1 = (xyRec1End[0] - xyRec1Ini[0]);
+		int underscore2 = (xyRec2End[0] - xyRec2Ini[0]);
+		double gradient1 = 0;
+		double gradient2 = 0;
+		double b1 = 0;
+		double b2 = 0;
+		
+		if(underscore1 == 0 && underscore2 == 0) return pointSolution; // would be the same straight or paralell
+		if(underscore1 != 0){
+			gradient1 = (xyRec1End[1] - xyRec1Ini[1]) * 1.0 / underscore1;
+			b1 = (xyRec1Ini[0]*xyRec1End[1] -(xyRec1End[0]*xyRec1Ini[1]))/(xyRec1Ini[0] -xyRec1End[0]);
+		}
+		if(underscore2 != 0){
+			gradient2 = (xyRec2End[1] - xyRec2Ini[1]) * 1.0 / underscore2;
+			b2 = (xyRec2Ini[0]*xyRec2End[1] -(xyRec2End[0]*xyRec2Ini[1]))/(xyRec2Ini[0] -xyRec2End[0]);
+		}
+		if((gradient1 == 0 && gradient2 == 0)|| (gradient1 == gradient2)) return pointSolution;  //would be the same straight or paralell
+		
+		
+		if (underscore1 == 0 && underscore2 != 0) {
+			int lower = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+			int upper = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];	
+				if((lower <= xyRec1End[0] && xyRec1End[0] <= upper)|| !belong){
+					double yAux = xyRec1End[0]*gradient2 + b2;
+					RadialMapHelper.round(yAux);
+					pointSolution =  RadialMapHelper.formKey(xyRec1End[0], (int)yAux);
+					
+				}
+				return pointSolution;
+		
+		}
+		if (underscore2 == 0 && underscore1 != 0) {
+			int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+			int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];	
+				if((lower <= xyRec2End[0] && xyRec2End[0] <= upper)|| !belong){ //verify if the point belong to the straight
+					double yAux = xyRec2End[0]*gradient1 + b1;
+					RadialMapHelper.round(yAux);
+					pointSolution =  RadialMapHelper.formKey(xyRec2End[0], (int)yAux);
+					
+				}
+				return pointSolution;
+		}
+		if (underscore1 != 0 && underscore2 != 0) {
+			int lowerx = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+			int upperx = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+			int lowery = xyRec2Ini[1] < xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
+			int uppery = xyRec2Ini[1] > xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
+			double xAux = (b2 -b1)/(gradient1- gradient2);
+			double yAux = gradient1*(xAux) + b1;		
+			
+			
+				if((lowerx <= xAux && xAux <= upperx && lowery <= yAux && yAux <= uppery) || !belong){//verify if the point belong to the straight because it wouldn't be include in both
+					RadialMapHelper.round(xAux);
+					RadialMapHelper.round(yAux);
+					pointSolution =  RadialMapHelper.formKey((int)xAux, (int)yAux);	
+				}
+				return pointSolution;
+		
+		}
+		
+		
+		return pointSolution; //if dosnt fint, or dont exist, return -1
+	}
+	
+	public double findGradient(int inicialPoint, int finalPoint){
+		int xyInitial[] = RadialMapHelper.breakKey(inicialPoint);
+		int xyFinal[] = RadialMapHelper.breakKey(finalPoint);
+		double gradient;
+		int underscore = (xyFinal[0] - xyInitial[0]);
+		if(underscore == 0) return 0; //es infinito, mejorar
+		
+		gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
+		return gradient;
+	}
+	
 
 	private void clearDottedLimits() {
 		for (int x = 0; x < fullPolygon.size(); x++) {
