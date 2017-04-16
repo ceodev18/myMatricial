@@ -448,17 +448,48 @@ public class SpineAlgorithm {
 			value1="1";
 			value2="2";
 			if(dotValue.equals("p")){
-				//case "p"
-				valueY+=-nmbrParksLong-SpineConfiguration.LOCAL_BRANCH_SIZE;
-				landMap.findPoint(SpineMapHelper.formKey(valueX,valueY)).setType("9");
-				//break;
+				System.out.println("parqueeee");
+				int saveValue=valueY-(nmbrParksLong+SpineConfiguration.LOCAL_BRANCH_SIZE);
+				boolean exit=false;
+				int counter=0;
+				String valueComp;
+				while(true){
+					 valueComp=landMap.findPoint(SpineMapHelper.formKey(valueX,saveValue)).getType();
+					for(int iii=0;iii<6;iii++){
+						valueComp=landMap.findPoint(SpineMapHelper.formKey(valueX,saveValue)).getType();
+						if(valueComp.equals("a")){
+							saveValue-=nmbrParksLong+SpineConfiguration.LOCAL_BRANCH_SIZE*2;
+							iii=0;
+						}else if(valueComp.equals(" ")||valueComp.equals(".")){
+							exit=true;
+							break;
+						}
+						for(int jj=0;jj<15;jj++){
+							valueComp=landMap.findPoint(SpineMapHelper.formKey(valueX,saveValue)).getType();
+							if(!valueComp.equals(" ") && !valueComp.equals(".")){
+								landMap.findPoint(SpineMapHelper.formKey(valueX+jj,saveValue)).setType(value2);
+								landMap.findPoint(SpineMapHelper.formKey(valueX+jj+SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE,saveValue)).setType(value1);
+							}
+							
+						}
+						saveValue--;
+					}
+					if(exit)break;
+					aux=value1;
+					value1=value2;
+					value2=aux;
+					//conter++;
+				}
+				
 			}else{
 				//case "a"
 				while(true){
 					dotValue=landMap.findPoint(SpineMapHelper.formKey(valueX,valueY)).getType();
 					if(dotValue.equals("a")){
+						//aplying looback;
 						valueY-=10;
-						//break;
+						//System.out.println("decreasing valueY"+valueY);
+						//landMap.findPoint(SpineMapHelper.formKey(valueX,valueY-1)).setType("8");
 					}else if(dotValue.equals(".")||dotValue.equals(" ")){
 						break;
 					}
@@ -558,7 +589,7 @@ public class SpineAlgorithm {
 								counter++;
 							}
 							//this paint 1 data down 
-							System.out.println(counter);
+							//System.out.println(counter);
 							for(int ii=0;ii<counter;ii++){
 								for(int jj=0;jj<15;jj++){
 									landMap.findPoint(SpineMapHelper.formKey(valueX+jj,saveValue)).setType(value2);
