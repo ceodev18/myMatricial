@@ -448,7 +448,6 @@ public class SpineAlgorithm {
 			value1="1";
 			value2="2";
 			if(dotValue.equals("p")){
-				System.out.println("parqueeee");
 				int saveValue=valueY-(nmbrParksLong+SpineConfiguration.LOCAL_BRANCH_SIZE);
 				boolean exit=false;
 				int counter=0;
@@ -623,12 +622,51 @@ public class SpineAlgorithm {
 			}
 			
 			state=false;
-			for(int i=0;i<46;i++){
-				if(landMap.findPoint(SpineMapHelper.formKey(valueX,yy)).getType().equals(".")){
+			//System.out.println("Value of valueX"+ valueX);
+			//System.out.println(landMap.findPoint(SpineMapHelper.formKey(1485,yy)).getType());
+			
+			int counter=0;
+			for(int i=0;i<(SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2 +SpineConfiguration.COLLECTOR_BRANCH_SIZE);i++){
+				if(landMap.findPoint(SpineMapHelper.formKey(valueX,yy-1)).getType().equals(".")){
 					state=true;
+					if(counter>=15 && counter<=30){
+						int topeX=valueX-counter;
+						int topeY=yy-1;
+						boolean emergency=false;
+						String val1,val3,val2;
+						val1="1";
+						val2="2";
+						val3="";
+						while(true){
+							for(int ii=0;ii<6;ii++){
+								if(landMap.findPoint(SpineMapHelper.formKey(topeX,topeY)).getType().equals("a")){
+									emergency=true;
+									break;
+								}
+								for(int jj=0;jj<15;jj++){
+									landMap.findPoint(SpineMapHelper.formKey(topeX+jj,topeY)).setType(val1);
+								}
+								topeY-=1;	
+							}
+							val3=val1;
+							val1=val2;
+							val2=val1;
+							if(emergency)break;
+						}
+						/*for(int ii=0;ii<6;ii++){
+							for(int jj=0;jj<15;jj++){
+								landMap.findPoint(SpineMapHelper.formKey(topeX+jj,topeY)).setType("1");
+							}
+							topeY-=1;	
+						}*/
+					}
 					break;
+					//it break with a value less than 46
+					//if this values is greater than 16 + 15
+					//it means we can lotizer more lotes
 				}
 				valueX++;
+				counter++;
 			}
 			if(state)break;
 			

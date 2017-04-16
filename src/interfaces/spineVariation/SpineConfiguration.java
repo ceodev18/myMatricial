@@ -2,7 +2,7 @@ package interfaces.spineVariation;
 
 public interface SpineConfiguration {
 
-	public static int BASE_CLUSTER_SIZE = 150;
+	public static int BASE_CLUSTER_SIZE = 180;
 	
 	public static int ARTERIAL_BRANCH_SIZE = 26;
 	public static int COLLECTOR_BRANCH_SIZE = 16;
