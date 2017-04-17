@@ -315,6 +315,75 @@ public class RadialLandMap {
 			
 			
 	}
+	public void createACustomRoute(int inicialPoint, int finalPoint,int size, String markType) {
+		
+		int xyInitial[] = RadialMapHelper.breakKey(inicialPoint);
+		int xyFinal[] = RadialMapHelper.breakKey(finalPoint);
+		int cont= 1;
+		int sign = 1; 
+		int aux = 0;
+		int underscore = (xyFinal[0] - xyInitial[0]);
+		if (underscore == 0) {
+			
+			createALine(inicialPoint,finalPoint,markType);
+			for (int w = 0; w <= size-1; w++) {
+				int auxInitPoint = RadialMapHelper.formKey(xyInitial[0] + cont*sign, xyInitial[1]) ;
+				int auxFinPoint = RadialMapHelper.formKey(xyFinal[0] + cont*sign , xyFinal[1]);	
+				createALine(auxInitPoint,auxFinPoint,markType);
+				sign=sign*(-1);
+				if(aux == 1){
+					cont++;
+					aux=0;
+					continue;
+				}
+				aux++;
+			}
+			return;
+		}
+
+		double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
+		// 2nd, gradient=0; straight in the X axis
+		if (gradient == 0) {
+			createALine(inicialPoint,finalPoint,markType);
+			for (int w = 0; w <= size-1; w++) {
+				int auxInitPoint = RadialMapHelper.formKey(xyInitial[0] , xyInitial[1] + cont*sign) ;
+				int auxFinPoint = RadialMapHelper.formKey(xyFinal[0]   , xyFinal[1] + cont*sign);	
+				createALine(auxInitPoint,auxFinPoint,markType);
+				sign=sign*(-1);
+				if(aux == 1){
+					cont++;
+					aux=0;
+					continue;
+				}
+				aux++;
+			}
+			return;
+		}
+		// 3nd the gradient is positive/negative.
+		double contGradient = -(1.0/gradient);
+		double b1 = xyInitial[1] - contGradient * xyInitial[0];
+		double b2 = xyFinal[1] - contGradient * xyFinal[0];
+		createALine(inicialPoint,finalPoint,markType);
+		for (int w = 0; w <= size-1; w++) {
+			int x1 = xyInitial[0] + cont*sign;
+			int x2 = xyFinal[0] + cont*sign;
+			int y1 =  (int)RadialMapHelper.round(contGradient * x1 + b1);
+			int y2 =  (int)RadialMapHelper.round(contGradient * x2 + b2);		
+			int auxInitPoint = RadialMapHelper.formKey(x1, y1) ;
+			int auxFinPoint = RadialMapHelper.formKey( x2, y2);	
+			createALine(auxInitPoint,auxFinPoint,markType);
+			sign=sign*(-1);
+			if(aux == 1){
+				cont++;
+				aux=0;
+				continue;
+			}
+			aux++;
+		}
+		return;
+		
+		
+	}
 	
 	//just works when the point belongs to both Straight
 	//added a bool parameter to allow find a point that no belongs to any straigt

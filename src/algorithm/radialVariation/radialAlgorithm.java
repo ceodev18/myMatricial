@@ -133,7 +133,7 @@ public class radialAlgorithm {
 			
 			
 			if(Math.abs(grad1 - grad2) < 0.35){// normal case
-				landMap.createALine(extLayer.get(k), intLayer.get(i), RadialConfiguration.ARTERIAL_MARK);
+				landMap.createACustomRoute(extLayer.get(k), intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE,RadialConfiguration.ARTERIAL_MARK);
 				k++;
 			}else{//find the problematic layer
 				if(i == 0){ //special case
@@ -143,9 +143,9 @@ public class radialAlgorithm {
 					 if(Math.abs(grad1 - grad2) < 0.35){ //if are equals  is the special case
 						 int pointIntersection = landMap.findIntersectionPointIntoTwoStraight
 								 (extLayer.get((extLayer.size()-1)), auxLayer.get((extLayer.size()-1)), extLayer.get(i), auxLayer.get(i), false);
-						 landMap.createALine(extLayer.get(extLayer.size()-1),pointIntersection, RadialConfiguration.ARTERIAL_MARK);
-						 landMap.createALine(extLayer.get(i),pointIntersection , RadialConfiguration.ARTERIAL_MARK);
-						 landMap.createALine(pointIntersection,intLayer.get(i) , RadialConfiguration.ARTERIAL_MARK);
+						 landMap.createACustomRoute(extLayer.get(extLayer.size()-1),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
+						 landMap.createACustomRoute(extLayer.get(i),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
+						 landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
 						 k++;
 						 continue;
 					 }
@@ -154,9 +154,9 @@ public class radialAlgorithm {
 				int pointIntersection = landMap.findIntersectionPointIntoTwoStraight
 						(extLayer.get(k), auxLayer.get(k), extLayer.get(k+1), auxLayer.get(k+1), false);
 				//draw special case
-				landMap.createALine(extLayer.get(k),pointIntersection , RadialConfiguration.ARTERIAL_MARK);
-				landMap.createALine(extLayer.get(k+1),pointIntersection , RadialConfiguration.ARTERIAL_MARK);
-				landMap.createALine(pointIntersection,intLayer.get(i) , RadialConfiguration.ARTERIAL_MARK);
+				landMap.createACustomRoute(extLayer.get(k),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
+				landMap.createACustomRoute(extLayer.get(k+1),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
+				landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
 				k=k+2;
 			}
 			
