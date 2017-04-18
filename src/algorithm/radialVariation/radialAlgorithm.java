@@ -23,7 +23,7 @@ public class radialAlgorithm {
 		this.landMap = landMap;
 	}
 
-	public void CreateRadialWeb() {
+	public void CreateRadialWeb( RadialLandPoint entryPoint ) {
 		List<List<Integer>> layersPolygon = new ArrayList<>();
 		List<Integer> localLayer;
 		RadialPolygon polygon = new RadialPolygon();
@@ -74,6 +74,7 @@ public class radialAlgorithm {
 			valuePlus++;
 		
 		}
+		
 		//complete a arterial branch size
 		List<List<Integer>> routesAux = polygon.routeZone((valuePlus-1)*valueSeparation, 16);
 		if (routesAux.size() > 6) {
@@ -83,16 +84,25 @@ public class radialAlgorithm {
 		}else {
 			routesAux = new ArrayList<>();
 		}
-		///// 
+		
+		/////	
+		
 		localLayer = polygon.vectorShrinking(((valuePlus-1)*valueSeparation)+16);
 		layersPolygon.add(localLayer);
 		
-		
+		////create Principal Route
+		int referencePoint =  RadialMapHelper.formKey( entryPoint.getX(),entryPoint.getY());
+		int centroid =    RadialMapHelper.formKey( landMap.getCentroid().getX(),landMap.getCentroid().getY());
+		int[] pointsInters = polygon.createMainRoute(referencePoint,centroid,layersPolygon.get(0));
+		landMap.createACustomRoute
+			(pointsInters[0],pointsInters[1],RadialConfiguration.ARTERIAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
+		//do vertix branch
+		createVertixBranch(layersPolygon);
+	
+		// create the park //incomplete
 		int auxvalue = ((valuePlus - 1)*3);
 		landMap.createBorderFromPolygon(layersPolygon.get(auxvalue), RadialConstants.POLYGON_LIMIT);
 		
-		// create the park //incomplete
-				
 		//		List<List<Integer>> grass = polygon.parkZone(
 		//			(valuePlus-1)*valueSeparation+16);
 		//		for (int j = 0; j < grass.size(); j++) {
@@ -100,14 +110,11 @@ public class radialAlgorithm {
 		//		}
 		//
 		
-		polygon.parkArea((valuePlus-1)*valueSeparation + 16); //reparar
-		
-		/////////////do vertix branch
+		//polygon.parkArea((valuePlus-1)*valueSeparation + 16); //reparar
 		
 		
-		createVertixBranch(layersPolygon);
 		
-
+	
 	}
 
 	
@@ -133,7 +140,7 @@ public class radialAlgorithm {
 			
 			
 			if(Math.abs(grad1 - grad2) < 0.35){// normal case
-				landMap.createACustomRoute(extLayer.get(k), intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE,RadialConfiguration.ARTERIAL_MARK);
+				landMap.createACustomRoute(extLayer.get(k), intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE,RadialConfiguration.LOCAL_MARK);
 				k++;
 			}else{//find the problematic layer
 				if(i == 0){ //special case
@@ -143,9 +150,9 @@ public class radialAlgorithm {
 					 if(Math.abs(grad1 - grad2) < 0.35){ //if are equals  is the special case
 						 int pointIntersection = landMap.findIntersectionPointIntoTwoStraight
 								 (extLayer.get((extLayer.size()-1)), auxLayer.get((extLayer.size()-1)), extLayer.get(i), auxLayer.get(i), false);
-						 landMap.createACustomRoute(extLayer.get(extLayer.size()-1),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
-						 landMap.createACustomRoute(extLayer.get(i),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
-						 landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
+						 landMap.createACustomRoute(extLayer.get(extLayer.size()-1),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
+						 landMap.createACustomRoute(extLayer.get(i),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
+						 landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
 						 k++;
 						 continue;
 					 }
@@ -154,9 +161,9 @@ public class radialAlgorithm {
 				int pointIntersection = landMap.findIntersectionPointIntoTwoStraight
 						(extLayer.get(k), auxLayer.get(k), extLayer.get(k+1), auxLayer.get(k+1), false);
 				//draw special case
-				landMap.createACustomRoute(extLayer.get(k),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
-				landMap.createACustomRoute(extLayer.get(k+1),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
-				landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
+				landMap.createACustomRoute(extLayer.get(k),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
+				landMap.createACustomRoute(extLayer.get(k+1),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
+				landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
 				k=k+2;
 			}
 			

@@ -66,10 +66,8 @@ public class RadialTester {
 		// 2. we create the border from the polygon
 		landMap.createBorderFromPolygon(polygon);
 		
-		List<RadialLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new RadialLandPoint(468, 88);
-		entryPoints.add(landPoint);
-		
+		RadialLandPoint entryPoint = new RadialLandPoint(340,333 );
+
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
 		
@@ -77,17 +75,9 @@ public class RadialTester {
 		radialAlgorithm radialAlgorithm = new radialAlgorithm();
 		radialAlgorithm.setLandMap(landMap);
 		
-		radialAlgorithm.CreateRadialWeb();
-		/*
-		 * 
-		 * 
-		for (RadialLandPoint entryPoint : entryPoints) {
-			int direction = RadialDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
-					landMap.getCentroid());
-			radialAlgorithm.createRouteVariation(entryPoint.getId(), direction, RadialConfiguration.ARTERIAL_BRANCH);
-			break;
-		}
-		*/
+		radialAlgorithm.CreateRadialWeb(entryPoint);
+		
+		
 		
 		
 		

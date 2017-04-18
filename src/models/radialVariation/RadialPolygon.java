@@ -532,4 +532,20 @@ public class RadialPolygon {
 
 		auxLandMap.fillCentralPark();
 	}
+	
+	public int[] createMainRoute(int refPoint,int centroid, List<Integer> polygon){
+		int[] auxPoints = new int[2];
+		RadialLandMap auxLandMap = new RadialLandMap(0, 0);
+		int pointVerif;
+		int k = 0;
+		for(int i= 0;i < polygon.size();i++){
+			pointVerif = auxLandMap.findIntersectionPointIntoTwoStraight
+					(centroid, refPoint, polygon.get(i % polygon.size()), polygon.get((i+1) % polygon.size()), true);
+			if(pointVerif != -1){
+				auxPoints[k] = pointVerif;
+				k++;
+			}
+		}
+	return auxPoints; 
+	}
 }
