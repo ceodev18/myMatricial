@@ -363,12 +363,22 @@ public class RadialLandMap {
 		double contGradient = -(1.0/gradient);
 		double b1 = xyInitial[1] - contGradient * xyInitial[0];
 		double b2 = xyFinal[1] - contGradient * xyFinal[0];
+		int x1,x2,y1,y2;
 		createALine(inicialPoint,finalPoint,markType);
 		for (int w = 0; w <= size-1; w++) {
-			int x1 = xyInitial[0] + cont*sign;
-			int x2 = xyFinal[0] + cont*sign;
-			int y1 =  (int)RadialMapHelper.round(contGradient * x1 + b1);
-			int y2 =  (int)RadialMapHelper.round(contGradient * x2 + b2);		
+			if(Math.abs(xyFinal[0]-xyInitial[0]) <  Math.abs(xyFinal[1]-xyInitial[1])){
+				 x1 = xyInitial[0] + cont*sign;
+				 x2 = xyFinal[0] + cont*sign;
+				 y1 =  (int)RadialMapHelper.round(contGradient * x1 + b1);
+				 y2 =  (int)RadialMapHelper.round(contGradient * x2 + b2);
+			}else{
+				 y1 = xyInitial[1] + cont*sign;
+				 y2 = xyFinal[1] + cont*sign;
+				 x1 =  (int)RadialMapHelper.round((y1 - b1)/contGradient);
+				 x2 =  (int)RadialMapHelper.round((y2 - b2)/contGradient);
+				
+			}
+			
 			int auxInitPoint = RadialMapHelper.formKey(x1, y1) ;
 			int auxFinPoint = RadialMapHelper.formKey( x2, y2);	
 			createALine(auxInitPoint,auxFinPoint,markType);

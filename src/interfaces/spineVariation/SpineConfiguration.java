@@ -2,7 +2,7 @@ package interfaces.spineVariation;
 
 public interface SpineConfiguration {
 
-	public static int BASE_CLUSTER_SIZE = 180;
+	public static int BASE_CLUSTER_SIZE = 150;
 	
 	public static int ARTERIAL_BRANCH_SIZE = 26;
 	public static int COLLECTOR_BRANCH_SIZE = 16;
@@ -11,6 +11,7 @@ public interface SpineConfiguration {
 	
 	public static int HOUSE_SIDE_MINIMUN_SIZE = 6;
 	public static int HOUSE_SIDE_MAXIMUN_SIZE = 15;
+	
 	public static int HOUSE_DEPTH_MINIMUN_SIZE = 15; //8*12=96	
 	public static int HOUSE_DEPTH_MAXIMUN_SIZE = 20; //8*12=96	
 	public static int CLUSTER_ENTRANCE_SIZE = 12;
@@ -36,6 +37,7 @@ public interface SpineConfiguration {
 	public static String WALK_MARK = "a";
 	public static String CLUSTER_ENTRANCE_MARK = "a";
 	public static String BORDER_MARK = "e";
+	public static String ADDINGS_MARK = "z";
 	
 	public static String MARK_LOT1 = "1";
 	public static String MARK_LOT2 = "2";
