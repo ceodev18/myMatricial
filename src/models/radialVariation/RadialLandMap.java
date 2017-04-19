@@ -479,6 +479,7 @@ public class RadialLandMap {
 		return gradient;
 	}
 	
+	
 
 	private void clearDottedLimits() {
 		for (int x = 0; x < fullPolygon.size(); x++) {

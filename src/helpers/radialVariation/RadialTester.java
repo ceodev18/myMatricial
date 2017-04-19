@@ -67,7 +67,6 @@ public class RadialTester {
 		landMap.createBorderFromPolygon(polygon);
 		
 		RadialLandPoint entryPoint = new RadialLandPoint(700,160 );
-
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
 		
@@ -77,7 +76,7 @@ public class RadialTester {
 		
 		radialAlgorithm.CreateRadialWeb(entryPoint);
 		
-		
+		radialAlgorithm.Radialize(entryPoint);
 		
 		
 		

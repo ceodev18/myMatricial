@@ -97,7 +97,7 @@ public class radialAlgorithm {
 		landMap.createACustomRoute
 			(pointsInters[0],pointsInters[1],RadialConfiguration.ARTERIAL_BRANCH_SIZE , RadialConfiguration.ARTERIAL_MARK);
 		//do vertix branch
-		createVertixBranch(layersPolygon);
+		List<Integer> auxList = createVertixBranch(layersPolygon);
 	
 		// create the park //incomplete
 		int auxvalue = ((valuePlus - 1)*3);
@@ -111,18 +111,22 @@ public class radialAlgorithm {
 		
 		
 		//polygon.parkArea((valuePlus-1)*valueSeparation + 16); //reparar
-		
-		
+				
+		///////index of routes
+		List<List<RadialLandRoute>> ListRoutes = new ArrayList<>();
+		RadialLandRoute aux = new RadialLandRoute();
+		ListRoutes = aux.setRadialRoutes(layersPolygon,auxList,pointsInters[0],pointsInters[1]);
 		
 	
 	}
 
 	
-	public void createVertixBranch(List<List<Integer>> layersPolygon){
+	public List<Integer> createVertixBranch(List<List<Integer>> layersPolygon){ //que devuelva los puntos de los vertices para las rutas en puntos pares
 		
 		List<Integer> extLayer = layersPolygon.get(0);
 		List<Integer> auxLayer = new ArrayList<>();
 		List<Integer> intLayer = layersPolygon.get(layersPolygon.size()-1);
+		List<Integer> auxListVertx = new ArrayList<>();
 		int k =0;
 		//check change of number of sizes
 		int numSize = extLayer.size();
@@ -142,6 +146,8 @@ public class radialAlgorithm {
 			if(Math.abs(grad1 - grad2) < 0.35){// normal case
 				landMap.createACustomRoute(extLayer.get(k), intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE,RadialConfiguration.LOCAL_MARK);
 				k++;
+				auxListVertx.add(extLayer.get(k));
+				auxListVertx.add(intLayer.get(i));
 			}else{//find the problematic layer
 				if(i == 0){ //special case
 					 grad1 = landMap.findGradient(extLayer.get(i+1), auxLayer.get(i+1));
@@ -154,6 +160,12 @@ public class radialAlgorithm {
 						 landMap.createACustomRoute(extLayer.get(i),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
 						 landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
 						 k++;
+						 auxListVertx.add(extLayer.get(extLayer.size()-1));
+						 auxListVertx.add(pointIntersection);
+						 auxListVertx.add(extLayer.get(i));
+						 auxListVertx.add(pointIntersection);
+						 auxListVertx.add(pointIntersection);
+						 auxListVertx.add(intLayer.get(i));
 						 continue;
 					 }
 				}
@@ -164,195 +176,27 @@ public class radialAlgorithm {
 				landMap.createACustomRoute(extLayer.get(k),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
 				landMap.createACustomRoute(extLayer.get(k+1),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
 				landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
+				auxListVertx.add(extLayer.get(k));
+				auxListVertx.add(pointIntersection);
+				auxListVertx.add(extLayer.get(k+1));
+				auxListVertx.add(pointIntersection);
+				auxListVertx.add(pointIntersection);
+				auxListVertx.add(intLayer.get(i));
 				k=k+2;
 			}
 			
 		}
+		return auxListVertx;
 	}
 	
 	
-	public void Radialize() {
-		// 1. we need to now the main route size
-		RadialLandRoute mainRoute = landMap.getLandRoute();
-		// Once the collector branches are created we need to create the non
-		// collector running orthogonal to the main
-		List<Integer> orthogonalDirections = RadialDirectionHelper.orthogonalDirections(mainRoute.getDirection());
-		int entryPointId = mainRoute.getInitialPointId();
-		while (true) {
-			entryPointId = RadialMapHelper.moveKeyByOffsetAndDirection(entryPointId,
-					RadialConfiguration.BASE_RADIAL_SIZE + RadialConfiguration.COLLECTOR_BRANCH_SIZE,
-					mainRoute.getDirection());
-			if (landMap.landPointisOnMap(entryPointId)) {
-				createRouteVariation(entryPointId, orthogonalDirections.get(0), RadialConfiguration.COLLECTOR_BRANCH);
-			} else
-				break;
-		}
-
-		// Principal routes
-		int upperParallelId = mainRoute.getInitialPointId();
-		while (true) {
-			upperParallelId = RadialMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
-					RadialConfiguration.BASE_RADIAL_SIZE, orthogonalDirections.get(0));
-			if (!landMap.landPointisOnMap(upperParallelId))
-				break;
-			createRouteVariation(upperParallelId, mainRoute.getDirection(), RadialConfiguration.LOCAL_BRANCH);
-		}
-
-		int lowerParallelId = mainRoute.getInitialPointId();
-		boolean first = true;
-		while (true) {
-			int extraSpace = first ? RadialConfiguration.ARTERIAL_BRANCH_SIZE : 0;
-			first = false;
-			lowerParallelId = RadialMapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
-					RadialConfiguration.BASE_RADIAL_SIZE + extraSpace, orthogonalDirections.get(1));
-			if (!landMap.landPointisOnMap(lowerParallelId))
-				break;
-			createRouteVariation(lowerParallelId, mainRoute.getDirection(), RadialConfiguration.LOCAL_BRANCH);
-		}
+	public void Radialize(RadialLandPoint entryPoint) {
+		
 	}
 
-	public void createRouteVariation(int axisPoint, int direction, int branchType) {
-		int extension = 0;
-		String markType = "";
-		int growDirection = -1;
-		RadialLandRoute RadialLandRoute = null;
-		switch (branchType) {
-		case RadialConfiguration.ARTERIAL_BRANCH:
-			RadialLandRoute = new RadialLandRoute();
-			RadialLandRoute.setInitialPointId(axisPoint);
-			RadialLandRoute.setDirection(direction);
-			extension = RadialConfiguration.ARTERIAL_BRANCH_SIZE;
-			markType = RadialConfiguration.ARTERIAL_MARK;
-			break;
-		case RadialConfiguration.COLLECTOR_BRANCH:
-			extension = RadialConfiguration.COLLECTOR_BRANCH_SIZE;
-			markType = RadialConfiguration.COLLECTOR_MARK;
-			break;
-		case RadialConfiguration.LOCAL_BRANCH:
-			extension = RadialConfiguration.LOCAL_BRANCH_SIZE;
-			markType = RadialConfiguration.LOCAL_MARK;
-			break;
-		case RadialConfiguration.WALK_BRANCH:
-			extension = RadialConfiguration.WALK_BRANCH_SIZE;
-			markType = RadialConfiguration.WALK_MARK;
-			break;
-		}
 
-		switch (direction) {
-		case RadialConstants.EAST:
-			growDirection = RadialConstants.NORTH;
-			break;
-		case RadialConstants.NORTH:
-			growDirection = RadialConstants.WEST;
-			break;
-		case RadialConstants.WEST:
-			growDirection = RadialConstants.SOUTH;
-			break;
-		case RadialConstants.SOUTH:
-			growDirection = RadialConstants.EAST;
-			break;
-		}
-
-		// It is necessary to test that the lower and upper key are still on the
-		// map.It would be impossible otherwise to create
-		int upperLimitKey = RadialMapHelper.moveKeyByOffsetAndDirection(axisPoint, 1,
-				RadialDirectionHelper.oppositeDirection(growDirection));
-		int lowerLimitKey = RadialMapHelper.moveKeyByOffsetAndDirection(axisPoint, extension, growDirection);
-
-		if (!landMap.landPointisOnMap(upperLimitKey) || !landMap.landPointisOnMap(lowerLimitKey)) {
-			return;
-		}
-
-		createLine(upperLimitKey, direction, RadialConfiguration.NODE_MARK);
-		createLine(lowerLimitKey, direction, RadialConfiguration.NODE_MARK);
-
-		for (int i = 0; i < extension; i++) {
-			if ((branchType == RadialConfiguration.ARTERIAL_BRANCH) && (i == 0)) {
-				int finalPointid = createLine(RadialMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection),
-						direction, markType);
-				RadialLandRoute.setFinalPointId(finalPointid);
-				landMap.setLandRoute(RadialLandRoute);
-			} else {
-				createLine(RadialMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction,
-						markType);
-			}
-		}
-	}
-
-	private int createLine(int givenXY, int direction, String markType) {
-		int[] xy = RadialMapHelper.breakKey(givenXY);
-		int[] newXY = new int[2];
-		Boolean in = false, out = false, changed = false;
-		if ((direction == RadialConstants.NORTH) || (direction == RadialConstants.SOUTH)) {
-			if (xy[0] > landMap.getPointsx())
-				return -1;
-			for (int i = 0; i < landMap.getPointsy(); i++) {
-				newXY[0] = xy[0];
-				newXY[1] = i;
-				changed = markPoint(newXY, markType, in, out);
-				if (changed && !in) {
-					in = true;
-					changed = false;
-				}
-				if (changed && in) {
-					out = true;
-				}
-				if (out.booleanValue()) {
-					newXY[0] = xy[0];
-					newXY[1] = i - 1;
-					return RadialMapHelper.formKey(newXY[0], newXY[1]);
-				}
-			}
-		} else {
-			if (xy[1] > landMap.getPointsy())
-				return -1;
-			for (int i = 0; i < landMap.getPointsx(); i++) {
-				newXY[0] = i;
-				newXY[1] = xy[1];
-				changed = markPoint(newXY, markType, in, out);
-				if (changed && !in) {
-					in = true;
-					changed = false;
-				}
-				if (changed && in) {
-					out = true;
-				}
-				if (out.booleanValue()) {
-					newXY[0] = i - 1;
-					newXY[1] = xy[1];
-					return RadialMapHelper.formKey(newXY[0], newXY[1]);
-				}
-			}
-		}
-		return -1;
-	}
-
-	private boolean markPoint(int[] newXY, String markType, Boolean in, Boolean out) {
-		boolean changed = false;
-		RadialLandPoint RadialLandPoint = landMap.findPoint(RadialMapHelper.formKey(newXY[0], newXY[1]));
-		if (!in.booleanValue() && !RadialLandPoint.isMapLimit()) {
-			changed = true;
-			in = true;
-		}
-
-		if (in.booleanValue() && RadialLandPoint.isMapLimit()) {
-			changed = true;
-		}
-
-		if (in.booleanValue()) {
-			if (markType.equals(RadialConfiguration.NODE_MARK)) {
-				if (RadialLandPoint.getType().equals(RadialConfiguration.EMPTY_MARK)) {
-					RadialLandPoint.setType(markType);
-				}
-			} else {
-				if (RadialLandPoint.getType().equals(RadialConfiguration.EMPTY_MARK)
-						|| RadialLandPoint.getType().equals(RadialConfiguration.NODE_MARK)) {
-					RadialLandPoint.setType(markType);
-				}
-			}
-		}
-		return changed;
-	}
+	
+	
 
 	public void zonify() {
 		// findZonificationAreas();
