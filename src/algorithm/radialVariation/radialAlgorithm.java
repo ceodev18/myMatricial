@@ -103,12 +103,12 @@ public class radialAlgorithm {
 		int auxvalue = ((valuePlus - 1)*3);
 		landMap.createBorderFromPolygon(layersPolygon.get(auxvalue), RadialConstants.POLYGON_LIMIT);
 		
-		//		List<List<Integer>> grass = polygon.parkZone(
-		//			(valuePlus-1)*valueSeparation+16);
-		//		for (int j = 0; j < grass.size(); j++) {
-		//			landMap.createBorderFromPolygon(grass.get(j), RadialConfiguration.PARK_MARK);
-		//		}
-		//
+				List<List<Integer>> grass = polygon.parkZone(
+					(valuePlus-1)*valueSeparation+16);
+				for (int j = 0; j < grass.size(); j++) {
+					landMap.createBorderFromPolygon(grass.get(j), RadialConfiguration.PARK_MARK);
+				}
+		
 		
 		//polygon.parkArea((valuePlus-1)*valueSeparation + 16); //reparar
 		

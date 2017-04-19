@@ -66,7 +66,7 @@ public class RadialTester {
 		// 2. we create the border from the polygon
 		landMap.createBorderFromPolygon(polygon);
 		
-		RadialLandPoint entryPoint = new RadialLandPoint(340,333 );
+		RadialLandPoint entryPoint = new RadialLandPoint(700,160 );
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
