@@ -245,7 +245,8 @@ public class ClusterAlgorithm {
 					List<List<Integer>> grass = clusterPolygon.parkZone(
 							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
 					if (grass.size() == 0) {
-						landMap.impreciseLotization(clusterPolygon);
+						int maximunTries = 6;
+						landMap.impreciseLotization(clusterPolygon, maximunTries);
 					} else {
 						for (int j = 0; j < grass.size(); j++) {
 							landMap.createBorderFromPolygon(grass.get(j), ClusterConfiguration.PARK_MARK);

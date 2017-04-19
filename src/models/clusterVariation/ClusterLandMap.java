@@ -411,8 +411,8 @@ public class ClusterLandMap {
 		return false;
 	}
 
-	public void impreciseLotization(ClusterPolygon clusterPolygon) {
-		if (!clusterPolygon.canBelotized()) {
+	public void impreciseLotization(ClusterPolygon clusterPolygon, int maximunDepth) {
+		if (!clusterPolygon.canBelotized() || maximunDepth==0) {
 			return;
 		}
 
@@ -490,7 +490,8 @@ public class ClusterLandMap {
 			ClusterPolygon innerPolygon = new ClusterPolygon();
 			innerPolygon.setPoints(reducedPoints);
 			innerPolygon.setComplete(true);
-			impreciseLotization(innerPolygon);
+			maximunDepth--;
+			impreciseLotization(innerPolygon, maximunDepth);
 		}
 	}
 
