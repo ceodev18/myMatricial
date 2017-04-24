@@ -112,19 +112,19 @@ public class SpineTester {
 		
 		
 		
-		
-		int large1=1035 +1,width1=800 +1;
+	/*	
+		int large1=1023 +1,width1=800 +1;
 		SpineLandMap spineLandMap1 = new SpineLandMap(large1, width1);
 		
 
 		List<SpineLandPoint> polygon1 = new ArrayList<>();
 		SpineLandPoint landPoint1 = new SpineLandPoint(0, 800);
 		polygon1.add(landPoint1);
-		landPoint1 = new SpineLandPoint(1035, 800);
+		landPoint1 = new SpineLandPoint(1023, 800);
 		polygon1.add(landPoint1);
-		landPoint1 = new SpineLandPoint(1035, 0);
+		landPoint1 = new SpineLandPoint(1023, 0);
 		polygon1.add(landPoint1);
-		landPoint1 = new SpineLandPoint(0, 0);
+		landPoint1 = new SpineLandPoint(1, 0);
 		polygon1.add(landPoint1);
 		landPoint1 = new SpineLandPoint(0,800);
 		polygon1.add(landPoint1);
@@ -155,10 +155,10 @@ public class SpineTester {
 								spineAlgorithm1.getLandMap().stringify(), large1, width1);	
 		
 
-		System.out.println("Algorithm finished");
+		System.out.println("Algorithm finished");*/
 		
 		new SpineTester(spineTestPane);
-		new SpineTester(spineTestPane1);
+		//new SpineTester(spineTestPane1);
 		
 		
 	}
