@@ -61,125 +61,252 @@ public class SpineAlgorithm {
 		int newlongHouse=limite/2;
 		String comparableValue,comparableValue2;
 		
-		while(true){
-			comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).getType();
-			if(comparableValue.equals(SpineConfiguration.ARTERIAL_MARK)){
-					comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,tope+SpineConfiguration.LOCAL_BRANCH_SIZE)).getType();
-					int printBackIndex=tope-1;
-					tope+=SpineConfiguration.LOCAL_BRANCH_SIZE;
-					int beginCounter=0;
-					boolean stateOut=false;
-					val1="1";
-					val2="2";
-					while(true){
-						for(int i=0;i<SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE;i++){
-							System.out.println(printBackIndex);
-							comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,printBackIndex)).getType();
-							if(comparableValue.equals(".")|| comparableValue.equals(" ") ||printBackIndex<1 || comparableValue.equals("a")){
-								stateOut=true;
-								break;
-							}
-							for(int j=0;j<newlongHouse;j++){
-								comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX+j,printBackIndex)).getType();
-								comparableValue2=landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,printBackIndex)).getType();
-								if(!comparableValue.equals(" ") && !comparableValue.equals("."))
-									landMap.findPoint(SpineMapHelper.formKey(ejeX+j,printBackIndex)).setType(val1);
-								if(!comparableValue2.equals(" ") && !comparableValue2.equals("."))
-									landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,printBackIndex)).setType(val2);
-							}
-							printBackIndex--;
-							beginCounter++;
-						}
-						aux=val1;
-						val1=val2;
-						val2=aux;
-						if(stateOut)break;
-						if(beginCounter>SpineConfiguration.BASE_CLUSTER_SIZE)break;
-					}
-					
-					//prin blocks
-			}else if(comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)||comparableValue.equals(SpineConfiguration.BORDER_MARK))break;
-			tope++;
-			if(tope>yy)break;
-		}
-		comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,yy+SpineConfiguration.ARTERIAL_BRANCH_SIZE)).getType();
-		tope=yy+SpineConfiguration.ARTERIAL_BRANCH_SIZE;
-		
-		if(!comparableValue.equals(" ") && !comparableValue.equals("a")&& !comparableValue.equals(".")){
-			//landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).setType("9");//
-			//auxiliar print block
-			int idCont=0;
-			int yyy=tope;
-			val1="1";
-			val2="2";
-			boolean stateOut=false;
+		if(newlongHouse>=15){
 			while(true){
-				for(int i=0;i<SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE;i++){
-					comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,yyy)).getType();
-					if(comparableValue.equals(SpineConfiguration.WALK_MARK)||
-							comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) ||
-							comparableValue.equals(SpineConfiguration.POLYGON_BORDER)){
-						stateOut=true;
-						break;
+				comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).getType();
+				if(comparableValue.equals(SpineConfiguration.ARTERIAL_MARK)){
+						comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,tope+SpineConfiguration.LOCAL_BRANCH_SIZE)).getType();
+						int printBackIndex=tope-1;
+						tope+=SpineConfiguration.LOCAL_BRANCH_SIZE;
+						int beginCounter=0;
+						boolean stateOut=false;
+						val1="1";
+						val2="2";
+						while(true){
+							for(int i=0;i<SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE;i++){
+								System.out.println(printBackIndex);
+								comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,printBackIndex)).getType();
+								if(comparableValue.equals(".")|| comparableValue.equals(" ") ||printBackIndex<1 || comparableValue.equals("a")){
+									stateOut=true;
+									break;
+								}
+								for(int j=0;j<newlongHouse;j++){
+									comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX+j,printBackIndex)).getType();
+									comparableValue2=landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,printBackIndex)).getType();
+									if(!comparableValue.equals(" ") && !comparableValue.equals("."))
+										landMap.findPoint(SpineMapHelper.formKey(ejeX+j,printBackIndex)).setType(val1);
+									if(!comparableValue2.equals(" ") && !comparableValue2.equals("."))
+										landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,printBackIndex)).setType(val2);
+								}
+								printBackIndex--;
+								beginCounter++;
+							}
+							aux=val1;
+							val1=val2;
+							val2=aux;
+							if(stateOut)break;
+							if(beginCounter>SpineConfiguration.BASE_CLUSTER_SIZE)break;
+						}
+						
+						//prin blocks
+				}else if(comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)||comparableValue.equals(SpineConfiguration.BORDER_MARK))break;
+				tope++;
+				if(tope>yy)break;
+			}
+			comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,yy+SpineConfiguration.ARTERIAL_BRANCH_SIZE)).getType();
+			tope=yy+SpineConfiguration.ARTERIAL_BRANCH_SIZE;
+			
+			if(!comparableValue.equals(" ") && !comparableValue.equals("a")&& !comparableValue.equals(".")){
+				//landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).setType("9");//
+				//auxiliar print block
+				int idCont=0;
+				int yyy=tope;
+				val1="1";
+				val2="2";
+				boolean stateOut=false;
+				while(true){
+					for(int i=0;i<SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE;i++){
+						comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,yyy)).getType();
+						if(comparableValue.equals(SpineConfiguration.WALK_MARK)||
+								comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) ||
+								comparableValue.equals(SpineConfiguration.POLYGON_BORDER)){
+							stateOut=true;
+							break;
+						}
+						for(int j=0;j<newlongHouse;j++){
+							landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
+							landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).setType(val2);
+						}
+						idCont++;
+						yyy++;
 					}
-					for(int j=0;j<newlongHouse;j++){
-						landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
-						landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).setType(val2);
-					}
-					idCont++;
-					yyy++;
+					if(stateOut)break;
+					aux=val1;
+					val1=val2;
+					val2=aux;
+					if(idCont>(SpineConfiguration.BASE_CLUSTER_SIZE-SpineConfiguration.ARTERIAL_BRANCH_SIZE-SpineConfiguration.LOCAL_BRANCH_SIZE))break;
 				}
-				if(stateOut)break;
-				aux=val1;
-				val1=val2;
-				val2=aux;
-				if(idCont>(SpineConfiguration.BASE_CLUSTER_SIZE-SpineConfiguration.ARTERIAL_BRANCH_SIZE-SpineConfiguration.LOCAL_BRANCH_SIZE))break;
+				
+				while(true){
+					tope++;
+					if(tope>width)break;
+					comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).getType();
+					if(comparableValue.equals(" ") || comparableValue.equals("."))break;
+					if(comparableValue.equals(SpineConfiguration.ARTERIAL_MARK)){
+						//int printBackIndex=tope-1;
+						tope+=SpineConfiguration.LOCAL_BRANCH_SIZE;
+						if(tope>width)break;
+						val1="1";
+						val2="2";
+						stateOut=false;
+						idCont=0;
+						yyy=tope;
+						while(true){
+							for(int i=0;i<SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE;i++){
+								comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,yyy)).getType();
+								if(comparableValue.equals(SpineConfiguration.WALK_MARK)||
+										comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) ||
+										comparableValue.equals(SpineConfiguration.POLYGON_BORDER)){
+									stateOut=true;
+									break;
+								}
+								for(int j=0;j<newlongHouse;j++){
+									landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
+									landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).setType(val2);
+								}
+								idCont++;
+								yyy++;
+							}
+							if(stateOut)break;
+							aux=val1;
+							val1=val2;
+							val2=aux;
+							if(idCont>SpineConfiguration.BASE_CLUSTER_SIZE)break;
+						}
+						
+						//landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).setType("9");
+					}
+					if(tope>width)break;
+					
+				}	
+			}
+		
+		}else if(limite>15 && limite<30){
+			
+			//cuadras de 1 casa
+			while(true){
+				comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).getType();
+				if(comparableValue.equals(SpineConfiguration.ARTERIAL_MARK)){
+						comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,tope+SpineConfiguration.LOCAL_BRANCH_SIZE)).getType();
+						int printBackIndex=tope-1;
+						tope+=SpineConfiguration.LOCAL_BRANCH_SIZE;
+						int beginCounter=0;
+						boolean stateOut=false;
+						val1="1";
+						val2="2";
+						while(true){
+							for(int i=0;i<SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE;i++){
+								System.out.println(printBackIndex);
+								comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,printBackIndex)).getType();
+								if(comparableValue.equals(".")|| comparableValue.equals(" ") ||printBackIndex<1 || comparableValue.equals("a")){
+									stateOut=true;
+									break;
+								}
+								for(int j=0;j<limite;j++){
+									comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX+j,printBackIndex)).getType();
+									//comparableValue2=landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,printBackIndex)).getType();
+									if(!comparableValue.equals(" ") && !comparableValue.equals("."))
+										landMap.findPoint(SpineMapHelper.formKey(ejeX+j,printBackIndex)).setType(val1);
+									//if(!comparableValue2.equals(" ") && !comparableValue2.equals("."))
+										//landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,printBackIndex)).setType(val2);
+								}
+								printBackIndex--;
+								beginCounter++;
+							}
+							aux=val1;
+							val1=val2;
+							val2=aux;
+							if(stateOut)break;
+							if(beginCounter>SpineConfiguration.BASE_CLUSTER_SIZE)break;
+						}
+						
+						//prin blocks
+				}else if(comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)||comparableValue.equals(SpineConfiguration.BORDER_MARK))break;
+				tope++;
+				if(tope>yy)break;
+			}
+			comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,yy+SpineConfiguration.ARTERIAL_BRANCH_SIZE)).getType();
+			tope=yy+SpineConfiguration.ARTERIAL_BRANCH_SIZE;
+			
+			if(!comparableValue.equals(" ") && !comparableValue.equals("a")&& !comparableValue.equals(".")){
+				//landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).setType("9");//
+				//auxiliar print block
+				int idCont=0;
+				int yyy=tope;
+				val1="1";
+				val2="2";
+				boolean stateOut=false;
+				while(true){
+					for(int i=0;i<SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE;i++){
+						comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,yyy)).getType();
+						if(comparableValue.equals(SpineConfiguration.WALK_MARK)||
+								comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) ||
+								comparableValue.equals(SpineConfiguration.POLYGON_BORDER)){
+							stateOut=true;
+							break;
+						}
+						for(int j=0;j<limite;j++){
+							landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
+							//landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).setType(val2);
+						}
+						idCont++;
+						yyy++;
+					}
+					if(stateOut)break;
+					aux=val1;
+					val1=val2;
+					val2=aux;
+					if(idCont>(SpineConfiguration.BASE_CLUSTER_SIZE-SpineConfiguration.ARTERIAL_BRANCH_SIZE-SpineConfiguration.LOCAL_BRANCH_SIZE))break;
+				}
+				
+				while(true){
+					tope++;
+					if(tope>width)break;
+					comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).getType();
+					if(comparableValue.equals(" ") || comparableValue.equals("."))break;
+					if(comparableValue.equals(SpineConfiguration.ARTERIAL_MARK)){
+						//int printBackIndex=tope-1;
+						tope+=SpineConfiguration.LOCAL_BRANCH_SIZE;
+						if(tope>width)break;
+						val1="1";
+						val2="2";
+						stateOut=false;
+						idCont=0;
+						yyy=tope;
+						while(true){
+							for(int i=0;i<SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE;i++){
+								comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,yyy)).getType();
+								if(comparableValue.equals(SpineConfiguration.WALK_MARK)||
+										comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) ||
+										comparableValue.equals(SpineConfiguration.POLYGON_BORDER)){
+									stateOut=true;
+									break;
+								}
+								for(int j=0;j<limite;j++){
+									landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
+									//landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).setType(val2);
+								}
+								idCont++;
+								yyy++;
+							}
+							if(stateOut)break;
+							aux=val1;
+							val1=val2;
+							val2=aux;
+							if(idCont>SpineConfiguration.BASE_CLUSTER_SIZE)break;
+						}
+						
+						//landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).setType("9");
+					}
+					if(tope>width)break;
+					
+				}	
 			}
 			
-			while(true){
-				tope++;
-				if(tope>width)break;
-				comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).getType();
-				if(comparableValue.equals(" ") || comparableValue.equals("."))break;
-				if(comparableValue.equals(SpineConfiguration.ARTERIAL_MARK)){
-					//int printBackIndex=tope-1;
-					tope+=SpineConfiguration.LOCAL_BRANCH_SIZE;
-					if(tope>width)break;
-					val1="1";
-					val2="2";
-					stateOut=false;
-					idCont=0;
-					yyy=tope;
-					while(true){
-						for(int i=0;i<SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE;i++){
-							comparableValue=landMap.findPoint(SpineMapHelper.formKey(ejeX,yyy)).getType();
-							if(comparableValue.equals(SpineConfiguration.WALK_MARK)||
-									comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) ||
-									comparableValue.equals(SpineConfiguration.POLYGON_BORDER)){
-								stateOut=true;
-								break;
-							}
-							for(int j=0;j<newlongHouse;j++){
-								landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
-								landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).setType(val2);
-							}
-							idCont++;
-							yyy++;
-						}
-						if(stateOut)break;
-						aux=val1;
-						val1=val2;
-						val2=aux;
-						if(idCont>SpineConfiguration.BASE_CLUSTER_SIZE)break;
-					}
-					
-					//landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).setType("9");
-				}
-				if(tope>width)break;
-				
-			}	
+			
 		}
-	}
+		
+		}
 	public void spineizeV2(){
 		int divisionResultBlock = large/(SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2+SpineConfiguration.COLLECTOR_BRANCH_SIZE);
 		int ejeX=SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2;//rev
