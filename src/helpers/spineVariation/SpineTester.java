@@ -68,7 +68,7 @@ public class SpineTester {
 		}
 		
 		// 4. We clusterize the points
-		spineAlgorithm.spineizeV2();
+		//spineAlgorithm.spineizeV2();
 		//spineAlgorithm.spineize();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");

@@ -121,6 +121,8 @@ public class RadialTester {
 
 	
 	}
+
+	
 	public RadialTester(RadialTestPane radialTestPane) {
 		EventQueue.invokeLater(new Runnable() {
 			@Override

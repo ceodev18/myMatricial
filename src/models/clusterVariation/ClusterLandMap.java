@@ -600,7 +600,7 @@ public class ClusterLandMap {
 			int growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
 			int[] lowerOrthXY = new int[] { lowerXY[0], lowerXY[1] };
 			while (growTimes != 0) {
-				if (!this.findPoint(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1])).getType()
+				if (this.landPointisOnMap(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1])) && !this.findPoint(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1])).getType()
 						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 					this.findPoint(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1]))
 							.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
@@ -617,6 +617,8 @@ public class ClusterLandMap {
 			growTimes = ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
 			int[] upperOrthXY = new int[] { upperXY[0], upperXY[1] };
 			while (growTimes != 0) {
+								if (this.landPointisOnMap(ClusterMapHelper.formKey(lowerOrthXY[0], lowerOrthXY[1])) && !this.findPoint(ClusterMapHelper.formKey(upperOrthXY[0], upperOrthXY[1])).getType()
+						.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK))
 				this.findPoint(ClusterMapHelper.formKey(upperOrthXY[0], upperOrthXY[1]))
 						.setType(ClusterConfiguration.CLUSTER_ENTRANCE_MARK);
 				upperOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(upperOrthXY, 1, growDirection);
