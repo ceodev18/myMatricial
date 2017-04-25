@@ -31,11 +31,11 @@ public class SpineTester {
 		List<SpineLandPoint> polygon = new ArrayList<>();
 		SpineLandPoint landPoint = new SpineLandPoint(0, 700);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(400, 700);
+		landPoint = new SpineLandPoint(600, 700);
 		polygon.add(landPoint);
 		landPoint = new SpineLandPoint(1000, 0);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(300, 0);
+		landPoint = new SpineLandPoint(1, 0);
 		polygon.add(landPoint);
 		landPoint = new SpineLandPoint(0,700);
 		polygon.add(landPoint);
@@ -56,7 +56,7 @@ public class SpineTester {
 		SpineAlgorithm spineAlgorithm = new SpineAlgorithm();
 		spineAlgorithm.setLandMap(spineLandMap);
 		spineAlgorithm.setWidth(width);
-		spineAlgorithm.setEntryX(150);
+		spineAlgorithm.setEntryX(1);
 		spineAlgorithm.setEntryY(350);
 		spineAlgorithm.setLarge(large);
 		
@@ -107,7 +107,58 @@ public class SpineTester {
 				//clusterTestPane.large = large;
 				//clusterTestPane.width = width;
 		System.out.println("Start canvas");
+		
+		
+		
+		
+		
+	/*	
+		int large1=1023 +1,width1=800 +1;
+		SpineLandMap spineLandMap1 = new SpineLandMap(large1, width1);
+		
+
+		List<SpineLandPoint> polygon1 = new ArrayList<>();
+		SpineLandPoint landPoint1 = new SpineLandPoint(0, 800);
+		polygon1.add(landPoint1);
+		landPoint1 = new SpineLandPoint(1023, 800);
+		polygon1.add(landPoint1);
+		landPoint1 = new SpineLandPoint(1023, 0);
+		polygon1.add(landPoint1);
+		landPoint1 = new SpineLandPoint(1, 0);
+		polygon1.add(landPoint1);
+		landPoint1 = new SpineLandPoint(0,800);
+		polygon1.add(landPoint1);
+		spineLandMap1.createBorderFromPolygon(polygon1);
+		
+		List<SpineLandPoint> entryPoints1 = new ArrayList<>();	
+		landPoint1 = new SpineLandPoint(0,400);
+		entryPoints1.add(landPoint1);
+
+		SpineAlgorithm spineAlgorithm1 = new SpineAlgorithm();
+		spineAlgorithm1.setLandMap(spineLandMap1);
+		spineAlgorithm1.setWidth(width1);
+		spineAlgorithm1.setEntryX(1); //entry point never can be 0
+		spineAlgorithm1.setEntryY(400);
+		spineAlgorithm1.setLarge(large1);
+		
+		for (SpineLandPoint entryPoint1 : entryPoints1) {
+			int direction1 =SpineDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint1,
+					spineLandMap1.getCentroid());
+			spineAlgorithm1.createRouteVariation(entryPoint1.getId(), direction1,SpineConfiguration.ARTERIAL_BRANCH);
+			break;
+		}
+		
+		spineAlgorithm1.spineizeV2();
+		spineAlgorithm1.zonify();
+		spineAlgorithm1.getLandMap().printMapToFileNew();
+		SpineTestPane spineTestPane1 = new SpineTestPane(true,
+								spineAlgorithm1.getLandMap().stringify(), large1, width1);	
+		
+
+		System.out.println("Algorithm finished");*/
+		
 		new SpineTester(spineTestPane);
+		//new SpineTester(spineTestPane1);
 		
 		
 	}

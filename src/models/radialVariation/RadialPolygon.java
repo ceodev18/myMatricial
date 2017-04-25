@@ -208,6 +208,11 @@ public class RadialPolygon {
 		 * ArrayList<>(); }
 		 */
 	}
+	private double distancefromPointToPoint(int pointf, int pointi) {
+		int xyPointF[] = RadialMapHelper.breakKey(pointf);
+		int xyPointI[] = RadialMapHelper.breakKey(pointi);
+		return Math.sqrt(Math.pow(xyPointF[0] - xyPointI[0], 2) + Math.pow(xyPointF[1] - xyPointI[1], 2));
+	}
 
 	private double distancefromProjectedPointToCentroid(double[] variation, double gradient, double b) {
 		double orthogonalGradient = -1 / gradient;
@@ -219,19 +224,7 @@ public class RadialPolygon {
 		return Math.sqrt(Math.pow(centroid[0] - variationP[0], 2) + Math.pow(centroid[1] - variationP[1], 2));
 	}
 
-	private boolean areaCheck(List<Integer> shrinkedList) {
-		return true;
-		/*
-		 * int areaSum = 0; for (int i = 0; i < shrinkedList.size(); i++) {
-		 * int[] initialXY = RadialMapHelper.breakKey(shrinkedList.get(i));
-		 * int[] finalXY = RadialMapHelper.breakKey(shrinkedList.get((i + 1) %
-		 * shrinkedList.size())); areaSum += initialXY[0] * finalXY[1] -
-		 * initialXY[1] * finalXY[0]; }
-		 * 
-		 * areaSum = areaSum / 2; if (areaSum < 900) { return false; } else {
-		 * return true; }
-		 */
-	}
+
 
 	private boolean insidePolygon(List<Integer> shrinkedList) {
 		for (int i = 0; i < shrinkedList.size(); i++) {
