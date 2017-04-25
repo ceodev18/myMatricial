@@ -76,8 +76,6 @@ public class RadialTester {
 		
 		radialAlgorithm.CreateRadialWeb(entryPoint);
 		
-		radialAlgorithm.Radialize(entryPoint);
-		
 		
 		
 		landMap.printMapToFile();

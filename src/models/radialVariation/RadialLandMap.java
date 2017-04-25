@@ -395,6 +395,48 @@ public class RadialLandMap {
 		
 	}
 	
+	public int findProyectionPointIntoParalelStraights(int rect1Ini, int rect1End, int pointRef, boolean belong){ ////WARNING////////
+		int pointSolution = -1;
+		int xyRec1Ini[] = RadialMapHelper.breakKey(rect1Ini);
+		int xyRec1End[] = RadialMapHelper.breakKey(rect1End);
+		int xyPointRef[] = RadialMapHelper.breakKey(pointRef);
+		int underscore = (xyRec1End[0] - xyRec1Ini[0]);
+		double gradient = 0;
+		double b = 0;
+		if (underscore == 0) {
+			int lower = xyRec1Ini[1] < xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];
+			int upper = xyRec1Ini[1] > xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];	
+				if((lower <= xyPointRef[1] && xyPointRef[1] <= upper)|| !belong){ //verify if the point belong to the straight
+					pointSolution =  RadialMapHelper.formKey(xyRec1Ini[0],xyPointRef[1] );		
+				}
+				return pointSolution;
+		}else{
+			gradient = (xyRec1End[1] - xyRec1Ini[1]) * 1.0 / underscore;
+			b = (xyRec1Ini[0]*xyRec1End[1] -(xyRec1End[0]*xyRec1Ini[1]))/(xyRec1Ini[0] -xyRec1End[0]);
+			if(gradient == 0){
+				int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+				int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+				if((lower <= xyPointRef[0] && xyPointRef[0] <= upper)|| !belong){ //verify if the point belong to the straight
+					pointSolution =  RadialMapHelper.formKey( xyPointRef[0],xyRec1Ini[1] );		
+				}
+				return pointSolution;
+			}
+			double contGrad = -1*(1/gradient);
+			double b2 = xyPointRef[1] - contGrad*xyPointRef[0];
+			int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+			int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+			double x = (b2-b)/(gradient-contGrad);
+			double y = contGrad*x + b2;
+			RadialMapHelper.round(x);
+			RadialMapHelper.round(y);
+			if((lower <= x && x <= upper)|| !belong){
+				pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
+			}
+		}
+		
+		return pointSolution;
+	}
+	
 	//just works when the point belongs to both Straight
 	//added a bool parameter to allow find a point that no belongs to any straigt
 	public int findIntersectionPointIntoTwoStraight(int rect1Ini, int rect1End, int rect2Ini, int rect2End, boolean belong){
@@ -478,8 +520,98 @@ public class RadialLandMap {
 		gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
 		return gradient;
 	}
-	
-	
+	public double distanceOfPointToPoint(int pointi, int pointf) {
+		int xyPointF[] = RadialMapHelper.breakKey(pointf);
+		int xyPointI[] = RadialMapHelper.breakKey(pointi);
+		return Math.sqrt(Math.pow(xyPointF[0] - xyPointI[0], 2) + Math.pow(xyPointF[1] - xyPointI[1], 2));
+	}
+
+	public int findPointOnStreightToDistance(int pointIni,int pointEnd,double distance){
+		int xyInitial[] = RadialMapHelper.breakKey(pointIni);
+		int xyFinal[] = RadialMapHelper.breakKey(pointEnd);
+		int underscore = (xyFinal[0] - xyInitial[0]);
+		double gradient = 0;
+		double b = 0;
+		int pointSolution = -1;
+		
+		if (underscore == 0) {	
+				if(xyInitial[1] < xyFinal[1] ){ 
+					pointSolution =  RadialMapHelper.formKey(xyFinal[0],(xyInitial[1] + (int)distance));		
+				}else{
+					pointSolution =  RadialMapHelper.formKey(xyFinal[0],(xyInitial[1] - (int)distance));		
+				}
+				return pointSolution;
+		}else{
+			gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
+			b = (xyInitial[0]*xyFinal[1] -(xyFinal[0]*xyInitial[1]))/(xyInitial[0] -xyFinal[0]);
+			if(gradient == 0){
+				if(xyInitial[0] < xyFinal[0]){ //verify if the point belong to the straight
+					pointSolution =  RadialMapHelper.formKey( (xyInitial[0] + (int)distance),xyFinal[1] );		
+				}else{
+					pointSolution =  RadialMapHelper.formKey( (xyInitial[0] - (int)distance),xyFinal[1] );	
+				}
+				return pointSolution;
+			}
+			int sign,init,end;
+			boolean onX = false;
+			if(Math.abs(xyFinal[0]-xyInitial[0]) <  Math.abs(xyFinal[1]-xyInitial[1])){
+			//do on Y
+				init = xyInitial[1];
+				end = xyFinal[1];
+				if(xyInitial[1] < xyFinal[1]) sign = 1;
+				else{
+					sign = -1;
+				}
+			}else{
+			//do on X
+				init = xyInitial[0];
+				end = xyFinal[0];
+				if(xyInitial[0] < xyFinal[0] ) sign = 1;
+				else{ 
+					sign = -1;
+				}
+				onX = true;
+			}
+			if(sign == 1){
+				for(int i = init; i <= end; i = i++){
+					double x,y;
+					if(onX){
+						x = i;
+						y= gradient*x + b;
+					}else{
+						y= i;
+						x = (y-b)/gradient; 
+					}
+					RadialMapHelper.round(x);
+					RadialMapHelper.round(y);
+					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
+					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
+					if(auxDist >= distance){	
+						return pointSolution;
+					}
+				}
+			}else if(sign == -1){
+				for(int i = init; i >= end; i = i--){
+					double x,y;
+					if(onX){
+						x = i;
+						y= gradient*x + b;
+					}else{
+						y= i;
+						x = (y-b)/gradient; 
+					}
+					RadialMapHelper.round(x);
+					RadialMapHelper.round(y);
+					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
+					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
+					if(auxDist >= distance){	
+						return pointSolution;
+					}
+				}
+			}
+			return pointSolution;
+		}	
+	}
 
 	private void clearDottedLimits() {
 		for (int x = 0; x < fullPolygon.size(); x++) {
