@@ -114,7 +114,7 @@ public class radialAlgorithm {
 				
 		//radialize  		
 		Radialize(layersPolygon,pointsInters[0],pointsInters[1]);
-				
+		//RadializePrube(layersPolygon,pointsInters[0],pointsInters[1]);	
 		///////index of routes
 		List<List<RadialLandRoute>> ListRoutes = new ArrayList<>();
 		RadialLandRoute aux = new RadialLandRoute();
@@ -148,9 +148,9 @@ public class radialAlgorithm {
 			
 			if(Math.abs(grad1 - grad2) < 0.35){// normal case
 				landMap.createACustomRoute(extLayer.get(k), intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE,RadialConfiguration.LOCAL_MARK);
-				k++;
 				auxListVertx.add(extLayer.get(k));
 				auxListVertx.add(intLayer.get(i));
+				k++;
 			}else{//find the problematic layer
 				if(i == 0){ //special case
 					 grad1 = landMap.findGradient(extLayer.get(i+1), auxLayer.get(i+1));
@@ -192,6 +192,64 @@ public class radialAlgorithm {
 		return auxListVertx;
 	}
 	
+	private void RadializePrube(List<List<Integer>>  layersPolygon,int pointIni, int pointEnd){
+		int i= 9;
+		int j= 2;
+		
+		
+		int point1Top = layersPolygon.get(i).get(j % (layersPolygon.get(i).size()));
+		
+		int point2Top = layersPolygon.get(i).get((j+1)%(layersPolygon.get(i).size()));
+		
+		int point1Mid = layersPolygon.get(i + 1).get(j % (layersPolygon.get(i+1).size()));
+		int point2Mid = layersPolygon.get(i + 1).get((j+1)%(layersPolygon.get(i+1).size()));
+		int point1Down = layersPolygon.get(i + 2).get(j % (layersPolygon.get(i+2).size()));
+		int point2Down = layersPolygon.get(i + 2).get((j+1)%(layersPolygon.get(i+2).size()));
+		
+		double  distanceTop = landMap.distanceOfPointToPoint(point1Top,point2Top);
+		double  distanceDown = landMap.distanceOfPointToPoint(point1Down,point2Down); 	
+		
+		//verify minimun area
+		double area = (RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2*((distanceTop-RadialConfiguration.LOCAL_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.LOCAL_BRANCH_SIZE )))/2;
+		if(area < 90 || distanceDown<(6+ RadialConfiguration.LOCAL_BRANCH_SIZE) || distanceTop<(6+ RadialConfiguration.LOCAL_BRANCH_SIZE )){
+			//caso contrario volver area libre 
+			return;
+		}
+		
+		
+		int aux1Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Top,point2Top,true) ;
+		int aux2Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Down,point2Down,true);
+		int aux3Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Mid,point2Mid,true);
+		
+		int fixPoint1Top = landMap.findPointOnStreightToDistance( point1Top, point2Top,(RadialConfiguration.LOCAL_BRANCH_SIZE/2)+4);
+		int fixPoint2Top = landMap.findPointOnStreightToDistance(point2Top, point1Top, (RadialConfiguration.LOCAL_BRANCH_SIZE/2)+4);
+		int fixPoint1Mid = landMap.findPointOnStreightToDistance( point1Mid, point2Mid,(RadialConfiguration.LOCAL_BRANCH_SIZE/2)+4);
+		int fixPoint2Mid = landMap.findPointOnStreightToDistance(point2Mid, point1Mid, (RadialConfiguration.LOCAL_BRANCH_SIZE/2)+4);
+		int fixPoint1Down = landMap.findPointOnStreightToDistance( point1Down, point2Down,(RadialConfiguration.LOCAL_BRANCH_SIZE/2)+4);
+		int fixPoint2Down = landMap.findPointOnStreightToDistance(point2Down, point1Down, (RadialConfiguration.LOCAL_BRANCH_SIZE/2)+4);
+		
+		if((aux1Point != -1 && aux2Point != -1) || (aux2Point != -1 && i==0)  ){	
+			if(aux2Point != -1 && i==0){
+				aux1Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Top,point2Top,false) ;
+				aux3Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Mid,point2Mid,false);
+			}
+			int fixAux1Left = landMap.findPointOnStreightToDistance( aux1Point, point1Top,(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+			int fixAux2Left = landMap.findPointOnStreightToDistance(aux2Point, point1Down, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+			int fixAux3Left = landMap.findPointOnStreightToDistance(aux3Point, point1Mid, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+			int fixAux1Right = landMap.findPointOnStreightToDistance( aux1Point, point2Top,(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+			int fixAux2Right = landMap.findPointOnStreightToDistance(aux2Point, point2Down, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+			int fixAux3Right = landMap.findPointOnStreightToDistance(aux3Point, point2Mid, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+			
+			
+			sectorize(fixPoint1Top,fixAux1Left,fixPoint1Mid,fixAux3Left,fixPoint1Down,fixAux2Left);
+			sectorize(fixAux1Right,fixPoint2Top,fixAux3Right,fixPoint2Mid,fixAux2Right,fixPoint2Down);
+			return;
+		}
+		// do zonification
+		sectorize(fixPoint1Top,fixPoint2Top,fixPoint1Mid,fixPoint2Mid,fixPoint1Down,fixPoint2Down);
+		
+		
+	}
 	
 	private void Radialize(List<List<Integer>> layersPolygon,int pointIni, int pointEnd) {
 		
@@ -222,6 +280,7 @@ public class radialAlgorithm {
 					point1Top = point2Top;
 					point2Top = layersPolygon.get(i).get((j+2)%(layersPolygon.get(i).size())); 
 					distanceTop = landMap.distanceOfPointToPoint(point1Top,point2Top);
+					
 					point1Mid = point2Mid;
 					point2Mid = layersPolygon.get(i + 1).get((j+2)%(layersPolygon.get(i+1).size()));
 				
@@ -233,7 +292,7 @@ public class radialAlgorithm {
 					point2Top = layersPolygon.get(i).get((j+2)%(layersPolygon.get(i).size())); 
 					distanceTop = landMap.distanceOfPointToPoint(point1Top,point2Top);
 					specialCase = true;
-					if(distanceTop > distanceMid){
+					if(distanceDown > distanceMid){
 					    point1Mid = point2Mid;
 						point2Mid = layersPolygon.get(i + 1).get((j+2)%(layersPolygon.get(i+1).size()));
 
@@ -247,9 +306,9 @@ public class radialAlgorithm {
 					continue;
 				}
 				//verify main route across
-				int aux1Point = landMap.findIntersectionPointIntoTwoStraight(point1Top,point2Top,pointIni,pointEnd,true) ;
-				int aux2Point = landMap.findIntersectionPointIntoTwoStraight(point1Down,point2Down,pointIni,pointEnd,true);
-				int aux3Point = landMap.findIntersectionPointIntoTwoStraight(point1Mid,point2Mid,pointIni,pointEnd,true);
+				int aux1Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Top,point2Top,true) ;
+				int aux2Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Down,point2Down,true);
+				int aux3Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Mid,point2Mid,true);
 				
 				int fixPoint1Top = landMap.findPointOnStreightToDistance( point1Top, point2Top,(RadialConfiguration.LOCAL_BRANCH_SIZE/2));
 				int fixPoint2Top = landMap.findPointOnStreightToDistance(point2Top, point1Top, (RadialConfiguration.LOCAL_BRANCH_SIZE/2));
@@ -259,7 +318,11 @@ public class radialAlgorithm {
 				int fixPoint1Down = landMap.findPointOnStreightToDistance( point1Down, point2Down,(RadialConfiguration.LOCAL_BRANCH_SIZE/2));
 				int fixPoint2Down = landMap.findPointOnStreightToDistance(point2Down, point1Down, (RadialConfiguration.LOCAL_BRANCH_SIZE/2));
 				
-				if(aux1Point != -1){	
+				if((aux1Point != -1 && aux2Point != -1) || (aux2Point != -1 && i==0)  ){	///would be crossing just one size
+					if(aux2Point != -1 && i==0){
+						aux1Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Top,point2Top,false) ;
+						aux3Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Mid,point2Mid,false);
+					}	
 					int fixAux1Left = landMap.findPointOnStreightToDistance( aux1Point, point1Top,(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2));
 					int fixAux2Left = landMap.findPointOnStreightToDistance(aux2Point, point1Down, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2));
 					int fixAux3Left = landMap.findPointOnStreightToDistance(aux3Point, point1Mid, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2));
@@ -284,9 +347,8 @@ public class radialAlgorithm {
 		//verify total area again //find distances again
 		double  distanceTop = landMap.distanceOfPointToPoint(point1Top,point2Top);
 		double  distanceDown = landMap.distanceOfPointToPoint(point1Down,point2Down); 	
-		
 		double area = (RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2*((distanceTop-RadialConfiguration.LOCAL_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.LOCAL_BRANCH_SIZE )))/2;
-		if(area < 90 || distanceDown<6 || distanceTop<6){
+		if(area < 90 || distanceDown < 6 || distanceTop < 6){
 			//caso contrario volver area libre 
 			return;
 		}
@@ -298,6 +360,8 @@ public class radialAlgorithm {
 		int pntRightUp = landMap.findProyectionPointIntoParalelStraights(point1Top,point2Top,point2Down,true);
 		int pntLeftDown = landMap.findProyectionPointIntoParalelStraights(point1Down,point2Down,point1Top,true);
 		int pntRightDown = landMap.findProyectionPointIntoParalelStraights(point1Down,point2Down,point2Top,true);
+		if((pntLeftUp == -1 && pntLeftDown == -1) || (pntRightUp == -1 && pntRightDown == -1))return;
+		
 		if(pntLeftUp == -1)pntLeftUp = point1Top;
 		if(pntRightUp == -1) pntRightUp = point2Top;
 		if(pntLeftDown == -1) pntLeftDown = point1Down;
@@ -311,20 +375,24 @@ public class radialAlgorithm {
 		int aux1Point = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,initPoint1,true);
 		int initPoint2 = aux1Point;
 		int aux2Point = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,pntRightUp,true);
-		for(int i = 0 ;i < nDivision; i++){
+		for(int i = 0 ;i <= nDivision; i++){
 			if((i%2) == 0){
 				int endPoint1 = generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-				initPoint1 = endPoint1;
+				int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1));
+				initPoint1 = aux;
 			
 				int endPoint2 = generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-				initPoint2 = endPoint2;
+				int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1));
+				initPoint2 = aux2;
 			}else
 			if((i%2) == 1){
 				int endPoint1 = generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-				initPoint1 = endPoint1;
+				int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1));
+				initPoint1 = aux;
 			
 				int endPoint2 = generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-				initPoint2 = endPoint2;
+				int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1));
+				initPoint2 = aux2;
 			}
 		}
 		
@@ -346,14 +414,14 @@ public class radialAlgorithm {
 			if(xyRec1Ini[1] < xyRec1End[1] ){ 
 				for(int i=0;i< dist;i++){
 					int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] + i));
-					int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,true);
+					int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
 					landMap.createALine( auxPoint1,auxPoint2,mask);
 				}
 				pointSolution =  RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] + (int)dist));		
 			}else{
 				for(int i=0;i< dist;i++){
 					int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] - i));
-					int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,true);
+					int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
 					landMap.createALine( auxPoint1,auxPoint2,mask);
 				}
 				pointSolution =  RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] - (int)dist));		
@@ -366,14 +434,14 @@ public class radialAlgorithm {
 				if(xyRec1Ini[0] < xyRec1End[0]){ 
 					for(int i=0;i< dist;i++){
 						int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0] + i,(xyRec1End[1]));
-						int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,true);
+						int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
 						landMap.createALine( auxPoint1,auxPoint2,mask);
 					}
 					pointSolution =  RadialMapHelper.formKey( (xyRec1Ini[0] + (int)dist),xyRec1End[1] );		
 				}else{
 					for(int i=0;i< dist;i++){
 						int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0] - i,(xyRec1End[1]));
-						int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,true);
+						int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
 						landMap.createALine( auxPoint1,auxPoint2,mask);
 					}	
 					pointSolution =  RadialMapHelper.formKey( (xyRec1Ini[0] - (int)dist),xyRec1End[1] );	
@@ -401,7 +469,7 @@ public class radialAlgorithm {
 				onX = true;
 			}
 			if(sign == 1){
-				for(int i = init; i <= end; i = i++){
+				for(int i = init; i <= end; i++){
 					double x,y;
 					if(onX){
 						x = i;
@@ -413,7 +481,7 @@ public class radialAlgorithm {
 					RadialMapHelper.round(x);
 					RadialMapHelper.round(y);
 					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
-					int auxPoint = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,pointSolution,true);
+					int auxPoint = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,pointSolution,false);
 					landMap.createALine( pointSolution,auxPoint,mask);
 					double auxDist = landMap.distanceOfPointToPoint(pnt1Up,pointSolution);
 					if(auxDist >= dist){	
@@ -421,7 +489,7 @@ public class radialAlgorithm {
 					}
 				}
 			}else if(sign == -1){
-				for(int i = init; i >= end; i = i--){
+				for(int i = init; i >= end;  i--){
 					double x,y;
 					if(onX){
 						x = i;
@@ -433,7 +501,7 @@ public class radialAlgorithm {
 					RadialMapHelper.round(x);
 					RadialMapHelper.round(y);
 					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
-					int auxPoint = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,pointSolution,true);
+					int auxPoint = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,pointSolution,false);
 					landMap.createALine( pointSolution,auxPoint,mask);
 					double auxDist = landMap.distanceOfPointToPoint(pnt1Up,pointSolution);
 					if(auxDist >= dist){	

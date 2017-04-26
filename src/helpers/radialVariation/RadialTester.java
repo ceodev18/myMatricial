@@ -26,7 +26,7 @@ public class RadialTester {
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
 
-		//int large = 925, width = 1130;
+		//int large = 950, width = 1200;
 		int large = 950, width = 750;
 		// 1. We create the map and set its intrinsec variables
 		
@@ -47,18 +47,18 @@ public class RadialTester {
 		// we must reuse the first one as the last
 		landPoint = new RadialLandPoint(450, 48);
 		polygon.add(landPoint);
-		
+	
 		/*
-		RadialLandPoint landPoint = new RadialLandPoint(726, 20);
+		RadialLandPoint landPoint = new RadialLandPoint(726,56);
 		polygon.add(landPoint);
 		landPoint = new RadialLandPoint(924, 762);
 		polygon.add(landPoint);
 		landPoint = new RadialLandPoint(273, 1129);
 		polygon.add(landPoint);
-		landPoint = new RadialLandPoint(0, 528);
+		landPoint = new RadialLandPoint(50, 528);
 		polygon.add(landPoint);
 		// we must reuse the first one as the last
-		landPoint = new RadialLandPoint(726,20);
+		landPoint = new RadialLandPoint(726,56);
 		polygon.add(landPoint);
 
 		*/
