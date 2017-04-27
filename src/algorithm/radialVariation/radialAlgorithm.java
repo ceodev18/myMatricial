@@ -99,7 +99,7 @@ public class radialAlgorithm {
 		//do vertix branch
 		List<Integer> auxList = createVertixBranch(layersPolygon);
 	
-		// create the park //incomplete
+		// create the park 
 		int auxvalue = ((valuePlus - 1)*3);
 		landMap.createBorderFromPolygon(layersPolygon.get(auxvalue), RadialConstants.POLYGON_LIMIT);
 		
@@ -110,7 +110,7 @@ public class radialAlgorithm {
 				}
 		
 		
-		//polygon.parkArea((valuePlus-1)*valueSeparation + 16); //reparar
+		//polygon.parkArea((valuePlus-1)*valueSeparation + 16); //to fix
 				
 		//radialize  		
 		Radialize(layersPolygon,pointsInters[0],pointsInters[1]);
@@ -241,12 +241,12 @@ public class radialAlgorithm {
 			int fixAux3Right = landMap.findPointOnStreightToDistance(aux3Point, point2Mid, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
 			
 			
-			sectorize(fixPoint1Top,fixAux1Left,fixPoint1Mid,fixAux3Left,fixPoint1Down,fixAux2Left);
-			sectorize(fixAux1Right,fixPoint2Top,fixAux3Right,fixPoint2Mid,fixAux2Right,fixPoint2Down);
+			sectorize(fixPoint1Top,fixAux1Left,fixPoint1Mid,fixAux3Left,fixPoint1Down,fixAux2Left ,5,RadialConfiguration.PARK_MARK );
+			sectorize(fixAux1Right,fixPoint2Top,fixAux3Right,fixPoint2Mid,fixAux2Right,fixPoint2Down,5,RadialConfiguration.PARK_MARK );
 			return;
 		}
 		// do zonification
-		sectorize(fixPoint1Top,fixPoint2Top,fixPoint1Mid,fixPoint2Mid,fixPoint1Down,fixPoint2Down);
+		sectorize(fixPoint1Top,fixPoint2Top,fixPoint1Mid,fixPoint2Mid,fixPoint1Down,fixPoint2Down ,5,RadialConfiguration.PARK_MARK );
 		
 		
 	}
@@ -254,13 +254,57 @@ public class radialAlgorithm {
 	private void Radialize(List<List<Integer>> layersPolygon,int pointIni, int pointEnd) {
 		
 		boolean specialCase = false;
+		double areaPolygon = landMap.getPolygonalArea();
+		double areaExtra = 5.6*areaPolygon/100;
+		int numMaxParks = 0;
+		int numMaxZones = 0;
+		int numLayersAble = 0;
+		int aux =0;
+		//do calculus
+		for(int k=3;k < (layersPolygon.size() - 3);k=k+3){
+			if(k == 3 || k == 12 || k==21) numMaxParks = numMaxParks + layersPolygon.get(k).size();
+			else numMaxZones = numMaxZones + layersPolygon.get(k).size();
+			numLayersAble++;
+		}
+		int numTotalMax = numMaxParks + numMaxZones ;
+		int spaceHouse = (int)(800/(2*RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE)/RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE);
+		spaceHouse++;
+		int numAproxZones=0;
+		while(numAproxZones==0){
+			double zoneArea = spaceHouse*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*2*RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE;
+			
+			double actualAreaZone = areaExtra;
+			for(int k=1;k <= numTotalMax;k++){
+				actualAreaZone = actualAreaZone - (zoneArea);
+				numAproxZones = k;
+				if(actualAreaZone <= 0) break;
+			}
+			if(actualAreaZone > 0) {
+				spaceHouse++ ;
+				numAproxZones = 0;
+			}
+		}
+		if(numMaxParks > numAproxZones){
+			numMaxParks = (int)(numAproxZones/2);
+			numMaxZones	= 	numAproxZones - numMaxParks;
+		}else{
+			numMaxZones = numAproxZones - numMaxParks;
+		}
+		
+		///begin sectorize
+			
 		for(int i = 0;i < (layersPolygon.size() - 3); i= i+3){
 			
 			for(int j = 0;j < layersPolygon.get(i).size();j++){
 				
+				
 				if(specialCase == true && (j == (layersPolygon.get(i+2).size()))){
 					specialCase = false;
 					continue;
+				}
+				if(numMaxZones <= 0 && (numMaxParks > 0) && (i!=3 || i!=12 || i!=21)){
+					numMaxZones++;
+					numMaxParks--;
 				}
 				
 				int point1Top = layersPolygon.get(i).get(j % (layersPolygon.get(i).size()));
@@ -310,47 +354,80 @@ public class radialAlgorithm {
 				int aux2Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Down,point2Down,true);
 				int aux3Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Mid,point2Mid,true);
 				
-				int fixPoint1Top = landMap.findPointOnStreightToDistance( point1Top, point2Top,(RadialConfiguration.LOCAL_BRANCH_SIZE/2));
-				int fixPoint2Top = landMap.findPointOnStreightToDistance(point2Top, point1Top, (RadialConfiguration.LOCAL_BRANCH_SIZE/2));
-				int fixPoint1Mid = landMap.findPointOnStreightToDistance( point1Mid, point2Mid,(RadialConfiguration.LOCAL_BRANCH_SIZE/2));
-				int fixPoint2Mid = landMap.findPointOnStreightToDistance(point2Mid, point1Mid, (RadialConfiguration.LOCAL_BRANCH_SIZE/2));
+				int fixPoint1Top = landMap.findPointOnStreightToDistance( point1Top, point2Top,(RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
+				int fixPoint2Top = landMap.findPointOnStreightToDistance(point2Top, point1Top, (RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
+				int fixPoint1Mid = landMap.findPointOnStreightToDistance( point1Mid, point2Mid,(RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
+				int fixPoint2Mid = landMap.findPointOnStreightToDistance(point2Mid, point1Mid, (RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
 				
-				int fixPoint1Down = landMap.findPointOnStreightToDistance( point1Down, point2Down,(RadialConfiguration.LOCAL_BRANCH_SIZE/2));
-				int fixPoint2Down = landMap.findPointOnStreightToDistance(point2Down, point1Down, (RadialConfiguration.LOCAL_BRANCH_SIZE/2));
+				int fixPoint1Down = landMap.findPointOnStreightToDistance( point1Down, point2Down,(RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
+				int fixPoint2Down = landMap.findPointOnStreightToDistance(point2Down, point1Down, (RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
 				
 				if((aux1Point != -1 && aux2Point != -1) || (aux2Point != -1 && i==0)  ){	///would be crossing just one size
 					if(aux2Point != -1 && i==0){
 						aux1Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Top,point2Top,false) ;
 						aux3Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Mid,point2Mid,false);
 					}	
-					int fixAux1Left = landMap.findPointOnStreightToDistance( aux1Point, point1Top,(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2));
-					int fixAux2Left = landMap.findPointOnStreightToDistance(aux2Point, point1Down, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2));
-					int fixAux3Left = landMap.findPointOnStreightToDistance(aux3Point, point1Mid, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2));
-					int fixAux1Right = landMap.findPointOnStreightToDistance( aux1Point, point2Top,(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2));
-					int fixAux2Right = landMap.findPointOnStreightToDistance(aux2Point, point2Down, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2));
-					int fixAux3Right = landMap.findPointOnStreightToDistance(aux3Point, point2Mid, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2));
+					int fixAux1Left = landMap.findPointOnStreightToDistance( aux1Point, point1Top,(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+					int fixAux2Left = landMap.findPointOnStreightToDistance(aux2Point, point1Down, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+					int fixAux3Left = landMap.findPointOnStreightToDistance(aux3Point, point1Mid, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+					int fixAux1Right = landMap.findPointOnStreightToDistance( aux1Point, point2Top,(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+					int fixAux2Right = landMap.findPointOnStreightToDistance(aux2Point, point2Down, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
+					int fixAux3Right = landMap.findPointOnStreightToDistance(aux3Point, point2Mid, (RadialConfiguration.ARTERIAL_BRANCH_SIZE/2)+4);
 					
-					
-					sectorize(fixPoint1Top,fixAux1Left,fixPoint1Mid,fixAux3Left,fixPoint1Down,fixAux2Left);
-					sectorize(fixAux1Right,fixPoint2Top,fixAux3Right,fixPoint2Mid,fixAux2Right,fixPoint2Down);
+					if(i !=0 && (i==3 || i == 12 || i == 21) && numMaxParks>= 0){
+						aux = sectorize(fixPoint1Top,fixAux1Left,fixPoint1Mid,fixAux3Left,fixPoint1Down,fixAux2Left , spaceHouse,RadialConfiguration.PARK_MARK );
+						numMaxParks = numMaxParks + aux;
+						aux =sectorize(fixAux1Right,fixPoint2Top,fixAux3Right,fixPoint2Mid,fixAux2Right,fixPoint2Down, spaceHouse,RadialConfiguration.PARK_MARK);
+						numMaxParks = numMaxParks + aux;
+						continue;
+					}
+					if( i !=0 && numMaxZones >= 0){
+						aux = sectorize(fixPoint1Top,fixAux1Left,fixPoint1Mid,fixAux3Left,fixPoint1Down,fixAux2Left , spaceHouse,RadialConfiguration.CONTRIBUTION_MARK );
+						numMaxZones = numMaxZones + aux;
+						aux =sectorize(fixAux1Right,fixPoint2Top,fixAux3Right,fixPoint2Mid,fixAux2Right,fixPoint2Down, spaceHouse,RadialConfiguration.CONTRIBUTION_MARK);
+						numMaxZones = numMaxZones + aux;
+						continue;
+					}else{
+						sectorize(fixPoint1Top,fixAux1Left,fixPoint1Mid,fixAux3Left,fixPoint1Down,fixAux2Left , 0,RadialConfiguration.CONTRIBUTION_MARK );
+						sectorize(fixAux1Right,fixPoint2Top,fixAux3Right,fixPoint2Mid,fixAux2Right,fixPoint2Down, 0,RadialConfiguration.CONTRIBUTION_MARK);
+						continue;
+					}
+				}
+				
+				// do zonification
+				if(i !=0 && (i==3 || i == 12 || i == 21) && numMaxParks>= 0){
+					aux = sectorize(fixPoint1Top,fixPoint2Top,fixPoint1Mid,fixPoint2Mid,fixPoint1Down,fixPoint2Down,spaceHouse,RadialConfiguration.PARK_MARK);
+					numMaxParks = numMaxParks + aux;
 					continue;
 				}
-				// do zonification
-				sectorize(fixPoint1Top,fixPoint2Top,fixPoint1Mid,fixPoint2Mid,fixPoint1Down,fixPoint2Down);
+				if( i !=0 && numMaxZones >= 0){
+					aux = sectorize(fixPoint1Top,fixPoint2Top,fixPoint1Mid,fixPoint2Mid,fixPoint1Down,fixPoint2Down,spaceHouse,RadialConfiguration.CONTRIBUTION_MARK);
+					numMaxZones = numMaxZones + aux;
+					continue;
+				}else{
+					sectorize(fixPoint1Top,fixPoint2Top,fixPoint1Mid,fixPoint2Mid,fixPoint1Down,fixPoint2Down,0,RadialConfiguration.CONTRIBUTION_MARK);
+					continue;
+				}
+				
+				
+				
 			}
 		}
 		
 	}
+	
+	
 
-	private void sectorize(int point1Top,int point2Top,int point1Mid,int point2Mid,int point1Down,int point2Down){
+	private int sectorize(int point1Top,int point2Top,int point1Mid,int point2Mid,int point1Down,int point2Down,int spaceHouse, String mask){
 		
+		int verif = 0; 
 		//verify total area again //find distances again
 		double  distanceTop = landMap.distanceOfPointToPoint(point1Top,point2Top);
 		double  distanceDown = landMap.distanceOfPointToPoint(point1Down,point2Down); 	
 		double area = (RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2*((distanceTop-RadialConfiguration.LOCAL_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.LOCAL_BRANCH_SIZE )))/2;
 		if(area < 90 || distanceDown < 6 || distanceTop < 6){
 			//caso contrario volver area libre 
-			return;
+			return verif;
 		}
 		
 		
@@ -360,7 +437,7 @@ public class radialAlgorithm {
 		int pntRightUp = landMap.findProyectionPointIntoParalelStraights(point1Top,point2Top,point2Down,true);
 		int pntLeftDown = landMap.findProyectionPointIntoParalelStraights(point1Down,point2Down,point1Top,true);
 		int pntRightDown = landMap.findProyectionPointIntoParalelStraights(point1Down,point2Down,point2Top,true);
-		if((pntLeftUp == -1 && pntLeftDown == -1) || (pntRightUp == -1 && pntRightDown == -1))return;
+		if((pntLeftUp == -1 && pntLeftDown == -1) || (pntRightUp == -1 && pntRightDown == -1)) return verif;
 		
 		if(pntLeftUp == -1)pntLeftUp = point1Top;
 		if(pntRightUp == -1) pntRightUp = point2Top;
@@ -370,34 +447,85 @@ public class radialAlgorithm {
 		double distanceLarge = landMap.distanceOfPointToPoint(pntLeftUp,pntRightUp);
 		int nDivision = (int)(distanceLarge/(RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE));
 		int  extraDistance= (int)(distanceLarge % (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE));
-		//print houses
-		int initPoint1 = pntLeftUp;
-		int aux1Point = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,initPoint1,true);
-		int initPoint2 = aux1Point;
-		int aux2Point = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,pntRightUp,true);
-		for(int i = 0 ;i <= nDivision; i++){
-			if((i%2) == 0){
-				int endPoint1 = generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-				int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1));
-				initPoint1 = aux;
+		int medidor = (int)(nDivision/3)*2 ;
+		int part = 0;
+		boolean spec = false;
+		int ind = 0;
+		if(spaceHouse!=0 && (spaceHouse < medidor)){
+			spec = true;
+			nDivision = nDivision - spaceHouse;
+			part = (int)nDivision/2;
+			verif = -1;
 			
-				int endPoint2 = generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-				int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1));
-				initPoint2 = aux2;
-			}else
-			if((i%2) == 1){
-				int endPoint1 = generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-				int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1));
-				initPoint1 = aux;
-			
-				int endPoint2 = generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-				int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1));
-				initPoint2 = aux2;
-			}
 		}
 		
-		//analize special cases
+			//print houses
+			int initPoint1 = pntLeftUp;
+			int aux1Point = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,initPoint1,true);
+			int initPoint2 = aux1Point;
+			int aux2Point = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,pntRightUp,true);
+			for(int i = 0 ;i < nDivision; i++){
+				if(spec == true && i == part){
+					ind =1;
+					//print area
+					int pntDwn1 = landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i)));
+					int pntDwn2 = landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i)+(ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+
+					List<Integer> localList;
+					RadialPolygon auxPolygon = new RadialPolygon();
+					localList = new ArrayList<>();
+					localList.add(initPoint1);
+					localList.add(aux);
+					localList.add(pntDwn2);
+					localList.add(pntDwn1);
+					localList.add(initPoint1);
+					auxPolygon.setMapPoints(localList);
+					auxPolygon.setComplete(true);					
+					
+					landMap.createBorderFromPolygon(localList,mask);
+					List<List<Integer>> auxList = auxPolygon.createAreaContribution();
+					for (int j = 0; j < auxList.size(); j++) {
+						landMap.createBorderFromPolygon(auxList.get(j), mask);
+					}
+					
+					
+					initPoint1 = aux;
+					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					initPoint2 = aux2;
+				}
+					
+				if((i%2) == 0){
+					generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
+					int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					initPoint1 = aux;
+				
+					generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
+					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					initPoint2 = aux2;
+				
+					//aux = landMap.findProyectionPointIntoParalelStraights(point1Down,point2Down,initPoint1,false);
+					//if(landMap.getLandPoint(initPoint1).getType().equals("a")|| landMap.getLandPoint(aux).getType().equals("a"))break;
+				 
+				}else
+				if((i%2) == 1){
+					generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
+					int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					initPoint1 = aux;
+			
+					generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
+					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					initPoint2 = aux2;				
+				//aux = landMap.findProyectionPointIntoParalelStraights(point1Down,point2Down,initPoint1,false);
+					//if(landMap.getLandPoint(initPoint1).getType().equals("a")|| landMap.getLandPoint(aux).getType().equals("a"))break;
+				}
+			}
+			return verif ;
+			//analize special cases
 	}
+	
+		
+
 	
 	
 	
@@ -513,327 +641,6 @@ public class radialAlgorithm {
 		return pointSolution;
 	}
 	
-	public void zonify() {
-		// findZonificationAreas();
-		organicZonification();
-	}
 
-	// Organic zonification: This zonification searchs the figure and
-	// reduces it in a reason configured by the user. if it can be done, it
-	// becomes a new Radial. If not, it becomes simply defaults into a
-	// perfect zonification
-	private void organicZonification() {
-		for (int y = landMap.getPointsy() - 1; y >= 0; y--) {
-			boolean insidePolygon = false;
-			for (int x = 0; x < landMap.getPointsx(); x++) {
-				if (insidePolygon && landMap.findPoint(RadialMapHelper.formKey(x, y)).getType()
-						.equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)) {
-					break;
-				}
-				if (!insidePolygon && !landMap.findPoint(RadialMapHelper.formKey(x, y)).getType()
-						.equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)) {
-					insidePolygon = true;
-				}
-				boolean identifiedNormalNode = false;
-				if (landMap.isNormalNode(x, y)
-						&& landMap.findPoint(RadialMapHelper.formKey((x + 1), y)).getType()
-								.equals(RadialConfiguration.NODE_MARK)
-						&& landMap.findPoint(RadialMapHelper.formKey((x + 1), (y + 1))).getType()
-								.equals(RadialConfiguration.EMPTY_MARK)) {
-					identifiedNormalNode = true;
-					RadialPolygon RadialPolygon = new RadialPolygon();
-					/* int nextPoint= */
-					createOrganicCoverture(RadialMapHelper.formKey(x, y), RadialConstants.EAST, RadialPolygon);
-					boolean passedThough = false;
-					if (RadialPolygon.getPoints().size() == 2) {
-						// finish the polygon and detect incompleteness
-						completeOrganicCoverture(RadialMapHelper.formKey(x, y), RadialConstants.NORTH, RadialPolygon);
-						RadialPolygon.rehashPolygon(RadialConfiguration.TYPE_COMPLETE);
-						passedThough = true;
-					}
-
-					if (!RadialPolygon.isComplete() && RadialPolygon.getPoints().size() > 2) {
-						System.out.println("Pre polygon join with border ");
-						RadialPolygon.printPolygon();
-						// RadialPolygon =
-						// joinWithPolygonalBorder(RadialPolygon);
-					}
-
-					if (!passedThough && !RadialPolygon.isComplete() && RadialPolygon.getPoints().size() == 3) {
-						completeOrganicCoverture(RadialMapHelper.formKey(x, y), RadialConstants.NORTH, RadialPolygon);
-						RadialPolygon.rehashPolygon(RadialConfiguration.TYPE_COMPLETE);
-						// RadialPolygon =
-						// joinWithPolygonalBorder(RadialPolygon);
-					}
-					RadialPolygon.setCentroid(RadialPolygon.findCentroid());
-
-					// we create the park
-					List<List<Integer>> grass = RadialPolygon.parkZone(
-							RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE);
-					for (int j = 0; j < grass.size(); j++) {
-						landMap.createBorderFromPolygon(grass.get(j), RadialConfiguration.PARK_MARK);
-					}
-
-					// we create the routes
-					List<List<Integer>> routes = RadialPolygon.routeZone(
-							RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, RadialConfiguration.LOCAL_BRANCH_SIZE);
-					if (routes.size() > 6) {
-						for (int j = 0; j < routes.size(); j++) {
-							landMap.createBorderFromPolygon(routes.get(j), RadialConfiguration.LOCAL_MARK);
-						}
-					} else {
-						routes = new ArrayList<>();
-					}
-
-					// we create the houses
-					List<List<Integer>> lowerBorder = RadialPolygon
-							.routeZone(RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
-					if (lowerBorder.size() > 0) {
-						landMap.lotize(lowerBorder.get(0), RadialConstants.EAST, 0);
-					}
-
-					if ((routes.size() == 0)) {
-						List<List<Integer>> contribution = RadialPolygon.contributionZone();
-						for (int j = 0; j < contribution.size(); j++) {
-							landMap.createBorderFromPolygon(contribution.get(j), RadialConfiguration.CONTRIBUTION_MARK);
-						}
-					}
-				}
-
-				// In case of special node (non regular spaced node
-				if (!identifiedNormalNode && landMap.isSpecialNode(x, y)) {
-					RadialPolygon RadialPolygon = new RadialPolygon();
-					createSpecialCoverture(RadialMapHelper.formKey(x, y), RadialConstants.NORTH, RadialPolygon);
-					System.out.println("Special polygon");
-					RadialPolygon.printPolygon();
-					RadialPolygon.rehashPolygon(RadialConfiguration.TYPE_SPECIAL);
-					RadialPolygon.setCentroid(RadialPolygon.findCentroid());
-
-					// we create the park
-					List<List<Integer>> grass = RadialPolygon.parkZone(
-							RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE);
-					for (int j = 0; j < grass.size(); j++) {
-						landMap.createBorderFromPolygon(grass.get(j), RadialConfiguration.PARK_MARK);
-					}
-
-					// we create the routes
-					List<List<Integer>> routes = RadialPolygon.routeZone(
-							RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, RadialConfiguration.LOCAL_BRANCH_SIZE);
-					if (routes.size() > 6) {
-						for (int j = 0; j < routes.size(); j++) {
-							landMap.createBorderFromPolygon(routes.get(j), RadialConfiguration.LOCAL_MARK);
-						}
-					} else {
-						routes = new ArrayList<>();
-					}
-
-					// we create the houses
-					List<List<Integer>> lowerBorder = RadialPolygon
-							.routeZone(RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 - 1, 1);
-					if (lowerBorder.size() > 0) {
-						int direction = RadialDirectionHelper.orthogonalDirectionFromPointToPoint(
-								lowerBorder.get(0).get(0), lowerBorder.get(0).get(1));
-						landMap.lotize(lowerBorder.get(0), direction, 0);
-					}
-
-					if ((routes.size() == 0)) {
-						List<List<Integer>> contribution = RadialPolygon.contributionZone();
-						for (int j = 0; j < contribution.size(); j++) {
-							landMap.createBorderFromPolygon(contribution.get(j), RadialConfiguration.CONTRIBUTION_MARK);
-						}
-					}
-				}
-			}
-		}
-		// perfectZonification();
-	}
-
-	private Object createSpecialCoverture(int initialKey, int direction, RadialPolygon RadialPolygon) {
-		RadialPolygon.getPoints().add(initialKey);
-		boolean borderFound = false;
-		while (!borderFound) {
-			initialKey = RadialMapHelper.moveKeyByOffsetAndDirection(initialKey, 1, direction);
-			int[] firstNode = RadialMapHelper.breakKey(initialKey);
-			switch (direction) {
-			case RadialConstants.NORTH:
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0] + 1, firstNode[1])).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					return createSpecialCoverture(initialKey, RadialConstants.EAST, RadialPolygon);
-				}
-				break;
-			case RadialConstants.EAST:
-				// east, north, west, south
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1] - 1)).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					return createSpecialCoverture(initialKey, RadialConstants.SOUTH, RadialPolygon);
-				}
-				break;
-			case RadialConstants.SOUTH:
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0] - 1, firstNode[1])).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					return createSpecialCoverture(initialKey, RadialConstants.WEST, RadialPolygon);
-
-				}
-				break;
-			case RadialConstants.WEST:
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1] + 1)).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					borderFound = true;
-					RadialPolygon.setComplete(true);
-				}
-				break;
-			}
-
-			if (!RadialPolygon.isComplete() && landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1]))
-					.getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)) {
-				switch (direction) {
-				case RadialConstants.EAST:
-					RadialPolygon.getPoints().add(RadialMapHelper.formKey(firstNode[0] - 1, firstNode[1]));
-					break;
-				case RadialConstants.NORTH:
-					RadialPolygon.getPoints().add(RadialMapHelper.formKey(firstNode[0], firstNode[1] - 1));
-					break;
-				case RadialConstants.WEST:
-					RadialPolygon.getPoints().add(RadialMapHelper.formKey(firstNode[0] + 1, firstNode[1]));
-					break;
-				case RadialConstants.SOUTH:
-					RadialPolygon.getPoints().add(RadialMapHelper.formKey(firstNode[0], firstNode[1] + 1));
-					break;
-				}
-				return -1;
-			}
-			landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1]))
-					.setType(RadialConfiguration.BORDER_MARK);
-		}
-		return initialKey;
-	}
-
-	/**
-	 * In case there is not a direct square or a lateral east, north west
-	 * polygon, we seize the opposite side to complete the polygon
-	 */
-	private Object completeOrganicCoverture(int initialKey, int direction, RadialPolygon RadialPolygon) {
-		if (direction != RadialConstants.NORTH) {
-			int numExpansions = RadialPolygon.getExpansions() + 1;
-			RadialPolygon.setExpansions(numExpansions);
-			RadialPolygon.getPoints().add(0, initialKey);
-		}
-
-		boolean borderFound = false;
-		while (!borderFound) {
-			initialKey = RadialMapHelper.moveKeyByOffsetAndDirection(initialKey, 1, direction);
-			int[] firstNode = RadialMapHelper.breakKey(initialKey);
-			switch (direction) {
-			case RadialConstants.EAST:
-				// east, north, west, south
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1] - 1)).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					return completeOrganicCoverture(initialKey, RadialConstants.SOUTH, RadialPolygon);
-				}
-				break;
-			case RadialConstants.NORTH:
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0] + 1, firstNode[1])).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					return completeOrganicCoverture(initialKey, RadialConstants.EAST, RadialPolygon);
-				}
-				break;
-			case RadialConstants.WEST:
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1] + 1)).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					borderFound = true;
-					RadialPolygon.setComplete(true);
-				}
-				break;
-			case RadialConstants.SOUTH:
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0] - 1, firstNode[1])).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					return completeOrganicCoverture(initialKey, RadialConstants.WEST, RadialPolygon);
-
-				}
-				break;
-			}
-
-			if (!RadialPolygon.isComplete() && landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1]))
-					.getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)) {
-				switch (direction) {
-				case RadialConstants.EAST:
-					RadialPolygon.getPoints().add(0, RadialMapHelper.formKey(firstNode[0] - 1, firstNode[1]));
-					break;
-				case RadialConstants.NORTH:
-					RadialPolygon.getPoints().add(0, RadialMapHelper.formKey(firstNode[0], firstNode[1] - 1));
-					break;
-				case RadialConstants.WEST:
-					RadialPolygon.getPoints().add(0, RadialMapHelper.formKey(firstNode[0] + 1, firstNode[1]));
-					break;
-				case RadialConstants.SOUTH:
-					RadialPolygon.getPoints().add(0, RadialMapHelper.formKey(firstNode[0], firstNode[1] + 1));
-					break;
-				}
-				return -1;
-			}
-			landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1]))
-					.setType(RadialConfiguration.BORDER_MARK);
-		}
-		return initialKey;
-	}
-
-	private int createOrganicCoverture(int initialKey, int direction, RadialPolygon RadialPolygon) {
-		RadialPolygon.getPoints().add(initialKey);
-		boolean borderFound = false;
-		while (!borderFound) {
-			initialKey = RadialMapHelper.moveKeyByOffsetAndDirection(initialKey, 1, direction);
-			int[] firstNode = RadialMapHelper.breakKey(initialKey);
-			switch (direction) {
-			case RadialConstants.EAST:
-				// east, north, west, south
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1] + 1)).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					return createOrganicCoverture(initialKey, RadialConstants.NORTH, RadialPolygon);
-				}
-				break;
-			case RadialConstants.NORTH:
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0] - 1, firstNode[1])).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					return createOrganicCoverture(initialKey, RadialConstants.WEST, RadialPolygon);
-				}
-				break;
-			case RadialConstants.WEST:
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1] - 1)).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					return createOrganicCoverture(initialKey, RadialConstants.SOUTH, RadialPolygon);
-				}
-				break;
-			case RadialConstants.SOUTH:
-				if (landMap.findPoint(RadialMapHelper.formKey(firstNode[0] + 1, firstNode[1])).getType()
-						.equals(RadialConfiguration.NODE_MARK)) {
-					borderFound = true;
-					RadialPolygon.setComplete(true);
-				}
-				break;
-			}
-
-			if (!RadialPolygon.isComplete() && landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1]))
-					.getType().equals(RadialConfiguration.OUTSIDE_POLYGON_MARK)) {
-				switch (direction) {
-				case RadialConstants.EAST:
-					RadialPolygon.getPoints().add(RadialMapHelper.formKey(firstNode[0] - 1, firstNode[1]));
-					break;
-				case RadialConstants.NORTH:
-					RadialPolygon.getPoints().add(RadialMapHelper.formKey(firstNode[0], firstNode[1] - 1));
-					break;
-				case RadialConstants.WEST:
-					RadialPolygon.getPoints().add(RadialMapHelper.formKey(firstNode[0] + 1, firstNode[1]));
-					break;
-				case RadialConstants.SOUTH:
-					RadialPolygon.getPoints().add(RadialMapHelper.formKey(firstNode[0], firstNode[1] + 1));
-					break;
-				}
-				return -1;
-			}
-			landMap.findPoint(RadialMapHelper.formKey(firstNode[0], firstNode[1]))
-					.setType(RadialConfiguration.BORDER_MARK);
-		}
-		return initialKey;
-	}
 
 }

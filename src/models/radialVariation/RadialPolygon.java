@@ -541,4 +541,29 @@ public class RadialPolygon {
 		}
 	return auxPoints; 
 	}
+	
+	public List<List<Integer>> createAreaContribution(){
+		List<List<Integer>> polygonLayers = new ArrayList<>();
+		List<Integer> layer = vectorShrinking(1);
+		polygonLayers.add(layer);
+	    layer = vectorShrinking(2);
+	    polygonLayers.add(layer);
+	    layer = vectorShrinking(3);
+		int goDeeper = 3;
+		if (layer.size() != 0) {
+			polygonLayers.add(layer);
+			while (minimunDistanceBetweenVertex(layer) > 1) {
+				goDeeper++;
+				layer = vectorShrinking(goDeeper);
+				if (layer.size() != 0) {
+					polygonLayers.add(layer);
+				} else {
+					break;
+				}
+			}
+		}
+		return polygonLayers;
+
+	}
 }
+
