@@ -378,7 +378,7 @@ public class RadialPolygon {
 		RadialPolygon polygonAux = new RadialPolygon();
 		polygonAux.setPoints(area);
 		polygonAux.setComplete(true);
-		int goDeeper = 0;
+		int goDeeper = 1;
 		if (area.size() != 0) {
 			areas.add(area);
 			while (minimunDistanceBetweenVertex(area) > 1) {
