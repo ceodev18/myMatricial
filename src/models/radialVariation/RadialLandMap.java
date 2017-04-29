@@ -247,22 +247,27 @@ public class RadialLandMap {
 
 			double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
 			// 2nd, gradient=0; straight in the X axis
-			int lower = xyInitial[0] < xyFinal[0] ? xyInitial[0] : xyFinal[0];
-			int upper = xyInitial[0] > xyFinal[0] ? xyInitial[0] : xyFinal[0];
+			int lowerx = xyInitial[0] < xyFinal[0] ? xyInitial[0] : xyFinal[0];
+			int upperx = xyInitial[0] > xyFinal[0] ? xyInitial[0] : xyFinal[0];
 			if (gradient == 0) {
-				for (int w = lower; w <= upper; w++) {
+				for (int w = lowerx; w <= upperx; w++) {
 					getLandPoint(RadialMapHelper.formKey(w, xyInitial[1])).setType(markType);
 				}
 				continue;
 			}
-
+			int lowery = xyInitial[1] < xyFinal[1] ? xyInitial[1] : xyFinal[1];
+			int uppery = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
 			double b = xyFinal[1] - gradient * xyFinal[0];
 			// 3nd the gradient is positive/negative.
-			for (int w = lower; w <= upper; w++) {
+			for (int w = lowerx; w <= upperx; w++) {
 				float y = RadialMapHelper.round(gradient * w + b);
-				if (y == (int) y) // quick and dirty convertion check
-				{
 					getLandPoint(RadialMapHelper.formKey(w, (int) y)).setType(markType);
+			}
+			for (int w = lowery; w <= uppery; w++) {
+				float x = RadialMapHelper.round( (w - b)/gradient);
+				if (x == (int) x) // quick and dirty convertion check
+				{
+					getLandPoint(RadialMapHelper.formKey((int) x, w)).setType(markType);
 				}
 			}
 		}
@@ -378,7 +383,13 @@ public class RadialLandMap {
 			
 			int auxInitPoint = RadialMapHelper.formKey(x1, y1) ;
 			int auxFinPoint = RadialMapHelper.formKey( x2, y2);	
+			
+			if((size/2) <= distanceOfPointToPoint(auxInitPoint,inicialPoint)){
+				createALine(auxInitPoint,auxFinPoint,markType);
+				break;
+			}
 			createALine(auxInitPoint,auxFinPoint,markType);
+					
 			sign=sign*(-1);
 			if(aux == 1){
 				cont++;
