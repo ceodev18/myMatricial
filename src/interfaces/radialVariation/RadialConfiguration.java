@@ -34,8 +34,8 @@ public interface RadialConfiguration {
 	public static String CENTROID = "P";
 	public static String CONTRIBUTION_MARK = "z";
 
-	public static String MARK_LOT1 = "1";
-	public static String MARK_LOT2 = "2";
+	public static String MARK_LOT1 = "3";
+	public static String MARK_LOT2 = "4";
 
 	public static int TYPE_SPECIAL = 0;
 	public static int TYPE_COMPLETE = 1;

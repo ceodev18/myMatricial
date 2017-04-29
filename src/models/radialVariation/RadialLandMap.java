@@ -383,7 +383,13 @@ public class RadialLandMap {
 			
 			int auxInitPoint = RadialMapHelper.formKey(x1, y1) ;
 			int auxFinPoint = RadialMapHelper.formKey( x2, y2);	
+			
+			if((size/2) <= distanceOfPointToPoint(auxInitPoint,inicialPoint)){
+				createALine(auxInitPoint,auxFinPoint,markType);
+				break;
+			}
 			createALine(auxInitPoint,auxFinPoint,markType);
+					
 			sign=sign*(-1);
 			if(aux == 1){
 				cont++;
