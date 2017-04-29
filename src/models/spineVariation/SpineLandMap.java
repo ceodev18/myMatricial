@@ -17,6 +17,7 @@ import helpers.spineVariation.SpineMapHelper;
 import interfaces.spineVariation.SpineConfiguration;
 import interfaces.spineVariation.SpineConfiguration;
 import interfaces.spineVariation.SpineConstants;
+import models.clusterVariation.ClusterLandRoute;
 import models.spineVariation.SpineBuilding;
 import models.spineVariation.SpineLandPoint;
 import models.spineVariation.SpineLandRoute;
@@ -33,6 +34,7 @@ public class SpineLandMap {
 	private Map<Integer, SpineLandPoint> map;
 
 	private SpineLandRoute landRoute;
+	private List<SpineLandRoute> landRoutes = new ArrayList<>();
 	private List<Integer> nodes = new ArrayList<>();
 	List<List<Integer>> fullPolygon;
 	private List<SpineLandPoint> polygonNodes;
@@ -89,7 +91,14 @@ public class SpineLandMap {
 	public SpineLandRoute getLandRoute() {
 		return landRoute;
 	}
+	
+	public List<SpineLandRoute> getLandRoutes() {
+		return landRoutes;
+	}
 
+	public void setLandRoutes(List<SpineLandRoute> landRoutes) {
+		this.landRoutes = landRoutes;
+	}
 	/**
 	 * This method marks all points that are not inside the polygon border as
 	 * restricted area. This must be an ordered set of consecutive points (after

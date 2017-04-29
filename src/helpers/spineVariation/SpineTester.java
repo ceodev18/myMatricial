@@ -24,20 +24,20 @@ public class SpineTester {
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
-		int large=1000 +1,width=700 +1;
+		int large=1145 +1,width=804 +1;
 		SpineLandMap spineLandMap = new SpineLandMap(large, width);
 		
 
 		List<SpineLandPoint> polygon = new ArrayList<>();
-		SpineLandPoint landPoint = new SpineLandPoint(0, 700);
+		SpineLandPoint landPoint = new SpineLandPoint(0, 13);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(600, 700);
+		landPoint = new SpineLandPoint(996, 0);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(1000, 0);
+		landPoint = new SpineLandPoint(1145, 804);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(1, 0);
+		landPoint = new SpineLandPoint(202,770);
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(0,700);
+		landPoint = new SpineLandPoint(0,13);
 		polygon.add(landPoint);
 		spineLandMap.createBorderFromPolygon(polygon);
 		//spineLandMap.compress();
@@ -45,7 +45,7 @@ public class SpineTester {
 		List<SpineLandPoint> entryPoints = new ArrayList<>();	
 		//200 representa la distancia del borde del poligono al inicio
 		//landPoint = new SpineLandPoint(200,571);
-		landPoint = new SpineLandPoint(150,350);
+		landPoint = new SpineLandPoint(6,557);
 		entryPoints.add(landPoint);
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
@@ -56,8 +56,8 @@ public class SpineTester {
 		SpineAlgorithm spineAlgorithm = new SpineAlgorithm();
 		spineAlgorithm.setLandMap(spineLandMap);
 		spineAlgorithm.setWidth(width);
-		spineAlgorithm.setEntryX(1);
-		spineAlgorithm.setEntryY(350);
+		spineAlgorithm.setEntryX(6);
+		spineAlgorithm.setEntryY(557);
 		spineAlgorithm.setLarge(large);
 		
 		for (SpineLandPoint entryPoint : entryPoints) {
@@ -68,7 +68,20 @@ public class SpineTester {
 		}
 		
 		// 4. We clusterize the points
-		//spineAlgorithm.spineizeV2();
+		spineAlgorithm.spineizeV2();
+		System.out.println("spineAlgorithm.getLandMap().getLandRoutes(); in TESTER");
+		System.out.println("size is "+ spineAlgorithm.getLandMap().getLandRoutes().size());
+		String strVertex = "";
+		for (int i = 0; i < spineAlgorithm.getLandMap().getLandRoutes().size(); i++) {
+			System.out.println(spineAlgorithm.getLandMap().getLandRoutes().get(i).stringify());
+			strVertex += spineAlgorithm.getLandMap().getLandRoutes().get(i).stringify();
+			if (i + 1 != spineAlgorithm.getLandMap().getLandRoutes().size()) {
+				strVertex += ",";
+			}
+		}
+		
+		//spineAlgorithm.getLandMap().getLandRoutes();
+		
 		//spineAlgorithm.spineize();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
@@ -112,8 +125,8 @@ public class SpineTester {
 		
 		
 		
-	/*	
-		int large1=1023 +1,width1=800 +1;
+	
+		/*int large1=1023 +1,width1=800 +1;
 		SpineLandMap spineLandMap1 = new SpineLandMap(large1, width1);
 		
 

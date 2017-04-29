@@ -64,7 +64,7 @@ public class LSystemSpineAlgorithm {
 		SpineLandRoute clusterLandRoute = null;
 		switch (branchType) {
 		case SpineConfiguration.ARTERIAL_BRANCH:
-			clusterLandRoute = new SpineLandRoute();
+			//clusterLandRoute = new SpineLandRoute();
 			clusterLandRoute.setInitialPointId(axisPoint);
 			clusterLandRoute.setDirection(direction);
 			extension = SpineConfiguration.ARTERIAL_BRANCH_SIZE;
