@@ -969,24 +969,24 @@ public class SpineAlgorithm {
 			trueAxis = SpineMapHelper.moveKeyByOffsetAndDirection(trueAxis, 1, direction);
 		}
 		switch (branchType) {
-		case ClusterConfiguration.ARTERIAL_BRANCH:
-			extension = ClusterConfiguration.ARTERIAL_BRANCH_SIZE;
-			markType = ClusterConfiguration.ARTERIAL_MARK;
+		case SpineConfiguration.ARTERIAL_BRANCH:
+			extension = SpineConfiguration.ARTERIAL_BRANCH_SIZE;
+			markType = SpineConfiguration.ARTERIAL_MARK;
 			spineLandRoute = new SpineLandRoute(trueAxis, direction, "a");
 			break;
-		case ClusterConfiguration.COLLECTOR_BRANCH:
-			extension = ClusterConfiguration.COLLECTOR_BRANCH_SIZE;
-			markType = ClusterConfiguration.COLLECTOR_MARK;
+		case SpineConfiguration.COLLECTOR_BRANCH:
+			extension = SpineConfiguration.COLLECTOR_BRANCH_SIZE;
+			markType = SpineConfiguration.COLLECTOR_MARK;
 			spineLandRoute = new SpineLandRoute(trueAxis, direction, "b");
 			break;
-		case ClusterConfiguration.LOCAL_BRANCH:
-			extension = ClusterConfiguration.LOCAL_BRANCH_SIZE;
-			markType = ClusterConfiguration.LOCAL_MARK;
+		case SpineConfiguration.LOCAL_BRANCH:
+			extension = SpineConfiguration.LOCAL_BRANCH_SIZE;
+			markType = SpineConfiguration.LOCAL_MARK;
 			spineLandRoute = new SpineLandRoute(trueAxis, direction, "c");
 			break;
-		case ClusterConfiguration.WALK_BRANCH:
-			extension = ClusterConfiguration.WALK_BRANCH_SIZE;
-			markType = ClusterConfiguration.WALK_MARK;
+		case SpineConfiguration.WALK_BRANCH:
+			extension = SpineConfiguration.WALK_BRANCH_SIZE;
+			markType = SpineConfiguration.WALK_MARK;
 			break;
 		}
 
