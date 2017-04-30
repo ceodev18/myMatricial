@@ -128,7 +128,11 @@ public class SpineAlgorithm {
 							break;
 						}
 						for(int j=0;j<newlongHouse;j++){
-							landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
+							if(!landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)&&
+									!landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).getType().equals(SpineConfiguration.POLYGON_BORDER))
+								landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
+							if(!landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)&&
+									!landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).getType().equals(SpineConfiguration.POLYGON_BORDER))
 							landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).setType(val2);
 						}
 						idCont++;
@@ -165,8 +169,12 @@ public class SpineAlgorithm {
 									break;
 								}
 								for(int j=0;j<newlongHouse;j++){
-									landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
-									landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).setType(val2);
+									if(!landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) &&
+											!landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).getType().equals(SpineConfiguration.POLYGON_BORDER))
+										landMap.findPoint(SpineMapHelper.formKey(ejeX+j,yyy)).setType(val1);
+									if(!landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK) &&
+											!landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).getType().equals(SpineConfiguration.POLYGON_BORDER))
+										landMap.findPoint(SpineMapHelper.formKey(ejeX+newlongHouse+j,yyy)).setType(val2);
 								}
 								idCont++;
 								yyy++;
@@ -878,7 +886,7 @@ public class SpineAlgorithm {
 				int yBegin= yy+indexYDown*(SpineConfiguration.BASE_CLUSTER_SIZE+SpineConfiguration.LOCAL_BRANCH_SIZE)-SpineConfiguration.LOCAL_BRANCH_SIZE;//begin printting
 				int nmbrLines=width-yBegin;
 			//	System.out.println();
-				int indexXLoop=1;
+				int indexXLoop=0;
 				boolean state=false;
 				for(int index=0;index<divisionResultBlock;index++){
 					int counter=0;
@@ -1181,10 +1189,13 @@ public class SpineAlgorithm {
 				direction, SpineConfiguration.NODE_MARK);
 		createLine(SpineMapHelper.moveKeyByOffsetAndDirection(axisPoint, extension, growDirection), direction,
 				SpineConfiguration.NODE_MARK);
-		landMap.getLandRoutes().add(spineLandRoute);
+		
 		/*for (int i = 0; i < extension; i++) {
-			createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction, markType);
+			createLine(SpineMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction, markType);
 		}*/
+		landMap.getLandRoutes().add(spineLandRoute);
+		
+		
 		
 		
 	}
