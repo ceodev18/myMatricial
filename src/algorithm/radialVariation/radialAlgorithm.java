@@ -13,10 +13,19 @@ import models.radialVariation.RadialLandRoute;
 import models.radialVariation.RadialPolygon;
 
 public class radialAlgorithm {
+	private List<List<RadialLandRoute>> ListRoutes;
+	
 	private RadialLandMap landMap;
 
 	public RadialLandMap getLandMap() {
 		return landMap;
+	}
+	
+	public List<List<RadialLandRoute>> getListRoutes(){
+		return ListRoutes;
+	}
+	public void setListRoutes(List<List<RadialLandRoute>> auxList){
+		this.ListRoutes = auxList;
 	}
 
 	public void setLandMap(RadialLandMap landMap) {
@@ -76,7 +85,7 @@ public class radialAlgorithm {
 		}
 		
 		//complete a arterial branch size
-		List<List<Integer>> routesAux = polygon.routeZone((valuePlus-1)*valueSeparation, 16);
+		List<List<Integer>> routesAux = polygon.routeZone((valuePlus-1)*valueSeparation, RadialConfiguration.COLLECTOR_BRANCH_SIZE);
 		if (routesAux.size() > 6) {
 			for (int j = 0; j < routesAux.size(); j++) {
 				landMap.createBorderFromPolygon(routesAux.get(j), RadialConfiguration.LOCAL_MARK);
@@ -119,7 +128,7 @@ public class radialAlgorithm {
 		List<List<RadialLandRoute>> ListRoutes = new ArrayList<>();
 		RadialLandRoute aux = new RadialLandRoute();
 		ListRoutes = aux.setRadialRoutes(layersPolygon,auxList,pointsInters[0],pointsInters[1]);
-		
+		setListRoutes(ListRoutes);
 	
 	}
 
@@ -147,7 +156,7 @@ public class radialAlgorithm {
 			
 			
 			if(Math.abs(grad1 - grad2) < 0.35){// normal case
-				landMap.createACustomRoute(extLayer.get(k), intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE,RadialConfiguration.LOCAL_MARK);
+				landMap.createACustomRoute(extLayer.get(k), intLayer.get(i),RadialConfiguration.COLLECTOR_BRANCH_SIZE,RadialConfiguration.COLLECTOR_MARK);
 				auxListVertx.add(extLayer.get(k));
 				auxListVertx.add(intLayer.get(i));
 				k++;
@@ -159,9 +168,9 @@ public class radialAlgorithm {
 					 if(Math.abs(grad1 - grad2) < 0.35){ //if are equals  is the special case
 						 int pointIntersection = landMap.findIntersectionPointIntoTwoStraight
 								 (extLayer.get((extLayer.size()-1)), auxLayer.get((extLayer.size()-1)), extLayer.get(i), auxLayer.get(i), false);
-						 landMap.createACustomRoute(extLayer.get(extLayer.size()-1),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
-						 landMap.createACustomRoute(extLayer.get(i),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
-						 landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
+						 landMap.createACustomRoute(extLayer.get(extLayer.size()-1),pointIntersection,RadialConfiguration.COLLECTOR_BRANCH_SIZE , RadialConfiguration.COLLECTOR_MARK);
+						 landMap.createACustomRoute(extLayer.get(i),pointIntersection,RadialConfiguration.COLLECTOR_BRANCH_SIZE , RadialConfiguration.COLLECTOR_MARK);
+						 landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.COLLECTOR_BRANCH_SIZE , RadialConfiguration.COLLECTOR_MARK);
 						 k++;
 						 auxListVertx.add(extLayer.get(extLayer.size()-1));
 						 auxListVertx.add(pointIntersection);
@@ -176,9 +185,9 @@ public class radialAlgorithm {
 				int pointIntersection = landMap.findIntersectionPointIntoTwoStraight
 						(extLayer.get(k), auxLayer.get(k), extLayer.get(k+1), auxLayer.get(k+1), false);
 				//draw special case
-				landMap.createACustomRoute(extLayer.get(k),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
-				landMap.createACustomRoute(extLayer.get(k+1),pointIntersection,RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
-				landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.LOCAL_BRANCH_SIZE , RadialConfiguration.LOCAL_MARK);
+				landMap.createACustomRoute(extLayer.get(k),pointIntersection,RadialConfiguration.COLLECTOR_BRANCH_SIZE , RadialConfiguration.COLLECTOR_MARK);
+				landMap.createACustomRoute(extLayer.get(k+1),pointIntersection,RadialConfiguration.COLLECTOR_BRANCH_SIZE , RadialConfiguration.COLLECTOR_MARK);
+				landMap.createACustomRoute(pointIntersection,intLayer.get(i),RadialConfiguration.COLLECTOR_BRANCH_SIZE , RadialConfiguration.COLLECTOR_MARK);
 				auxListVertx.add(extLayer.get(k));
 				auxListVertx.add(pointIntersection);
 				auxListVertx.add(extLayer.get(k+1));
@@ -330,7 +339,7 @@ public class radialAlgorithm {
 				
 				}
 				//verify 5-4 points
-				if(distanceTop < RadialConfiguration.LOCAL_BRANCH_SIZE || distanceTop < (distanceDown/2) ){
+				if(distanceTop < RadialConfiguration.COLLECTOR_BRANCH_SIZE || distanceTop < (distanceDown/2) ){
 					//special case
 					point1Top = point2Top;
 					point2Top = layersPolygon.get(i).get((j+2)%(layersPolygon.get(i).size())); 
@@ -344,9 +353,10 @@ public class radialAlgorithm {
 				}
 				
 				//verify minimun area
-				double area = (RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2*((distanceTop-RadialConfiguration.LOCAL_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.LOCAL_BRANCH_SIZE )))/2;
-				if(area < 90 || distanceDown<(6+ RadialConfiguration.LOCAL_BRANCH_SIZE) || distanceTop<(6+ RadialConfiguration.LOCAL_BRANCH_SIZE )){
+				double area = (RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
+				if(area < 90 || distanceDown<(6+ RadialConfiguration.COLLECTOR_BRANCH_SIZE) || distanceTop<(6+ RadialConfiguration.COLLECTOR_BRANCH_SIZE )){
 					//caso contrario volver area libre 
+					cuadrangular(point1Top,point2Top,point2Down,point1Down,RadialConfiguration.CONTRIBUTION_MARK);
 					continue;
 				}
 				//verify main route across
@@ -354,13 +364,13 @@ public class radialAlgorithm {
 				int aux2Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Down,point2Down,true);
 				int aux3Point = landMap.findIntersectionPointIntoTwoStraight(pointIni,pointEnd,point1Mid,point2Mid,true);
 				
-				int fixPoint1Top = landMap.findPointOnStreightToDistance( point1Top, point2Top,(RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
-				int fixPoint2Top = landMap.findPointOnStreightToDistance(point2Top, point1Top, (RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
-				int fixPoint1Mid = landMap.findPointOnStreightToDistance( point1Mid, point2Mid,(RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
-				int fixPoint2Mid = landMap.findPointOnStreightToDistance(point2Mid, point1Mid, (RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
+				int fixPoint1Top = landMap.findPointOnStreightToDistance( point1Top, point2Top,(RadialConfiguration.COLLECTOR_BRANCH_SIZE/2)+2);
+				int fixPoint2Top = landMap.findPointOnStreightToDistance(point2Top, point1Top, (RadialConfiguration.COLLECTOR_BRANCH_SIZE/2)+2);
+				int fixPoint1Mid = landMap.findPointOnStreightToDistance( point1Mid, point2Mid,(RadialConfiguration.COLLECTOR_BRANCH_SIZE/2)+2);
+				int fixPoint2Mid = landMap.findPointOnStreightToDistance(point2Mid, point1Mid, (RadialConfiguration.COLLECTOR_BRANCH_SIZE/2)+2);
 				
-				int fixPoint1Down = landMap.findPointOnStreightToDistance( point1Down, point2Down,(RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
-				int fixPoint2Down = landMap.findPointOnStreightToDistance(point2Down, point1Down, (RadialConfiguration.LOCAL_BRANCH_SIZE/2)+2);
+				int fixPoint1Down = landMap.findPointOnStreightToDistance( point1Down, point2Down,(RadialConfiguration.COLLECTOR_BRANCH_SIZE/2)+2);
+				int fixPoint2Down = landMap.findPointOnStreightToDistance(point2Down, point1Down, (RadialConfiguration.COLLECTOR_BRANCH_SIZE/2)+2);
 				
 				if((aux1Point != -1 && aux2Point != -1) || (aux2Point != -1 && i==0)  ){	///would be crossing just one size
 					if(aux2Point != -1 && i==0){
@@ -424,9 +434,10 @@ public class radialAlgorithm {
 		//verify total area again //find distances again
 		double  distanceTop = landMap.distanceOfPointToPoint(point1Top,point2Top);
 		double  distanceDown = landMap.distanceOfPointToPoint(point1Down,point2Down); 	
-		double area = (RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2*((distanceTop-RadialConfiguration.LOCAL_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.LOCAL_BRANCH_SIZE )))/2;
+		double area = (RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
 		if(area < 90 || distanceDown < 6 || distanceTop < 6){
 			//caso contrario volver area libre 
+			cuadrangular(point1Top,point2Top,point2Down,point1Down,RadialConfiguration.CONTRIBUTION_MARK);
 			return verif;
 		}
 		int modeI =0;
@@ -478,7 +489,7 @@ public class radialAlgorithm {
 					int pntDwn1 =   landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i)));
 					int pntDwn2 =   landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i)+(ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
 					int aux = 		landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
-					
+					/*
 					
 					List<Integer> localList;
 					RadialPolygon auxPolygon = new RadialPolygon();
@@ -496,6 +507,7 @@ public class radialAlgorithm {
 					for (int j = 0; j < auxList.size(); j++) {
 						landMap.createBorderFromPolygon(auxList.get(j), mask);
 					}
+					*/
 					///////////otra manera d generar
 					int aux3 = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i) + (int)(ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse/2)));
 					int aux4 = landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i)+(int)(ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse/2)));
@@ -504,6 +516,7 @@ public class radialAlgorithm {
 					initPoint1 = aux;
 					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
 					initPoint2 = aux2;
+					
 				}
 					
 				if((i%2) == 0){
@@ -942,8 +955,11 @@ public class radialAlgorithm {
 		localList.add(pnt4);
 		localList.add(pnt1);
 		auxPolygon.setMapPoints(localList);
-		auxPolygon.setComplete(true);					
-		
+		auxPolygon.setComplete(true);	
+		//verif if line donnt across
+		int aux1 = landMap.findIntersectionPointIntoTwoStraight(pnt1,pnt2,pnt3,pnt4,true) ;
+		int aux2 = landMap.findIntersectionPointIntoTwoStraight(pnt3,pnt4,pnt1,pnt2,true) ;
+		if(aux1 ==-1 || aux2 ==-1)return;
 		landMap.createBorderFromPolygon(localList,mask);
 		List<List<Integer>> auxList = auxPolygon.createAreaContribution();
 		for (int j = 0; j < auxList.size(); j++) {

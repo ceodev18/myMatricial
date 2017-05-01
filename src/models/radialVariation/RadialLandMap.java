@@ -81,6 +81,19 @@ public class RadialLandMap {
 		return landRoute;
 	}
 
+	public boolean onRangeMap(int point){
+		boolean verif = false;
+		int pointXY[] = RadialMapHelper.breakKey(point);
+		if(pointXY[0] < getPointsx() && pointXY[0] > 0 && pointXY[1] < getPointsy() && pointXY[1] > 0)
+			verif = true;
+		return verif; 
+	}
+	public boolean onRangeMap2(int x, int y){
+		boolean verif = false;
+		if(x < getPointsx() && x > 0 && y < getPointsy() && y > 0)
+			verif = true;
+		return verif; 
+	}
 	/**
 	 * This method marks all points that are not inside the polygon border as
 	 * restricted area. This must be an ordered set of consecutive points (after
@@ -380,7 +393,15 @@ public class RadialLandMap {
 				 x2 =  (int)RadialMapHelper.round((y2 - b2)/contGradient);
 				
 			}
-			
+			/*if(!onRangeMap2(x1,y1)){
+				System.out.println("out of range");
+				return;
+			}
+			if(!onRangeMap2(x2,y2)){
+				System.out.println("out of range");
+				return;
+			}
+			*/
 			int auxInitPoint = RadialMapHelper.formKey(x1, y1) ;
 			int auxFinPoint = RadialMapHelper.formKey( x2, y2);	
 			
@@ -479,6 +500,10 @@ public class RadialLandMap {
 				if((lower <= xyRec1End[0] && xyRec1End[0] <= upper)|| !belong){
 					double yAux = xyRec1End[0]*gradient2 + b2;
 					RadialMapHelper.round(yAux);
+					/*if(!onRangeMap2(xyRec1End[0],(int)yAux)){
+						System.out.println("out of range");
+						return -1;
+					}*/
 					pointSolution =  RadialMapHelper.formKey(xyRec1End[0], (int)yAux);
 					
 				}
@@ -491,9 +516,13 @@ public class RadialLandMap {
 				if((lower <= xyRec2End[0] && xyRec2End[0] <= upper)|| !belong){ //verify if the point belong to the straight
 					double yAux = xyRec2End[0]*gradient1 + b1;
 					RadialMapHelper.round(yAux);
+					/*if(!onRangeMap2(xyRec2End[0],(int)yAux)){
+						System.out.println("out of range");
+						return -1;
+					}*/
 					pointSolution =  RadialMapHelper.formKey(xyRec2End[0], (int)yAux);
-					
 				}
+					
 				return pointSolution;
 		}
 		if (underscore1 != 0 && underscore2 != 0) {
@@ -508,6 +537,10 @@ public class RadialLandMap {
 				if((lowerx <= xAux && xAux <= upperx && lowery <= yAux && yAux <= uppery) || !belong){//verify if the point belong to the straight because it wouldn't be include in both
 					RadialMapHelper.round(xAux);
 					RadialMapHelper.round(yAux);
+					/*if(!onRangeMap2((int)xAux,(int)yAux)){
+						System.out.println("out of range");
+						return -1;
+					}*/
 					pointSolution =  RadialMapHelper.formKey((int)xAux, (int)yAux);	
 				}
 				return pointSolution;

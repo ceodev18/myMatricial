@@ -1,5 +1,6 @@
 package models.radialVariation;
 
+import interfaces.radialVariation.RadialConfiguration;
 import interfaces.radialVariation.RadialConstants;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +12,9 @@ public class RadialLandRoute {
 	private int initialPointId = -1;
 	private int finalPointId = -1;
 	private int direction = RadialConstants.ORTHOGONAL;
+	private String type = "";
 	
-	public RadialLandRoute(int ini,int fin){
+	public RadialLandRoute(int ini,int fin,String typ){
 		setInitialPointId(ini);
 		setFinalPointId(fin);
 		int direct= findDirect(ini,fin);
@@ -22,7 +24,8 @@ public class RadialLandRoute {
 		setDirection(RadialConstants.VERTICAL);
 		if(direct ==1)
 		setDirection(RadialConstants.HORIZONTAL);
-				
+		
+		setType(typ);
 	}
 	
 	public RadialLandRoute() {
@@ -47,6 +50,14 @@ public class RadialLandRoute {
 	public void setFinalPointId(int finalPointId) {
 		this.finalPointId = finalPointId;
 	}
+	
+	public String getType(){
+		return type;
+	}
+	public void setType(String val){
+		this.type = val;
+	}
+	
 	private int findDirect(int ini, int end){
 		int value=3;
 		int xyInitial[] = RadialMapHelper.breakKey(ini);
@@ -66,7 +77,7 @@ public class RadialLandRoute {
 			for(int j = 0; j < layers.get(i).size(); j++){
 				int ini= (layers.get(i).get(j%(layers.get(i).size())));
 				int end= (layers.get(i).get((j+1)%(layers.get(i).size())));
-				RadialLandRoute routes = new RadialLandRoute(ini,end);
+				RadialLandRoute routes = new RadialLandRoute(ini,end,RadialConfiguration.LOCAL_MARK);
 				routesLayer.add(routes);
 			}
 			auxArr.add(routesLayer);
@@ -74,11 +85,11 @@ public class RadialLandRoute {
 		//here we have the layers routes now we need the vertix layers
 		List<RadialLandRoute> routesLayer = new ArrayList<>();
 		for(int k=0; k < vertix.size(); k=k+2){
-			RadialLandRoute routes = new RadialLandRoute(vertix.get(k),vertix.get(k+1));
+			RadialLandRoute routes = new RadialLandRoute(vertix.get(k),vertix.get(k+1),RadialConfiguration.COLLECTOR_MARK);
 			routesLayer.add(routes);
 		}
 		//and finally ad the main route
-		RadialLandRoute routes = new RadialLandRoute(MainRouteIni,MainRouteEnd);
+		RadialLandRoute routes = new RadialLandRoute(MainRouteIni,MainRouteEnd,RadialConfiguration.ARTERIAL_MARK);
 		routesLayer.add(routes);
 		auxArr.add(routesLayer);
 		
