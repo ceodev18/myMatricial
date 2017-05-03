@@ -29,10 +29,25 @@ public class RadialTester {
 		//int large = 950, width = 1200;
 		int large = 950, width = 750;
 		// 1. We create the map and set its intrinsec variables
+		//int large =1215, width = 850 ;
 		
 		RadialLandMap landMap = new RadialLandMap(large, width);
 		List<RadialLandPoint> polygon = new ArrayList<>();
 		
+		/*
+		RadialLandPoint landPoint = new RadialLandPoint(0,700);
+		polygon.add(landPoint);
+		landPoint = new RadialLandPoint(725, 850);
+		polygon.add(landPoint);
+		landPoint = new RadialLandPoint(1215, 600);
+		polygon.add(landPoint);
+		landPoint = new RadialLandPoint(850, 0);
+		polygon.add(landPoint);
+		// we must reuse the first one as the last
+		landPoint = new RadialLandPoint(0,700);
+		polygon.add(landPoint);
+		
+		*/
 		
 		RadialLandPoint landPoint = new RadialLandPoint(450,48);
 		polygon.add(landPoint);
@@ -47,7 +62,7 @@ public class RadialTester {
 		// we must reuse the first one as the last
 		landPoint = new RadialLandPoint(450, 48);
 		polygon.add(landPoint);
-	
+		
 		/*
 		RadialLandPoint landPoint = new RadialLandPoint(726,56);
 		polygon.add(landPoint);

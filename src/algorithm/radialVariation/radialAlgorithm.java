@@ -47,7 +47,7 @@ public class radialAlgorithm {
 		polygon.setComplete(true);
 		layersPolygon.add(localLayer); 
 		/// calculate the aprox of layers on the polygon
-		int valueSeparation = RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE;
+		int valueSeparation = RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE;
 		double areaTotal = landMap.getPolygonalArea();
 		double areaPark = (areaTotal*2.4)/100;
 		
@@ -60,9 +60,9 @@ public class radialAlgorithm {
 				localLayer = polygon.vectorShrinking((valuePlus-1)*valueSeparation);
 				layersPolygon.add(localLayer);
 			}
-			localLayer = polygon.vectorShrinking(valueSeparation*(valuePlus-1) + RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE );
+			localLayer = polygon.vectorShrinking(valueSeparation*(valuePlus-1) + RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE );
 			layersPolygon.add(localLayer);
-			localLayer = polygon.vectorShrinking(valueSeparation*(valuePlus-1) + RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 );
+			localLayer = polygon.vectorShrinking(valueSeparation*(valuePlus-1) + RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 );
 			layersPolygon.add(localLayer);
 			/*
 				for (int j = 0; j < layersPolygon.size(); j++) {
@@ -71,7 +71,7 @@ public class radialAlgorithm {
 			 */
 
 			// create the routes
-			List<List<Integer>> routes = polygon.routeZone(valuePlus*RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE*(valuePlus-1),
+			List<List<Integer>> routes = polygon.routeZone(valuePlus*RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE*(valuePlus-1),
 					RadialConfiguration.LOCAL_BRANCH_SIZE);
 			if (routes.size() > 6) {
 				for (int j = 0; j < routes.size(); j++) {
@@ -276,11 +276,11 @@ public class radialAlgorithm {
 			numLayersAble++;
 		}
 		int numTotalMax = numMaxParks + numMaxZones ;
-		int spaceHouse = (int)(800/(2*RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE)/RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE);
+		int spaceHouse = (int)(800/(2*RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE)/RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE);
 		spaceHouse++;
 		int numAproxZones=0;
 		while(numAproxZones==0){
-			double zoneArea = spaceHouse*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*2*RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE;
+			double zoneArea = spaceHouse*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*2*RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
 			
 			double actualAreaZone = areaExtra;
 			for(int k=1;k <= numTotalMax;k++){
@@ -353,7 +353,7 @@ public class radialAlgorithm {
 				}
 				
 				//verify minimun area
-				double area = (RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
+				double area = (RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
 				if(area < 90 || distanceDown<(6+ RadialConfiguration.COLLECTOR_BRANCH_SIZE) || distanceTop<(6+ RadialConfiguration.COLLECTOR_BRANCH_SIZE )){
 					//caso contrario volver area libre 
 					cuadrangular(point1Top,point2Top,point2Down,point1Down,RadialConfiguration.CONTRIBUTION_MARK);
@@ -434,7 +434,7 @@ public class radialAlgorithm {
 		//verify total area again //find distances again
 		double  distanceTop = landMap.distanceOfPointToPoint(point1Top,point2Top);
 		double  distanceDown = landMap.distanceOfPointToPoint(point1Down,point2Down); 	
-		double area = (RadialConfiguration.HOUSE_SIDE_MAXIMUN_SIZE*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
+		double area = (RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
 		if(area < 90 || distanceDown < 6 || distanceTop < 6){
 			//caso contrario volver area libre 
 			cuadrangular(point1Top,point2Top,point2Down,point1Down,RadialConfiguration.CONTRIBUTION_MARK);

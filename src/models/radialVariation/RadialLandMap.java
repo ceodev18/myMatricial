@@ -81,19 +81,7 @@ public class RadialLandMap {
 		return landRoute;
 	}
 
-	public boolean onRangeMap(int point){
-		boolean verif = false;
-		int pointXY[] = RadialMapHelper.breakKey(point);
-		if(pointXY[0] < getPointsx() && pointXY[0] > 0 && pointXY[1] < getPointsy() && pointXY[1] > 0)
-			verif = true;
-		return verif; 
-	}
-	public boolean onRangeMap2(int x, int y){
-		boolean verif = false;
-		if(x < getPointsx() && x > 0 && y < getPointsy() && y > 0)
-			verif = true;
-		return verif; 
-	}
+	
 	/**
 	 * This method marks all points that are not inside the polygon border as
 	 * restricted area. This must be an ordered set of consecutive points (after
@@ -343,7 +331,11 @@ public class RadialLandMap {
 			createALine(inicialPoint,finalPoint,markType);
 			for (int w = 0; w <= size-1; w++) {
 				int auxInitPoint = RadialMapHelper.formKey(xyInitial[0] + cont*sign, xyInitial[1]) ;
-				int auxFinPoint = RadialMapHelper.formKey(xyFinal[0] + cont*sign , xyFinal[1]);	
+				int auxFinPoint = RadialMapHelper.formKey(xyFinal[0] + cont*sign , xyFinal[1]);
+				if(!landPointisOnMap(auxInitPoint) || !landPointisOnMap(auxFinPoint)){
+					System.out.println("point out of range");
+					return;
+				}
 				createALine(auxInitPoint,auxFinPoint,markType);
 				sign=sign*(-1);
 				if(aux == 1){
@@ -363,6 +355,10 @@ public class RadialLandMap {
 			for (int w = 0; w < size; w++) {
 				int auxInitPoint = RadialMapHelper.formKey(xyInitial[0] , xyInitial[1] + cont*sign) ;
 				int auxFinPoint = RadialMapHelper.formKey(xyFinal[0]   , xyFinal[1] + cont*sign);	
+				if(!landPointisOnMap(auxInitPoint) || !landPointisOnMap(auxFinPoint)){
+					System.out.println("point out of range");
+					return;
+				}
 				createALine(auxInitPoint,auxFinPoint,markType);
 				sign=sign*(-1);
 				if(aux == 1){
@@ -393,18 +389,13 @@ public class RadialLandMap {
 				 x2 =  (int)RadialMapHelper.round((y2 - b2)/contGradient);
 				
 			}
-			/*if(!onRangeMap2(x1,y1)){
-				System.out.println("out of range");
-				return;
-			}
-			if(!onRangeMap2(x2,y2)){
-				System.out.println("out of range");
-				return;
-			}
-			*/
+	
 			int auxInitPoint = RadialMapHelper.formKey(x1, y1) ;
 			int auxFinPoint = RadialMapHelper.formKey( x2, y2);	
-			
+			if(!landPointisOnMap(auxInitPoint) || !landPointisOnMap(auxFinPoint)){
+				System.out.println("point out of range");
+				return;
+			}
 			if((size/2) <= distanceOfPointToPoint(auxInitPoint,inicialPoint)){
 				createALine(auxInitPoint,auxFinPoint,markType);
 				break;
@@ -500,14 +491,12 @@ public class RadialLandMap {
 				if((lower <= xyRec1End[0] && xyRec1End[0] <= upper)|| !belong){
 					double yAux = xyRec1End[0]*gradient2 + b2;
 					RadialMapHelper.round(yAux);
-					/*if(!onRangeMap2(xyRec1End[0],(int)yAux)){
-						System.out.println("out of range");
-						return -1;
-					}*/
 					pointSolution =  RadialMapHelper.formKey(xyRec1End[0], (int)yAux);
 					
+					return pointSolution;
 				}
-				return pointSolution;
+
+				
 		
 		}
 		if (underscore2 == 0 && underscore1 != 0) {
@@ -516,14 +505,11 @@ public class RadialLandMap {
 				if((lower <= xyRec2End[0] && xyRec2End[0] <= upper)|| !belong){ //verify if the point belong to the straight
 					double yAux = xyRec2End[0]*gradient1 + b1;
 					RadialMapHelper.round(yAux);
-					/*if(!onRangeMap2(xyRec2End[0],(int)yAux)){
-						System.out.println("out of range");
-						return -1;
-					}*/
 					pointSolution =  RadialMapHelper.formKey(xyRec2End[0], (int)yAux);
-				}
 					
-				return pointSolution;
+					return pointSolution;
+				}
+				
 		}
 		if (underscore1 != 0 && underscore2 != 0) {
 			int lowerx = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
@@ -537,16 +523,13 @@ public class RadialLandMap {
 				if((lowerx <= xAux && xAux <= upperx && lowery <= yAux && yAux <= uppery) || !belong){//verify if the point belong to the straight because it wouldn't be include in both
 					RadialMapHelper.round(xAux);
 					RadialMapHelper.round(yAux);
-					/*if(!onRangeMap2((int)xAux,(int)yAux)){
-						System.out.println("out of range");
-						return -1;
-					}*/
 					pointSolution =  RadialMapHelper.formKey((int)xAux, (int)yAux);	
+				
+					return pointSolution;
 				}
-				return pointSolution;
+				
 		
 		}
-		
 		
 		return pointSolution; //if dosnt fint, or dont exist, return -1
 	}
@@ -581,6 +564,10 @@ public class RadialLandMap {
 				}else{
 					pointSolution =  RadialMapHelper.formKey(xyFinal[0],(xyInitial[1] - (int)distance));		
 				}
+				if(!landPointisOnMap(pointSolution)){
+					System.out.println("point out of range");
+					return -1;
+				}
 				return pointSolution;
 		}else{
 			gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
@@ -590,6 +577,10 @@ public class RadialLandMap {
 					pointSolution =  RadialMapHelper.formKey( (xyInitial[0] + (int)distance),xyFinal[1] );		
 				}else{
 					pointSolution =  RadialMapHelper.formKey( (xyInitial[0] - (int)distance),xyFinal[1] );	
+				}
+				if(!landPointisOnMap(pointSolution)){
+					System.out.println("point out of range");
+					return -1;
 				}
 				return pointSolution;
 			}
@@ -627,7 +618,11 @@ public class RadialLandMap {
 					RadialMapHelper.round(y);
 					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
 					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
-					if(auxDist >= distance){	
+					if(auxDist >= distance){
+						if(!landPointisOnMap(pointSolution)){
+							System.out.println("point out of range");
+							return -1;
+						}
 						return pointSolution;
 					}
 				}
@@ -645,10 +640,18 @@ public class RadialLandMap {
 					RadialMapHelper.round(y);
 					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
 					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
-					if(auxDist >= distance){	
+					if(auxDist >= distance){
+						if(!landPointisOnMap(pointSolution)){
+							System.out.println("point out of range");
+							return -1;
+						}
 						return pointSolution;
 					}
 				}
+			}
+			if(!landPointisOnMap(pointSolution)){
+				System.out.println("point out of range");
+				return -1;
 			}
 			return pointSolution;
 		}	
