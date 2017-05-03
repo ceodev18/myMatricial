@@ -13,6 +13,7 @@ import helpers.radialVariation.RadialDirectionHelper;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 import interfaces.radialVariation.RadialConstants;
+import models.base.LandMap;
 
 
 public class RadialLandMap {
@@ -88,6 +89,26 @@ public class RadialLandMap {
 	 * all the input from android looks like that.
 	 */
 	public void createBorderFromPolygon(List<RadialLandPoint> polygon) {
+
+		///evade sizes errors, when is posible to out of range
+		for(int j =0 ;j < polygon.size();j++ ){
+			int valX = polygon.get(j).getX();
+			int valY = polygon.get(j).getY();
+			int aux = (int)(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2) +1;
+			if(valX < aux){
+				polygon.get(j).setX(aux);
+			}
+			if(valX > (getPointsx() - aux)){
+				polygon.get(j).setX(getPointsx() - aux);
+			}
+			if(valY < aux){
+				polygon.get(j).setY(aux);
+			}
+			if(valY > (getPointsy() - aux)){
+				polygon.get(j).setY(getPointsy() - aux);
+			}
+		}
+		
 		setPolygonNodes(polygon);
 		fullPolygon = new ArrayList<>();
 		// first we create the border
