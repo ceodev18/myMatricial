@@ -316,7 +316,9 @@ public class RadialLandMap {
 			int upperx = xyInitial[0] > xyFinal[0] ? xyInitial[0] : xyFinal[0];
 			if (gradient == 0) {
 				for (int w = lowerx; w <= upperx; w++) {
-					getLandPoint(RadialMapHelper.formKey(w, xyInitial[1])).setType(markType);
+					if (landPointisOnMap(RadialMapHelper.formKey(xyInitial[0], w))) {
+						getLandPoint(RadialMapHelper.formKey(w, xyInitial[1])).setType(markType);
+					}
 				}
 				return;
 			}
@@ -327,18 +329,72 @@ public class RadialLandMap {
 			// 3nd the gradient is positive/negative.
 			for (int w = lowerx; w <= upperx; w++) {
 				float y = RadialMapHelper.round(gradient * w + b);
-					getLandPoint(RadialMapHelper.formKey(w, (int) y)).setType(markType);
+					if (landPointisOnMap(RadialMapHelper.formKey(xyInitial[0], w))) {
+						getLandPoint(RadialMapHelper.formKey(w, (int) y)).setType(markType);
+					}
 			}
 			for (int w = lowery; w <= uppery; w++) {
 				float x = RadialMapHelper.round( (w - b)/gradient);
 				if (x == (int) x) // quick and dirty convertion check
 				{
-					getLandPoint(RadialMapHelper.formKey((int) x, w)).setType(markType);
+					if (landPointisOnMap(RadialMapHelper.formKey(xyInitial[0], w))) {
+						getLandPoint(RadialMapHelper.formKey((int) x, w)).setType(markType);
+					}
 				}
 			}
 			
 			
 	}
+	public void  printTriangular(int pnt1,int pnt2, int pnt3,String mask){
+		int xyInitial[] = RadialMapHelper.breakKey(pnt1);
+		int xyFinal[] = RadialMapHelper.breakKey(pnt2);
+
+		int underscore = (xyFinal[0] - xyInitial[0]);
+		if (underscore == 0) {
+			int lower = xyInitial[1] < xyFinal[1] ? xyInitial[1] : xyFinal[1];
+			int upper = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
+
+			for (int w = lower; w <= upper; w++) {
+				createALine(RadialMapHelper.formKey(xyInitial[0], w),pnt3,mask);
+			}
+			return;
+		}
+
+		double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
+		// 2nd, gradient=0; straight in the X axis
+		int lowerx = xyInitial[0] < xyFinal[0] ? xyInitial[0] : xyFinal[0];
+		int upperx = xyInitial[0] > xyFinal[0] ? xyInitial[0] : xyFinal[0];
+		if (gradient == 0) {
+			for (int w = lowerx; w <= upperx; w++) {
+				
+				createALine(RadialMapHelper.formKey(w, xyInitial[1]),pnt3,mask);
+				
+			}
+			return;
+		}
+		int lowery = xyInitial[1] < xyFinal[1] ? xyInitial[1] : xyFinal[1];
+		int uppery = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
+
+		double b = xyFinal[1] - gradient * xyFinal[0];
+		// 3nd the gradient is positive/negative.
+		for (int w = lowerx; w <= upperx; w++) {
+			float y = RadialMapHelper.round(gradient * w + b);
+				
+				createALine(RadialMapHelper.formKey(w, (int) y),pnt3,mask);
+				
+		}
+		for (int w = lowery; w <= uppery; w++) {
+			float x = RadialMapHelper.round( (w - b)/gradient);
+			if (x == (int) x) // quick and dirty convertion check
+			{
+			
+				createALine(RadialMapHelper.formKey((int) x, w),pnt3,mask);
+				
+			}
+		}
+	}
+	
+	
 	public void createACustomRoute(int inicialPoint, int finalPoint,int size, String markType) {
 		
 		int xyInitial[] = RadialMapHelper.breakKey(inicialPoint);
@@ -354,7 +410,7 @@ public class RadialLandMap {
 				int auxInitPoint = RadialMapHelper.formKey(xyInitial[0] + cont*sign, xyInitial[1]) ;
 				int auxFinPoint = RadialMapHelper.formKey(xyFinal[0] + cont*sign , xyFinal[1]);
 				if(!landPointisOnMap(auxInitPoint) || !landPointisOnMap(auxFinPoint)){
-					System.out.println("point out of range");
+					//System.out.println("point out of range");
 					return;
 				}
 				createALine(auxInitPoint,auxFinPoint,markType);
@@ -377,7 +433,7 @@ public class RadialLandMap {
 				int auxInitPoint = RadialMapHelper.formKey(xyInitial[0] , xyInitial[1] + cont*sign) ;
 				int auxFinPoint = RadialMapHelper.formKey(xyFinal[0]   , xyFinal[1] + cont*sign);	
 				if(!landPointisOnMap(auxInitPoint) || !landPointisOnMap(auxFinPoint)){
-					System.out.println("point out of range");
+					//System.out.println("point out of range");
 					return;
 				}
 				createALine(auxInitPoint,auxFinPoint,markType);
@@ -414,7 +470,7 @@ public class RadialLandMap {
 			int auxInitPoint = RadialMapHelper.formKey(x1, y1) ;
 			int auxFinPoint = RadialMapHelper.formKey( x2, y2);	
 			if(!landPointisOnMap(auxInitPoint) || !landPointisOnMap(auxFinPoint)){
-				System.out.println("point out of range");
+				//System.out.println("point out of range");
 				return;
 			}
 			if((size/2) <= distanceOfPointToPoint(auxInitPoint,inicialPoint)){
@@ -586,7 +642,7 @@ public class RadialLandMap {
 					pointSolution =  RadialMapHelper.formKey(xyFinal[0],(xyInitial[1] - (int)distance));		
 				}
 				if(!landPointisOnMap(pointSolution)){
-					System.out.println("point out of range");
+					//System.out.println("point out of range");
 					return -1;
 				}
 				return pointSolution;
@@ -600,7 +656,7 @@ public class RadialLandMap {
 					pointSolution =  RadialMapHelper.formKey( (xyInitial[0] - (int)distance),xyFinal[1] );	
 				}
 				if(!landPointisOnMap(pointSolution)){
-					System.out.println("point out of range");
+					//System.out.println("point out of range");
 					return -1;
 				}
 				return pointSolution;
@@ -641,7 +697,7 @@ public class RadialLandMap {
 					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
 					if(auxDist >= distance){
 						if(!landPointisOnMap(pointSolution)){
-							System.out.println("point out of range");
+							//System.out.println("point out of range");
 							return -1;
 						}
 						return pointSolution;
@@ -663,7 +719,7 @@ public class RadialLandMap {
 					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
 					if(auxDist >= distance){
 						if(!landPointisOnMap(pointSolution)){
-							System.out.println("point out of range");
+							//System.out.println("point out of range");
 							return -1;
 						}
 						return pointSolution;
@@ -671,7 +727,7 @@ public class RadialLandMap {
 				}
 			}
 			if(!landPointisOnMap(pointSolution)){
-				System.out.println("point out of range");
+				//System.out.println("point out of range");
 				return -1;
 			}
 			return pointSolution;

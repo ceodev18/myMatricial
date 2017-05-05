@@ -187,27 +187,39 @@ public class RadialPolygon {
 			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			shrinkedList.add(RadialMapHelper.formKey(xy[0], xy[1]));
 		}
-	
+		//verify repetition
+		shrinkedList = verifyRepetition(shrinkedList);
+		
 		/// reduce polygon
 		List<Integer> auxList = new ArrayList<>();
 		
-		auxList = verifyRedutionPolygon(shrinkedList);
+		if(shrinkedList.size() > 3){
+			auxList = verifyRedutionPolygon(shrinkedList);
+		}else{
+			auxList = shrinkedList;
+		}
 		//auxList = shrinkedList;
-		// validity check
-		if (insidePolygon(auxList)) {
-			return auxList;
 
+		if (insidePolygon(auxList) || size <= 3) {
+			return auxList;
 		} else {
 			return new ArrayList<>();
 		}
-		
-
-		/*
-		 * if (!crossCheck(shrinkedList) && insidePolygon(shrinkedList) &&
-		 * areaCheck(shrinkedList)) { return shrinkedList; } else { return new
-		 * ArrayList<>(); }
-		 */
 	}
+	private List<Integer> verifyRepetition(List<Integer> shrinkedList){
+		List<Integer> auxList = new ArrayList<>();
+		
+		for(int k = 0;k < shrinkedList.size();k++){
+					int val1 = shrinkedList.get(k % shrinkedList.size());
+					int val2 = shrinkedList.get((k+1) % shrinkedList.size());
+					if(val1 != val2){
+						auxList.add(shrinkedList.get(k % shrinkedList.size()));
+					}
+		}
+		
+		return auxList;
+	}
+	
 	private double distancefromPointToPoint(int pointf, int pointi) {
 		int xyPointF[] = RadialMapHelper.breakKey(pointf);
 		int xyPointI[] = RadialMapHelper.breakKey(pointi);
@@ -480,8 +492,10 @@ public class RadialPolygon {
 					    auxList.add(shrinkedList.get(i));
 					}
 				}
+				
 				shrinkedList = auxList;
-				if(shrinkedList.size() == 3) return shrinkedList;
+				if (shrinkedList.size() != lados)
+					return shrinkedList;
 			}
 		}
 		if(shrinkedList.size() == lados) auxList = shrinkedList;
@@ -544,9 +558,9 @@ public class RadialPolygon {
 	
 	public List<List<Integer>> createAreaContribution(){
 		List<List<Integer>> polygonLayers = new ArrayList<>();
-		List<Integer> layer = vectorShrinking(1);
+		List<Integer> layer = vectorShrinking(0);
 		polygonLayers.add(layer);
-		int goDeeper =2;
+		int goDeeper = 0;
 		if (layer.size() != 0) {
 			polygonLayers.add(layer);
 			while (minimunDistanceBetweenVertex(layer) > 1) {
