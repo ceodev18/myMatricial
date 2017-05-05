@@ -193,14 +193,16 @@ public class RadialPolygon {
 		/// reduce polygon
 		List<Integer> auxList = new ArrayList<>();
 		
-		if(shrinkedList.size() > 3){
-			auxList = verifyRedutionPolygon(shrinkedList);
+		if(shrinkedList.size() > 2){
+			//auxList = verifyRedutionPolygon(shrinkedList);
+			auxList = verifyRedutionPolygonVersion2(shrinkedList);
 		}else{
 			auxList = shrinkedList;
 		}
+		
 		//auxList = shrinkedList;
 
-		if (insidePolygon(auxList) || size <= 3) {
+		if (insidePolygon(auxList)) {
 			return auxList;
 		} else {
 			return new ArrayList<>();
@@ -494,12 +496,87 @@ public class RadialPolygon {
 				}
 				
 				shrinkedList = auxList;
-				if (shrinkedList.size() != lados)
+				if (shrinkedList.size() <= 3)
 					return shrinkedList;
 			}
 		}
 		if(shrinkedList.size() == lados) auxList = shrinkedList;
 		
+		return auxList;
+	}
+	
+	public List<Integer> verifyRedutionPolygonVersion2( List<Integer> shrinkedList){
+		List<Integer>  auxList = new ArrayList<>();
+		RadialLandMap auxLandMap = new RadialLandMap(0, 0);
+		int k = 0;
+		while(shrinkedList.size() != k){
+			if(shrinkedList.size() > 4){
+				int interscPoint = auxLandMap.findIntersectionPointIntoTwoStraight
+						(shrinkedList.get(k % shrinkedList.size()),shrinkedList.get((k+1) % shrinkedList.size()),
+								shrinkedList.get((k+2) % shrinkedList.size()),shrinkedList.get((k+3) % shrinkedList.size()),true);
+				if(interscPoint != -1){ 
+					auxList = new ArrayList<>();
+					for(int i = 0;i < shrinkedList.size();i++ ){
+						if(i== ((k+1) % shrinkedList.size())){
+							auxList.add(interscPoint);
+							i++;
+						}else{
+							auxList.add(shrinkedList.get(i));
+						}
+					}
+					k=0;
+					shrinkedList = auxList;
+					continue;
+				}else{
+					auxList.add(shrinkedList.get(k));
+				}
+				k++;
+				continue;
+			}
+			if(shrinkedList.size() == 4){
+				int interscPoint = auxLandMap.findIntersectionPointIntoTwoStraight
+						(shrinkedList.get(0),shrinkedList.get(1),
+						shrinkedList.get(2),shrinkedList.get(3),true);
+				double dis[] = new double[4];  
+				 dis[0] = auxLandMap.distanceOfPointToPoint(shrinkedList.get(0),shrinkedList.get(1));
+				 dis[1] = auxLandMap.distanceOfPointToPoint(shrinkedList.get(1),shrinkedList.get(2));
+				 dis[2] = auxLandMap.distanceOfPointToPoint(shrinkedList.get(2),shrinkedList.get(3));
+				 dis[3] = auxLandMap.distanceOfPointToPoint(shrinkedList.get(3),shrinkedList.get(0));
+				if(interscPoint != -1){ 
+					double min = dis[0];
+					int caso = 0; 
+					for(int j=1;j<4;j++){
+						if(min > dis[j]){
+							min = dis[j];
+							caso=j;
+						}
+					}
+					for(int j=0;j<4;j++){
+						if(caso == 3 && j==0){
+							continue;
+						}
+						if(caso==j){
+							auxList.add(interscPoint);
+							j++;
+						}else{
+							auxList.add(shrinkedList.get(j));
+						}
+					}
+					k=0;
+					shrinkedList = auxList;
+					continue;
+				}else{
+					auxList=shrinkedList;
+					k=4;
+					return auxList;
+				}
+			
+			}
+			if(shrinkedList.size() == 3){
+				auxList= shrinkedList;
+				return auxList;
+			}
+		}
 		return auxList;
 	}
 	

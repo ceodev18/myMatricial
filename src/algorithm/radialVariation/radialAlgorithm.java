@@ -958,13 +958,12 @@ public class radialAlgorithm {
 		//verif if line donnt across
 		
 		int aux1 = landMap.findIntersectionPointIntoTwoStraight(pnt1,pnt2,pnt4,pnt3,true) ;
-		int aux2 = landMap.findIntersectionPointIntoTwoStraight(pnt3,pnt2,pnt4,pnt1,true) ;
 		double dis1 = landMap.distanceOfPointToPoint(pnt1,pnt2);
 		double dis2 = landMap.distanceOfPointToPoint(pnt2,pnt3);
 		double dis3 = landMap.distanceOfPointToPoint(pnt3,pnt4);
 		double dis4 = landMap.distanceOfPointToPoint(pnt4,pnt1);
 		
-		if(aux1 !=-1 || aux2 !=-1)return;
+		if(aux1 !=-1)return;
 		if(dis1 <= 1 || dis2 <=1 || dis3 <= 1 || dis4 <=1 ){
 			if(dis1 <= 1 ) triangular(pnt1,pnt3,pnt4,mask);
 			if(dis2 <= 1 ) triangular(pnt1,pnt2,pnt4,mask);
