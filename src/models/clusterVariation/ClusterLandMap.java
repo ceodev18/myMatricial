@@ -757,6 +757,12 @@ public class ClusterLandMap {
 									"l" + "-" + currentXY[0] + "-" + currentXY[1] + "-" + driveDirection + "-"
 											+ growDirection + "-" + configuration.getLotConfiguration().getSideSize()
 											+ "-" + configuration.getLotConfiguration().getDepthSize());
+							
+							int [] deeperHouse = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, configuration.getLotConfiguration().getDepthSize(), growDirection);
+							findPoint(ClusterMapHelper.formKey(deeperHouse[0], deeperHouse[1])).setGramaticalType(
+									"l" + "-" + deeperHouse[0] + "-" + deeperHouse[1] + "-" + driveDirection + "-"
+											+ growDirection + "-" + configuration.getLotConfiguration().getSideSize()
+											+ "-" + configuration.getLotConfiguration().getDepthSize());
 						}
 
 						currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, true,

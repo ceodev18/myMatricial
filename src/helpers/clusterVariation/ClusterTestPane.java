@@ -2,6 +2,7 @@ package helpers.clusterVariation;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.util.List;
 
@@ -71,9 +72,9 @@ public class ClusterTestPane extends JPanel {
 				g.drawLine(coords[4], coords[5], coords[6], coords[7]);
 				g.drawLine(coords[6], coords[7], coords[0], coords[1]);
 
-				String legend = buildingSymbols[5] + "x" + buildingSymbols[6];
-				// g.drawChars(legend.toCharArray(), 0, legend.length(),
-				// coords[0], coords[1]);
+				/*String legend = buildingSymbols[5] + "x" + buildingSymbols[6];
+				g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 5));
+				g.drawChars(legend.toCharArray(), 0, legend.length(), coords[0], coords[1]);*/
 				break;
 
 			}
