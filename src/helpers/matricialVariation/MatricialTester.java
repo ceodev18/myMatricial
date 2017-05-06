@@ -3,9 +3,6 @@ package helpers.matricialVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-import models.base.LandMap;
-import models.base.LandPoint;
-
 public class MatricialTester {
 	public static void main(String[] args) {
 		// int large, width
@@ -22,7 +19,7 @@ public class MatricialTester {
 		//YDistance: 1623
 		
 		int large = 1834, width = 1623;
-		LandMap landMap = new LandMap(large, width);
+		/*LandMap landMap = new LandMap(large, width);
 
 		List<LandPoint> polygon = new ArrayList<>();
 		LandPoint landPoint = new LandPoint(1833, 0, false, false, true, false, false);
