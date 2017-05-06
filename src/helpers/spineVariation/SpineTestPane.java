@@ -2,12 +2,10 @@ package helpers.spineVariation;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-import helpers.base.MapHelper;
 import models.spineVariation.SpineLandMap;
 
 public class SpineTestPane extends JPanel {
@@ -45,7 +43,7 @@ public class SpineTestPane extends JPanel {
 		int growthX = 0, growthY = 0;
 		for (int x = 0; x < spineLandMap.getPointsx(); x++) {
 			for (int y = spineLandMap.getPointsy() - 1; y >= 0; y--) {
-				String type = spineLandMap.findPoint(MapHelper.formKey(x, y)).getType();
+				String type = spineLandMap.findPoint(SpineMapHelper.formKey(x, y)).getType();
 				switch (type) {/* 39 + 40*0 | 0+ 40*1 */
 				case "a":
 				case "b":

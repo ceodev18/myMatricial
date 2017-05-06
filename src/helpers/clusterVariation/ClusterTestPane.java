@@ -7,7 +7,6 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import helpers.base.MapHelper;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandRoute;
 
@@ -57,7 +56,7 @@ public class ClusterTestPane extends JPanel {
 		int growthX = 0, growthY = 0;
 			for (int y = 0; y < clusterLandMap.getPointsy(); y++) {
 				for (int x = 0; x < clusterLandMap.getPointsx() ; x++) {
-				String type = clusterLandMap.findPoint(MapHelper.formKey(x, y)).getType();
+				String type = clusterLandMap.findPoint(ClusterMapHelper.formKey(x, y)).getType();
 				switch (type) {
 				case "a":
 				case "b":
