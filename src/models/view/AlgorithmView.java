@@ -1,12 +1,15 @@
 package models.view;
 
+import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 public class AlgorithmView {
-
-	private static final long serialVersionUID = 1L;
-
 	private int xSize;
 	private int ySize;
 	private List<Double> vertexgeocoords;
@@ -24,8 +27,54 @@ public class AlgorithmView {
 	protected AlgorithmView() {
 	}
 
-	public AlgorithmView(int xSize, int ySize, List<Double> vertexgeocoords, List<Double> entrygeocoords, List<Double> origincoords,
-			List<Double> coordLimits, int minBlockSize, int maxBlockSize, int minLotSize,
+	public AlgorithmView(String fileName) {
+		super();
+		JSONParser parser = new JSONParser();
+
+		try {
+			Object obj = parser.parse(new FileReader(fileName));
+			JSONObject jsonObject = (JSONObject) obj;
+			this.xSize = (Integer) jsonObject.get("xSize");
+			this.ySize = (Integer) jsonObject.get("ySize");
+			this.minBlockSize = (Integer) jsonObject.get("minBlockSize");
+			this.maxBlockSize = (Integer) jsonObject.get("maxBlockSize");
+			this.minLotSize = (Integer) jsonObject.get("minLotSize");
+			this.maxLotSize = (Integer) jsonObject.get("maxLotSize");
+
+			this.vertexgeocoords = new ArrayList<>();
+			JSONArray vertexgeocoordsList = (JSONArray) jsonObject.get("vertexgeocoords");
+			Iterator<Double> iterator = vertexgeocoordsList.iterator();
+			while (iterator.hasNext()) {
+				vertexgeocoords.add(iterator.next());
+			}
+
+			this.entrygeocoords = new ArrayList<>();
+			JSONArray entrygeocoordsList = (JSONArray) jsonObject.get("entrygeocoords");
+			iterator = entrygeocoordsList.iterator();
+			while (iterator.hasNext()) {
+				entrygeocoords.add(iterator.next());
+			}
+
+			this.origincoords = new ArrayList<>();
+			JSONArray origincoordsList = (JSONArray) jsonObject.get("origincoords");
+			iterator = origincoordsList.iterator();
+			while (iterator.hasNext()) {
+				origincoords.add(iterator.next());
+			}
+
+			this.coordLimits = new ArrayList<>();
+			JSONArray coordLimitsList = (JSONArray) jsonObject.get("coordLimits");
+			iterator = coordLimitsList.iterator();
+			while (iterator.hasNext()) {
+				coordLimits.add(iterator.next());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public AlgorithmView(int xSize, int ySize, List<Double> vertexgeocoords, List<Double> entrygeocoords,
+			List<Double> origincoords, List<Double> coordLimits, int minBlockSize, int maxBlockSize, int minLotSize,
 			int maxLotSize, int userId, int intDate, String fcmToken) {
 		super();
 		this.xSize = xSize;
@@ -109,7 +158,7 @@ public class AlgorithmView {
 	public int getMaxLotSize() {
 		return maxLotSize;
 	}
-	
+
 	public List<Double> getOrigincoords() {
 		return origincoords;
 	}
