@@ -495,13 +495,13 @@ public class ClusterPolygon {
 		return area / 2;
 	}
 
-	public boolean canBelotized() {
+	public boolean canBelotized(int houseDepth) {
 		for (int i = 0; i < points.size(); i++) {
 			int[] xyInitial = ClusterMapHelper.breakKey(points.get(i));
 			int[] xyFinal = ClusterMapHelper.breakKey(points.get((i + 1) % points.size()));
 			int distance = (int) Math
 					.sqrt(Math.pow(xyInitial[0] - xyFinal[0], 2) + Math.pow(xyInitial[1] - xyFinal[1], 2));
-			if (distance < (ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE + ClusterConfiguration.LOCAL_BRANCH)) {
+			if (distance < (houseDepth + ClusterConfiguration.LOCAL_BRANCH)) {
 				return false;
 			}
 		}

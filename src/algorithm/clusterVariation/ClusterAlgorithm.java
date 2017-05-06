@@ -43,7 +43,7 @@ public class ClusterAlgorithm {
 
 		while (true) {
 			entryPointId = ClusterMapHelper.moveKeyByOffsetAndDirection(entryPointId,
-					ClusterConfiguration.BASE_CLUSTER_SIZE, mainRoute.getDirection());
+					landMap.getConfiguration().getBlockConfiguration().getSideSize(), mainRoute.getDirection());
 			if (landMap.landPointisOnMap(entryPointId)) {
 				createRouteVariation(entryPointId, orthogonalDirections.get(0), ClusterConfiguration.COLLECTOR_BRANCH);
 			} else
@@ -54,7 +54,7 @@ public class ClusterAlgorithm {
 		int upperParallelId = mainRoute.getInitialPointId();
 		while (true) {
 			upperParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
-					ClusterConfiguration.BASE_CLUSTER_SIZE, orthogonalDirections.get(0));
+					landMap.getConfiguration().getBlockConfiguration().getSideSize(), orthogonalDirections.get(0));
 			if (!landMap.landPointisOnMap(upperParallelId))
 				break;
 			createRouteVariation(upperParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
@@ -66,7 +66,8 @@ public class ClusterAlgorithm {
 			int extraSpace = first ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 12 : 0;
 			first = false;
 			lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
-					ClusterConfiguration.BASE_CLUSTER_SIZE + extraSpace, orthogonalDirections.get(1));
+					landMap.getConfiguration().getBlockConfiguration().getSideSize() + extraSpace,
+					orthogonalDirections.get(1));
 			if (!landMap.landPointisOnMap(lowerParallelId))
 				break;
 			createRouteVariation(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
@@ -79,7 +80,8 @@ public class ClusterAlgorithm {
 		int growDirection = -1;
 		ClusterLandRoute clusterLandRoute = null;
 		int trueAxis = axisPoint;
-		while (landMap.landPointisOnMap(trueAxis) && landMap.getLandPoint(trueAxis).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+		while (landMap.landPointisOnMap(trueAxis)
+				&& landMap.getLandPoint(trueAxis).getType().equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
 			trueAxis = ClusterMapHelper.moveKeyByOffsetAndDirection(trueAxis, 1, direction);
 		}
 
@@ -238,12 +240,11 @@ public class ClusterAlgorithm {
 					createOctopianCoverture(ClusterMapHelper.formKey(x, y), clusterPolygon);
 					if (clusterPolygon.getPoints().size() < 3)
 						continue;
-					// clusterPolygons.add(clusterPolygon);
-					clusterPolygon.printPolygon();
 					clusterPolygon.setCentroid(clusterPolygon.findCentroid());
 					// we create the park
-					List<List<Integer>> grass = clusterPolygon.parkZone(
-							ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + ClusterConfiguration.LOCAL_BRANCH_SIZE);
+					List<List<Integer>> grass = clusterPolygon
+							.parkZone(landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2
+									+ ClusterConfiguration.LOCAL_BRANCH_SIZE);
 					if (grass.size() == 0) {
 						int maximunTries = 6;
 						landMap.impreciseLotization(clusterPolygon, maximunTries);
@@ -254,7 +255,7 @@ public class ClusterAlgorithm {
 
 						// we create the routes
 						List<List<Integer>> routes = clusterPolygon.routeZone(
-								ClusterConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+								landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2,
 								ClusterConfiguration.LOCAL_BRANCH_SIZE);
 						for (int j = 0; j < routes.size(); j++) {
 							landMap.createBorderFromPolygon(routes.get(j), ClusterConfiguration.LOCAL_MARK);
@@ -385,14 +386,17 @@ public class ClusterAlgorithm {
 
 	private void simplifyOctopian(ClusterPolygon clusterPolygon) {
 
-		if ((clusterPolygon.getPoints().get(0) + 1) == clusterPolygon.getPoints()
-				.get(clusterPolygon.getPoints().size() - 1)) {
-			clusterPolygon.getPoints().remove(clusterPolygon.getPoints().size() - 1);
+		if (clusterPolygon.getPoints().size() > 1) {
+			if ((clusterPolygon.getPoints().get(0) + 1) == clusterPolygon.getPoints()
+					.get(clusterPolygon.getPoints().size() - 1)) {
+				clusterPolygon.getPoints().remove(clusterPolygon.getPoints().size() - 1);
+			}
+
+			if ((clusterPolygon.getPoints().get(0) + 10000) == clusterPolygon.getPoints().get(1)) {
+				clusterPolygon.getPoints().remove(0);
+			}
 		}
 
-		if ((clusterPolygon.getPoints().get(0) + 10000) == clusterPolygon.getPoints().get(1)) {
-			clusterPolygon.getPoints().remove(0);
-		}
 	}
 
 	private int extendMembraneSection(int beginKey, int direction) {
@@ -402,7 +406,7 @@ public class ClusterAlgorithm {
 		}
 
 		int oldKey = -1;
-		while (landMap.findPoint(beginKey).getType().equals(ClusterConfiguration.NODE_MARK)) {
+		while (landMap.landPointisOnMap(beginKey) && landMap.findPoint(beginKey).getType().equals(ClusterConfiguration.NODE_MARK)) {
 			oldKey = beginKey;
 			landMap.findPoint(beginKey).setType(ClusterConfiguration.BORDER_MARK);
 			beginKey = ClusterMapHelper.moveKeyByOffsetAndDirection(beginKey, 1, direction);

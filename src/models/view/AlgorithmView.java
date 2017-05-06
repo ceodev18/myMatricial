@@ -34,12 +34,12 @@ public class AlgorithmView {
 		try {
 			Object obj = parser.parse(new FileReader(fileName));
 			JSONObject jsonObject = (JSONObject) obj;
-			this.xSize = (Integer) jsonObject.get("xSize");
-			this.ySize = (Integer) jsonObject.get("ySize");
-			this.minBlockSize = (Integer) jsonObject.get("minBlockSize");
-			this.maxBlockSize = (Integer) jsonObject.get("maxBlockSize");
-			this.minLotSize = (Integer) jsonObject.get("minLotSize");
-			this.maxLotSize = (Integer) jsonObject.get("maxLotSize");
+			this.xSize = ((Long) jsonObject.get("xSize")).intValue();
+			this.ySize = ((Long) jsonObject.get("ySize")).intValue();
+			this.minBlockSize = ((Long) jsonObject.get("minBlockSize")).intValue();
+			this.maxBlockSize = ((Long) jsonObject.get("maxBlockSize")).intValue();
+			this.minLotSize = ((Long) jsonObject.get("minLotSize")).intValue();
+			this.maxLotSize = ((Long) jsonObject.get("maxLotSize")).intValue();
 
 			this.vertexgeocoords = new ArrayList<>();
 			JSONArray vertexgeocoordsList = (JSONArray) jsonObject.get("vertexgeocoords");

@@ -13,79 +13,59 @@ import javax.swing.UnsupportedLookAndFeelException;
 import algorithm.clusterVariation.ClusterAlgorithm;
 import models.clusterVariation.ClusterLandMap;
 import models.clusterVariation.ClusterLandPoint;
+import models.configuration.ConfigurationMatrix;
+import models.view.AlgorithmView;
 
 public class ClusterTester {
 	public static void main(String[] args) {
-		long startTime = System.nanoTime();
-
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
 
-		int large = 925, width = 1130;
+		AlgorithmView algorithmView = new AlgorithmView("cluster-error.txt");
+		ConfigurationMatrix configurationMatrix = new ConfigurationMatrix(algorithmView);
+
+		int large = algorithmView.getxSize(), width = algorithmView.getySize();
 		// 1. We create the map and set its intrinsec variables
-		ClusterLandMap landMap = new ClusterLandMap(large, width);
 		List<ClusterLandPoint> polygon = new ArrayList<>();
-		ClusterLandPoint landPoint = new ClusterLandPoint(726, 20);
-		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(924, 762);
-		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(273, 1129);
-		polygon.add(landPoint);
-		landPoint = new ClusterLandPoint(0, 528);
-		polygon.add(landPoint);
-		// we must reuse the first one as the last
-		landPoint = new ClusterLandPoint(726,20);
+		List<Integer> intVertex = algorithmView.getCartVertexgeocoords();
+		for (int i = 0; i < algorithmView.getVertexgeocoords().size(); i += 2) {
+			ClusterLandPoint landPoint = new ClusterLandPoint(intVertex.get(i), intVertex.get(i + 1));
+			polygon.add(landPoint);
+		}
+		ClusterLandPoint landPoint = new ClusterLandPoint(intVertex.get(0), intVertex.get(1));
 		polygon.add(landPoint);
 
-		// 2. we create the border from the polygon
-		landMap.createMapBorder(polygon);
-		
-		// 3, We create the entry points for the main routes
 		List<ClusterLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new ClusterLandPoint(487, 174);
+		landPoint = new ClusterLandPoint(algorithmView.getCartEntrygeocoords().get(0),
+				algorithmView.getCartEntrygeocoords().get(1));
 		entryPoints.add(landPoint);
 
-		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
+		// TRUE BEGINNING OF THE ALGORITHM
+		ClusterLandMap landMap = new ClusterLandMap(large, width);
+		// 2. we create the border from the polygon
+		landMap.createMapBorder(polygon);
+		landMap.setConfiguration(configurationMatrix.getConfiguration().get(0));
 
+		// 3. We create the entry points for the main routes
 		ClusterAlgorithm clusterAlgorithm = new ClusterAlgorithm();
 		clusterAlgorithm.setLandMap(landMap);
 
 		// 4. We clusterize the points
 		clusterAlgorithm.clusterize(entryPoints.get(0));
 
-		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
-
 		// 5. Zonification
-		/*List<ClusterPolygon> orcs= */clusterAlgorithm.zonify();
-
-		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
-		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
-
-		long endTime = System.nanoTime();
-		long duration = (endTime - startTime) / (1000000 * 1000); // divide by
-																	// to get
-																	// milliseconds.
-		System.out.println("Algorithm finished in " + duration + "s");
-
-		clusterAlgorithm.getLandMap().printMapToFile();
-		
-		endTime = System.nanoTime();
-		duration = (endTime - startTime) / (1000000 * 1000); // divide by to get
-																// milliseconds.
-		System.out.println("Response build finished in " + duration + "s");
+		clusterAlgorithm.zonify();
 
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Final Memory" + usedMemoryBefore / 1000000 + " in MB");
 
-		//ClusterPolygonTester clusterPolygonTester = new ClusterPolygonTester(orcs);
-		//new ClusterTester(clusterPolygonTester);
-
-		//First variant to test directly on the map. Second for the ws response
-		//ClusterTestPane clusterTestPane = new ClusterTestPane(clusterAlgorithm.getLandMap(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
-		ClusterTestPane clusterTestPane = new ClusterTestPane(true, clusterAlgorithm.getLandMap().stringify(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);		
+		// First variant to test directly on the map. Second for the ws response
+		// ClusterTestPane clusterTestPane = new
+		// ClusterTestPane(clusterAlgorithm.getLandMap(),
+		// clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
+		ClusterTestPane clusterTestPane = new ClusterTestPane(true, clusterAlgorithm.getLandMap().stringify(),
+				clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
 		new ClusterTester(clusterTestPane);
 	}
 
