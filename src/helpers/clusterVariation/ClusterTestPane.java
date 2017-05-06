@@ -17,18 +17,18 @@ public class ClusterTestPane extends JPanel {
 	private int growtXY = 1;
 	private int large = 35;
 	private int width = 35;
-	private boolean stringedType;
+	private int stringedType;
 	private List<ClusterLandRoute> landRoutes;
 
 	public ClusterTestPane(ClusterLandMap clusterLandMap, List<ClusterLandRoute> landRoutes, int large, int width) {
-		this.stringedType = false;
+		this.stringedType = 0;
 		this.clusterLandMap = clusterLandMap;
 		this.landRoutes = landRoutes;
 		this.large = large;
 		this.width = width;
 	}
-	
-	public ClusterTestPane(boolean stringedType, String stringify, List<ClusterLandRoute> landRoutes, int large,
+
+	public ClusterTestPane(int stringedType, String stringify, List<ClusterLandRoute> landRoutes, int large,
 			int width) {
 		this.large = large;
 		this.width = width;
@@ -45,17 +45,77 @@ public class ClusterTestPane extends JPanel {
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if (stringedType) {
-			gramaticalSimulation(g);
-		} else {
+		switch (stringedType) {
+		case 0:
 			normalSimulation(g);
+			break;
+		case 1:
+			gramaticalSimulation(g);
+			break;
+		case 2:
+			linearGrammarSimulation(g);
+			break;
 		}
+	}
+
+	private void linearGrammarSimulation(Graphics g) {
+		String[] mapLines = clusterString.split("\\,");
+		for (int y = 0; y < mapLines.length; y++) {
+			String[] buildingSymbols = mapLines[y].split("\\-");
+			switch (buildingSymbols[0]) {
+			case "l":
+				int[] coords = interpretBuilding(buildingSymbols[1], buildingSymbols[2], buildingSymbols[3],
+						buildingSymbols[4], buildingSymbols[5], buildingSymbols[6]);
+				g.drawLine(coords[0], coords[1], coords[2], coords[3]);
+				g.drawLine(coords[2], coords[3], coords[4], coords[5]);
+				g.drawLine(coords[4], coords[5], coords[6], coords[7]);
+				g.drawLine(coords[6], coords[7], coords[0], coords[1]);
+
+				String legend = buildingSymbols[5] + "x" + buildingSymbols[6];
+				// g.drawChars(legend.toCharArray(), 0, legend.length(),
+				// coords[0], coords[1]);
+				break;
+
+			}
+
+		}
+
+		for (int i = 0; i < landRoutes.size(); i++) {
+			int xy[] = ClusterMapHelper.breakKey(landRoutes.get(i).getInitialPointId());
+			g.setColor(Color.BLACK);
+			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0],
+					xy[1]);
+			g.fillOval(xy[0], xy[1], 10, 10);
+		}
+	}
+
+	private int[] interpretBuilding(String initialX, String finalX, String driveDirection, String growDirection,
+			String sideSize, String depthSize) {
+		int[] coords = new int[8];
+		coords[0] = Integer.parseInt(initialX);
+		coords[1] = Integer.parseInt(finalX);
+
+		int[] xy = ClusterMapHelper.moveKeyByOffsetAndDirection(coords, Integer.parseInt(sideSize),
+				Integer.parseInt(driveDirection));
+		coords[2] = xy[0];
+		coords[3] = xy[1];
+
+		xy = ClusterMapHelper.moveKeyByOffsetAndDirection(xy, Integer.parseInt(depthSize),
+				Integer.parseInt(growDirection));
+		coords[4] = xy[0];
+		coords[5] = xy[1];
+
+		xy = ClusterMapHelper.moveKeyByOffsetAndDirection(xy, Integer.parseInt(sideSize),
+				ClusterDirectionHelper.oppositeDirection(Integer.parseInt(driveDirection)));
+		coords[6] = xy[0];
+		coords[7] = xy[1];
+		return coords;
 	}
 
 	private void normalSimulation(Graphics g) {
 		int growthX = 0, growthY = 0;
-			for (int y = 0; y < clusterLandMap.getPointsy(); y++) {
-				for (int x = 0; x < clusterLandMap.getPointsx() ; x++) {
+		for (int y = 0; y < clusterLandMap.getPointsy(); y++) {
+			for (int x = 0; x < clusterLandMap.getPointsx(); x++) {
 				String type = clusterLandMap.findPoint(ClusterMapHelper.formKey(x, y)).getType();
 				switch (type) {
 				case "a":
@@ -109,11 +169,12 @@ public class ClusterTestPane extends JPanel {
 			growthX = 0;
 			growthY += growtXY;
 		}
-		
+
 		for (int i = 0; i < landRoutes.size(); i++) {
 			int xy[] = ClusterMapHelper.breakKey(landRoutes.get(i).getInitialPointId());
 			g.setColor(Color.BLACK);
-			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0], xy[1]);
+			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0],
+					xy[1]);
 			g.fillOval(xy[0], xy[1], 10, 10);
 		}
 	}
@@ -185,8 +246,10 @@ public class ClusterTestPane extends JPanel {
 		for (int i = 0; i < landRoutes.size(); i++) {
 			int xy[] = ClusterMapHelper.breakKey(landRoutes.get(i).getInitialPointId());
 			g.setColor(Color.BLACK);
-			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0], xy[1]);
+			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0],
+					xy[1]);
 			g.fillOval(xy[0], xy[1], 10, 10);
 		}
 	}
+
 }

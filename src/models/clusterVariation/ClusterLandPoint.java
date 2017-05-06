@@ -9,6 +9,7 @@ public class ClusterLandPoint {
 	private int x = -1;
 	private int y = -1;
 	private String type = ClusterConfiguration.OUTSIDE_POLYGON_MARK;
+	private String gramaticalType = null;
 	private int nodeType;
 
 	public ClusterLandPoint(int x, int y) {
@@ -90,5 +91,13 @@ public class ClusterLandPoint {
 			return true;
 		else
 			return false;
+	}
+
+	public String getGramaticalType() {
+		return gramaticalType;
+	}
+
+	public void setGramaticalType(String gramaticalType) {
+		this.gramaticalType = gramaticalType;
 	}
 }

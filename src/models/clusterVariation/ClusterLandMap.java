@@ -1,6 +1,5 @@
 package models.clusterVariation;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -444,6 +443,15 @@ public class ClusterLandMap {
 				}
 				if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
 						configuration.getLotConfiguration().getDepthSize())) {
+
+					// TODO this is relative to the new grammar
+					if (findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getGramaticalType() == null) {
+						findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1]))
+								.setGramaticalType("l" + "-" + currentXY[0] + "-" + currentXY[1] + "-" + driveDirection
+										+ "-" + growDirection + "-" + configuration.getLotConfiguration().getSideSize()
+										+ "-" + configuration.getLotConfiguration().getDepthSize());
+					}
+
 					currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, false,
 							seed % ClusterConstants.MAX_HOUSE_COMBINATION);
 					seed++;
@@ -741,6 +749,16 @@ public class ClusterLandMap {
 				} else {
 					if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
 							configuration.getLotConfiguration().getDepthSize() * 2)) {
+
+						// TODO this is relative to the new grammar
+						if (findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1]))
+								.getGramaticalType() == null) {
+							findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).setGramaticalType(
+									"l" + "-" + currentXY[0] + "-" + currentXY[1] + "-" + driveDirection + "-"
+											+ growDirection + "-" + configuration.getLotConfiguration().getSideSize()
+											+ "-" + configuration.getLotConfiguration().getDepthSize());
+						}
+
 						currentXY = lotize(currentXY, finalXY, driveDirection, growDirection, true,
 								seed % ClusterConstants.MAX_HOUSE_COMBINATION);
 						seed += 2;
@@ -876,5 +894,19 @@ public class ClusterLandMap {
 			mapString += ".";
 		}
 		return mapString;
+	}
+
+	//TODO new Grammar, testing resulting vectors
+	public String getGrammar() {
+		String mapString = "";
+		for (int j = 0; j < pointsy; j++) {
+			for (int i = 0; i < pointsx; i++) {
+				String type = getLandPoint(ClusterMapHelper.formKey(i, j)).getGramaticalType();
+				if(type != null){
+					mapString += type+",";
+				}
+			}
+		}
+		return mapString.substring(0, mapString.length()-2);//remove last ,
 	}
 }

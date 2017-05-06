@@ -64,8 +64,8 @@ public class ClusterTester {
 		// ClusterTestPane clusterTestPane = new
 		// ClusterTestPane(clusterAlgorithm.getLandMap(),
 		// clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
-		ClusterTestPane clusterTestPane = new ClusterTestPane(true, clusterAlgorithm.getLandMap().stringify(),
-				clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
+		//ClusterTestPane clusterTestPane = new ClusterTestPane(1, clusterAlgorithm.getLandMap().stringify(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
+		ClusterTestPane clusterTestPane = new ClusterTestPane(2, clusterAlgorithm.getLandMap().getGrammar(), clusterAlgorithm.getLandMap().getLandRoutes(), large, width);
 		new ClusterTester(clusterTestPane);
 	}
 
