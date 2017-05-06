@@ -3,7 +3,6 @@ package algorithm.radialVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-import helpers.radialVariation.RadialDirectionHelper;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 import interfaces.radialVariation.RadialConstants;
@@ -959,18 +958,17 @@ public class radialAlgorithm {
 		//verif if line donnt across
 		
 		int aux1 = landMap.findIntersectionPointIntoTwoStraight(pnt1,pnt2,pnt4,pnt3,true) ;
-		int aux2 = landMap.findIntersectionPointIntoTwoStraight(pnt3,pnt2,pnt4,pnt1,true) ;
 		double dis1 = landMap.distanceOfPointToPoint(pnt1,pnt2);
 		double dis2 = landMap.distanceOfPointToPoint(pnt2,pnt3);
 		double dis3 = landMap.distanceOfPointToPoint(pnt3,pnt4);
 		double dis4 = landMap.distanceOfPointToPoint(pnt4,pnt1);
 		
-		if(aux1 !=-1 || aux2 !=-1)return;
-		if(dis1 <= 2 || dis2 <=2 || dis3 <= 2 || dis4 <=2 ){
-			if(dis1 <= 2 ) triangular(pnt1,pnt3,pnt4,mask);
-			if(dis2 <= 2 ) triangular(pnt1,pnt2,pnt4,mask);
-			if(dis3 <= 2 ) triangular(pnt1,pnt2,pnt4,mask);
-			if(dis4 <= 2 ) triangular(pnt1,pnt2,pnt3,mask);
+		if(aux1 !=-1)return;
+		if(dis1 <= 1 || dis2 <=1 || dis3 <= 1 || dis4 <=1 ){
+			if(dis1 <= 1 ) triangular(pnt1,pnt3,pnt4,mask);
+			if(dis2 <= 1 ) triangular(pnt1,pnt2,pnt4,mask);
+			if(dis3 <= 1 ) triangular(pnt1,pnt2,pnt4,mask);
+			if(dis4 <= 1 ) triangular(pnt1,pnt2,pnt3,mask);
 			return;
 		}
 		landMap.createBorderFromPolygon(localList,mask);
@@ -980,22 +978,7 @@ public class radialAlgorithm {
 		}
 	}
 	public void triangular(int pnt1,int pnt2, int pnt3,String mask){
-		List<Integer> localList;
-		RadialPolygon auxPolygon = new RadialPolygon();
-		localList = new ArrayList<>();
-		localList.add(pnt1);
-		localList.add(pnt2);
-		localList.add(pnt3);
-		localList.add(pnt1);
-		auxPolygon.setMapPoints(localList);
-		auxPolygon.setComplete(true);					
-		
-		landMap.createBorderFromPolygon(localList,mask);
-		List<List<Integer>> auxList = auxPolygon.createAreaContribution();
-		for (int j = 0; j < auxList.size(); j++) {
-			landMap.createBorderFromPolygon(auxList.get(j), mask);
-		}
-		
+		landMap.printTriangular(pnt1, pnt2, pnt3, mask);
 	}
 
 }

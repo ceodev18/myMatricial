@@ -187,27 +187,41 @@ public class RadialPolygon {
 			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
 			shrinkedList.add(RadialMapHelper.formKey(xy[0], xy[1]));
 		}
-	
+		//verify repetition
+		shrinkedList = verifyRepetition(shrinkedList);
+		
 		/// reduce polygon
 		List<Integer> auxList = new ArrayList<>();
 		
-		auxList = verifyRedutionPolygon(shrinkedList);
+		if(shrinkedList.size() > 2){
+			//auxList = verifyRedutionPolygon(shrinkedList);
+			auxList = verifyRedutionPolygonVersion2(shrinkedList);
+		}else{
+			auxList = shrinkedList;
+		}
+		
 		//auxList = shrinkedList;
-		// validity check
+
 		if (insidePolygon(auxList)) {
 			return auxList;
-
 		} else {
 			return new ArrayList<>();
 		}
-		
-
-		/*
-		 * if (!crossCheck(shrinkedList) && insidePolygon(shrinkedList) &&
-		 * areaCheck(shrinkedList)) { return shrinkedList; } else { return new
-		 * ArrayList<>(); }
-		 */
 	}
+	private List<Integer> verifyRepetition(List<Integer> shrinkedList){
+		List<Integer> auxList = new ArrayList<>();
+		
+		for(int k = 0;k < shrinkedList.size();k++){
+					int val1 = shrinkedList.get(k % shrinkedList.size());
+					int val2 = shrinkedList.get((k+1) % shrinkedList.size());
+					if(val1 != val2){
+						auxList.add(shrinkedList.get(k % shrinkedList.size()));
+					}
+		}
+		
+		return auxList;
+	}
+	
 	private double distancefromPointToPoint(int pointf, int pointi) {
 		int xyPointF[] = RadialMapHelper.breakKey(pointf);
 		int xyPointI[] = RadialMapHelper.breakKey(pointi);
@@ -480,12 +494,89 @@ public class RadialPolygon {
 					    auxList.add(shrinkedList.get(i));
 					}
 				}
+				
 				shrinkedList = auxList;
-				if(shrinkedList.size() == 3) return shrinkedList;
+				if (shrinkedList.size() <= 3)
+					return shrinkedList;
 			}
 		}
 		if(shrinkedList.size() == lados) auxList = shrinkedList;
 		
+		return auxList;
+	}
+	
+	public List<Integer> verifyRedutionPolygonVersion2( List<Integer> shrinkedList){
+		List<Integer>  auxList = new ArrayList<>();
+		RadialLandMap auxLandMap = new RadialLandMap(0, 0);
+		int k = 0;
+		while(shrinkedList.size() != k){
+			if(shrinkedList.size() > 4){
+				int interscPoint = auxLandMap.findIntersectionPointIntoTwoStraight
+						(shrinkedList.get(k % shrinkedList.size()),shrinkedList.get((k+1) % shrinkedList.size()),
+								shrinkedList.get((k+2) % shrinkedList.size()),shrinkedList.get((k+3) % shrinkedList.size()),true);
+				if(interscPoint != -1){ 
+					auxList = new ArrayList<>();
+					for(int i = 0;i < shrinkedList.size();i++ ){
+						if(i== ((k+1) % shrinkedList.size())){
+							auxList.add(interscPoint);
+							i++;
+						}else{
+							auxList.add(shrinkedList.get(i));
+						}
+					}
+					k=0;
+					shrinkedList = auxList;
+					continue;
+				}else{
+					auxList.add(shrinkedList.get(k));
+				}
+				k++;
+				continue;
+			}
+			if(shrinkedList.size() == 4){
+				int interscPoint = auxLandMap.findIntersectionPointIntoTwoStraight
+						(shrinkedList.get(0),shrinkedList.get(1),
+						shrinkedList.get(2),shrinkedList.get(3),true);
+				double dis[] = new double[4];  
+				 dis[0] = auxLandMap.distanceOfPointToPoint(shrinkedList.get(0),shrinkedList.get(1));
+				 dis[1] = auxLandMap.distanceOfPointToPoint(shrinkedList.get(1),shrinkedList.get(2));
+				 dis[2] = auxLandMap.distanceOfPointToPoint(shrinkedList.get(2),shrinkedList.get(3));
+				 dis[3] = auxLandMap.distanceOfPointToPoint(shrinkedList.get(3),shrinkedList.get(0));
+				if(interscPoint != -1){ 
+					double min = dis[0];
+					int caso = 0; 
+					for(int j=1;j<4;j++){
+						if(min > dis[j]){
+							min = dis[j];
+							caso=j;
+						}
+					}
+					for(int j=0;j<4;j++){
+						if(caso == 3 && j==0){
+							continue;
+						}
+						if(caso==j){
+							auxList.add(interscPoint);
+							j++;
+						}else{
+							auxList.add(shrinkedList.get(j));
+						}
+					}
+					k=0;
+					shrinkedList = auxList;
+					continue;
+				}else{
+					auxList=shrinkedList;
+					k=4;
+					return auxList;
+				}
+			
+			}
+			if(shrinkedList.size() == 3){
+				auxList= shrinkedList;
+				return auxList;
+			}
+		}
 		return auxList;
 	}
 	
@@ -544,9 +635,9 @@ public class RadialPolygon {
 	
 	public List<List<Integer>> createAreaContribution(){
 		List<List<Integer>> polygonLayers = new ArrayList<>();
-		List<Integer> layer = vectorShrinking(1);
+		List<Integer> layer = vectorShrinking(0);
 		polygonLayers.add(layer);
-		int goDeeper =2;
+		int goDeeper = 0;
 		if (layer.size() != 0) {
 			polygonLayers.add(layer);
 			while (minimunDistanceBetweenVertex(layer) > 1) {
