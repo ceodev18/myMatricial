@@ -1,6 +1,5 @@
 package models.spineVariation;
 
-import java.awt.Polygon;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,21 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import algorithm.spineVariation.LSystemSpineAlgorithm;
-import helpers.base.MapHelper;
-import helpers.clusterVariation.ClusterMapHelper;
 import helpers.spineVariation.SpineDirectionHelper;
 import helpers.spineVariation.SpineMapHelper;
 import interfaces.spineVariation.SpineConfiguration;
-import interfaces.spineVariation.SpineConfiguration;
 import interfaces.spineVariation.SpineConstants;
-import models.clusterVariation.ClusterLandRoute;
 import models.spineVariation.SpineBuilding;
 import models.spineVariation.SpineLandPoint;
 import models.spineVariation.SpineLandRoute;
 import models.spineVariation.SpinePolygon;
-import models.spineVariation.SpineLandPoint;
-import models.spineVariation.SpineLandRoute;
 
 public class SpineLandMap {
 	private int pointsx = -1;
@@ -176,23 +168,23 @@ public class SpineLandMap {
 					for (int z = initialLandPoint.getY() - 1; z >= finalLandPoint.getY() + 1; z--) {
 						if (wi != wf) {
 							if (isPolygonBorder(wi, z)) {
-								polygonRow.add(MapHelper.formKey(wi, z));
+								polygonRow.add(SpineMapHelper.formKey(wi, z));
 							}
 						}
 
 						if (isPolygonBorder(wf, z)) {
-							polygonRow.add(MapHelper.formKey(wf, z));
+							polygonRow.add(SpineMapHelper.formKey(wf, z));
 						}
 					}
 				} else {
 					for (int z = initialLandPoint.getY() + 1; z <= finalLandPoint.getY() - 1; z++) {
 						if (wi != wf) {
 							if (isPolygonBorder(wi, z)) {
-								polygonRow.add(MapHelper.formKey(wi, z));
+								polygonRow.add(SpineMapHelper.formKey(wi, z));
 							}
 						}
 						if (isPolygonBorder(wf, z)) {
-							polygonRow.add(MapHelper.formKey(wf, z));
+							polygonRow.add(SpineMapHelper.formKey(wf, z));
 						}
 					}
 				}
@@ -209,9 +201,9 @@ public class SpineLandMap {
 		int northLimit = y+1;
 		
 		if(westernLimit == -1 || easternLimit ==pointsx || southLimit==-1 || northLimit==pointsy)return false;
-		return (findPoint(MapHelper.formKey(x - 1, y)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
-				|| findPoint(MapHelper.formKey(x + 1, y)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
-				&& !findPoint(MapHelper.formKey(x, y)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK);
+		return (findPoint(SpineMapHelper.formKey(x - 1, y)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
+				|| findPoint(SpineMapHelper.formKey(x + 1, y)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
+				&& !findPoint(SpineMapHelper.formKey(x, y)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK);
 	}
 
 	private void fillPolygonalArea() {
@@ -746,8 +738,8 @@ public class SpineLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							String type = findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
 							if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK))
 								return false;
@@ -765,8 +757,8 @@ public class SpineLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							String type = findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.getType();
 							if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK))
 								return false;
@@ -788,8 +780,8 @@ public class SpineLandMap {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
-				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					String type = findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).getType();
+				if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+					String type = findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1])).getType();
 					if (type.equals(SpineConfiguration.CLUSTER_ENTRANCE_MARK))
 						return false;
 				}
@@ -870,8 +862,8 @@ public class SpineLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+						if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 						}
 					}
 					countYFactor++;
@@ -886,8 +878,8 @@ public class SpineLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+						if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 						}
 					}
 					countYFactor++;
@@ -906,8 +898,8 @@ public class SpineLandMap {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
-				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
+				if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+					findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1])).setType("" + seed);
 				}
 			}
 			countYFactor++;
@@ -984,8 +976,8 @@ public class SpineLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType(SpineConfiguration.CLUSTER_ENTRANCE_MARK);
 						}
 					}
@@ -1001,8 +993,8 @@ public class SpineLandMap {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
-						if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-							findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+						if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+							findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))
 									.setType(SpineConfiguration.CLUSTER_ENTRANCE_MARK);
 						}
 					}
@@ -1022,8 +1014,8 @@ public class SpineLandMap {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
-				if (landPointisOnMap(MapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+				if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
+					findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))
 							.setType(SpineConfiguration.CLUSTER_ENTRANCE_MARK);
 				}
 			}
@@ -1084,7 +1076,7 @@ public class SpineLandMap {
 				variation[1] = currentXY[1] + (!down ? i : -i);
 				variation[0] = (variation[1] - orthogonalOffset) / orthogonalGradient;
 				if (landPointisOnMap(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))) {
-					findPoint(MapHelper.formKey((int) variation[0], (int) variation[1]))
+					findPoint(SpineMapHelper.formKey((int) variation[0], (int) variation[1]))
 							.setType(SpineConfiguration.WALK_MARK);
 				}
 			}
@@ -1306,15 +1298,15 @@ public class SpineLandMap {
 	public String stringify() {
 		String mapString = "";
 		for (int j = pointsy - 1; j >= 0; j--) {
-			String type = getLandPoint(ClusterMapHelper.formKey(0, j)).getType();
+			String type = getLandPoint(SpineMapHelper.formKey(0, j)).getType();
 			int repetitions = 1;
 			for (int i = 1; i < pointsx; i++) {
-				if (type.equals(getLandPoint(ClusterMapHelper.formKey(i, j)).getType())) {
+				if (type.equals(getLandPoint(SpineMapHelper.formKey(i, j)).getType())) {
 					repetitions++;
 				} else {
 					mapString += type + "" + repetitions + ",";
 					repetitions = 1;
-					type = getLandPoint(ClusterMapHelper.formKey(i, j)).getType();
+					type = getLandPoint(SpineMapHelper.formKey(i, j)).getType();
 				}
 			}
 			mapString += type + "" + repetitions + ",";
