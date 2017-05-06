@@ -35,8 +35,7 @@ public class ClusterLandRoute {
 		this.type = type;
 	}
 
-	@Override
-	public String toString() {
+	public String stringify() {
 		return direction + "" + type + "" + initialPointId;
 	}
 }
