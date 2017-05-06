@@ -13,7 +13,6 @@ import helpers.radialVariation.RadialDirectionHelper;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 import interfaces.radialVariation.RadialConstants;
-import models.base.LandMap;
 
 
 public class RadialLandMap {
