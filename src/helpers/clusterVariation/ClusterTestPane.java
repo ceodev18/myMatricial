@@ -2,7 +2,6 @@ package helpers.clusterVariation;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.util.List;
 
@@ -29,7 +28,7 @@ public class ClusterTestPane extends JPanel {
 		this.width = width;
 	}
 
-	public ClusterTestPane(int stringedType, String stringify, List<ClusterLandRoute> landRoutes, int large,
+	public ClusterTestPane(int stringedType, List<Integer> list, String stringify, List<ClusterLandRoute> landRoutes, int large,
 			int width) {
 		this.large = large;
 		this.width = width;
@@ -61,6 +60,7 @@ public class ClusterTestPane extends JPanel {
 
 	private void linearGrammarSimulation(Graphics g) {
 		String[] mapLines = clusterString.split("\\,");
+		int house = 0;
 		for (int y = 0; y < mapLines.length; y++) {
 			String[] buildingSymbols = mapLines[y].split("\\-");
 			switch (buildingSymbols[0]) {
@@ -72,13 +72,34 @@ public class ClusterTestPane extends JPanel {
 				g.drawLine(coords[4], coords[5], coords[6], coords[7]);
 				g.drawLine(coords[6], coords[7], coords[0], coords[1]);
 
-				/*String legend = buildingSymbols[5] + "x" + buildingSymbols[6];
-				g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 5));
-				g.drawChars(legend.toCharArray(), 0, legend.length(), coords[0], coords[1]);*/
+				/*
+				 * String legend = buildingSymbols[5] + "x" +
+				 * buildingSymbols[6]; g.setFont(new Font(Font.SANS_SERIF,
+				 * Font.PLAIN, 5)); g.drawChars(legend.toCharArray(), 0,
+				 * legend.length(), coords[0], coords[1]);
+				 */
 				break;
-
+			case "n":
+				coords = interpretNonOrhtogonalBuilding(buildingSymbols);
+				g.drawLine(coords[0], coords[1], coords[2], coords[3]);
+				g.drawLine(coords[2], coords[3], coords[4], coords[5]);
+				g.drawLine(coords[4], coords[5], coords[6], coords[7]);
+				g.drawLine(coords[6], coords[7], coords[0], coords[1]);
+				System.out.println("Coordinates(" + house + "): " + 
+				               coords[0] + "," + coords[1] + 
+						"->" + coords[2] + "," + coords[3] + 
+						"->" + coords[4] + "," + coords[5] + 
+						"->" + coords[6] + "," + coords[7]);
+				g.drawChars((""+house).toCharArray(), 0, (""+house).length(), coords[0], coords[1]);
+				house++;
+				/*
+				 * String legend = buildingSymbols[5] + "x" +
+				 * buildingSymbols[6]; g.setFont(new Font(Font.SANS_SERIF,
+				 * Font.PLAIN, 5)); g.drawChars(legend.toCharArray(), 0,
+				 * legend.length(), coords[0], coords[1]);
+				 */
+				break;
 			}
-
 		}
 
 		for (int i = 0; i < landRoutes.size(); i++) {
@@ -88,6 +109,19 @@ public class ClusterTestPane extends JPanel {
 					xy[1]);
 			g.fillOval(xy[0], xy[1], 10, 10);
 		}
+	}
+
+	private int[] interpretNonOrhtogonalBuilding(String[] buildingSymbols) {
+		int [] coords = new int[8];
+		coords[0] = Integer.parseInt(buildingSymbols[1]);
+		coords[1] = Integer.parseInt(buildingSymbols[2]);
+		coords[2] = Integer.parseInt(buildingSymbols[3]);
+		coords[3] = Integer.parseInt(buildingSymbols[4]);
+		coords[4] = Integer.parseInt(buildingSymbols[5]);
+		coords[5] = Integer.parseInt(buildingSymbols[6]);
+		coords[6] = Integer.parseInt(buildingSymbols[7]);
+		coords[7] = Integer.parseInt(buildingSymbols[8]);
+		return coords;
 	}
 
 	private int[] interpretBuilding(String initialX, String finalX, String driveDirection, String growDirection,

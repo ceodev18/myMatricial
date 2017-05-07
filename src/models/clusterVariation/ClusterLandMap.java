@@ -503,10 +503,30 @@ public class ClusterLandMap {
 		int seed = 0;
 		int distance = (int) Math.sqrt(Math.pow(currentXY[0] - finalXY[0], 2) + Math.pow(currentXY[1] - finalXY[1], 2));
 		while (distance > 0) {
+			int[] upperNearInitial = new int[2];
+			int[] upperNearEnd = new int[2];
+
+			if (currentXY[0] == 380 && currentXY[1] == 234) {
+				int stop = 1;
+				stop++;
+			}
+			
 			if (canBeOrthogonallyLotized(currentXY, finalXY, driveDirection, growDirection,
-					configuration.getLotConfiguration().getDepthSize())) {
+					configuration.getLotConfiguration().getDepthSize(), upperNearInitial, upperNearEnd)) {
+				int[] oldCurrentXY = new int[2];
+				oldCurrentXY[0] = currentXY[0];
+				oldCurrentXY[1] = currentXY[1];
+
 				currentXY = orthogonalLotize(currentXY, finalXY, driveDirection, growDirection,
 						seed % ClusterConstants.MAX_HOUSE_COMBINATION);
+				// TODO testing orthogonal lotization
+				if (findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getGramaticalType() == null) {
+					findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1]))
+							.setGramaticalType("n" + "-" + oldCurrentXY[0] + "-" + oldCurrentXY[1] + "-"
+									+ upperNearInitial[0] + "-" + upperNearInitial[1] + "-" + upperNearEnd[0] + "-"
+									+ upperNearEnd[1] + "-" + currentXY[0] + "-" + currentXY[1]);
+				}
+
 				seed += 1;
 				distance -= configuration.getLotConfiguration().getSideSize();
 			} else {
@@ -517,7 +537,7 @@ public class ClusterLandMap {
 	}
 
 	private boolean canBeOrthogonallyLotized(int[] initialXY, int[] finalXY, int driveDirection, int growDirection,
-			int i) {
+			int i, int[] upperNearInitial, int[] upperNearEnd) {
 		int times = configuration.getLotConfiguration().getSideSize();
 		int[] currentXY = new int[] { initialXY[0], initialXY[1] };
 		while (times != 0) {
@@ -548,12 +568,20 @@ public class ClusterLandMap {
 				if (!this.landPointisOnMap(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])))
 					return false;
 				type = this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).getType();
-				if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals(ClusterConfiguration.PARK_MARK)
-						&& !type.equals(ClusterConfiguration.INTERNAL_LOCAL_MARK)
-						&& !type.equals(ClusterConfiguration.BORDER_MARK))
+				if (!type.equals(ClusterConfiguration.EMPTY_MARK) && !type.equals(ClusterConfiguration.BORDER_MARK))
 					return false;
 				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
 				growTimes--;
+			}
+
+			if (times == configuration.getLotConfiguration().getSideSize()) {
+				// uppermost point near initial point
+				upperNearInitial[0] = currentOrthXY[0];
+				upperNearInitial[1] = currentOrthXY[1];
+			} else if (times == 1) {
+				// uppermost point near final point
+				upperNearEnd[0] = currentOrthXY[0];
+				upperNearEnd[1] = currentOrthXY[1];
 			}
 			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
 			times--;
@@ -586,6 +614,18 @@ public class ClusterLandMap {
 			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
 			times--;
 		}
+
+		String type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+		while (!type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1,
+					ClusterDirectionHelper.oppositeDirection(growDirection));
+			type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+		}
+		while (type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, growDirection);
+			type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+		}
+
 		return currentXY;
 	}
 
@@ -757,8 +797,9 @@ public class ClusterLandMap {
 									"l" + "-" + currentXY[0] + "-" + currentXY[1] + "-" + driveDirection + "-"
 											+ growDirection + "-" + configuration.getLotConfiguration().getSideSize()
 											+ "-" + configuration.getLotConfiguration().getDepthSize());
-							
-							int [] deeperHouse = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, configuration.getLotConfiguration().getDepthSize(), growDirection);
+
+							int[] deeperHouse = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY,
+									configuration.getLotConfiguration().getDepthSize(), growDirection);
 							findPoint(ClusterMapHelper.formKey(deeperHouse[0], deeperHouse[1])).setGramaticalType(
 									"l" + "-" + deeperHouse[0] + "-" + deeperHouse[1] + "-" + driveDirection + "-"
 											+ growDirection + "-" + configuration.getLotConfiguration().getSideSize()
@@ -902,17 +943,17 @@ public class ClusterLandMap {
 		return mapString;
 	}
 
-	//TODO new Grammar, testing resulting vectors
+	// TODO new Grammar, testing resulting vectors
 	public String getGrammar() {
 		String mapString = "";
 		for (int j = 0; j < pointsy; j++) {
 			for (int i = 0; i < pointsx; i++) {
 				String type = getLandPoint(ClusterMapHelper.formKey(i, j)).getGramaticalType();
-				if(type != null){
-					mapString += type+",";
+				if (type != null) {
+					mapString += type + ",";
 				}
 			}
 		}
-		return mapString.substring(0, mapString.length()-2);//remove last ,
+		return mapString.substring(0, mapString.length() - 2);// remove last ,
 	}
 }
