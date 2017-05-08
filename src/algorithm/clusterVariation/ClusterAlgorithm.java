@@ -249,6 +249,17 @@ public class ClusterAlgorithm {
 						int maximunTries = 6;
 						landMap.impreciseLotization(clusterPolygon, maximunTries);
 					} else {
+						List<Integer> grassLandBorder = grass.get(0);
+						String grassGrammar = "g-";
+						for (int i = 0; i < grassLandBorder.size(); i++) {
+							int[] xy = ClusterMapHelper.breakKey(grassLandBorder.get(i));
+							grassGrammar += xy[0] + "-" + xy[1];
+							if(i+1<grassLandBorder.size()){
+								grassGrammar += "-";
+							}
+						}
+						landMap.findPoint(grassLandBorder.get(0)).setGramaticalType(grassGrammar);						
+						
 						for (int j = 0; j < grass.size(); j++) {
 							landMap.createBorderFromPolygon(grass.get(j), ClusterConfiguration.PARK_MARK);
 						}
@@ -406,7 +417,8 @@ public class ClusterAlgorithm {
 		}
 
 		int oldKey = -1;
-		while (landMap.landPointisOnMap(beginKey) && landMap.findPoint(beginKey).getType().equals(ClusterConfiguration.NODE_MARK)) {
+		while (landMap.landPointisOnMap(beginKey)
+				&& landMap.findPoint(beginKey).getType().equals(ClusterConfiguration.NODE_MARK)) {
 			oldKey = beginKey;
 			landMap.findPoint(beginKey).setType(ClusterConfiguration.BORDER_MARK);
 			beginKey = ClusterMapHelper.moveKeyByOffsetAndDirection(beginKey, 1, direction);

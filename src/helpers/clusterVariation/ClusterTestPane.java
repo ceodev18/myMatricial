@@ -19,6 +19,7 @@ public class ClusterTestPane extends JPanel {
 	private int width = 35;
 	private int stringedType;
 	private List<ClusterLandRoute> landRoutes;
+	private List<Integer> landmapNodes;
 
 	public ClusterTestPane(ClusterLandMap clusterLandMap, List<ClusterLandRoute> landRoutes, int large, int width) {
 		this.stringedType = 0;
@@ -28,13 +29,14 @@ public class ClusterTestPane extends JPanel {
 		this.width = width;
 	}
 
-	public ClusterTestPane(int stringedType, List<Integer> list, String stringify, List<ClusterLandRoute> landRoutes, int large,
-			int width) {
+	public ClusterTestPane(int stringedType, List<Integer> landmapNodes, String stringify,
+			List<ClusterLandRoute> landRoutes, int large, int width) {
 		this.large = large;
 		this.width = width;
 		this.stringedType = stringedType;
 		this.landRoutes = landRoutes;
 		this.clusterString = stringify;
+		this.landmapNodes = landmapNodes;
 	}
 
 	@Override
@@ -60,6 +62,13 @@ public class ClusterTestPane extends JPanel {
 
 	private void linearGrammarSimulation(Graphics g) {
 		String[] mapLines = clusterString.split("\\,");
+
+		for (int i = 0; i < landmapNodes.size(); i++) {
+			int[] initialXY = ClusterMapHelper.breakKey(landmapNodes.get(i));
+			int[] finalXY = ClusterMapHelper.breakKey(landmapNodes.get((i + 1) % landmapNodes.size()));
+			g.drawLine(initialXY[0], initialXY[1], finalXY[0], finalXY[1]);
+		}
+
 		int house = 0;
 		for (int y = 0; y < mapLines.length; y++) {
 			String[] buildingSymbols = mapLines[y].split("\\-");
@@ -85,12 +94,9 @@ public class ClusterTestPane extends JPanel {
 				g.drawLine(coords[2], coords[3], coords[4], coords[5]);
 				g.drawLine(coords[4], coords[5], coords[6], coords[7]);
 				g.drawLine(coords[6], coords[7], coords[0], coords[1]);
-				System.out.println("Coordinates(" + house + "): " + 
-				               coords[0] + "," + coords[1] + 
-						"->" + coords[2] + "," + coords[3] + 
-						"->" + coords[4] + "," + coords[5] + 
-						"->" + coords[6] + "," + coords[7]);
-				g.drawChars((""+house).toCharArray(), 0, (""+house).length(), coords[0], coords[1]);
+				System.out.println("Coordinates(" + house + "): " + coords[0] + "," + coords[1] + "->" + coords[2] + ","
+						+ coords[3] + "->" + coords[4] + "," + coords[5] + "->" + coords[6] + "," + coords[7]);
+				g.drawChars(("" + house).toCharArray(), 0, ("" + house).length(), coords[0], coords[1]);
 				house++;
 				/*
 				 * String legend = buildingSymbols[5] + "x" +
@@ -99,28 +105,30 @@ public class ClusterTestPane extends JPanel {
 				 * legend.length(), coords[0], coords[1]);
 				 */
 				break;
+			case "g":
+				coords = interpretNonOrhtogonalBuilding(buildingSymbols);
+				for (int i = 0; i < coords.length; i+=2) {
+					g.drawLine(coords[i], coords[i + 1], coords[(i + 2) % coords.length],
+							coords[(i + 3) % coords.length]);
+				}
+				break;
 			}
 		}
 
 		for (int i = 0; i < landRoutes.size(); i++) {
 			int xy[] = ClusterMapHelper.breakKey(landRoutes.get(i).getInitialPointId());
 			g.setColor(Color.BLACK);
-			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0],
+			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0]-(landRoutes.get(i).getType().equals("b")?0:10),
 					xy[1]);
-			g.fillOval(xy[0], xy[1], 10, 10);
+			g.fillOval(xy[0]-(landRoutes.get(i).getType().equals("b")?0:10), xy[1], 10, 10);
 		}
 	}
 
 	private int[] interpretNonOrhtogonalBuilding(String[] buildingSymbols) {
-		int [] coords = new int[8];
-		coords[0] = Integer.parseInt(buildingSymbols[1]);
-		coords[1] = Integer.parseInt(buildingSymbols[2]);
-		coords[2] = Integer.parseInt(buildingSymbols[3]);
-		coords[3] = Integer.parseInt(buildingSymbols[4]);
-		coords[4] = Integer.parseInt(buildingSymbols[5]);
-		coords[5] = Integer.parseInt(buildingSymbols[6]);
-		coords[6] = Integer.parseInt(buildingSymbols[7]);
-		coords[7] = Integer.parseInt(buildingSymbols[8]);
+		int[] coords = new int[buildingSymbols.length - 1];
+		for (int i = 1; i < buildingSymbols.length; i++) {
+			coords[i - 1] = Integer.parseInt(buildingSymbols[i]);
+		}
 		return coords;
 	}
 

@@ -510,7 +510,7 @@ public class ClusterLandMap {
 				int stop = 1;
 				stop++;
 			}
-			
+
 			if (canBeOrthogonallyLotized(currentXY, finalXY, driveDirection, growDirection,
 					configuration.getLotConfiguration().getDepthSize(), upperNearInitial, upperNearEnd)) {
 				int[] oldCurrentXY = new int[2];
