@@ -518,7 +518,7 @@ public class ClusterLandMap {
 				oldCurrentXY[1] = currentXY[1];
 
 				currentXY = orthogonalLotize(currentXY, finalXY, driveDirection, growDirection,
-						seed % ClusterConstants.MAX_HOUSE_COMBINATION);
+						seed % ClusterConstants.MAX_HOUSE_COMBINATION, upperNearEnd);
 				// TODO testing orthogonal lotization
 				if (findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getGramaticalType() == null) {
 					findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1]))
@@ -589,43 +589,56 @@ public class ClusterLandMap {
 		return true;
 	}
 
-	private int[] orthogonalLotize(int[] initialXY, int[] finalXY, int driveDirection, int growDirection, int seed) {
+	private int[] orthogonalLotize(int[] initialXY, int[] finalXY, int driveDirection, int growDirection, int seed, int[] upperNearEnd) {
 		int times = configuration.getLotConfiguration().getSideSize();
 		int[] currentXY = new int[] { initialXY[0], initialXY[1] };
 		while (times != 0) {
-			String type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
-			while (!type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1,
-						ClusterDirectionHelper.oppositeDirection(growDirection));
-				type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
-			}
-			while (type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, growDirection);
-				type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+			int[] movCurrentXY = new int[] { currentXY[0], currentXY[1] };
+			String type = this.findPoint(ClusterMapHelper.formKey(movCurrentXY[0], movCurrentXY[1])).getType();
+			if (!type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+				while (!type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					movCurrentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(movCurrentXY, 1,
+							ClusterDirectionHelper.oppositeDirection(growDirection));
+					type = this.findPoint(ClusterMapHelper.formKey(movCurrentXY[0], movCurrentXY[1])).getType();
+				}
+				while (type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					movCurrentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(movCurrentXY, 1, growDirection);
+					type = this.findPoint(ClusterMapHelper.formKey(movCurrentXY[0], movCurrentXY[1])).getType();
+				}
+			} else {
+				while (type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					movCurrentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(movCurrentXY, 1, growDirection);
+					type = this.findPoint(ClusterMapHelper.formKey(movCurrentXY[0], movCurrentXY[1])).getType();
+				}
+				while (!type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
+					movCurrentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(movCurrentXY, 1,
+							ClusterDirectionHelper.oppositeDirection(growDirection));
+					type = this.findPoint(ClusterMapHelper.formKey(movCurrentXY[0], movCurrentXY[1])).getType();
+				}
 			}
 
 			int growTimes = configuration.getLotConfiguration().getDepthSize() * 2;
-			int[] currentOrthXY = new int[] { currentXY[0], currentXY[1] };
+			int[] currentOrthXY = new int[] { movCurrentXY[0], movCurrentXY[1] };
 			while (growTimes != 0) {
 				this.findPoint(ClusterMapHelper.formKey(currentOrthXY[0], currentOrthXY[1])).setType("" + seed);
 				currentOrthXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentOrthXY, 1, growDirection);
 				growTimes--;
 			}
-			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
+			
+			if(times != 1){
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);				
+			}
 			times--;
 		}
-
-		String type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
-		while (!type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1,
-					ClusterDirectionHelper.oppositeDirection(growDirection));
-			type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
+		
+		int[] movUpperNearEndXY = new int[] { upperNearEnd[0], upperNearEnd[1] };
+		int growTimes = configuration.getLotConfiguration().getDepthSize() * 2;
+		while (growTimes != 0) {
+			this.findPoint(ClusterMapHelper.formKey(movUpperNearEndXY[0], movUpperNearEndXY[1])).setType("" + seed);
+			movUpperNearEndXY = ClusterMapHelper.moveKeyByOffsetAndDirection(movUpperNearEndXY, 1, ClusterDirectionHelper.oppositeDirection(growDirection));
+			growTimes--;
 		}
-		while (type.equals(ClusterConfiguration.OUTSIDE_POLYGON_MARK)) {
-			currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, growDirection);
-			type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
-		}
-
+		currentXY = movUpperNearEndXY;
 		return currentXY;
 	}
 
