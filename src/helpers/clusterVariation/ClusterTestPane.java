@@ -62,7 +62,6 @@ public class ClusterTestPane extends JPanel {
 
 	private void linearGrammarSimulation(Graphics g) {
 		String[] mapLines = clusterString.split("\\,");
-
 		for (int i = 0; i < landmapNodes.size(); i++) {
 			int[] initialXY = ClusterMapHelper.breakKey(landmapNodes.get(i));
 			int[] finalXY = ClusterMapHelper.breakKey(landmapNodes.get((i + 1) % landmapNodes.size()));
@@ -73,37 +72,24 @@ public class ClusterTestPane extends JPanel {
 		for (int y = 0; y < mapLines.length; y++) {
 			String[] buildingSymbols = mapLines[y].split("\\-");
 			switch (buildingSymbols[0]) {
-			case "l":
-				int[] coords = interpretBuilding(buildingSymbols[1], buildingSymbols[2], buildingSymbols[3],
-						buildingSymbols[4], buildingSymbols[5], buildingSymbols[6]);
-				g.drawLine(coords[0], coords[1], coords[2], coords[3]);
-				g.drawLine(coords[2], coords[3], coords[4], coords[5]);
-				g.drawLine(coords[4], coords[5], coords[6], coords[7]);
-				g.drawLine(coords[6], coords[7], coords[0], coords[1]);
 
-				/*
-				 * String legend = buildingSymbols[5] + "x" +
-				 * buildingSymbols[6]; g.setFont(new Font(Font.SANS_SERIF,
-				 * Font.PLAIN, 5)); g.drawChars(legend.toCharArray(), 0,
-				 * legend.length(), coords[0], coords[1]);
-				 */
-				break;
-			case "n":
-				coords = interpretNonOrhtogonalBuilding(buildingSymbols);
-				g.drawLine(coords[0], coords[1], coords[2], coords[3]);
-				g.drawLine(coords[2], coords[3], coords[4], coords[5]);
-				g.drawLine(coords[4], coords[5], coords[6], coords[7]);
-				g.drawLine(coords[6], coords[7], coords[0], coords[1]);
-				System.out.println("Coordinates(" + house + "): " + coords[0] + "," + coords[1] + "->" + coords[2] + ","
-						+ coords[3] + "->" + coords[4] + "," + coords[5] + "->" + coords[6] + "," + coords[7]);
-				g.drawChars(("" + house).toCharArray(), 0, ("" + house).length(), coords[0], coords[1]);
+			case "l":
+				System.out.print("("+house+")");
+				int [] coords = interpretNonOrhtogonalBuilding(buildingSymbols);
+				for (int i = 0; i < coords.length; i+=2) {
+					g.drawLine(coords[i], coords[i + 1], coords[(i + 2) % coords.length],
+							coords[(i + 3) % coords.length]);
+					System.out.print(coords[i] + ","+ coords[i + 1] +"->");
+				}
+				System.out.println();
+				
+				//g.drawChars(("" + house).toCharArray(), 0, ("" + house).length(), coords[0], coords[1]);
 				house++;
-				/*
-				 * String legend = buildingSymbols[5] + "x" +
+				System.out.println();
+				/* String legend = buildingSymbols[5] + "x" +
 				 * buildingSymbols[6]; g.setFont(new Font(Font.SANS_SERIF,
 				 * Font.PLAIN, 5)); g.drawChars(legend.toCharArray(), 0,
-				 * legend.length(), coords[0], coords[1]);
-				 */
+				 * legend.length(), coords[0], coords[1]);  */
 				break;
 			case "g":
 				coords = interpretNonOrhtogonalBuilding(buildingSymbols);
@@ -111,7 +97,7 @@ public class ClusterTestPane extends JPanel {
 					g.drawLine(coords[i], coords[i + 1], coords[(i + 2) % coords.length],
 							coords[(i + 3) % coords.length]);
 				}
-				g.drawChars(("" + coords[0]).toCharArray(), 0, ("" + coords[0]).length(), coords[0], coords[1]);
+				//g.drawChars(("" + coords[0]).toCharArray(), 0, ("" + coords[0]).length(), coords[0], coords[1]);
 				break;
 			}
 		}
@@ -130,29 +116,6 @@ public class ClusterTestPane extends JPanel {
 		for (int i = 1; i < buildingSymbols.length; i++) {
 			coords[i - 1] = Integer.parseInt(buildingSymbols[i]);
 		}
-		return coords;
-	}
-
-	private int[] interpretBuilding(String initialX, String finalX, String driveDirection, String growDirection,
-			String sideSize, String depthSize) {
-		int[] coords = new int[8];
-		coords[0] = Integer.parseInt(initialX);
-		coords[1] = Integer.parseInt(finalX);
-
-		int[] xy = ClusterMapHelper.moveKeyByOffsetAndDirection(coords, Integer.parseInt(sideSize),
-				Integer.parseInt(driveDirection));
-		coords[2] = xy[0];
-		coords[3] = xy[1];
-
-		xy = ClusterMapHelper.moveKeyByOffsetAndDirection(xy, Integer.parseInt(depthSize),
-				Integer.parseInt(growDirection));
-		coords[4] = xy[0];
-		coords[5] = xy[1];
-
-		xy = ClusterMapHelper.moveKeyByOffsetAndDirection(xy, Integer.parseInt(sideSize),
-				ClusterDirectionHelper.oppositeDirection(Integer.parseInt(driveDirection)));
-		coords[6] = xy[0];
-		coords[7] = xy[1];
 		return coords;
 	}
 
