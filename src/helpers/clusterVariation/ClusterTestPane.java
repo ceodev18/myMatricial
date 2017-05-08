@@ -111,6 +111,7 @@ public class ClusterTestPane extends JPanel {
 					g.drawLine(coords[i], coords[i + 1], coords[(i + 2) % coords.length],
 							coords[(i + 3) % coords.length]);
 				}
+				g.drawChars(("" + coords[0]).toCharArray(), 0, ("" + coords[0]).length(), coords[0], coords[1]);
 				break;
 			}
 		}

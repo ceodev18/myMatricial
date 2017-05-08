@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import helpers.clusterVariation.ClusterMapHelper;
-import helpers.radialVariation.RadialMapHelper;
 import interfaces.clusterVariation.ClusterConfiguration;
 
 public class ClusterPolygon {
@@ -83,6 +82,10 @@ public class ClusterPolygon {
 
 		// TODO here, if the polygon has a non tolerable lateral distance
 		// between point and point, then we should apply reduction formula
+
+		if (!canBeReducedBySize(size)) {
+			return new ArrayList<>();
+		}
 
 		for (int i = 0; i < points.size(); i++) {
 			int[] xyInitial = ClusterMapHelper.breakKey(points.get(i));
@@ -190,12 +193,57 @@ public class ClusterPolygon {
 		}
 
 		shrinkedList = verifyRedutionPolygonVersion2(shrinkedList);
+		shrinkedList = verifyReduceCrossingsByBounds(shrinkedList);
+
 		// validity check
 		if (insidePolygon(shrinkedList)) {
 			return shrinkedList;
 		} else {
 			return new ArrayList<>();
 		}
+	}
+
+	private boolean canBeReducedBySize(int size) {
+		for (int i = 0; i < points.size(); i++) {
+			int[] xyInitial = ClusterMapHelper.breakKey(points.get(i));
+			int[] xyFinal = ClusterMapHelper.breakKey(points.get((i + 1) % points.size()));
+			int distance = 0;
+			int denominator = Math.abs(xyInitial[0] - xyFinal[0]);
+			if (denominator == 0) {
+				distance = Math.abs(centroid[0] - xyInitial[0]);
+				if (distance < size) {
+					return false;
+				} else {
+					continue;
+				}
+			}
+
+			int numerator = Math.abs(xyInitial[1] - xyFinal[1]);
+			if (numerator == 0) {
+				distance = Math.abs(centroid[1] - xyInitial[1]);
+				if (distance < size) {
+					return false;
+				} else {
+					continue;
+				}
+			}
+
+			double m = (xyInitial[1] - xyFinal[1]) * 1.0 / (xyInitial[0] - xyFinal[0]);
+			double b = xyInitial[1] - m * xyInitial[0];
+
+			double pm = -1 / m;
+			double pb = centroid[1] - pm * centroid[0];
+			// xm + b = xpm + pb
+			// x = (pb-b)/(m-pm)
+			double px = (pb - b) / (m - pm);
+			double py = px * pm + pb;
+
+			distance = (int) Math.sqrt(Math.pow(px - centroid[0], 2) + Math.pow(py - centroid[1], 2));
+			if (distance < size) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private double distancefromProjectedPointToCentroid(double[] variation, Double gradient, double b) {
@@ -509,160 +557,242 @@ public class ClusterPolygon {
 		}
 		return true;
 	}
-	
-	//Neil s methods
-	public List<Integer> verifyRedutionPolygonVersion2( List<Integer> shrinkedList){
-		List<Integer>  auxList = new ArrayList<>();
+
+	private List<Integer> verifyReduceCrossingsByBounds(List<Integer> shrinkedList) {
+		int maxX = -11111, minX = 999999, maxY = -11111, minY = 999999;
+		// once bounded, its now possible to detect non regular intersections
+		if (shrinkedList.size() <= 3) {
+			return shrinkedList;
+		}
+
+		for (int i = 0; i < shrinkedList.size(); i++) {
+			int[] xy = ClusterMapHelper.breakKey(shrinkedList.get(i));
+			if (maxX < xy[0]) {
+				maxX = xy[0];
+			}
+			if (minX > xy[0]) {
+				minX = xy[0];
+			}
+
+			if (maxY < xy[1]) {
+				maxY = xy[1];
+			}
+			if (minY > xy[1]) {
+				minY = xy[1];
+			}
+		}
+
+		for (int i = 0; i < shrinkedList.size(); i++) {
+			int[] xyInitialA = ClusterMapHelper.breakKey(shrinkedList.get(i));
+			int[] xyFinalA = ClusterMapHelper.breakKey(shrinkedList.get((i + 1) % shrinkedList.size()));
+
+			if (xyInitialA[0] == 138) {
+				// TODO erase
+				int x = 1;
+				x++;
+			}
+
+			for (int j = 0; j < shrinkedList.size(); j++) {
+				int[] xyInitialB = ClusterMapHelper.breakKey(shrinkedList.get(j));
+				int[] xyFinalB = ClusterMapHelper.breakKey(shrinkedList.get((j + 1) % shrinkedList.size()));
+
+				if (sharesPointMember(xyInitialA, xyFinalA) || sharesPointMember(xyInitialA, xyInitialB)
+						|| sharesPointMember(xyInitialA, xyFinalB) || sharesPointMember(xyFinalA, xyInitialB)
+						|| sharesPointMember(xyFinalA, xyFinalB) || sharesPointMember(xyInitialB, xyFinalB)) {
+					continue;
+				}
+
+				if ((xyInitialA[0] - xyFinalA[0]) == 0 || (xyInitialB[0] - xyFinalB[0]) == 0) {
+					continue;
+				}
+
+				double mA = (double) ((xyInitialA[1] - xyFinalA[1]) * 1.0 / (xyInitialA[0] - xyFinalA[0]));
+				double mB = (double) ((xyInitialB[1] - xyFinalB[1]) * 1.0 / (xyInitialB[0] - xyFinalB[0]));
+				if (mA == mB) {// parallels
+					continue;
+				}
+
+				double bA = xyInitialA[1] - xyInitialA[0] * mA;
+				double bB = xyInitialB[1] - xyInitialB[0] * mB;
+				int[] intersection = new int[2];
+				// xma + ba = xmb + bb
+				intersection[0] = (int) ((bA - bB) / (mB - mA));
+				intersection[1] = (int) (intersection[0] * mB + bB);
+				if (intersection[0] < maxX && intersection[0] > minX && intersection[1] < maxY
+						&& intersection[1] > minY) {
+					return new ArrayList<>();
+				}
+
+			}
+		}
+
+		return shrinkedList;
+	}
+
+	private boolean sharesPointMember(int[] xyA, int[] xyB) {
+		return (xyA[0] == xyB[0]) && (xyA[1] == xyB[1]);
+	}
+
+	// TODO Neil s methods
+	public List<Integer> verifyRedutionPolygonVersion2(List<Integer> shrinkedList) {
+		List<Integer> auxList = new ArrayList<>();
 		int k = 0;
-		while(shrinkedList.size() != k){
-			if(shrinkedList.size() > 4){
-				int interscPoint = findIntersectionPointIntoTwoStraight
-						(shrinkedList.get(k % shrinkedList.size()),shrinkedList.get((k+1) % shrinkedList.size()),
-								shrinkedList.get((k+2) % shrinkedList.size()),shrinkedList.get((k+3) % shrinkedList.size()),true);
-				if(interscPoint != -1){ 
+		while (shrinkedList.size() != k) {
+			if (shrinkedList.size() > 4) {
+				int interscPoint = findIntersectionPointIntoTwoStraight(shrinkedList.get(k % shrinkedList.size()),
+						shrinkedList.get((k + 1) % shrinkedList.size()),
+						shrinkedList.get((k + 2) % shrinkedList.size()),
+						shrinkedList.get((k + 3) % shrinkedList.size()), true);
+				if (interscPoint != -1) {
 					auxList = new ArrayList<>();
-					for(int i = 0;i < shrinkedList.size();i++ ){
-						if(i== ((k+1) % shrinkedList.size())){
+					for (int i = 0; i < shrinkedList.size(); i++) {
+						if (i == ((k + 1) % shrinkedList.size())) {
 							auxList.add(interscPoint);
 							i++;
-						}else{
+						} else {
 							auxList.add(shrinkedList.get(i));
 						}
 					}
-					k=0;
+					k = 0;
 					shrinkedList = auxList;
 					continue;
-				}else{
+				} else {
 					auxList.add(shrinkedList.get(k));
 				}
 				k++;
 				continue;
 			}
-			if(shrinkedList.size() == 4){
-				int interscPoint = findIntersectionPointIntoTwoStraight
-						(shrinkedList.get(0),shrinkedList.get(1),
-						shrinkedList.get(2),shrinkedList.get(3),true);
-				double dis[] = new double[4];  
-				 dis[0] = distanceOfPointToPoint(shrinkedList.get(0),shrinkedList.get(1));
-				 dis[1] = distanceOfPointToPoint(shrinkedList.get(1),shrinkedList.get(2));
-				 dis[2] = distanceOfPointToPoint(shrinkedList.get(2),shrinkedList.get(3));
-				 dis[3] = distanceOfPointToPoint(shrinkedList.get(3),shrinkedList.get(0));
-				if(interscPoint != -1){ 
+			if (shrinkedList.size() == 4) {
+				int interscPoint = findIntersectionPointIntoTwoStraight(shrinkedList.get(0), shrinkedList.get(1),
+						shrinkedList.get(2), shrinkedList.get(3), true);
+				double dis[] = new double[4];
+				dis[0] = distanceOfPointToPoint(shrinkedList.get(0), shrinkedList.get(1));
+				dis[1] = distanceOfPointToPoint(shrinkedList.get(1), shrinkedList.get(2));
+				dis[2] = distanceOfPointToPoint(shrinkedList.get(2), shrinkedList.get(3));
+				dis[3] = distanceOfPointToPoint(shrinkedList.get(3), shrinkedList.get(0));
+				if (interscPoint != -1) {
 					double min = dis[0];
-					int caso = 0; 
-					for(int j=1;j<4;j++){
-						if(min > dis[j]){
+					int caso = 0;
+					for (int j = 1; j < 4; j++) {
+						if (min > dis[j]) {
 							min = dis[j];
-							caso=j;
+							caso = j;
 						}
 					}
-					for(int j=0;j<4;j++){
-						if(caso == 3 && j==0){
+					for (int j = 0; j < 4; j++) {
+						if (caso == 3 && j == 0) {
 							continue;
 						}
-						if(caso==j){
+						if (caso == j) {
 							auxList.add(interscPoint);
 							j++;
-						}else{
+						} else {
 							auxList.add(shrinkedList.get(j));
 						}
 					}
-					k=0;
+					k = 0;
 					shrinkedList = auxList;
 					continue;
-				}else{
-					auxList=shrinkedList;
-					k=4;
+				} else {
+					auxList = shrinkedList;
+					k = 4;
 					return auxList;
 				}
-			
+
 			}
-			if(shrinkedList.size() == 3){
-				auxList= shrinkedList;
+			if (shrinkedList.size() == 3) {
+				auxList = shrinkedList;
 				return auxList;
 			}
 		}
 		return auxList;
 	}
-	
+
 	public double distanceOfPointToPoint(int pointi, int pointf) {
-		int xyPointF[] = RadialMapHelper.breakKey(pointf);
-		int xyPointI[] = RadialMapHelper.breakKey(pointi);
+		int xyPointF[] = ClusterMapHelper.breakKey(pointf);
+		int xyPointI[] = ClusterMapHelper.breakKey(pointi);
 		return Math.sqrt(Math.pow(xyPointF[0] - xyPointI[0], 2) + Math.pow(xyPointF[1] - xyPointI[1], 2));
 	}
-	
-	public int findIntersectionPointIntoTwoStraight(int rect1Ini, int rect1End, int rect2Ini, int rect2End, boolean belong){
-		int pointSolution =-1;
-		int xyRec1Ini[] = RadialMapHelper.breakKey(rect1Ini);
-		int xyRec1End[] = RadialMapHelper.breakKey(rect1End);
-		int xyRec2Ini[] = RadialMapHelper.breakKey(rect2Ini);
-		int xyRec2End[] = RadialMapHelper.breakKey(rect2End);
-		
+
+	public int findIntersectionPointIntoTwoStraight(int rect1Ini, int rect1End, int rect2Ini, int rect2End,
+			boolean belong) {
+		int pointSolution = -1;
+		int xyRec1Ini[] = ClusterMapHelper.breakKey(rect1Ini);
+		int xyRec1End[] = ClusterMapHelper.breakKey(rect1End);
+		int xyRec2Ini[] = ClusterMapHelper.breakKey(rect2Ini);
+		int xyRec2End[] = ClusterMapHelper.breakKey(rect2End);
+
 		int underscore1 = (xyRec1End[0] - xyRec1Ini[0]);
 		int underscore2 = (xyRec2End[0] - xyRec2Ini[0]);
 		double gradient1 = 0;
 		double gradient2 = 0;
 		double b1 = 0;
 		double b2 = 0;
-		
-		if(underscore1 == 0 && underscore2 == 0) return pointSolution; // would be the same straight or paralell
-		if(underscore1 != 0){
+
+		if (underscore1 == 0 && underscore2 == 0)
+			return pointSolution; // would be the same straight or paralell
+		if (underscore1 != 0) {
 			gradient1 = (xyRec1End[1] - xyRec1Ini[1]) * 1.0 / underscore1;
-			b1 = (xyRec1Ini[0]*xyRec1End[1] -(xyRec1End[0]*xyRec1Ini[1]))/(xyRec1Ini[0] -xyRec1End[0]);
+			b1 = (xyRec1Ini[0] * xyRec1End[1] - (xyRec1End[0] * xyRec1Ini[1])) / (xyRec1Ini[0] - xyRec1End[0]);
 		}
-		if(underscore2 != 0){
+		if (underscore2 != 0) {
 			gradient2 = (xyRec2End[1] - xyRec2Ini[1]) * 1.0 / underscore2;
-			b2 = (xyRec2Ini[0]*xyRec2End[1] -(xyRec2End[0]*xyRec2Ini[1]))/(xyRec2Ini[0] -xyRec2End[0]);
+			b2 = (xyRec2Ini[0] * xyRec2End[1] - (xyRec2End[0] * xyRec2Ini[1])) / (xyRec2Ini[0] - xyRec2End[0]);
 		}
-		if((gradient1 == 0 && gradient2 == 0)|| (gradient1 == gradient2)) return pointSolution;  //would be the same straight or paralell
-		
-		
+		if ((gradient1 == 0 && gradient2 == 0) || (gradient1 == gradient2))
+			return pointSolution; // would be the same straight or paralell
+
 		if (underscore1 == 0 && underscore2 != 0) {
 			int lower = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
-			int upper = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];	
-				if((lower <= xyRec1End[0] && xyRec1End[0] <= upper)|| !belong){
-					double yAux = xyRec1End[0]*gradient2 + b2;
-					RadialMapHelper.round(yAux);
-					pointSolution =  RadialMapHelper.formKey(xyRec1End[0], (int)yAux);
-					
-					return pointSolution;
-				}
+			int upper = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+			if ((lower <= xyRec1End[0] && xyRec1End[0] <= upper) || !belong) {
+				double yAux = xyRec1End[0] * gradient2 + b2;
+				ClusterMapHelper.round(yAux);
+				pointSolution = ClusterMapHelper.formKey(xyRec1End[0], (int) yAux);
 
-				
-		
+				return pointSolution;
+			}
+
 		}
 		if (underscore2 == 0 && underscore1 != 0) {
 			int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
-			int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];	
-				if((lower <= xyRec2End[0] && xyRec2End[0] <= upper)|| !belong){ //verify if the point belong to the straight
-					double yAux = xyRec2End[0]*gradient1 + b1;
-					RadialMapHelper.round(yAux);
-					pointSolution =  RadialMapHelper.formKey(xyRec2End[0], (int)yAux);
-					
-					return pointSolution;
-				}
-				
+			int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+			if ((lower <= xyRec2End[0] && xyRec2End[0] <= upper) || !belong) { // verify
+																				// if
+																				// the
+																				// point
+																				// belong
+																				// to
+																				// the
+																				// straight
+				double yAux = xyRec2End[0] * gradient1 + b1;
+				ClusterMapHelper.round(yAux);
+				pointSolution = ClusterMapHelper.formKey(xyRec2End[0], (int) yAux);
+
+				return pointSolution;
+			}
+
 		}
 		if (underscore1 != 0 && underscore2 != 0) {
 			int lowerx = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
 			int upperx = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
 			int lowery = xyRec2Ini[1] < xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
 			int uppery = xyRec2Ini[1] > xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
-			double xAux = (b2 -b1)/(gradient1- gradient2);
-			double yAux = gradient1*(xAux) + b1;		
-			
-			
-				if((lowerx <= xAux && xAux <= upperx && lowery <= yAux && yAux <= uppery) || !belong){//verify if the point belong to the straight because it wouldn't be include in both
-					RadialMapHelper.round(xAux);
-					RadialMapHelper.round(yAux);
-					pointSolution =  RadialMapHelper.formKey((int)xAux, (int)yAux);	
-				
-					return pointSolution;
-				}
-				
-		
+			double xAux = (b2 - b1) / (gradient1 - gradient2);
+			double yAux = gradient1 * (xAux) + b1;
+
+			if ((lowerx <= xAux && xAux <= upperx && lowery <= yAux && yAux <= uppery) || !belong) {
+				// verify if the point belong to the straight because
+				// it wouldn't be include in both
+				ClusterMapHelper.round(xAux);
+				ClusterMapHelper.round(yAux);
+				pointSolution = ClusterMapHelper.formKey((int) xAux, (int) yAux);
+
+				return pointSolution;
+			}
+
 		}
-		
-		return pointSolution; //if dosnt fint, or dont exist, return -1
+
+		return pointSolution; // if dosnt fint, or dont exist, return -1
 	}
 }
