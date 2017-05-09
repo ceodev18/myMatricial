@@ -39,7 +39,6 @@ public class SpineLandMap {
 	private ConfigurationEntry configuration;
 
 	public void setConfiguration(ConfigurationEntry configurationEntry) {
-		//System.out.println(configurationEntry.getLotConfiguration().get);
 		this.configuration = configurationEntry;
 	}
 
@@ -506,8 +505,6 @@ public class SpineLandMap {
 
 		for (int x = 0; x < fullPolygon.size(); x++) {
 			for (int i = 0; i < fullPolygon.get(x).size(); i++) {
-				// System.out.print(fullPolygon.get(x).get(i) + ",");
-
 				if ((fullPolygon.get(x).get(i) == initialVertex) && (initialVertexSide == -1)) {
 					initialVertexSide = x;
 				}
@@ -527,9 +524,6 @@ public class SpineLandMap {
 			spinePolygon.setComplete(true);
 			return spinePolygon;
 		}
-		// System.out.println("Vertexes " + initialVertexSide + "||" +
-		// finalVertexSide);
-
 		if (initialVertexSide != finalVertexSide) {
 			// simple complex figure
 			// This polygons should be treated as if another procedure is
@@ -1466,7 +1460,6 @@ public class SpineLandMap {
 			for (int i = 0; i < pointsx; i++) {
 				String type = getLandPoint(SpineMapHelper.formKey(i, j)).getGramaticalType();
 				if(type != null){
-					System.out.println(type);
 					mapString += type+",";
 				}
 			}
