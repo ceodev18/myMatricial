@@ -11,6 +11,7 @@ public class SpineLandPoint {
 	private int y = -1;
 	private String type = SpineConfiguration.OUTSIDE_POLYGON_MARK;
 	private int nodeType;
+	private String gramaticalType = null;
 	public SpineLandPoint(int x, int y){
 		this.x = x;
 		this.y = y;
@@ -90,5 +91,12 @@ public class SpineLandPoint {
 			return true;
 		else
 			return false;
+	}
+	public String getGramaticalType() {
+		return gramaticalType;
+	}
+
+	public void setGramaticalType(String gramaticalType) {
+		this.gramaticalType = gramaticalType;
 	}
 }

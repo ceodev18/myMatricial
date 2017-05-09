@@ -3,10 +3,15 @@ package helpers.spineVariation;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.util.List;
 
 import javax.swing.JPanel;
 
+import helpers.clusterVariation.ClusterDirectionHelper;
+import helpers.clusterVariation.ClusterMapHelper;
+import models.clusterVariation.ClusterLandRoute;
 import models.spineVariation.SpineLandMap;
+import models.spineVariation.SpineLandRoute;
 
 public class SpineTestPane extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -15,21 +20,32 @@ public class SpineTestPane extends JPanel {
 	private int growtXY = 1;
 	private int large = 35;
 	private int width = 35;
-	private boolean stringedType;
-	
+	//private boolean stringedType;
+	private int stringedType;
+	private List<SpineLandRoute> landRoutes;
+	/*
 	public SpineTestPane(boolean stringedType, String stringify, int large, int width) {
 		this.large = large;
 		this.width = width;
 		this.stringedType = stringedType;
 		this.spineString = stringify;
 	}
-
+*/
+	public SpineTestPane(int stringedType, String stringify, List<SpineLandRoute> landRoutes, int large,
+			int width) {
+		this.large = large;
+		this.width = width;
+		this.stringedType = stringedType;
+		this.landRoutes = landRoutes;
+		this.spineString = stringify;
+	}
+	
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(large, width);
 	}
 
-	@Override
+	/*@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		if(stringedType){
@@ -37,6 +53,73 @@ public class SpineTestPane extends JPanel {
 		}else{
 			normalSimulation(g); 
 		}
+	}*/
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		switch (stringedType) {
+		case 0:
+			normalSimulation(g);
+			break;
+		case 1:
+			gramaticalSimulation(g);
+			break;
+		case 2:
+			linearGrammarSimulation(g);
+			break;
+		}
+	}
+	private void linearGrammarSimulation(Graphics g) {
+		String[] mapLines = spineString.split("\\,");
+		for (int y = 0; y < mapLines.length; y++) {
+			String[] buildingSymbols = mapLines[y].split("\\-");
+			switch (buildingSymbols[0]) {
+			case "l":
+				int[] coords = interpretBuilding(buildingSymbols[1], buildingSymbols[2], buildingSymbols[3],
+						buildingSymbols[4], buildingSymbols[5], buildingSymbols[6]);
+				g.drawLine(coords[0], coords[1], coords[2], coords[3]);
+				g.drawLine(coords[2], coords[3], coords[4], coords[5]);
+				g.drawLine(coords[4], coords[5], coords[6], coords[7]);
+				g.drawLine(coords[6], coords[7], coords[0], coords[1]);
+
+				/*String legend = buildingSymbols[5] + "x" + buildingSymbols[6];
+				g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 5));
+				g.drawChars(legend.toCharArray(), 0, legend.length(), coords[0], coords[1]);*/
+				break;
+
+			}
+
+		}
+
+		for (int i = 0; i < landRoutes.size(); i++) {
+			int xy[] = ClusterMapHelper.breakKey(landRoutes.get(i).getInitialPointId());
+			g.setColor(Color.BLACK);
+			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0],
+					xy[1]);
+			g.fillOval(xy[0], xy[1], 10, 10);
+		}
+	}
+	private int[] interpretBuilding(String initialX, String finalX, String driveDirection, String growDirection,
+			String sideSize, String depthSize) {
+		int[] coords = new int[8];
+		coords[0] = Integer.parseInt(initialX);
+		coords[1] = Integer.parseInt(finalX);
+
+		int[] xy = ClusterMapHelper.moveKeyByOffsetAndDirection(coords, Integer.parseInt(sideSize),
+				Integer.parseInt(driveDirection));
+		coords[2] = xy[0];
+		coords[3] = xy[1];
+
+		xy = ClusterMapHelper.moveKeyByOffsetAndDirection(xy, Integer.parseInt(depthSize),
+				Integer.parseInt(growDirection));
+		coords[4] = xy[0];
+		coords[5] = xy[1];
+
+		xy = ClusterMapHelper.moveKeyByOffsetAndDirection(xy, Integer.parseInt(sideSize),
+				ClusterDirectionHelper.oppositeDirection(Integer.parseInt(driveDirection)));
+		coords[6] = xy[0];
+		coords[7] = xy[1];
+		return coords;
 	}
 
 	private void normalSimulation(Graphics g) {

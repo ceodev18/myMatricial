@@ -8,10 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import helpers.clusterVariation.ClusterMapHelper;
 import helpers.spineVariation.SpineDirectionHelper;
 import helpers.spineVariation.SpineMapHelper;
+import interfaces.clusterVariation.ClusterConstants;
 import interfaces.spineVariation.SpineConfiguration;
 import interfaces.spineVariation.SpineConstants;
+import models.clusterVariation.ClusterLandPoint;
+import models.configuration.ConfigurationEntry;
 import models.spineVariation.SpineBuilding;
 import models.spineVariation.SpineLandPoint;
 import models.spineVariation.SpineLandRoute;
@@ -31,7 +35,17 @@ public class SpineLandMap {
 	List<List<Integer>> fullPolygon;
 	private List<SpineLandPoint> polygonNodes;
 	private double polygonalArea;
+	
+	private ConfigurationEntry configuration;
 
+	public void setConfiguration(ConfigurationEntry configurationEntry) {
+		//System.out.println(configurationEntry.getLotConfiguration().get);
+		this.configuration = configurationEntry;
+	}
+
+	public ConfigurationEntry getConfiguration() {
+		return configuration;
+	}
 	public SpineLandMap(int pointsx, int pointsy) {
 		this.setPointsx(++pointsx);
 		this.setPointsy(++pointsy);
@@ -329,8 +343,6 @@ public class SpineLandMap {
 		}
 	}
 	
-
-
 	public void markVariation(int entryPointId, int branchType, int nodeType) {
 		String variation = "-";
 		switch (branchType) {
@@ -360,9 +372,9 @@ public class SpineLandMap {
 		return nodes;
 	}
 
-	public void setNodes(List<Integer> nodes) {
+	/*public void setNodes(List<Integer> nodes) {
 		this.nodes = nodes;
-	}
+	}*/
 
 	public List<SpineLandPoint> getPolygonNodes() {
 		return polygonNodes;
@@ -1353,7 +1365,7 @@ public class SpineLandMap {
 	
 	public void printMapToFileNew() {
 		try {
-			PrintWriter writer = new PrintWriter("printed-map.txt", "UTF-8");
+			PrintWriter writer = new PrintWriter("printed-map-2.txt", "UTF-8");
 			for (int j = pointsy - 1; j >= 0; j--) {
 				for (int i = 0; i < pointsx; i++) {
 					  /*if(getLandPoint(SpineMapHelper.formKey(i, j)).getType().equals("n")){
@@ -1387,5 +1399,78 @@ public class SpineLandMap {
 			e.printStackTrace();
 		}
 	}
+	
+	public void setNodes(List<SpineLandPoint> polygon) {
+		this.nodes = new ArrayList<>();
+		for (int i = 0; i < polygon.size(); i++) {
+			nodes.add(polygon.get(i).getId());
+		}
+	}
+	public void createMapBorder(List<SpineLandPoint> polygon) {
+		setNodes(polygon);
+		fullPolygon = new ArrayList<>();
+		// first we create the border
+		for (int i = 0, j = 1; j < polygon.size(); i++, j++) {
+			List<Integer> truePolygon = new ArrayList<>();
+			int underscore = (polygon.get(j).getX() - polygon.get(i).getX());
+			// there are three gradient cases.
+			// 1st UNDEFINED = (get(j).getX()-get(i).getX()); straight Y axis
+			if (underscore == 0) {
+				int lower = polygon.get(i).getY() < polygon.get(j).getY() ? polygon.get(i).getY()
+						: polygon.get(j).getY();
+				int upper = polygon.get(i).getY() > polygon.get(j).getY() ? polygon.get(i).getY()
+						: polygon.get(j).getY();
 
+				for (int w = lower; w <= upper; w++) {
+					getLandPoint(SpineMapHelper.formKey(polygon.get(i).getX(), w))
+							.setType(SpineConstants.POLYGON_LIMIT);
+					truePolygon.add(SpineMapHelper.formKey(polygon.get(i).getX(), w));
+				}
+				continue;
+			}
+
+			double gradient = (polygon.get(j).getY() - polygon.get(i).getY()) * 1.0 / underscore;
+			// 2nd, gradient=0; straight in the X axis
+			int lower = polygon.get(i).getX() < polygon.get(j).getX() ? polygon.get(i).getX() : polygon.get(j).getX();
+			int upper = polygon.get(i).getX() > polygon.get(j).getX() ? polygon.get(i).getX() : polygon.get(j).getX();
+			if (gradient == 0) {
+				for (int w = lower; w <= upper; w++) {
+					getLandPoint(SpineMapHelper.formKey(w, polygon.get(i).getY()))
+							.setType(SpineConstants.POLYGON_LIMIT);
+					truePolygon.add(SpineMapHelper.formKey(w, polygon.get(i).getY()));
+				}
+				continue;
+			}
+
+			double b = polygon.get(j).getY() - gradient * polygon.get(j).getX();
+			// 3nd the gradient is positive/negative.
+			for (int w = lower; w <= upper; w++) {
+				float y = SpineMapHelper.round(gradient * w + b);
+				if (y == (int) y) // quick and dirty convertion check
+				{
+					getLandPoint(SpineMapHelper.formKey(w, (int) y)).setType(SpineConstants.POLYGON_LIMIT);
+					truePolygon.add(SpineMapHelper.formKey(w, (int) y));
+				}
+			}
+			fullPolygon.add(truePolygon);
+		}
+
+		// we fill everything outside of it with Xs
+		fillPolygonalArea();
+		clearDottedLimits();
+		updatePolygonLimits();
+	}
+	public String getGrammar() {
+		String mapString = "";
+		for (int j = 0; j < pointsy; j++) {
+			for (int i = 0; i < pointsx; i++) {
+				String type = getLandPoint(SpineMapHelper.formKey(i, j)).getGramaticalType();
+				if(type != null){
+					System.out.println(type);
+					mapString += type+",";
+				}
+			}
+		}
+		return mapString.substring(0, mapString.length()-2);//remove last ,
+	}
 }

@@ -10,11 +10,17 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import algorithm.clusterVariation.ClusterAlgorithm;
 import algorithm.spineVariation.LSystemSpineAlgorithm;
 import algorithm.spineVariation.SpineAlgorithm;
+import helpers.clusterVariation.ClusterTestPane;
 import helpers.spineVariation.SpineDirectionHelper;
 import interfaces.spineVariation.SpineConfiguration;
 import models.spineVariation.SpineLandPoint;
+import models.view.AlgorithmView;
+import models.clusterVariation.ClusterLandMap;
+import models.clusterVariation.ClusterLandPoint;
+import models.configuration.ConfigurationMatrix;
 import models.spineVariation.SpineLandMap;
 
 public class SpineTester {
@@ -24,65 +30,65 @@ public class SpineTester {
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
-		int large=1145 +1,width=804 +1;
-		SpineLandMap spineLandMap = new SpineLandMap(large, width);
 		
-
+		AlgorithmView algorithmView = new AlgorithmView("spine-error.txt");
+		ConfigurationMatrix configurationMatrix = new ConfigurationMatrix(algorithmView);
+		//int large=969 +1,width=899 +1;
+		int large = algorithmView.getxSize(), width = algorithmView.getySize();
+		
+		SpineLandMap spineLandMap = new SpineLandMap(large, width);
 		List<SpineLandPoint> polygon = new ArrayList<>();
-		SpineLandPoint landPoint = new SpineLandPoint(0, 13);
+		List<Integer> intVertex = algorithmView.getCartVertexgeocoords();
+		for (int i = 0; i < algorithmView.getVertexgeocoords().size(); i += 2) {
+			SpineLandPoint landPoint = new SpineLandPoint(intVertex.get(i), intVertex.get(i + 1));
+			polygon.add(landPoint);
+		}
+		SpineLandPoint landPoint = new SpineLandPoint(intVertex.get(0), intVertex.get(1));
 		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(996, 0);
-		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(1145, 804);
-		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(202,770);
-		polygon.add(landPoint);
-		landPoint = new SpineLandPoint(0,13);
-		polygon.add(landPoint);
+		
+		
 		spineLandMap.createBorderFromPolygon(polygon);
-		//spineLandMap.compress();
-		//entry point 353 31
-		List<SpineLandPoint> entryPoints = new ArrayList<>();	
-		//200 representa la distancia del borde del poligono al inicio
-		//landPoint = new SpineLandPoint(200,571);
-		landPoint = new SpineLandPoint(6,557);
+		
+		List<SpineLandPoint> entryPoints = new ArrayList<>();
+		landPoint = new SpineLandPoint(algorithmView.getCartEntrygeocoords().get(1),
+				algorithmView.getCartEntrygeocoords().get(0));
 		entryPoints.add(landPoint);
+		
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
 		
 		// replace this LSYSTEM  by For loop
-		//spineLandMap.clearDottedLimits();
 		
+		// TRUE BEGINNING OF THE ALGORITHM
+		SpineLandMap landMap = new SpineLandMap(large, width);
+		// 2. we create the border from the polygon
+		landMap.createMapBorder(polygon);
+		//System.out.println("configurationMatrix.getConfiguration().get(0)");
+		//System.out.println(configurationMatrix.getConfiguration().get(0));
+		landMap.setConfiguration(configurationMatrix.getConfiguration().get(0));
+		
+		// 3. We create the entry points for the main routes
 		SpineAlgorithm spineAlgorithm = new SpineAlgorithm();
+		spineAlgorithm.setConfigValues(landMap.getConfiguration().getLotConfiguration().getSideSize(),landMap.getConfiguration().getLotConfiguration().getDepthSize());
+		spineAlgorithm.setLandMap(landMap);
 		spineAlgorithm.setLandMap(spineLandMap);
 		spineAlgorithm.setWidth(width);
-		spineAlgorithm.setEntryX(6);
-		spineAlgorithm.setEntryY(557);
+		spineAlgorithm.setEntryX(algorithmView.getCartEntrygeocoords().get(1));
+		spineAlgorithm.setEntryY(algorithmView.getCartEntrygeocoords().get(0));
 		spineAlgorithm.setLarge(large);
-		
+		//we painting branch
 		for (SpineLandPoint entryPoint : entryPoints) {
 			int direction =SpineDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
 					spineLandMap.getCentroid());
 			spineAlgorithm.createRouteVariation(entryPoint.getId(), direction,SpineConfiguration.ARTERIAL_BRANCH);
-			break;
+		//	break;
 		}
 		
 		// 4. We clusterize the points
 		spineAlgorithm.spineizeV2();
+		
 		System.out.println("spineAlgorithm.getLandMap().getLandRoutes(); in TESTER");
 		System.out.println("size is "+ spineAlgorithm.getLandMap().getLandRoutes().size());
-		String strVertex = "";
-		for (int i = 0; i < spineAlgorithm.getLandMap().getLandRoutes().size(); i++) {
-			System.out.println(spineAlgorithm.getLandMap().getLandRoutes().get(i).stringify());
-			strVertex += spineAlgorithm.getLandMap().getLandRoutes().get(i).stringify();
-			if (i + 1 != spineAlgorithm.getLandMap().getLandRoutes().size()) {
-				strVertex += ",";
-			}
-		}
-		
-		//spineAlgorithm.getLandMap().getLandRoutes();
-		
-		//spineAlgorithm.spineize();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
 			
@@ -91,89 +97,21 @@ public class SpineTester {
 		spineAlgorithm.zonify();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
-
-		//spineAlgorithm.clearDotsSpine();
-
-		//LSystemSpineAlgorithm.landMap.printMapToFile();
-		
-		//changeLbyE();
-		
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
 		System.out.println("Algorithm finished in " + duration + "s");
-		//ClusterLotizationAlgorithm.landMap.printMapToFile();
-		//String compressedString = ClusterLotizationAlgorithm.landMap.stringify();
-		//System.out.println("Compressed String lenght: " + compressedString.length());
-		
-		
-		
 		spineAlgorithm.getLandMap().printMapToFileNew();
 		
 		endTime = System.nanoTime();
 		duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
 		System.out.println("Response build finished in " + duration + "s");
 		
-		//2 variants
-		SpineTestPane spineTestPane = new SpineTestPane(true,
-						spineAlgorithm.getLandMap().stringify(), large, width);		
-				//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
-				//clusterTestPane.large = large;
-				//clusterTestPane.width = width;
 		System.out.println("Start canvas");
 		
-		
-		
-		
-		
-	
-		/*int large1=1023 +1,width1=800 +1;
-		SpineLandMap spineLandMap1 = new SpineLandMap(large1, width1);
-		
-
-		List<SpineLandPoint> polygon1 = new ArrayList<>();
-		SpineLandPoint landPoint1 = new SpineLandPoint(0, 800);
-		polygon1.add(landPoint1);
-		landPoint1 = new SpineLandPoint(1023, 800);
-		polygon1.add(landPoint1);
-		landPoint1 = new SpineLandPoint(1023, 0);
-		polygon1.add(landPoint1);
-		landPoint1 = new SpineLandPoint(1, 0);
-		polygon1.add(landPoint1);
-		landPoint1 = new SpineLandPoint(0,800);
-		polygon1.add(landPoint1);
-		spineLandMap1.createBorderFromPolygon(polygon1);
-		
-		List<SpineLandPoint> entryPoints1 = new ArrayList<>();	
-		landPoint1 = new SpineLandPoint(0,400);
-		entryPoints1.add(landPoint1);
-
-		SpineAlgorithm spineAlgorithm1 = new SpineAlgorithm();
-		spineAlgorithm1.setLandMap(spineLandMap1);
-		spineAlgorithm1.setWidth(width1);
-		spineAlgorithm1.setEntryX(1); //entry point never can be 0
-		spineAlgorithm1.setEntryY(400);
-		spineAlgorithm1.setLarge(large1);
-		
-		for (SpineLandPoint entryPoint1 : entryPoints1) {
-			int direction1 =SpineDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint1,
-					spineLandMap1.getCentroid());
-			spineAlgorithm1.createRouteVariation(entryPoint1.getId(), direction1,SpineConfiguration.ARTERIAL_BRANCH);
-			break;
-		}
-		
-		spineAlgorithm1.spineizeV2();
-		spineAlgorithm1.zonify();
-		spineAlgorithm1.getLandMap().printMapToFileNew();
-		SpineTestPane spineTestPane1 = new SpineTestPane(true,
-								spineAlgorithm1.getLandMap().stringify(), large1, width1);	
-		
-
-		System.out.println("Algorithm finished");*/
-		
-		new SpineTester(spineTestPane);
-		//new SpineTester(spineTestPane1);
-		
-		
+		SpineTestPane spineTestPane1 = new SpineTestPane(1, spineAlgorithm.getLandMap().stringify(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
+		SpineTestPane spineTestPane2 = new SpineTestPane(2, spineAlgorithm.getLandMap().getGrammar(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
+		new SpineTester(spineTestPane1);	
+		new SpineTester(spineTestPane2);
 	}
 	public SpineTester(SpineTestPane spineTestPane) {
 		EventQueue.invokeLater(new Runnable() {
