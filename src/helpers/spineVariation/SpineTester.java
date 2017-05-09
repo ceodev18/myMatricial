@@ -50,8 +50,8 @@ public class SpineTester {
 		spineLandMap.createBorderFromPolygon(polygon);
 		
 		List<SpineLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new SpineLandPoint(algorithmView.getCartEntrygeocoords().get(1),
-				algorithmView.getCartEntrygeocoords().get(0));
+		landPoint = new SpineLandPoint(algorithmView.getCartEntrygeocoords().get(0),
+				algorithmView.getCartEntrygeocoords().get(1));
 		entryPoints.add(landPoint);
 		
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
@@ -73,8 +73,10 @@ public class SpineTester {
 		spineAlgorithm.setLandMap(landMap);
 		spineAlgorithm.setLandMap(spineLandMap);
 		spineAlgorithm.setWidth(width);
-		spineAlgorithm.setEntryX(algorithmView.getCartEntrygeocoords().get(1));
-		spineAlgorithm.setEntryY(algorithmView.getCartEntrygeocoords().get(0));
+		spineAlgorithm.setEntryX(algorithmView.getCartEntrygeocoords().get(0));
+		spineAlgorithm.setEntryY(algorithmView.getCartEntrygeocoords().get(1));
+		
+
 		spineAlgorithm.setLarge(large);
 		//we painting branch
 		for (SpineLandPoint entryPoint : entryPoints) {
