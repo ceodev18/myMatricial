@@ -39,6 +39,15 @@ public class ClusterTestPane extends JPanel {
 		this.landmapNodes = landmapNodes;
 	}
 
+	public ClusterTestPane(int stringedType, String stringify, List<ClusterLandRoute> landRoutes, int large, int width) {
+		this.large = large;
+		this.width = width;
+		this.stringedType = stringedType;
+		this.landRoutes = landRoutes;
+		this.clusterString = stringify;
+		this.landmapNodes = null;
+	}
+
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(large, width);

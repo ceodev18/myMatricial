@@ -508,23 +508,7 @@ public class ClusterLandMap {
 
 			if (canBeOrthogonallyLotized(currentXY, finalXY, driveDirection, growDirection,
 					configuration.getLotConfiguration().getDepthSize(), upperNearInitial, upperNearEnd)) {
-				int[] oldCurrentXY = new int[2];
-				oldCurrentXY[0] = currentXY[0];
-				oldCurrentXY[1] = currentXY[1];
 
-				currentXY = orthogonalLotize(currentXY, finalXY, driveDirection, growDirection,
-						seed % ClusterConstants.MAX_HOUSE_COMBINATION, upperNearEnd);
-				if (findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getGramaticalType() == null) {
-					findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1]))
-							.setGramaticalType("l" + "-" + oldCurrentXY[0] + "-" + oldCurrentXY[1] + "-"
-									+ upperNearInitial[0] + "-" + upperNearInitial[1] + "-" + upperNearEnd[0] + "-"
-									+ upperNearEnd[1] + "-" + currentXY[0] + "-" + currentXY[1]);
-				}
-
-				seed += 1;
-				distance -= configuration.getLotConfiguration().getSideSize();
-			} else {
-				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
 				// remembering that I need to readjust the point. Withouth this
 				// the first point will always give problems
 				String type = this.findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getType();
@@ -572,6 +556,23 @@ public class ClusterLandMap {
 					}
 				}
 
+				int[] oldCurrentXY = new int[2];
+				oldCurrentXY[0] = currentXY[0];
+				oldCurrentXY[1] = currentXY[1];
+
+				currentXY = orthogonalLotize(currentXY, finalXY, driveDirection, growDirection,
+						seed % ClusterConstants.MAX_HOUSE_COMBINATION, upperNearEnd);
+				if (findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1])).getGramaticalType() == null) {
+					findPoint(ClusterMapHelper.formKey(currentXY[0], currentXY[1]))
+							.setGramaticalType("l" + "-" + oldCurrentXY[0] + "-" + oldCurrentXY[1] + "-"
+									+ upperNearInitial[0] + "-" + upperNearInitial[1] + "-" + upperNearEnd[0] + "-"
+									+ upperNearEnd[1] + "-" + currentXY[0] + "-" + currentXY[1]);
+				}
+
+				seed += 1;
+				distance -= configuration.getLotConfiguration().getSideSize();
+			} else {
+				currentXY = ClusterMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, driveDirection);
 				distance--;
 			}
 		}
@@ -841,9 +842,8 @@ public class ClusterLandMap {
 			while (currentXY[0] != finalXY[0] || currentXY[1] != finalXY[1]) {
 				if (contribute) {
 					currentXY = createContribution(currentXY, finalXY, driveDirection, growDirection);
-					//TODO contribution saved up
-					
-					
+					// TODO contribution saved up
+
 					contribute = false;
 				} else {
 					if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
