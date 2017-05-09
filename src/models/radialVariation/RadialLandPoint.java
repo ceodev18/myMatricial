@@ -10,6 +10,7 @@ public class RadialLandPoint {
 	private int x = -1;
 	private int y = -1;
 	private String type = RadialConfiguration.OUTSIDE_POLYGON_MARK;
+	private String gramaticalType = null;
 	private int nodeType;
 	public RadialLandPoint(int x, int y){
 		this.x = x;
@@ -20,6 +21,11 @@ public class RadialLandPoint {
 	public int getId() {
 		return id;
 	}
+	public void fixId() {
+		int xs= getX();
+		int ys= getY();
+		this.id = xs * 10000 + ys;
+	}
 
 	public int getX() {
 		return x;
@@ -27,6 +33,7 @@ public class RadialLandPoint {
 
 	public void setX(int x) {
 		this.x = x;
+		fixId();
 	}
 
 	public int getY() {
@@ -35,6 +42,7 @@ public class RadialLandPoint {
 
 	public void setY(int y) {
 		this.y = y;
+		fixId();
 	}
 	public String getType() {
 		return type;
@@ -90,5 +98,12 @@ public class RadialLandPoint {
 			return true;
 		else
 			return false;
+	}
+	public String getGramaticalType() {
+		return gramaticalType;
+	}
+
+	public void setGramaticalType(String gramaticalType) {
+		this.gramaticalType = gramaticalType;
 	}
 }

@@ -8,14 +8,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
+import helpers.clusterVariation.ClusterMapHelper;
 import helpers.radialVariation.RadialDirectionHelper;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 import interfaces.radialVariation.RadialConstants;
+import models.clusterVariation.ClusterLandRoute;
+import models.configuration.ConfigurationEntry;
 
 
 public class RadialLandMap {
+	private ConfigurationEntry configuration;
+
+	public void setConfiguration(ConfigurationEntry configurationEntry) {
+		this.configuration = configurationEntry;
+	}
+
+	public ConfigurationEntry getConfiguration() {
+		return configuration;
+	}
 	private int pointsx = -1;
 	private int pointsy = -1;
 
@@ -23,7 +34,7 @@ public class RadialLandMap {
 
 	private Map<Integer, RadialLandPoint> map;
 
-	private RadialLandRoute landRoute;
+	private List<RadialLandRoute> landRoutes = new ArrayList<>();
 	private List<Integer> nodes = new ArrayList<>();
 	List<List<Integer>> fullPolygon;
 	private List<RadialLandPoint> polygonNodes;
@@ -73,14 +84,13 @@ public class RadialLandMap {
 		return map.get(entryPointId);
 	}
 
-	public void setLandRoute(RadialLandRoute landRoute) {
-		this.landRoute = landRoute;
+	public List<RadialLandRoute> getLandRoutes() {
+		return landRoutes;
 	}
-
-	public RadialLandRoute getLandRoute() {
-		return landRoute;
+	
+	public void setLandRoutes(List<RadialLandRoute> landRoutes) {
+		this.landRoutes = landRoutes;
 	}
-
 	
 	/**
 	 * This method marks all points that are not inside the polygon border as
@@ -89,7 +99,7 @@ public class RadialLandMap {
 	 */
 	public void createBorderFromPolygon(List<RadialLandPoint> polygon) {
 
-		///evade sizes errors, when is posible to out of range
+		///evade sizes errors, when is possible to out of range
 		for(int j =0 ;j < polygon.size();j++ ){
 			int valX = polygon.get(j).getX();
 			int valY = polygon.get(j).getY();
@@ -203,6 +213,7 @@ public class RadialLandMap {
 			polygonRow.add(fullPolygon.get(x).get(fullPolygon.get(x).size() - 1));
 			fullPolygon.set(x, polygonRow);
 		}
+		fullPolygon = null;
 	}
 
 	private boolean isPolygonBorder(int x, int y) {
@@ -251,6 +262,44 @@ public class RadialLandMap {
 
 	// Variation for the creation of zones
 	public void createBorderFromPolygon(List<Integer> polygon, String markType) {
+		int variation=0;
+		for(int j =0 ;j < polygon.size();j++ ){
+			int xyPoint[] = RadialMapHelper.breakKey(polygon.get(j));
+			int aux = (int)(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2) +1;
+			if(xyPoint[0] < aux){
+				xyPoint[0]= aux;
+				variation=1;
+			}
+			if(xyPoint[0] > (getPointsx() - aux)){
+				xyPoint[0]= getPointsx() - aux;
+				variation=1;
+			}
+			if(xyPoint[1] < aux){
+				xyPoint[1]= aux;
+				variation=1;
+			}
+			if(xyPoint[1] > (getPointsy() - aux)){
+				xyPoint[1] = getPointsy() - aux;
+				variation=1;
+			}
+			
+			
+			if(variation==1){
+				List<Integer> listAux = new ArrayList<>();
+				for(int k=0;k<polygon.size();k++){
+					if(k==j){
+						int auxValue= RadialMapHelper.formKey(xyPoint[0],xyPoint[1]);
+						listAux.add(auxValue);
+					}else{
+						listAux.add(polygon.get(j));
+					}
+				}
+				variation=0;
+				polygon=listAux;
+			}
+		}
+		
+		/////////////
 		for (int i = 0; i < polygon.size(); i++) {
 			int xyInitial[] = RadialMapHelper.breakKey(polygon.get(i));
 			int xyFinal[] = RadialMapHelper.breakKey(polygon.get((i + 1) % polygon.size()));
@@ -837,18 +886,6 @@ public class RadialLandMap {
 		}
 
 		return false;
-	}
-
-	public boolean intersectMainRoute(int entryPointId) {
-		int initialPoint = landRoute.getInitialPointId();
-		int finalPoint = landRoute.getFinalPointId();
-
-		int[] initialXY = RadialMapHelper.breakKey(initialPoint);
-		int[] finalXY = RadialMapHelper.breakKey(finalPoint);
-		int[] entryXY = RadialMapHelper.breakKey(entryPointId);
-
-		return (initialXY[0] < entryXY[0] && entryXY[0] < finalXY[0])
-				|| ((initialXY[1] < entryXY[1] && entryXY[1] < finalXY[1]));
 	}
 
 	public boolean isNormalNode(int x, int y) {
@@ -1803,6 +1840,20 @@ public class RadialLandMap {
 
 		return mapString;
 	}
+	
+	//TODO new Grammar, testing resulting vectors
+		public String getGrammar() {
+			String mapString = "";
+			for (int j = 0; j < pointsy; j++) {
+				for (int i = 0; i < pointsx; i++) {
+					String type = getLandPoint(RadialMapHelper.formKey(i, j)).getGramaticalType();
+					if(type != null){
+						mapString += type+",";
+					}
+				}
+			}
+			return mapString.substring(0, mapString.length());//remove last ,
+		}
 	
 	public void fillCentralPark() {
 		for (int x = 0; x < pointsx; x++) {

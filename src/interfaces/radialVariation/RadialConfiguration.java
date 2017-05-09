@@ -33,6 +33,7 @@ public interface RadialConfiguration {
 	public static String BORDER_MARK = "e";
 	public static String CENTROID = "P";
 	public static String CONTRIBUTION_MARK = "z";
+	public static String BLACK_MARK = "l";
 
 	public static String MARK_LOT1 = "3";
 	public static String MARK_LOT2 = "4";

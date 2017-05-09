@@ -368,14 +368,10 @@ public class RadialPolygon {
 	public List<List<Integer>> routeZone(int initialShrink, int size) {
 		List<List<Integer>> areas = new ArrayList<>();
 		List<Integer> area = vectorShrinking(initialShrink);
-		RadialPolygon polygonAux = new RadialPolygon();
-		polygonAux.setPoints(area);
-		polygonAux.setComplete(true);
-		
 		if (area.size() != 0) {
 			areas.add(area);
-			for (int i = 2; i < size+1; i++) {
-				area = polygonAux.vectorShrinking(i+1);
+			for (int i = initialShrink + 1; i < initialShrink + size; i++) {
+				area = vectorShrinking(i);
 				if (area.size() != 0) {
 					areas.add(area);
 				} else {
@@ -389,15 +385,12 @@ public class RadialPolygon {
 	public List<List<Integer>> parkZone(int initialDepth) {
 		List<List<Integer>> areas = new ArrayList<>();
 		List<Integer> area = vectorShrinking(initialDepth);
-		RadialPolygon polygonAux = new RadialPolygon();
-		polygonAux.setPoints(area);
-		polygonAux.setComplete(true);
-		int goDeeper = 1;
+		int goDeeper = initialDepth;
 		if (area.size() != 0) {
 			areas.add(area);
 			while (minimunDistanceBetweenVertex(area) > 1) {
 				goDeeper++;
-				area = polygonAux.vectorShrinking(goDeeper);
+				area = vectorShrinking(goDeeper);
 				if (area.size() != 0) {
 					areas.add(area);
 				} else {

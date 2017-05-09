@@ -12,11 +12,15 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 
 import algorithm.radialVariation.radialAlgorithm;
-
 import helpers.radialVariation.RadialTestPane;
+import helpers.clusterVariation.ClusterTestPane;
+import helpers.clusterVariation.ClusterTester;
+import helpers.radialVariation.RadialPolygonTester;
 import helpers.radialVariation.RadialTester;
-import models.radialVariation.RadialLandMap;
 import models.radialVariation.RadialLandPoint;
+import models.configuration.ConfigurationMatrix;
+import models.radialVariation.RadialLandMap;
+import models.view.AlgorithmView;
 
 public class RadialTester {
 	public static void main(String[] args) {
@@ -27,12 +31,33 @@ public class RadialTester {
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
 
 		//int large = 950, width = 1200;
-		int large = 950, width = 750;
+		//int large = 950, width = 750;
 		// 1. We create the map and set its intrinsec variables
 		//int large =1215, width = 850 ;
+		AlgorithmView algorithmView = new AlgorithmView("Radial-error.txt");
+		ConfigurationMatrix configurationMatrix = new ConfigurationMatrix(algorithmView);
+
+		int large = algorithmView.getxSize(), width = algorithmView.getySize();
+		// 1. We create the map and set its intrinsec variables
+		List<RadialLandPoint> polygon = new ArrayList<>();
+		List<Integer> intVertex = algorithmView.getCartVertexgeocoords();
+		for (int i = 0; i < algorithmView.getVertexgeocoords().size(); i += 2) {
+			RadialLandPoint landPoint = new RadialLandPoint(intVertex.get(i), intVertex.get(i + 1));
+			polygon.add(landPoint);
+		}
+		
+		RadialLandPoint landPoint = new RadialLandPoint(intVertex.get(0), intVertex.get(1));
+		polygon.add(landPoint);
+
+		RadialLandPoint entryPoints = new RadialLandPoint(algorithmView.getCartEntrygeocoords().get(0),
+													      algorithmView.getCartEntrygeocoords().get(1));
+	
+
+		
+		
 		
 		RadialLandMap landMap = new RadialLandMap(large, width);
-		List<RadialLandPoint> polygon = new ArrayList<>();
+		//List<RadialLandPoint> polygon = new ArrayList<>();
 		
 		/*
 		RadialLandPoint landPoint = new RadialLandPoint(0,700);
@@ -48,7 +73,7 @@ public class RadialTester {
 		polygon.add(landPoint);
 		
 		*/
-		
+		/*
 		RadialLandPoint landPoint = new RadialLandPoint(450,48);
 		polygon.add(landPoint);
 		landPoint = new RadialLandPoint(908, 286);
@@ -79,9 +104,11 @@ public class RadialTester {
 		*/
 		
 		// 2. we create the border from the polygon
-		landMap.createBorderFromPolygon(polygon);
 		
-		RadialLandPoint entryPoint = new RadialLandPoint(700,160 );
+		landMap.createBorderFromPolygon(polygon);
+		landMap.setConfiguration(configurationMatrix.getConfiguration().get(0));
+		
+		//RadialLandPoint entryPoint = new RadialLandPoint(700,160 );
 		//RadialLandPoint entryPoint = new RadialLandPoint(625,450 );
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
@@ -90,7 +117,7 @@ public class RadialTester {
 		radialAlgorithm radialAlgorithm = new radialAlgorithm();
 		radialAlgorithm.setLandMap(landMap);
 		
-		radialAlgorithm.CreateRadialWeb(entryPoint);
+		radialAlgorithm.CreateRadialWeb(entryPoints);
 		
 		
 		
@@ -107,7 +134,7 @@ public class RadialTester {
 																	// to get
 																	// milliseconds.
 		System.out.println("Algorithm finished in " + duration + "s");
-		// ClusterLotizationAlgorithm.landMap.printMapToFile();
+		// RadialLotizationAlgorithm.landMap.printMapToFile();
 
 		radialAlgorithm.getLandMap().printMapToFile();
 		
@@ -122,18 +149,20 @@ public class RadialTester {
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Final Memory" + usedMemoryBefore / 1000000 + " in MB");
 
-
+		
 		//2 variants
-		RadialTestPane radialTestPane = new RadialTestPane(true,
-				radialAlgorithm.getLandMap().stringify(), large, width);		
-		//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
-		//clusterTestPane.large = large;
-		//clusterTestPane.width = width;
+		//RadialPolygonTester radialTestPane = new RadialPolygonTester(true,
+		//		radialAlgorithm.getLandMap().stringify(), large, width);		
+		//new RadialTester(radialTestPane);
+	
+		
+	//  RadialTestPane radialTestPane = new RadialTestPane(2, radialAlgorithm.getLandMap().getGrammar(), radialAlgorithm.getLandMap().getLandRoutes(), large, width);
+	//	new RadialTester(radialTestPane);
+		RadialTestPane radialTestPane = new RadialTestPane(2, radialAlgorithm.getLandMap().getNodes(), radialAlgorithm.getLandMap().getGrammar(), radialAlgorithm.getLandMap().getLandRoutes(), large, width);
 		new RadialTester(radialTestPane);
-
-
 	
 	}
+	
 
 	
 	public RadialTester(RadialTestPane radialTestPane) {
@@ -159,5 +188,30 @@ public class RadialTester {
 			}
 		});
 	}
+	
+	public RadialTester(RadialPolygonTester clusterPolygonTester) {
+		EventQueue.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+						| UnsupportedLookAndFeelException ex) {
+				}
+
+				JFrame frame = new JFrame("Testing");
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				frame.setLayout(new BorderLayout());
+				JScrollPane scrPane = new JScrollPane(clusterPolygonTester);
+				frame.add(scrPane); // similar to getContentPane().add(scrPane);
+
+				// frame.add(new TestPane());
+				frame.pack();
+				frame.setLocationRelativeTo(null);
+				frame.setVisible(true);
+			}
+		});
+	}
+
 
 }

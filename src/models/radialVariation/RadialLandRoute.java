@@ -77,9 +77,19 @@ public class RadialLandRoute {
 			for(int j = 0; j < layers.get(i).size(); j++){
 				int ini= (layers.get(i).get(j%(layers.get(i).size())));
 				int end= (layers.get(i).get((j+1)%(layers.get(i).size())));
-				RadialLandRoute routes = new RadialLandRoute(ini,end,RadialConfiguration.LOCAL_MARK);
-				routesLayer.add(routes);
+				if(i== layers.size()-2){
+					RadialLandRoute routes = new RadialLandRoute(ini,end,RadialConfiguration.ARTERIAL_MARK);
+					routesLayer.add(routes);
+				}
+				else{
+					RadialLandRoute routes = new RadialLandRoute(ini,end,RadialConfiguration.LOCAL_MARK);
+					routesLayer.add(routes);
+				}
+				
 			}
+			
+			
+			
 			auxArr.add(routesLayer);
 		}
 		//here we have the layers routes now we need the vertix layers
