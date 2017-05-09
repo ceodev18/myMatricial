@@ -840,7 +840,9 @@ public class ClusterLandMap {
 			int seed = 0;
 			while (currentXY[0] != finalXY[0] || currentXY[1] != finalXY[1]) {
 				if (contribute) {
-					currentXY = createConribution(currentXY, finalXY, driveDirection, growDirection);
+					currentXY = createContribution(currentXY, finalXY, driveDirection, growDirection);
+					//TODO contribution saved up
+					
 					contribute = false;
 				} else {
 					if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
@@ -877,7 +879,7 @@ public class ClusterLandMap {
 		}
 	}
 
-	private int[] createConribution(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
+	private int[] createContribution(int[] initialXY, int[] finalXY, int driveDirection, int growDirection) {
 		int times = ClusterConfiguration.CONTRIBUTION_SIDE_MINIMUN_SIZE;
 		int[] currentXY = new int[] { initialXY[0], initialXY[1] };
 		int distance = (int) Math.sqrt(Math.pow(initialXY[0] - finalXY[0], 2) + Math.pow(initialXY[1] - finalXY[1], 2));
