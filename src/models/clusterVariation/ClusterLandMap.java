@@ -843,6 +843,7 @@ public class ClusterLandMap {
 					currentXY = createContribution(currentXY, finalXY, driveDirection, growDirection);
 					//TODO contribution saved up
 					
+					
 					contribute = false;
 				} else {
 					if (canBeLotized(currentXY, finalXY, driveDirection, growDirection,
