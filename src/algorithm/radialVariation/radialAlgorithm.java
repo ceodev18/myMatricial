@@ -64,6 +64,8 @@ public class radialAlgorithm {
 		int valuePlus=1;
 		while(true){
 			int aux = valueSeparation*valuePlus;
+			///avoid error in big areas
+			if(valuePlus >= 8)areaPark = (areaTotal*3.5)/100;
 			double possibleArea = polygon.areaShrinking(aux);
 			if(possibleArea <= areaPark)break;
 			if(valuePlus!= 1){
