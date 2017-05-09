@@ -93,10 +93,6 @@ public class SpineTester {
 		System.out.println("size is "+ spineAlgorithm.getLandMap().getLandRoutes().size());
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
-			
-		
-		// 5. Zonification
-		spineAlgorithm.zonify();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
 		long endTime = System.nanoTime();
