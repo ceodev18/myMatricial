@@ -8,12 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import helpers.clusterVariation.ClusterMapHelper;
 import helpers.radialVariation.RadialDirectionHelper;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 import interfaces.radialVariation.RadialConstants;
-import models.clusterVariation.ClusterLandRoute;
 import models.configuration.ConfigurationEntry;
 
 
@@ -1082,9 +1080,9 @@ public class RadialLandMap {
 				// - 6 to make
 				createRadialEntrance(currentXY, finalXY, direction);
 				finalXY = RadialMapHelper.moveKeyByOffsetAndDirection(finalXY,
-						RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
+						configuration.getLotConfiguration().getDepthSize() * 2, direction);
 				currentXY = RadialMapHelper.moveKeyByOffsetAndDirection(currentXY,
-						RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+						configuration.getLotConfiguration().getDepthSize() * 2,
 						RadialDirectionHelper.oppositeDirection(direction));
 			} else {
 				notUniform = true;
@@ -1131,26 +1129,26 @@ public class RadialLandMap {
 			}
 
 			if (gradient.doubleValue() == 0.0 || gradient.isInfinite()) {
-				lotizable = canBeLotized(currentXY, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-						RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2, direction);
+				lotizable = canBeLotized(currentXY, configuration.getLotConfiguration().getSideSize(),
+						configuration.getLotConfiguration().getDepthSize() * 2, direction);
 				if (lotizable) {
-					createDoubleLot(currentXY, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-							RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, seed % 4);
+					createDoubleLot(currentXY, configuration.getLotConfiguration().getSideSize(),
+							configuration.getLotConfiguration().getDepthSize(), direction, seed % 4);
 					currentXY = RadialMapHelper.moveKeyByOffsetAndDirection(currentXY,
-							RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE, direction);
+							configuration.getLotConfiguration().getSideSize(), direction);
 					seed += 2;
 				} else {
 					currentXY = RadialMapHelper.moveKeyByOffsetAndDirection(currentXY, 1, direction);
 				}
 			} else {
 				lotizable = canBeNonOrthogonallyLotized(currentXY, finalXY,
-						RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE, RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE,
+						configuration.getLotConfiguration().getSideSize(), configuration.getLotConfiguration().getDepthSize(),
 						direction, gradient);
 				if (lotizable) {
-					createNonOrthogonalLot(currentXY, finalXY, RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,
-							RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE, direction, gradient, seed % 4);
+					createNonOrthogonalLot(currentXY, finalXY, configuration.getLotConfiguration().getSideSize(),
+							configuration.getLotConfiguration().getDepthSize(), direction, gradient, seed % 4);
 					currentXY = RadialMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY,
-							RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE, gradient, offset, direction);
+							configuration.getLotConfiguration().getSideSize(), gradient, offset, direction);
 					seed += 2;
 				} else {
 					currentXY = RadialMapHelper.moveKeyByGradientAndOffset(currentXY, finalXY, 1, gradient, offset,
@@ -1462,7 +1460,7 @@ public class RadialLandMap {
 			if (isUpDown && (oldVariation != -1) && ((oldVariation + 1) < currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
 				for (int w = oldVariation + 1; w < currentXY[1]; w++) {
-					for (int i = 0; i < 2 * RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+					for (int i = 0; i < 2 * configuration.getLotConfiguration().getDepthSize(); i++) {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
@@ -1479,7 +1477,7 @@ public class RadialLandMap {
 			} else if ((oldVariation != -1) && ((oldVariation - 1) > currentXY[1])) {
 				// we take the reminder y that are needed for an exact answer
 				for (int w = currentXY[1] + 1; w < oldVariation; w++) {
-					for (int i = 0; i < 2 * RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+					for (int i = 0; i < 2 * configuration.getLotConfiguration().getDepthSize(); i++) {
 						variation[0] = currentXY[0] + (!inverse ? i : -i);
 						variation[1] = w;
 						// orthogonalGradient * variation[0] + orthogonalOffset;
@@ -1500,7 +1498,7 @@ public class RadialLandMap {
 			}
 
 			// We need to find the furthest
-			for (int i = 0; i < 2 * RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+			for (int i = 0; i < 2 * configuration.getLotConfiguration().getDepthSize(); i++) {
 				variation[0] = currentXY[0] + (!inverse ? i : -i);
 				variation[1] = currentXY[1];
 				// orthogonalGradient * variation[0] + orthogonalOffset;
@@ -1562,7 +1560,7 @@ public class RadialLandMap {
 			currentXY[1] = (int) (gradient * currentXY[0] + offset);
 			orthogonalOffset = -orthogonalGradient * currentXY[0] + currentXY[1];
 
-			for (int i = 0; i < 2 * RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE; i++) {
+			for (int i = 0; i < 2 * configuration.getLotConfiguration().getDepthSize(); i++) {
 				variation[1] = currentXY[1] + (!down ? i : -i);
 				variation[0] = (variation[1] - orthogonalOffset) / orthogonalGradient;
 				if (landPointisOnMap(RadialMapHelper.formKey((int) variation[0], (int) variation[1]))) {
@@ -1596,7 +1594,7 @@ public class RadialLandMap {
 				&& (lowerMiddle[1] > currentXY[1] || upperMiddle[1] < finalXY[1]))
 			return;
 		createInsideRadialRoute(upperMiddle, RadialMapHelper.formKey(lowerMiddle[0], lowerMiddle[1]), direction,
-				RadialConfiguration.WALK_BRANCH, RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+				RadialConfiguration.WALK_BRANCH, configuration.getLotConfiguration().getDepthSize() * 2,
 				RadialConfiguration.RADIAL_ENTRANCE_MARK);
 	}
 
@@ -1605,13 +1603,13 @@ public class RadialLandMap {
 			return createInsideRadialRoute(currentXY,
 					RadialMapHelper.moveKeyByOffsetAndDirection(RadialMapHelper.formKey(currentXY[0], currentXY[1]),
 							RadialConfiguration.WALK_BRANCH_SIZE, RadialDirectionHelper.oppositeDirection(direction)),
-					direction, RadialConfiguration.WALK_BRANCH, RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+					direction, RadialConfiguration.WALK_BRANCH, configuration.getLotConfiguration().getDepthSize() * 2,
 					RadialConfiguration.WALK_MARK);
 		} else {
 			return createInsideRadialRoute(currentXY,
 					RadialMapHelper.moveKeyByOffsetAndDirection(RadialMapHelper.formKey(currentXY[0], currentXY[1]),
 							RadialConfiguration.WALK_BRANCH_SIZE, direction),
-					direction, RadialConfiguration.WALK_BRANCH, RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2,
+					direction, RadialConfiguration.WALK_BRANCH, configuration.getLotConfiguration().getDepthSize() * 2,
 					RadialConfiguration.WALK_MARK);
 		}
 	}
