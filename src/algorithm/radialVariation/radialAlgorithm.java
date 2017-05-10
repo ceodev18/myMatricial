@@ -3,10 +3,8 @@ package algorithm.radialVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-import helpers.clusterVariation.ClusterMapHelper;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
-import interfaces.radialVariation.RadialConstants;
 import models.radialVariation.RadialLandMap;
 import models.radialVariation.RadialLandPoint;
 import models.radialVariation.RadialLandRoute;
@@ -57,7 +55,7 @@ public class radialAlgorithm {
 		}
 		landMap.findPoint(localLayer.get(0)).setGramaticalType(borderGrammar);	
 		/// calculate the aprox of layers on the polygon
-		int valueSeparation = RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE;
+		int valueSeparation = landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE;
 		double areaTotal = landMap.getPolygonalArea();
 		double areaPark = (areaTotal*2.4)/100;
 		
@@ -72,9 +70,9 @@ public class radialAlgorithm {
 				localLayer = polygon.vectorShrinking((valuePlus-1)*valueSeparation);
 				layersPolygon.add(localLayer);
 			}
-			localLayer = polygon.vectorShrinking(valueSeparation*(valuePlus-1) + RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE );
+			localLayer = polygon.vectorShrinking(valueSeparation*(valuePlus-1) + landMap.getConfiguration().getLotConfiguration().getDepthSize() );
 			layersPolygon.add(localLayer);
-			localLayer = polygon.vectorShrinking(valueSeparation*(valuePlus-1) + RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 );
+			localLayer = polygon.vectorShrinking(valueSeparation*(valuePlus-1) + landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 );
 			layersPolygon.add(localLayer);
 			/*
 				for (int j = 0; j < layersPolygon.size(); j++) {
@@ -83,7 +81,7 @@ public class radialAlgorithm {
 			 */
 			/*
 			// create the routes
-			List<List<Integer>> routes = polygon.routeZone(valuePlus*RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE*(valuePlus-1),
+			List<List<Integer>> routes = polygon.routeZone(valuePlus*landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE*(valuePlus-1),
 					RadialConfiguration.LOCAL_BRANCH_SIZE);
 			if (routes.size() > 6) {
 				for (int j = 0; j < routes.size(); j++) {
@@ -256,11 +254,11 @@ public class radialAlgorithm {
 			numLayersAble++;
 		}
 		int numTotalMax = numMaxParks + numMaxZones ;
-		int spaceHouse = (int)(800/(2*RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE)/RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE);
+		int spaceHouse = (int)(800/(2*landMap.getConfiguration().getLotConfiguration().getDepthSize())/landMap.getConfiguration().getLotConfiguration().getSideSize());
 		spaceHouse++;
 		int numAproxZones=0;
 		while(numAproxZones==0){
-			double zoneArea = spaceHouse*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*2*RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE;
+			double zoneArea = spaceHouse*landMap.getConfiguration().getLotConfiguration().getSideSize()*2*landMap.getConfiguration().getLotConfiguration().getDepthSize();
 			
 			double actualAreaZone = areaExtra;
 			for(int k=1;k <= numTotalMax;k++){
@@ -333,7 +331,7 @@ public class radialAlgorithm {
 				}
 				
 				//verify minimun area
-				double area = (RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
+				double area = (landMap.getConfiguration().getLotConfiguration().getDepthSize()*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
 				if(area < 90 || distanceDown<(6+ RadialConfiguration.COLLECTOR_BRANCH_SIZE) || distanceTop<(6+ RadialConfiguration.COLLECTOR_BRANCH_SIZE )){
 					//caso contrario volver area libre 
 					cuadrangular(point1Top,point2Top,point2Down,point1Down,RadialConfiguration.CONTRIBUTION_MARK);
@@ -414,16 +412,16 @@ public class radialAlgorithm {
 		//verify total area again //find distances again
 		double  distanceTop = landMap.distanceOfPointToPoint(point1Top,point2Top);
 		double  distanceDown = landMap.distanceOfPointToPoint(point1Down,point2Down); 	
-		double area = (RadialConfiguration.HOUSE_DEPTH_MINIMUN_SIZE*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
+		double area = (landMap.getConfiguration().getLotConfiguration().getDepthSize()*2*((distanceTop-RadialConfiguration.COLLECTOR_BRANCH_SIZE )+ (distanceDown-RadialConfiguration.COLLECTOR_BRANCH_SIZE )))/2;
 		if(area < 90 || distanceDown < 6 || distanceTop < 6){
 			//caso contrario volver area libre 
 			//cuadrangular(point1Top,point2Top,point2Down,point1Down,RadialConfiguration.CONTRIBUTION_MARK);
 			///print with new graamar
 			landMap.findPoint(point1Top).setGramaticalType(
-					"z" + "-" + ClusterMapHelper.breakKey(point1Top)[0] + "-" + ClusterMapHelper.breakKey(point1Top)[1] + "-" +
-							ClusterMapHelper.breakKey(point2Top)[0]+ "-" + ClusterMapHelper.breakKey(point2Top)[1] + "-"
-							+ ClusterMapHelper.breakKey(point2Down)[0] + "-" + ClusterMapHelper.breakKey(point2Down)[1] + "-" 
-							+ ClusterMapHelper.breakKey(point1Down)[0] + "-" + ClusterMapHelper.breakKey(point1Down)[1]);
+					"z" + "-" + RadialMapHelper.breakKey(point1Top)[0] + "-" + RadialMapHelper.breakKey(point1Top)[1] + "-" +
+							RadialMapHelper.breakKey(point2Top)[0]+ "-" + RadialMapHelper.breakKey(point2Top)[1] + "-"
+							+ RadialMapHelper.breakKey(point2Down)[0] + "-" + RadialMapHelper.breakKey(point2Down)[1] + "-" 
+							+ RadialMapHelper.breakKey(point1Down)[0] + "-" + RadialMapHelper.breakKey(point1Down)[1]);
 			
 			return verif;
 		}
@@ -433,10 +431,10 @@ public class radialAlgorithm {
 		///print with new graamar
 		//cuadrangular(point1Top,point2Top,point2Down,point1Down,RadialConfiguration.ARTERIAL_MARK);
 		landMap.findPoint(point1Top).setGramaticalType(
-				"o" + "-"  + ClusterMapHelper.breakKey(point1Top)[0] + "-" + ClusterMapHelper.breakKey(point1Top)[1] + "-" +
-						ClusterMapHelper.breakKey(point2Top)[0]+ "-" + ClusterMapHelper.breakKey(point2Top)[1] + "-"
-						+ ClusterMapHelper.breakKey(point2Down)[0] + "-" + ClusterMapHelper.breakKey(point2Down)[1] + "-" 
-						+ ClusterMapHelper.breakKey(point1Down)[0] + "-" + ClusterMapHelper.breakKey(point1Down)[1]);
+				"o" + "-"  + RadialMapHelper.breakKey(point1Top)[0] + "-" + RadialMapHelper.breakKey(point1Top)[1] + "-" +
+						RadialMapHelper.breakKey(point2Top)[0]+ "-" + RadialMapHelper.breakKey(point2Top)[1] + "-"
+						+ RadialMapHelper.breakKey(point2Down)[0] + "-" + RadialMapHelper.breakKey(point2Down)[1] + "-" 
+						+ RadialMapHelper.breakKey(point1Down)[0] + "-" + RadialMapHelper.breakKey(point1Down)[1]);
 		
 		//do algorithm with the major  like reference
 		//find points to know the polygon form
@@ -457,8 +455,8 @@ public class radialAlgorithm {
 		if(pntRightDown == -1) pntRightDown = point2Down;
 		//find number of division of houses 
 		double distanceLarge = landMap.distanceOfPointToPoint(pntLeftUp,pntRightUp);
-		int nDivision = (int)(distanceLarge/(RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE));
-		int  extraDistance= (int)(distanceLarge % (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE));
+		int nDivision = (int)(distanceLarge/(landMap.getConfiguration().getLotConfiguration().getSideSize()));
+		int  extraDistance= (int)(distanceLarge % (landMap.getConfiguration().getLotConfiguration().getSideSize()));
 		int medidor = (int)(nDivision/3)*2 ;
 		int part = 0;
 		boolean spec = false;
@@ -471,7 +469,7 @@ public class radialAlgorithm {
 		}
 		if(modeD ==3 && nDivision%2 == 0) modeD =4;
 		if(modeD ==5 && nDivision%2 == 0) modeD =6;
-		//pulirEsquinas(modeI,modeD,point1Top,point2Top,point1Mid,point2Mid,point1Down,point2Down,extraDistance);
+		pulirEsquinas(modeI,modeD,point1Top,point2Top,point1Mid,point2Mid,point1Down,point2Down,extraDistance);
 			//print houses
 			int initPoint1 = pntLeftUp;
 			int aux1Point = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,initPoint1,true);
@@ -482,19 +480,19 @@ public class radialAlgorithm {
 				//landMap.createALine(point1Mid, point2Mid, RadialConfiguration.ARTERIAL_MARK);
 				//print grammar
 				landMap.findPoint(point1Mid).setGramaticalType(
-						"o" + "-"  + ClusterMapHelper.breakKey(point1Mid)[0] + "-" + ClusterMapHelper.breakKey(point1Mid)[1] + "-" +
-								ClusterMapHelper.breakKey(point2Mid)[0]+ "-" + ClusterMapHelper.breakKey(point2Mid)[1] + "-"
-								+ ClusterMapHelper.breakKey(point2Mid)[0] + "-" + ClusterMapHelper.breakKey(point2Mid)[1] + "-" 
-								+ ClusterMapHelper.breakKey(point1Mid)[0] + "-" + ClusterMapHelper.breakKey(point1Mid)[1]);
+						"o" + "-"  + RadialMapHelper.breakKey(point1Mid)[0] + "-" + RadialMapHelper.breakKey(point1Mid)[1] + "-" +
+								RadialMapHelper.breakKey(point2Mid)[0]+ "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-"
+								+ RadialMapHelper.breakKey(point2Mid)[0] + "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-" 
+								+ RadialMapHelper.breakKey(point1Mid)[0] + "-" + RadialMapHelper.breakKey(point1Mid)[1]);
 			}
 			
 			for(int i = 0 ;i < nDivision; i++){
 				if(spec == true && i == part){
 					ind =1;
 					//print area
-					int pntDwn1 =   landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i)));
-					int pntDwn2 =   landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i)+(ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
-					int aux = 		landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					int pntDwn1 =   landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
+					int pntDwn2 =   landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)+(ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse)));
+					int aux = 		landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i) + (ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse)));
 					/*
 					
 					List<Integer> localList;
@@ -518,16 +516,16 @@ public class radialAlgorithm {
 					//cuadrangular(initPoint1,aux,pntDwn2,pntDwn1,mask);
 					if(mask == "p"){
 						landMap.findPoint(initPoint1).setGramaticalType(
-								"g" + "-"  + ClusterMapHelper.breakKey(initPoint1)[0] + "-" + ClusterMapHelper.breakKey(initPoint1)[1] + "-" +
-										ClusterMapHelper.breakKey(aux)[0]+ "-" + ClusterMapHelper.breakKey(aux)[1] + "-"
-										+ ClusterMapHelper.breakKey(pntDwn2)[0] + "-" + ClusterMapHelper.breakKey(pntDwn2)[1] + "-" 
-										+ ClusterMapHelper.breakKey(pntDwn1)[0] + "-" + ClusterMapHelper.breakKey(pntDwn1)[1]);
+								"g" + "-"  + RadialMapHelper.breakKey(initPoint1)[0] + "-" + RadialMapHelper.breakKey(initPoint1)[1] + "-" +
+										RadialMapHelper.breakKey(aux)[0]+ "-" + RadialMapHelper.breakKey(aux)[1] + "-"
+										+ RadialMapHelper.breakKey(pntDwn2)[0] + "-" + RadialMapHelper.breakKey(pntDwn2)[1] + "-" 
+										+ RadialMapHelper.breakKey(pntDwn1)[0] + "-" + RadialMapHelper.breakKey(pntDwn1)[1]);
 					}else{
 						landMap.findPoint(initPoint1).setGramaticalType(
-								"z" + "-" + ClusterMapHelper.breakKey(initPoint1)[0] + "-" + ClusterMapHelper.breakKey(initPoint1)[1] + "-" +
-										ClusterMapHelper.breakKey(aux)[0]+ "-" + ClusterMapHelper.breakKey(aux)[1] + "-"
-										+ ClusterMapHelper.breakKey(pntDwn2)[0] + "-" + ClusterMapHelper.breakKey(pntDwn2)[1] + "-" 
-										+ ClusterMapHelper.breakKey(pntDwn1)[0] + "-" + ClusterMapHelper.breakKey(pntDwn1)[1]);
+								"z" + "-" + RadialMapHelper.breakKey(initPoint1)[0] + "-" + RadialMapHelper.breakKey(initPoint1)[1] + "-" +
+										RadialMapHelper.breakKey(aux)[0]+ "-" + RadialMapHelper.breakKey(aux)[1] + "-"
+										+ RadialMapHelper.breakKey(pntDwn2)[0] + "-" + RadialMapHelper.breakKey(pntDwn2)[1] + "-" 
+										+ RadialMapHelper.breakKey(pntDwn1)[0] + "-" + RadialMapHelper.breakKey(pntDwn1)[1]);
 					}
 					
 					int aux7 = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,initPoint1,true);
@@ -536,54 +534,54 @@ public class radialAlgorithm {
 					//landMap.createALine(aux8, point2Mid, RadialConfiguration.ARTERIAL_MARK);
 					/////////print grammar
 					landMap.findPoint(point1Mid).setGramaticalType(
-							"o" + "-"  + ClusterMapHelper.breakKey(point1Mid)[0] + "-" + ClusterMapHelper.breakKey(point1Mid)[1] + "-" +
-									ClusterMapHelper.breakKey(aux7)[0]+ "-" + ClusterMapHelper.breakKey(aux7)[1] + "-"
-									+ ClusterMapHelper.breakKey(aux7)[0] + "-" + ClusterMapHelper.breakKey(aux7)[1] + "-" 
-									+ ClusterMapHelper.breakKey(point1Mid)[0] + "-" + ClusterMapHelper.breakKey(point1Mid)[1]);
+							"o" + "-"  + RadialMapHelper.breakKey(point1Mid)[0] + "-" + RadialMapHelper.breakKey(point1Mid)[1] + "-" +
+									RadialMapHelper.breakKey(aux7)[0]+ "-" + RadialMapHelper.breakKey(aux7)[1] + "-"
+									+ RadialMapHelper.breakKey(aux7)[0] + "-" + RadialMapHelper.breakKey(aux7)[1] + "-" 
+									+ RadialMapHelper.breakKey(point1Mid)[0] + "-" + RadialMapHelper.breakKey(point1Mid)[1]);
 					landMap.findPoint(aux8).setGramaticalType(
-							"o" + "-"  + ClusterMapHelper.breakKey(aux8)[0] + "-" + ClusterMapHelper.breakKey(aux8)[1] + "-" +
-									ClusterMapHelper.breakKey(point2Mid)[0]+ "-" + ClusterMapHelper.breakKey(point2Mid)[1] + "-"
-									+ ClusterMapHelper.breakKey(point2Mid)[0] + "-" + ClusterMapHelper.breakKey(point2Mid)[1] + "-" 
-									+ ClusterMapHelper.breakKey(aux8)[0] + "-" + ClusterMapHelper.breakKey(aux8)[1]);
+							"o" + "-"  + RadialMapHelper.breakKey(aux8)[0] + "-" + RadialMapHelper.breakKey(aux8)[1] + "-" +
+									RadialMapHelper.breakKey(point2Mid)[0]+ "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-"
+									+ RadialMapHelper.breakKey(point2Mid)[0] + "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-" 
+									+ RadialMapHelper.breakKey(aux8)[0] + "-" + RadialMapHelper.breakKey(aux8)[1]);
 					
 					////
 					///////////otra manera d generar
-					//int aux3 = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i) + (int)(ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse/2)));
-					//int aux4 = landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i)+(int)(ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse/2)));
-					//landMap.createACustomRoute(aux3,aux4,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse,mask);
+					//int aux3 = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i) + (int)(ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse/2)));
+					//int aux4 = landMap.findPointOnStreightToDistance( pntLeftDown, pntRightDown, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)+(int)(ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse/2)));
+					//landMap.createACustomRoute(aux3,aux4,landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse,mask);
 					////
 					initPoint1 = aux;
-					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i) + (ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse)));
 					initPoint2 = aux2;
 					
 				}
 				///////////////line case
-				generateLineHouse(initPoint1,pntRightUp,pntLeftDown,pntRightDown,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.ARTERIAL_MARK);
-				int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+				generateLineHouse(initPoint1,pntRightUp,pntLeftDown,pntRightDown,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.ARTERIAL_MARK);
+				int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i+1) + (ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse)));
 				initPoint1 = aux;
-				int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+				int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i+1) + (ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse)));
 				initPoint2 = aux2;
 				
 				//////////////////////
 				/*	
 				if((i%2) == 0){
-					generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-					int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT1);
+					int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i+1) + (ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse)));
 					initPoint1 = aux;
 				
-					generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT2);
+					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i+1) + (ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse)));
 					initPoint2 = aux2;
 				
 		
 				}else
 				if((i%2) == 1){
-					generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-					int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					generateHouse(initPoint1,pntRightUp,aux1Point,aux2Point,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT2);
+					int aux = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i+1) + (ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse)));
 					initPoint1 = aux;
 			
-					generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1) + (ind*RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*spaceHouse)));
+					generateHouse(initPoint2,aux2Point,pntLeftDown,pntRightDown,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT1);
+					int aux2 = landMap.findPointOnStreightToDistance( aux1Point, aux2Point, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i+1) + (ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse)));
 					initPoint2 = aux2;				
 				}
 				*/
@@ -599,10 +597,10 @@ public class radialAlgorithm {
 		int opuestAux = landMap.findProyectionPointIntoParalelStraights( pnt1Dwn, pnt2Dwn,aux,false);
 		//landMap.createALine(aux, opuestAux, mask);
 		landMap.findPoint(aux).setGramaticalType(
-				"l" + "-"  + ClusterMapHelper.breakKey(aux)[0] + "-" + ClusterMapHelper.breakKey(aux)[1] + "-" +
-						ClusterMapHelper.breakKey(opuestAux)[0]+ "-" + ClusterMapHelper.breakKey(opuestAux)[1] + "-"
-						+ ClusterMapHelper.breakKey(opuestAux)[0] + "-" + ClusterMapHelper.breakKey(opuestAux)[1] + "-" 
-						+ ClusterMapHelper.breakKey(aux)[0] + "-" + ClusterMapHelper.breakKey(aux)[1]);
+				"l" + "-"  + RadialMapHelper.breakKey(aux)[0] + "-" + RadialMapHelper.breakKey(aux)[1] + "-" +
+						RadialMapHelper.breakKey(opuestAux)[0]+ "-" + RadialMapHelper.breakKey(opuestAux)[1] + "-"
+						+ RadialMapHelper.breakKey(opuestAux)[0] + "-" + RadialMapHelper.breakKey(opuestAux)[1] + "-" 
+						+ RadialMapHelper.breakKey(aux)[0] + "-" + RadialMapHelper.breakKey(aux)[1]);
 		
 		pointSolution=aux;
 		return pointSolution;
@@ -622,29 +620,21 @@ public class radialAlgorithm {
 		
 		if (underscore == 0) {
 			if(xyRec1Ini[1] < xyRec1End[1] ){
-				/*
+		
+				
 				for(int i=0;i< dist;i++){
 					int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] + i));
 					int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
 					landMap.createALine( auxPoint1,auxPoint2,mask);
 				}
-				*/
-				int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] + dist));
-				int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
-				landMap.createALine( auxPoint1,auxPoint2,mask);
 				/////
 				pointSolution =  RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] + (int)dist));		
 			}else{
-				/*
 				for(int i=0;i< dist;i++){
 					int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] - i));
 					int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
 					landMap.createALine( auxPoint1,auxPoint2,mask);
 				}
-				*/
-				int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] - dist));
-				int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
-				landMap.createALine( auxPoint1,auxPoint2,mask);
 				/////
 				pointSolution =  RadialMapHelper.formKey(xyRec1End[0],(xyRec1Ini[1] - (int)dist));		
 			}
@@ -654,28 +644,19 @@ public class radialAlgorithm {
 			b = (xyRec1Ini[0]*xyRec1End[1] -(xyRec1End[0]*xyRec1Ini[1]))/(xyRec1Ini[0] -xyRec1End[0]);
 			if(gradient == 0){
 				if(xyRec1Ini[0] < xyRec1End[0]){ 
-					/*
+	
 					for(int i=0;i< dist;i++){
 						int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0] + i,(xyRec1End[1]));
 						int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
 						landMap.createALine( auxPoint1,auxPoint2,mask);
 					}
-					*/
-					int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0] + dist,(xyRec1End[1]));
-					int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
-					landMap.createALine( auxPoint1,auxPoint2,mask);
 					pointSolution =  RadialMapHelper.formKey( (xyRec1Ini[0] + (int)dist),xyRec1End[1] );		
 				}else{
-					/*
 					for(int i=0;i< dist;i++){
 						int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0] - i,(xyRec1End[1]));
 						int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
 						landMap.createALine( auxPoint1,auxPoint2,mask);
 					}
-					*/
-					int auxPoint1 = RadialMapHelper.formKey(xyRec1End[0] - dist,(xyRec1End[1]));
-					int auxPoint2 = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,auxPoint1,false);
-					landMap.createALine( auxPoint1,auxPoint2,mask);
 					pointSolution =  RadialMapHelper.formKey( (xyRec1Ini[0] - (int)dist),xyRec1End[1] );	
 				}
 				return pointSolution;
@@ -714,7 +695,7 @@ public class radialAlgorithm {
 					RadialMapHelper.round(y);
 					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
 					int auxPoint = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,pointSolution,false);
-					//landMap.createALine( pointSolution,auxPoint,mask);
+					landMap.createALine( pointSolution,auxPoint,mask);
 					double auxDist = landMap.distanceOfPointToPoint(pnt1Up,pointSolution);
 					if(auxDist >= dist){
 						landMap.createALine( pointSolution,auxPoint,mask);
@@ -735,7 +716,7 @@ public class radialAlgorithm {
 					RadialMapHelper.round(y);
 					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
 					int auxPoint = landMap.findProyectionPointIntoParalelStraights(pnt1Dwn,pnt2Dwn,pointSolution,false);
-					//landMap.createALine( pointSolution,auxPoint,mask);
+					landMap.createALine( pointSolution,auxPoint,mask);
 					double auxDist = landMap.distanceOfPointToPoint(pnt1Up,pointSolution);
 					if(auxDist >= dist){
 						landMap.createALine( pointSolution,auxPoint,mask);
@@ -752,27 +733,31 @@ public class radialAlgorithm {
 			int pntTopRight = landMap.findProyectionPointIntoParalelStraights(point1Top,point2Top,point1Down,true);
 			int pntMidAux = landMap.findProyectionPointIntoParalelStraights(point1Down,pntTopRight,point1Mid,true);
 			double auxDist = landMap.distanceOfPointToPoint(pntMidAux,point1Mid);
-			int numHouses = (int)(auxDist/RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE);
-			int  extraDistance= (int)(auxDist % (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE));
+			int numHouses = (int)(auxDist/landMap.getConfiguration().getLotConfiguration().getSideSize());
+			int  extraDistance= (int)(auxDist % (landMap.getConfiguration().getLotConfiguration().getSideSize()));
 			if(numHouses != 0){
 				int initPoint1 = pntTopRight;
-			
+				/// case line
+				initPoint1 = landMap.findPointOnStreightToDistance( pntTopRight, point2Top, (landMap.getConfiguration().getLotConfiguration().getSideSize()));
+				int aux1Point = landMap.findProyectionPointIntoParalelStraights(point2Mid,point1Mid,initPoint1,true);
+				///
+				
 				for(int i = 0 ;i < numHouses; i++){
 					//////////case line
-					int aux1Point = landMap.findProyectionPointIntoParalelStraights(point2Mid,point1Mid,initPoint1,true);
-					generateLineHouse(initPoint1,point1Top,aux1Point,point1Mid,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.ARTERIAL_MARK);
-					int aux = landMap.findPointOnStreightToDistance( pntTopRight, point1Top, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+					
+					generateLineHouse(initPoint1,point1Top,aux1Point,point1Mid,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.ARTERIAL_MARK);
+					int aux = landMap.findPointOnStreightToDistance( pntTopRight, point1Top, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 					initPoint1 = aux;
-					/*///corregir error ,esta hacindo de izq a der cuando tiene qe ser al reves
+					/*///
 					int aux1Point = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,initPoint1,true);
 					if((i%2) == 0){
-						generateHouse(initPoint1,point1Top,aux1Point,point1Mid,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-						int aux = landMap.findPointOnStreightToDistance( pntTopRight, point1Top, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+						generateHouse(initPoint1,point1Top,aux1Point,point1Mid,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT2);
+						int aux = landMap.findPointOnStreightToDistance( pntTopRight, point1Top, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 						initPoint1 = aux;					
 					}else
 					if((i%2) == 1){
-						generateHouse(initPoint1,point1Top,aux1Point,point1Mid,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-						int aux = landMap.findPointOnStreightToDistance( pntTopRight, point1Top, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+						generateHouse(initPoint1,point1Top,aux1Point,point1Mid,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT1);
+						int aux = landMap.findPointOnStreightToDistance( pntTopRight, point1Top, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 						initPoint1 = aux;					
 					}*/
 				}
@@ -801,25 +786,28 @@ public class radialAlgorithm {
 			int pntDownRight = landMap.findProyectionPointIntoParalelStraights(point1Down,point2Down,point1Top,true);
 			int pntMidAux = landMap.findProyectionPointIntoParalelStraights(pntDownRight,point1Top,point1Mid,true);
 			double auxDist = landMap.distanceOfPointToPoint(pntMidAux,point1Mid);
-			int numHouses = (int)(auxDist/RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE);
-			int  extraDistance= (int)(auxDist % (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE));
+			int numHouses = (int)(auxDist/landMap.getConfiguration().getLotConfiguration().getSideSize());
+			int  extraDistance= (int)(auxDist % (landMap.getConfiguration().getLotConfiguration().getSideSize()));
 			if(numHouses != 0){
 				int initPoint1 = pntMidAux;
+				/////case line
+				initPoint1 = landMap.findPointOnStreightToDistance( pntMidAux, point2Mid, (landMap.getConfiguration().getLotConfiguration().getSideSize()));
+				////
 				for(int i = 0 ;i < numHouses; i++){
 					////////case line
-					generateHouse(initPoint1,point1Mid,pntDownRight,point1Down,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.ARTERIAL_MARK);
-					int aux = landMap.findPointOnStreightToDistance( pntMidAux, point1Mid, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+					generateLineHouse(initPoint1,point1Mid,pntDownRight,point1Down,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.ARTERIAL_MARK);
+					int aux = landMap.findPointOnStreightToDistance( pntMidAux, point1Mid, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 					initPoint1 = aux;
 					/*
 					//int aux1Point = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,initPoint1,true);
 					if((i%2) == 0){
-						generateHouse(initPoint1,point1Mid,pntDownRight,point1Down,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-						int aux = landMap.findPointOnStreightToDistance( pntMidAux, point1Mid, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+						generateHouse(initPoint1,point1Mid,pntDownRight,point1Down,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT1);
+						int aux = landMap.findPointOnStreightToDistance( pntMidAux, point1Mid, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 						initPoint1 = aux;					
 					}else
 					if((i%2) == 1){
-						generateHouse(initPoint1,point1Mid,pntDownRight,point1Down,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-						int aux = landMap.findPointOnStreightToDistance( pntMidAux, point1Mid, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+						generateHouse(initPoint1,point1Mid,pntDownRight,point1Down,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT2);
+						int aux = landMap.findPointOnStreightToDistance( pntMidAux, point1Mid, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 						initPoint1 = aux;		
 					}
 					*/
@@ -857,29 +845,36 @@ public class radialAlgorithm {
 			int pntDownLeft = landMap.findProyectionPointIntoParalelStraights(point2Down,point1Down,pntUpLeft,false);
 			int pntMidAux = landMap.findProyectionPointIntoParalelStraights(pntUpLeft,pntDownLeft,point2Mid,true);
 			double auxDist = landMap.distanceOfPointToPoint(pntMidAux,point2Mid);
-			int numHouses = (int)(auxDist/RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE);
-			int  extraDistance= (int)(auxDist % (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE));
+			int numHouses = (int)(auxDist/landMap.getConfiguration().getLotConfiguration().getSideSize());
+			int  extraDistance= (int)(auxDist % (landMap.getConfiguration().getLotConfiguration().getSideSize()));
 			if(numHouses != 0 ){
 				int initPoint1 = pntUpLeft;
 				for(int i = 0 ;i < numHouses; i++){
+					////////case line
+					generateLineHouse(initPoint1,point2Top,pntMidAux,point2Mid,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.ARTERIAL_MARK);
+					int aux = landMap.findPointOnStreightToDistance( pntUpLeft, point2Top, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
+					initPoint1 = aux;
+					/*
 					if((i%2) == 0){
 						if(modeD==3)
-							generateHouse(initPoint1,point2Top,pntMidAux,point2Mid,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
+							generateHouse(initPoint1,point2Top,pntMidAux,point2Mid,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT2);
 						if(modeD==4)
-							generateHouse(initPoint1,point2Top,pntMidAux,point2Mid,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-						int aux = landMap.findPointOnStreightToDistance( pntUpLeft, point2Top, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+							generateHouse(initPoint1,point2Top,pntMidAux,point2Mid,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT1);
+						int aux = landMap.findPointOnStreightToDistance( pntUpLeft, point2Top, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 						initPoint1 = aux;					
 					}else
 					if((i%2) == 1){
 						if(modeD==3)
-							generateHouse(initPoint1,point2Top,pntMidAux,point2Mid,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
+							generateHouse(initPoint1,point2Top,pntMidAux,point2Mid,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT1);
 						if(modeD==4)
-							generateHouse(initPoint1,point2Top,pntMidAux,point2Mid,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-						int aux = landMap.findPointOnStreightToDistance( pntUpLeft, point2Top, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+							generateHouse(initPoint1,point2Top,pntMidAux,point2Mid,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT2);
+						int aux = landMap.findPointOnStreightToDistance( pntUpLeft, point2Top, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 						initPoint1 = aux;					
 					}
+					*/
+					
 				}
-				
+				/*
 					if(extraDistance!=0){
 					    int aux5 = landMap.findProyectionPointIntoParalelStraights(point2Mid,point1Mid,initPoint1,false);
 					    int aux6 = landMap.findProyectionPointIntoParalelStraights(point2Top,point1Top,point2Mid,false);
@@ -909,7 +904,10 @@ public class radialAlgorithm {
 								  triangular(point2Mid,aux5,point2Top,RadialConfiguration.MARK_LOT1);
 						  }	
 					}
-			}else{
+					*/
+			}
+			/*
+			else{
 				if(exced!=0){
 					if(modeD==3)
 						cuadrangular(pntUpLeft,pntMidAux,point2Mid,point2Top,RadialConfiguration.MARK_LOT2);
@@ -927,6 +925,7 @@ public class radialAlgorithm {
 					
 				}
 			}
+			/*
 			if(exced!=0){
 				if(modeD==3)
 					cuadrangular(pntDownLeft,pntMidAux,point2Mid,point2Down,RadialConfiguration.MARK_LOT2);
@@ -941,6 +940,7 @@ public class radialAlgorithm {
 				if(modeD==4)
 					triangular(aux6,point2Mid,point2Down,RadialConfiguration.MARK_LOT1);	
 			}
+			*/
 			
 		}
 		if(modeD==5|| modeD==6){
@@ -951,29 +951,35 @@ public class radialAlgorithm {
 			int pntUpLeft = landMap.findProyectionPointIntoParalelStraights(point2Top,point1Top,pntDownLeft,false);
 			int pntMidAux = landMap.findProyectionPointIntoParalelStraights(pntUpLeft,pntDownLeft,point2Mid,true);
 			double auxDist = landMap.distanceOfPointToPoint(pntMidAux,point2Mid);
-			int numHouses = (int)(auxDist/RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE);
-			int  extraDistance= (int)(auxDist % (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE));
+			int numHouses = (int)(auxDist/landMap.getConfiguration().getLotConfiguration().getSideSize());
+			int  extraDistance= (int)(auxDist % (landMap.getConfiguration().getLotConfiguration().getSideSize()));
 			if(numHouses != 0 ){
 				int initPoint1 = pntMidAux;
 				for(int i = 0 ;i < numHouses; i++){
+					generateLineHouse(initPoint1,point2Mid,pntDownLeft,point2Down,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT1);
+					int aux = landMap.findPointOnStreightToDistance( pntMidAux, point2Mid, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
+					initPoint1 = aux;
+					
+					/*
 					if((i%2) == 0){
 						if(modeD==5)
-							generateHouse(initPoint1,point2Mid,pntDownLeft,point2Down,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
+							generateHouse(initPoint1,point2Mid,pntDownLeft,point2Down,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT2);
 						if(modeD==6)
-							generateHouse(initPoint1,point2Mid,pntDownLeft,point2Down,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
-						int aux = landMap.findPointOnStreightToDistance( pntMidAux, point2Mid, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+							generateHouse(initPoint1,point2Mid,pntDownLeft,point2Down,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT1);
+						int aux = landMap.findPointOnStreightToDistance( pntMidAux, point2Mid, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 						initPoint1 = aux;					
 					}else
 					if((i%2) == 1){
 						if(modeD==5)
-							generateHouse(initPoint1,point2Mid,pntDownLeft,point2Down,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT1);
+							generateHouse(initPoint1,point2Mid,pntDownLeft,point2Down,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT1);
 						if(modeD==6)
-							generateHouse(initPoint1,point2Mid,pntDownLeft,point2Down,RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE,RadialConfiguration.MARK_LOT2);
-						int aux = landMap.findPointOnStreightToDistance( pntMidAux, point2Mid, (RadialConfiguration.HOUSE_SIDE_MINIMUN_SIZE*(i+1)));
+							generateHouse(initPoint1,point2Mid,pntDownLeft,point2Down,landMap.getConfiguration().getLotConfiguration().getSideSize(),RadialConfiguration.MARK_LOT2);
+						int aux = landMap.findPointOnStreightToDistance( pntMidAux, point2Mid, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i)));
 						initPoint1 = aux;					
 					}
+					*/
 				}
-				
+				/*
 					if(extraDistance!=0){
 					    int aux5 = landMap.findProyectionPointIntoParalelStraights(point2Down,point1Down,initPoint1,false);
 					    int aux6 = landMap.findProyectionPointIntoParalelStraights(point2Down,point1Down,point2Mid,false);
@@ -1003,7 +1009,11 @@ public class radialAlgorithm {
 								  triangular(point2Mid,aux5,point2Down,RadialConfiguration.MARK_LOT1);
 						  }	
 					}
-			}else{
+					*/
+			}
+			/*
+			  else{
+			 
 				if(exced!=0){
 					if(modeD==5)
 						cuadrangular(pntMidAux,pntDownLeft,point2Down,point2Mid,RadialConfiguration.MARK_LOT2);
@@ -1037,7 +1047,7 @@ public class radialAlgorithm {
 					triangular(aux6,point2Mid,point2Top,RadialConfiguration.MARK_LOT1);	
 			}
 			
-			
+		*/		
 		}
 
 	}

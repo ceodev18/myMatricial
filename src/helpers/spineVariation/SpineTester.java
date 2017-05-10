@@ -102,8 +102,6 @@ public class SpineTester {
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
-		System.out.println("Algorithm finished in " + duration + "s");
-		spineAlgorithm.getLandMap().printMapToFileNew();
 		
 		endTime = System.nanoTime();
 		duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
@@ -111,9 +109,7 @@ public class SpineTester {
 		
 		System.out.println("Start canvas");
 		
-		SpineTestPane spineTestPane1 = new SpineTestPane(1, spineAlgorithm.getLandMap().stringify(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
 		SpineTestPane spineTestPane2 = new SpineTestPane(2, spineAlgorithm.getLandMap().getGrammar(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
-		new SpineTester(spineTestPane1);	
 		new SpineTester(spineTestPane2);
 	}
 	public SpineTester(SpineTestPane spineTestPane) {
