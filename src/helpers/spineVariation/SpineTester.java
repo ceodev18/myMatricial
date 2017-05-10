@@ -39,7 +39,10 @@ public class SpineTester {
 		SpineLandMap spineLandMap = new SpineLandMap(large, width);
 		List<SpineLandPoint> polygon = new ArrayList<>();
 		List<Integer> intVertex = algorithmView.getCartVertexgeocoords();
+		List<Integer> listData= new ArrayList<>();
 		for (int i = 0; i < algorithmView.getVertexgeocoords().size(); i += 2) {
+			listData.add(intVertex.get(i));
+			listData.add(intVertex.get(i+1));
 			SpineLandPoint landPoint = new SpineLandPoint(intVertex.get(i), intVertex.get(i + 1));
 			polygon.add(landPoint);
 		}
@@ -60,17 +63,18 @@ public class SpineTester {
 		// replace this LSYSTEM  by For loop
 		
 		// TRUE BEGINNING OF THE ALGORITHM
-		SpineLandMap landMap = new SpineLandMap(large, width);
+		
+		//SpineLandMap landMap = new SpineLandMap(large, width);
 		// 2. we create the border from the polygon
-		landMap.createMapBorder(polygon);
+		spineLandMap.createMapBorder(polygon);
 		//System.out.println("configurationMatrix.getConfiguration().get(0)");
 		//System.out.println(configurationMatrix.getConfiguration().get(0));
-		landMap.setConfiguration(configurationMatrix.getConfiguration().get(0));
+		spineLandMap.setConfiguration(configurationMatrix.getConfiguration().get(0));
 		
 		// 3. We create the entry points for the main routes
 		SpineAlgorithm spineAlgorithm = new SpineAlgorithm();
-		spineAlgorithm.setConfigValues(landMap.getConfiguration().getLotConfiguration().getSideSize(),landMap.getConfiguration().getLotConfiguration().getDepthSize());
-		spineAlgorithm.setLandMap(landMap);
+		//spineAlgorithm.setConfigValues(spineLandMap.getConfiguration().getLotConfiguration().getSideSize(),spineLandMap.getConfiguration().getLotConfiguration().getDepthSize());
+		//spineAlgorithm.setLandMap(landMap);
 		spineAlgorithm.setLandMap(spineLandMap);
 		spineAlgorithm.setWidth(width);
 		spineAlgorithm.setEntryX(algorithmView.getCartEntrygeocoords().get(0));
@@ -88,7 +92,8 @@ public class SpineTester {
 		
 		// 4. We clusterize the points
 		spineAlgorithm.spineizeV2();
-		
+		// We make border
+		spineAlgorithm.makeBorder(listData);
 		System.out.println("spineAlgorithm.getLandMap().getLandRoutes(); in TESTER");
 		System.out.println("size is "+ spineAlgorithm.getLandMap().getLandRoutes().size());
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();

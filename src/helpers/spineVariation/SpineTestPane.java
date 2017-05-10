@@ -86,6 +86,14 @@ public class SpineTestPane extends JPanel {
 				g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 5));
 				g.drawChars(legend.toCharArray(), 0, legend.length(), coords[0], coords[1]);*/
 				break;
+			case "g":
+				coords = interpretNonOrhtogonalBuilding(buildingSymbols);
+				for (int i = 0; i < coords.length; i+=2) {
+					g.drawLine(coords[i], coords[i + 1], coords[(i + 2) % coords.length],
+							coords[(i + 3) % coords.length]);
+				}
+				//g.drawChars(("" + coords[0]).toCharArray(), 0, ("" + coords[0]).length(), coords[0], coords[1]);
+				break;
 
 			}
 
@@ -246,5 +254,12 @@ public class SpineTestPane extends JPanel {
             growthX = 0;
             growthY += growtXY;
         }
+	}
+	private int[] interpretNonOrhtogonalBuilding(String[] buildingSymbols) {
+		int[] coords = new int[buildingSymbols.length - 1];
+		for (int i = 1; i < buildingSymbols.length; i++) {
+			coords[i - 1] = Integer.parseInt(buildingSymbols[i]);
+		}
+		return coords;
 	}
 }
