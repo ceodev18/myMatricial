@@ -3,7 +3,6 @@ package algorithm.radialVariation;
 import java.util.ArrayList;
 import java.util.List;
 
-import helpers.clusterVariation.ClusterMapHelper;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
 import models.radialVariation.RadialLandMap;
@@ -419,10 +418,10 @@ public class radialAlgorithm {
 			//cuadrangular(point1Top,point2Top,point2Down,point1Down,RadialConfiguration.CONTRIBUTION_MARK);
 			///print with new graamar
 			landMap.findPoint(point1Top).setGramaticalType(
-					"z" + "-" + ClusterMapHelper.breakKey(point1Top)[0] + "-" + ClusterMapHelper.breakKey(point1Top)[1] + "-" +
-							ClusterMapHelper.breakKey(point2Top)[0]+ "-" + ClusterMapHelper.breakKey(point2Top)[1] + "-"
-							+ ClusterMapHelper.breakKey(point2Down)[0] + "-" + ClusterMapHelper.breakKey(point2Down)[1] + "-" 
-							+ ClusterMapHelper.breakKey(point1Down)[0] + "-" + ClusterMapHelper.breakKey(point1Down)[1]);
+					"z" + "-" + RadialMapHelper.breakKey(point1Top)[0] + "-" + RadialMapHelper.breakKey(point1Top)[1] + "-" +
+							RadialMapHelper.breakKey(point2Top)[0]+ "-" + RadialMapHelper.breakKey(point2Top)[1] + "-"
+							+ RadialMapHelper.breakKey(point2Down)[0] + "-" + RadialMapHelper.breakKey(point2Down)[1] + "-" 
+							+ RadialMapHelper.breakKey(point1Down)[0] + "-" + RadialMapHelper.breakKey(point1Down)[1]);
 			
 			return verif;
 		}
@@ -432,10 +431,10 @@ public class radialAlgorithm {
 		///print with new graamar
 		//cuadrangular(point1Top,point2Top,point2Down,point1Down,RadialConfiguration.ARTERIAL_MARK);
 		landMap.findPoint(point1Top).setGramaticalType(
-				"o" + "-"  + ClusterMapHelper.breakKey(point1Top)[0] + "-" + ClusterMapHelper.breakKey(point1Top)[1] + "-" +
-						ClusterMapHelper.breakKey(point2Top)[0]+ "-" + ClusterMapHelper.breakKey(point2Top)[1] + "-"
-						+ ClusterMapHelper.breakKey(point2Down)[0] + "-" + ClusterMapHelper.breakKey(point2Down)[1] + "-" 
-						+ ClusterMapHelper.breakKey(point1Down)[0] + "-" + ClusterMapHelper.breakKey(point1Down)[1]);
+				"o" + "-"  + RadialMapHelper.breakKey(point1Top)[0] + "-" + RadialMapHelper.breakKey(point1Top)[1] + "-" +
+						RadialMapHelper.breakKey(point2Top)[0]+ "-" + RadialMapHelper.breakKey(point2Top)[1] + "-"
+						+ RadialMapHelper.breakKey(point2Down)[0] + "-" + RadialMapHelper.breakKey(point2Down)[1] + "-" 
+						+ RadialMapHelper.breakKey(point1Down)[0] + "-" + RadialMapHelper.breakKey(point1Down)[1]);
 		
 		//do algorithm with the major  like reference
 		//find points to know the polygon form
@@ -481,10 +480,10 @@ public class radialAlgorithm {
 				//landMap.createALine(point1Mid, point2Mid, RadialConfiguration.ARTERIAL_MARK);
 				//print grammar
 				landMap.findPoint(point1Mid).setGramaticalType(
-						"o" + "-"  + ClusterMapHelper.breakKey(point1Mid)[0] + "-" + ClusterMapHelper.breakKey(point1Mid)[1] + "-" +
-								ClusterMapHelper.breakKey(point2Mid)[0]+ "-" + ClusterMapHelper.breakKey(point2Mid)[1] + "-"
-								+ ClusterMapHelper.breakKey(point2Mid)[0] + "-" + ClusterMapHelper.breakKey(point2Mid)[1] + "-" 
-								+ ClusterMapHelper.breakKey(point1Mid)[0] + "-" + ClusterMapHelper.breakKey(point1Mid)[1]);
+						"o" + "-"  + RadialMapHelper.breakKey(point1Mid)[0] + "-" + RadialMapHelper.breakKey(point1Mid)[1] + "-" +
+								RadialMapHelper.breakKey(point2Mid)[0]+ "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-"
+								+ RadialMapHelper.breakKey(point2Mid)[0] + "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-" 
+								+ RadialMapHelper.breakKey(point1Mid)[0] + "-" + RadialMapHelper.breakKey(point1Mid)[1]);
 			}
 			
 			for(int i = 0 ;i < nDivision; i++){
@@ -517,16 +516,16 @@ public class radialAlgorithm {
 					//cuadrangular(initPoint1,aux,pntDwn2,pntDwn1,mask);
 					if(mask == "p"){
 						landMap.findPoint(initPoint1).setGramaticalType(
-								"g" + "-"  + ClusterMapHelper.breakKey(initPoint1)[0] + "-" + ClusterMapHelper.breakKey(initPoint1)[1] + "-" +
-										ClusterMapHelper.breakKey(aux)[0]+ "-" + ClusterMapHelper.breakKey(aux)[1] + "-"
-										+ ClusterMapHelper.breakKey(pntDwn2)[0] + "-" + ClusterMapHelper.breakKey(pntDwn2)[1] + "-" 
-										+ ClusterMapHelper.breakKey(pntDwn1)[0] + "-" + ClusterMapHelper.breakKey(pntDwn1)[1]);
+								"g" + "-"  + RadialMapHelper.breakKey(initPoint1)[0] + "-" + RadialMapHelper.breakKey(initPoint1)[1] + "-" +
+										RadialMapHelper.breakKey(aux)[0]+ "-" + RadialMapHelper.breakKey(aux)[1] + "-"
+										+ RadialMapHelper.breakKey(pntDwn2)[0] + "-" + RadialMapHelper.breakKey(pntDwn2)[1] + "-" 
+										+ RadialMapHelper.breakKey(pntDwn1)[0] + "-" + RadialMapHelper.breakKey(pntDwn1)[1]);
 					}else{
 						landMap.findPoint(initPoint1).setGramaticalType(
-								"z" + "-" + ClusterMapHelper.breakKey(initPoint1)[0] + "-" + ClusterMapHelper.breakKey(initPoint1)[1] + "-" +
-										ClusterMapHelper.breakKey(aux)[0]+ "-" + ClusterMapHelper.breakKey(aux)[1] + "-"
-										+ ClusterMapHelper.breakKey(pntDwn2)[0] + "-" + ClusterMapHelper.breakKey(pntDwn2)[1] + "-" 
-										+ ClusterMapHelper.breakKey(pntDwn1)[0] + "-" + ClusterMapHelper.breakKey(pntDwn1)[1]);
+								"z" + "-" + RadialMapHelper.breakKey(initPoint1)[0] + "-" + RadialMapHelper.breakKey(initPoint1)[1] + "-" +
+										RadialMapHelper.breakKey(aux)[0]+ "-" + RadialMapHelper.breakKey(aux)[1] + "-"
+										+ RadialMapHelper.breakKey(pntDwn2)[0] + "-" + RadialMapHelper.breakKey(pntDwn2)[1] + "-" 
+										+ RadialMapHelper.breakKey(pntDwn1)[0] + "-" + RadialMapHelper.breakKey(pntDwn1)[1]);
 					}
 					
 					int aux7 = landMap.findProyectionPointIntoParalelStraights(point1Mid,point2Mid,initPoint1,true);
@@ -535,15 +534,15 @@ public class radialAlgorithm {
 					//landMap.createALine(aux8, point2Mid, RadialConfiguration.ARTERIAL_MARK);
 					/////////print grammar
 					landMap.findPoint(point1Mid).setGramaticalType(
-							"o" + "-"  + ClusterMapHelper.breakKey(point1Mid)[0] + "-" + ClusterMapHelper.breakKey(point1Mid)[1] + "-" +
-									ClusterMapHelper.breakKey(aux7)[0]+ "-" + ClusterMapHelper.breakKey(aux7)[1] + "-"
-									+ ClusterMapHelper.breakKey(aux7)[0] + "-" + ClusterMapHelper.breakKey(aux7)[1] + "-" 
-									+ ClusterMapHelper.breakKey(point1Mid)[0] + "-" + ClusterMapHelper.breakKey(point1Mid)[1]);
+							"o" + "-"  + RadialMapHelper.breakKey(point1Mid)[0] + "-" + RadialMapHelper.breakKey(point1Mid)[1] + "-" +
+									RadialMapHelper.breakKey(aux7)[0]+ "-" + RadialMapHelper.breakKey(aux7)[1] + "-"
+									+ RadialMapHelper.breakKey(aux7)[0] + "-" + RadialMapHelper.breakKey(aux7)[1] + "-" 
+									+ RadialMapHelper.breakKey(point1Mid)[0] + "-" + RadialMapHelper.breakKey(point1Mid)[1]);
 					landMap.findPoint(aux8).setGramaticalType(
-							"o" + "-"  + ClusterMapHelper.breakKey(aux8)[0] + "-" + ClusterMapHelper.breakKey(aux8)[1] + "-" +
-									ClusterMapHelper.breakKey(point2Mid)[0]+ "-" + ClusterMapHelper.breakKey(point2Mid)[1] + "-"
-									+ ClusterMapHelper.breakKey(point2Mid)[0] + "-" + ClusterMapHelper.breakKey(point2Mid)[1] + "-" 
-									+ ClusterMapHelper.breakKey(aux8)[0] + "-" + ClusterMapHelper.breakKey(aux8)[1]);
+							"o" + "-"  + RadialMapHelper.breakKey(aux8)[0] + "-" + RadialMapHelper.breakKey(aux8)[1] + "-" +
+									RadialMapHelper.breakKey(point2Mid)[0]+ "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-"
+									+ RadialMapHelper.breakKey(point2Mid)[0] + "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-" 
+									+ RadialMapHelper.breakKey(aux8)[0] + "-" + RadialMapHelper.breakKey(aux8)[1]);
 					
 					////
 					///////////otra manera d generar
@@ -598,10 +597,10 @@ public class radialAlgorithm {
 		int opuestAux = landMap.findProyectionPointIntoParalelStraights( pnt1Dwn, pnt2Dwn,aux,false);
 		//landMap.createALine(aux, opuestAux, mask);
 		landMap.findPoint(aux).setGramaticalType(
-				"l" + "-"  + ClusterMapHelper.breakKey(aux)[0] + "-" + ClusterMapHelper.breakKey(aux)[1] + "-" +
-						ClusterMapHelper.breakKey(opuestAux)[0]+ "-" + ClusterMapHelper.breakKey(opuestAux)[1] + "-"
-						+ ClusterMapHelper.breakKey(opuestAux)[0] + "-" + ClusterMapHelper.breakKey(opuestAux)[1] + "-" 
-						+ ClusterMapHelper.breakKey(aux)[0] + "-" + ClusterMapHelper.breakKey(aux)[1]);
+				"l" + "-"  + RadialMapHelper.breakKey(aux)[0] + "-" + RadialMapHelper.breakKey(aux)[1] + "-" +
+						RadialMapHelper.breakKey(opuestAux)[0]+ "-" + RadialMapHelper.breakKey(opuestAux)[1] + "-"
+						+ RadialMapHelper.breakKey(opuestAux)[0] + "-" + RadialMapHelper.breakKey(opuestAux)[1] + "-" 
+						+ RadialMapHelper.breakKey(aux)[0] + "-" + RadialMapHelper.breakKey(aux)[1]);
 		
 		pointSolution=aux;
 		return pointSolution;
