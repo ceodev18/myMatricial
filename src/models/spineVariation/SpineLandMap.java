@@ -150,7 +150,7 @@ public class SpineLandMap {
 			for (int w = lower; w <= upper; w++) {
 				float y = SpineMapHelper.round(gradient * w + b);
 				if (y == (int) y) // quick and dirty convertion check
-				{
+				{	
 					getLandPoint(SpineMapHelper.formKey(w, (int) y)).setType(SpineConstants.POLYGON_LIMIT);
 					truePolygon.add(SpineMapHelper.formKey(w, (int) y));
 				}
