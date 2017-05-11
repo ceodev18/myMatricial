@@ -3,11 +3,8 @@ package models.radialVariation;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-
 import helpers.radialVariation.RadialDirectionHelper;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
@@ -101,7 +98,7 @@ public class RadialLandMap {
 		for(int j =0 ;j < polygon.size();j++ ){
 			int valX = polygon.get(j).getX();
 			int valY = polygon.get(j).getY();
-			int aux = (int)(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2) +1;
+			int aux = (int)(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2) ;
 			if(valX < aux){
 				polygon.get(j).setX(aux);
 			}
@@ -165,7 +162,7 @@ public class RadialLandMap {
 		}
 
 		// we fill everything outside of it with Xs
-		fillPolygonalArea();
+		//fillPolygonalArea();
 		findPolygonalArea(polygon);
 		findCentroid(polygon);
 		clearDottedLimits();
@@ -263,7 +260,7 @@ public class RadialLandMap {
 		int variation=0;
 		for(int j =0 ;j < polygon.size();j++ ){
 			int xyPoint[] = RadialMapHelper.breakKey(polygon.get(j));
-			int aux = (int)(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2) +1;
+			int aux = (int)(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2);
 			if(xyPoint[0] < aux){
 				xyPoint[0]= aux;
 				variation=1;
@@ -609,12 +606,13 @@ public class RadialLandMap {
 		
 		
 		if (underscore1 == 0 && underscore2 != 0) {
-			int lower = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
-			int upper = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];	
-				if((lower <= xyRec1End[0] && xyRec1End[0] <= upper)|| !belong){
-					double yAux = xyRec1End[0]*gradient2 + b2;
+			int lower = xyRec1Ini[1] < xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];
+			int upper = xyRec1Ini[1] > xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];	
+			double yAux = xyRec1End[0]*gradient2 + b2;
+				if((lower <= yAux && yAux <= upper)|| !belong){
+					
 					RadialMapHelper.round(yAux);
-					pointSolution =  RadialMapHelper.formKey(xyRec1End[0], (int)yAux);
+					pointSolution =  RadialMapHelper.formKey( xyRec1End[0],(int)yAux);
 					
 					return pointSolution;
 				}
@@ -623,18 +621,44 @@ public class RadialLandMap {
 		
 		}
 		if (underscore2 == 0 && underscore1 != 0) {
-			int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
-			int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];	
-				if((lower <= xyRec2End[0] && xyRec2End[0] <= upper)|| !belong){ //verify if the point belong to the straight
-					double yAux = xyRec2End[0]*gradient1 + b1;
+			int lower = xyRec2Ini[1] < xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
+			int upper = xyRec2Ini[1] > xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
+				double yAux = xyRec2End[0]*gradient1 + b1;
+				
+				if((lower <= yAux && yAux <= upper)|| !belong){ //verify if the point belong to the straight
 					RadialMapHelper.round(yAux);
-					pointSolution =  RadialMapHelper.formKey(xyRec2End[0], (int)yAux);
-					
+					pointSolution =  RadialMapHelper.formKey(xyRec2End[0],(int)yAux);
 					return pointSolution;
 				}
 				
 		}
 		if (underscore1 != 0 && underscore2 != 0) {
+				if(gradient1 == 0){
+					int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+					int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+					double xAux = (xyRec1End[1]- b2)/gradient2;
+					if((lower <= xAux && xAux <= upper)|| !belong){
+						
+						RadialMapHelper.round(xAux);
+						pointSolution =  RadialMapHelper.formKey( (int)xAux, xyRec1End[1]);
+						
+						return pointSolution;
+					}
+					
+				}
+				if(gradient2 == 0){
+					int lower = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+					int upper = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+					double xAux = (xyRec2End[1]- b1)/gradient1;
+					if((lower <= xAux && xAux <= upper)|| !belong){
+						
+						RadialMapHelper.round(xAux);
+						pointSolution =  RadialMapHelper.formKey((int)xAux,xyRec2End[1]);
+						
+						return pointSolution;
+					}
+				}
+			
 			int lowerx = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
 			int upperx = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
 			int lowery = xyRec2Ini[1] < xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
@@ -1785,10 +1809,10 @@ public class RadialLandMap {
 
 	public String stringify() {
 		String mapString = "";
-		for (int j = pointsy - 1; j >= 0; j--) {
+		for (int j = 0; j < pointsy; j++) {
 			String type = getLandPoint(RadialMapHelper.formKey(0, j)).getType();
 			int repetitions = 1;
-			for (int i = 1; i < pointsx; i++) {
+			for (int i = 0; i < pointsx; i++) {
 				if (type.equals(getLandPoint(RadialMapHelper.formKey(i, j)).getType())) {
 					repetitions++;
 				} else {
@@ -1798,60 +1822,24 @@ public class RadialLandMap {
 				}
 			}
 			mapString += type + "" + repetitions + ",";
-			mapString += "|";
+			mapString += ".";
 		}
-		return mapString;
-	}
-
-	public String compress() {
-		Map<String, List<Integer>> mapMap = new HashMap<>();
-
-		String mapString = "";
-		for (int j = pointsy - 1; j >= 0; j--) {
-			String type = getLandPoint(RadialMapHelper.formKey(0, j)).getType();
-			if (mapMap.get(type) == null) {
-				mapMap.put(type, new ArrayList<>());
-			}
-			int i;
-			for (i = 1; i < pointsx; i++) {
-				if (!type.equals(getLandPoint(RadialMapHelper.formKey(i, j)).getType())) {
-					mapMap.get(type).add(RadialMapHelper.formKey(i - 1, j));
-					type = getLandPoint(RadialMapHelper.formKey(i, j)).getType();
-					if (mapMap.get(type) == null) {
-						mapMap.put(type, new ArrayList<>());
-					}
-					mapMap.get(type).add(RadialMapHelper.formKey(i, j));
-				}
-			}
-			mapMap.get(type).add(RadialMapHelper.formKey(i, j));
-		}
-
-		Iterator<Entry<String, List<Integer>>> it = mapMap.entrySet().iterator();
-		while (it.hasNext()) {
-			Map.Entry<String, List<Integer>> pair = (Map.Entry<String, List<Integer>>) it.next();
-			mapString += pair.getKey();
-			for (int i = 0; i < pair.getValue().size(); i++) {
-				mapString += "," + pair.getValue().get(i).intValue();
-			}
-			mapString += "|";
-		}
-
 		return mapString;
 	}
 	
 	//TODO new Grammar, testing resulting vectors
-		public String getGrammar() {
-			String mapString = "";
-			for (int j = 0; j < pointsy; j++) {
-				for (int i = 0; i < pointsx; i++) {
-					String type = getLandPoint(RadialMapHelper.formKey(i, j)).getGramaticalType();
-					if(type != null){
-						mapString += type+",";
-					}
+	public String getGrammar() {
+		String mapString = "";
+		for (int j = 0; j < pointsy; j++) {
+			for (int i = 0; i < pointsx; i++) {
+				String type = getLandPoint(RadialMapHelper.formKey(i, j)).getGramaticalType();
+				if (type != null) {
+					mapString += type + ",";
 				}
 			}
-			return mapString.substring(0, mapString.length());//remove last ,
 		}
+		return mapString;// remove last ,
+	}
 	
 	public void fillCentralPark() {
 		for (int x = 0; x < pointsx; x++) {

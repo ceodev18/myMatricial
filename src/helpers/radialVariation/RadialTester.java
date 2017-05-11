@@ -13,8 +13,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import algorithm.radialVariation.radialAlgorithm;
 import helpers.radialVariation.RadialTestPane;
-import helpers.clusterVariation.ClusterTestPane;
-import helpers.clusterVariation.ClusterTester;
 import helpers.radialVariation.RadialPolygonTester;
 import helpers.radialVariation.RadialTester;
 import models.radialVariation.RadialLandPoint;
@@ -34,7 +32,7 @@ public class RadialTester {
 		//int large = 950, width = 750;
 		// 1. We create the map and set its intrinsec variables
 		//int large =1215, width = 850 ;
-		AlgorithmView algorithmView = new AlgorithmView("Radial-error.txt");
+		AlgorithmView algorithmView = new AlgorithmView("radial-error.txt");
 		ConfigurationMatrix configurationMatrix = new ConfigurationMatrix(algorithmView);
 
 		int large = algorithmView.getxSize(), width = algorithmView.getySize();

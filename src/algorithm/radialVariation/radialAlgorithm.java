@@ -63,9 +63,14 @@ public class radialAlgorithm {
 		while(true){
 			int aux = valueSeparation*valuePlus;
 			///avoid error in big areas
-			if(valuePlus >= 8)areaPark = (areaTotal*3.5)/100;
+			if(valuePlus==6)areaPark = (areaTotal*3)/100;
+			if(valuePlus==7)areaPark = (areaTotal*3.5)/100;
+			if(valuePlus==8)areaPark = (areaTotal*4)/100;
+			if(valuePlus==9)areaPark = (areaTotal*5)/100;
 			double possibleArea = polygon.areaShrinking(aux);
-			if(possibleArea <= areaPark)break;
+			double possibleAreaNext = polygon.areaShrinking(aux + valueSeparation);
+			if(possibleAreaNext == 0)break;
+			if(possibleArea <= (areaPark))break;
 			if(valuePlus!= 1){
 				localLayer = polygon.vectorShrinking((valuePlus-1)*valueSeparation);
 				layersPolygon.add(localLayer);
@@ -112,7 +117,7 @@ public class radialAlgorithm {
 		layersPolygon.add(localLayer);
 		//To create the park 
 		int auxvalue = ((valuePlus-1)*3);
-		landMap.createBorderFromPolygon(layersPolygon.get(auxvalue), RadialConfiguration.PARK_MARK);
+		//landMap.createBorderFromPolygon(layersPolygon.get(auxvalue), RadialConfiguration.PARK_MARK);
 		//border of the park print new grammar
 				String grassGrammar = "g-";
 				for (int i = 0; i < layersPolygon.get(auxvalue).size(); i++) {
@@ -156,6 +161,7 @@ public class radialAlgorithm {
 		///////index of routes
 		List<List<RadialLandRoute>> listRoutes = new ArrayList<>();
 		RadialLandRoute aux = new RadialLandRoute();
+		
 		listRoutes = aux.setRadialRoutes(layersPolygon,auxList,pointsInters[0],pointsInters[1]);
 		setListRoutes(ListRoutes);
 		List<RadialLandRoute> auxRoutes = new ArrayList<>();
@@ -165,6 +171,7 @@ public class radialAlgorithm {
 			}
 		}
 		landMap.setLandRoutes(auxRoutes);
+
 	}
 
 	
@@ -533,6 +540,7 @@ public class radialAlgorithm {
 					//landMap.createALine(point1Mid, aux7, RadialConfiguration.ARTERIAL_MARK);
 					//landMap.createALine(aux8, point2Mid, RadialConfiguration.ARTERIAL_MARK);
 					/////////print grammar
+
 					landMap.findPoint(point1Mid).setGramaticalType(
 							"o" + "-"  + RadialMapHelper.breakKey(point1Mid)[0] + "-" + RadialMapHelper.breakKey(point1Mid)[1] + "-" +
 									RadialMapHelper.breakKey(aux7)[0]+ "-" + RadialMapHelper.breakKey(aux7)[1] + "-"
@@ -543,7 +551,7 @@ public class radialAlgorithm {
 									RadialMapHelper.breakKey(point2Mid)[0]+ "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-"
 									+ RadialMapHelper.breakKey(point2Mid)[0] + "-" + RadialMapHelper.breakKey(point2Mid)[1] + "-" 
 									+ RadialMapHelper.breakKey(aux8)[0] + "-" + RadialMapHelper.breakKey(aux8)[1]);
-					
+			
 					////
 					///////////otra manera d generar
 					//int aux3 = landMap.findPointOnStreightToDistance( pntLeftUp, pntRightUp, (landMap.getConfiguration().getLotConfiguration().getSideSize()*(i) + (int)(ind*landMap.getConfiguration().getLotConfiguration().getSideSize()*spaceHouse/2)));

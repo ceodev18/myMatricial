@@ -81,10 +81,22 @@ public class RadialPolygon {
 		List<Double> offsets = new ArrayList<>();
 		List<double[]> variations = new ArrayList<>();
 
+		RadialLandMap auxLandMap = new RadialLandMap(0, 0);
+		//verify if "size" distance to centroid is more that the permissible
+		double minDistance=999999;
+		for(int r=0;r < points.size(); r++){
+			int auxPoint = auxLandMap.findProyectionPointIntoParalelStraights(points.get(r),points.get((r+1)%points.size()),RadialMapHelper.formKey(centroid[0],centroid[1]),true); 
+			double auxDistance = auxLandMap.distanceOfPointToPoint(auxPoint, RadialMapHelper.formKey(centroid[0],centroid[1]));
+			if(auxDistance < minDistance) minDistance = auxDistance;
+		}
+		int tope = (int)(minDistance -(minDistance*5/100));
+		if(size > tope ) return new ArrayList<>();
+		
+		//////////////////
 		for (int i = 0; i < points.size(); i++) {
 			int[] xyInitial = RadialMapHelper.breakKey(points.get(i));
 			int[] xyFinal = RadialMapHelper.breakKey(points.get((i + 1) % points.size()));
-
+			
 			// we find the unit vector
 			double[] unitVector = new double[2];
 			unitVector[0] = (xyFinal[0] - xyInitial[0])
@@ -137,24 +149,57 @@ public class RadialPolygon {
 			int infinite = 0, zero = 0;
 			if (gradients.get(i).isInfinite()) {
 				infinite = 1;
-				xy[0] = (int) variations.get(i)[0];
+				int[] xAux = RadialMapHelper.breakKey(points.get(i));
+				//xy[0] = (int) variations.get(i)[0];
+				int xProv1 = xAux[0] + size;
+				int xProv2 = xAux[0] - size;
+				
+				double dist1 = Math.abs(xProv1 -  centroid[0]);
+				double dist2 = Math.abs(xProv2 - centroid[0]);
+				if(dist1 <dist2) xy[0]= xProv1;
+				else xy[0]= xProv2;
 			}
-
+			
 			if (gradients.get(previous).isInfinite()) {
+				int[] xAux = RadialMapHelper.breakKey(points.get(previous));
 				infinite = 2;
-				xy[0] = (int) variations.get(previous)[0];
+				//xy[0] = (int) variations.get(previous)[0];
+				int xProv1 = xAux[0] + size;
+				int xProv2 = xAux[0] - size;
+				
+				double dist1 = Math.abs(xProv1 -  centroid[0]);
+				double dist2 = Math.abs(xProv2 -centroid[0]);
+				if(dist1 <dist2) xy[0]= xProv1;
+				else xy[0]= xProv2;
 			}
-
+			
 			if (gradients.get(i) == 0.0) {
 				zero = 1;
-				xy[1] = (int) variations.get(i)[1];
+				int[] xyAux = RadialMapHelper.breakKey(points.get(i));
+				//xy[1] = (int) variations.get(i)[1];
+				int yProv1 = xyAux[1] + size;
+				int yProv2 = xyAux[1] - size;
+				
+				double dist1 = Math.abs(yProv1 -centroid[1]);
+				double dist2 = Math.abs(yProv2 -centroid[1]);
+				if(dist1 <dist2) xy[1]= yProv1;
+				else xy[1]= yProv2;
+				
 			}
-
+			
 			if (gradients.get(previous) == 0.0) {
 				zero = 2;
-				xy[1] = (int) variations.get(previous)[1];
+				int[] xyAux = RadialMapHelper.breakKey(points.get(previous));
+				//xy[1] = (int) variations.get(previous)[1];
+				int yProv1 = xyAux[1] + size;
+				int yProv2 = xyAux[1] - size;
+				
+				double dist1 = Math.abs(yProv1 -centroid[1]);
+				double dist2 = Math.abs(yProv2 -centroid[1]);
+				if(dist1 <dist2) xy[1]= yProv1;
+				else xy[1]= yProv2;
 			}
-
+			
 			// squared box
 			if (infinite > 0 && zero > 0) {
 				shrinkedList.add(RadialMapHelper.formKey(xy[0], xy[1]));
@@ -201,7 +246,8 @@ public class RadialPolygon {
 		}
 		
 		//auxList = shrinkedList;
-
+		
+		
 		if (insidePolygon(auxList)) {
 			return auxList;
 		} else {
@@ -575,6 +621,7 @@ public class RadialPolygon {
 	
 	public double areaShrinking(int size){
 		List<Integer> aux= vectorShrinking(size);
+		if(aux.size()==0) return 0;
 		RadialLandMap auxLandMap = new RadialLandMap(0, 0);
 		List<RadialLandPoint> auxPolygon = new ArrayList<>();		
 		for(int i = 0; i < aux.size();i++){
@@ -617,7 +664,7 @@ public class RadialPolygon {
 		int k = 0;
 		for(int i= 0;i < polygon.size();i++){
 			pointVerif = auxLandMap.findIntersectionPointIntoTwoStraight
-					(centroid, refPoint, polygon.get(i % polygon.size()), polygon.get((i+1) % polygon.size()), true);
+					(refPoint,centroid , polygon.get(i % polygon.size()), polygon.get((i+1) % polygon.size()), true);
 			if(pointVerif != -1){
 				auxPoints[k] = pointVerif;
 				k++;
