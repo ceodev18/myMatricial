@@ -31,21 +31,21 @@ public class ClusterAlgorithm {
 		// collector running orthogonal to the main
 		List<Integer> orthogonalDirections = ClusterDirectionHelper.orthogonalDirections(mainRoute.getDirection());
 		int entryPointId = mainRoute.getInitialPointId();
-		if (mainRoute.getDirection() == ClusterConstants.EAST){
+		if (mainRoute.getDirection() == ClusterConstants.EAST) {
 			int[] xy = ClusterMapHelper.breakKey(entryPointId);
 			xy[0] = 1;
 			entryPointId = ClusterMapHelper.formKey(xy[0], xy[1]);
-		}else if(mainRoute.getDirection() == ClusterConstants.WEST) {
+		} else if (mainRoute.getDirection() == ClusterConstants.WEST) {
 			int[] xy = ClusterMapHelper.breakKey(entryPointId);
-			xy[0] = landMap.getPointsx()-2;
+			xy[0] = landMap.getPointsx() - 2;
 			entryPointId = ClusterMapHelper.formKey(xy[0], xy[1]);
-		} else if(mainRoute.getDirection() == ClusterConstants.NORTH) {
+		} else if (mainRoute.getDirection() == ClusterConstants.NORTH) {
 			int[] xy = ClusterMapHelper.breakKey(entryPointId);
 			xy[1] = 1;
 			entryPointId = ClusterMapHelper.formKey(xy[0], xy[1]);
-		} else if(mainRoute.getDirection() == ClusterConstants.SOUTH){
+		} else if (mainRoute.getDirection() == ClusterConstants.SOUTH) {
 			int[] xy = ClusterMapHelper.breakKey(entryPointId);
-			xy[1] = landMap.getPointsy()-2;
+			xy[1] = landMap.getPointsy() - 2;
 			entryPointId = ClusterMapHelper.formKey(xy[0], xy[1]);
 		}
 
@@ -262,12 +262,12 @@ public class ClusterAlgorithm {
 						for (int i = 0; i < grassLandBorder.size(); i++) {
 							int[] xy = ClusterMapHelper.breakKey(grassLandBorder.get(i));
 							grassGrammar += xy[0] + "-" + xy[1];
-							if(i+1<grassLandBorder.size()){
+							if (i + 1 < grassLandBorder.size()) {
 								grassGrammar += "-";
 							}
 						}
-						landMap.findPoint(grassLandBorder.get(0)).setGramaticalType(grassGrammar);						
-						
+						landMap.findPoint(grassLandBorder.get(0)).setGramaticalType(grassGrammar);
+
 						for (int j = 0; j < grass.size(); j++) {
 							landMap.createBorderFromPolygon(grass.get(j), ClusterConfiguration.PARK_MARK);
 						}
@@ -411,8 +411,10 @@ public class ClusterAlgorithm {
 				clusterPolygon.getPoints().remove(clusterPolygon.getPoints().size() - 1);
 			}
 
-			if ((clusterPolygon.getPoints().get(0) + 10000) == clusterPolygon.getPoints().get(1)) {
-				clusterPolygon.getPoints().remove(0);
+			if (clusterPolygon.getPoints().size() > 1) {
+				if ((clusterPolygon.getPoints().get(0) + 10000) == clusterPolygon.getPoints().get(1)) {
+					clusterPolygon.getPoints().remove(0);
+				}
 			}
 		}
 
