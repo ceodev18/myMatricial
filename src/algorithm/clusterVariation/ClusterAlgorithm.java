@@ -34,6 +34,7 @@ public class ClusterAlgorithm {
 		if (mainRoute.getDirection() == ClusterConstants.EAST){
 			int[] xy = ClusterMapHelper.breakKey(entryPointId);
 			xy[0] = 1;
+			entryPointId = ClusterMapHelper.formKey(xy[0], xy[1]);
 		}else if(mainRoute.getDirection() == ClusterConstants.WEST) {
 			int[] xy = ClusterMapHelper.breakKey(entryPointId);
 			xy[0] = landMap.getPointsx()-2;
