@@ -36,6 +36,16 @@ public class SpineAlgorithm {
 		this.landMap = landMap;
 		this.sideDepth=landMap.getConfiguration().getLotConfiguration().getDepthSize();
 		this.sideSize=landMap.getConfiguration().getLotConfiguration().getSideSize();
+		
+		System.out.println("landMap.getConfiguration().getBlockConfiguration().getSideSize()");
+		System.out.println(landMap.getConfiguration().getBlockConfiguration().getSideSize());
+		
+		System.out.println("landMap.getConfiguration().getLotConfiguration().getDepthSize()");
+		System.out.println(landMap.getConfiguration().getLotConfiguration().getDepthSize());
+		
+		System.out.println("landMap.getConfiguration().getLotConfiguration().getSideSize()");
+		System.out.println(landMap.getConfiguration().getLotConfiguration().getSideSize());
+		
 	}
 
 	public void setEntryX(int x) {
@@ -69,16 +79,16 @@ public class SpineAlgorithm {
 		int tope, ejeX, limite, divisionResultBlock;
 		String val1, val2, aux;
 		divisionResultBlock = large
-				/ (SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
+				/ (landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
 		tope = 1;
 		ejeX = 0;
 		for (int i = 0; i < divisionResultBlock; i++)
-			ejeX += SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE;
+			ejeX += landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE;
 		limite = large - ejeX;
 		int newlongHouse = limite / 2;
 		String comparableValue, comparableValue2;
 
-		if (newlongHouse >= SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) {
+		if (newlongHouse >= landMap.getConfiguration().getLotConfiguration().getDepthSize()) {
 			while (true) {
 				comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, tope)).getType();
 				if (!comparableValue.equals(SpineConfiguration.ARTERIAL_MARK)) {
@@ -93,16 +103,19 @@ public class SpineAlgorithm {
 					val2 = "2";
 					int counterGram=0;
 					boolean bol=true;
+					int cccc=6;	
 					while (true) {
 						if(!landMap.findPoint(SpineMapHelper.formKey(ejeX,printBackIndex)).getType().equals(" ") &&counterGram<3 &&
 								!landMap.findPoint(SpineMapHelper.formKey(ejeX+sideDepth,printBackIndex)).getType().equals(" ") && bol){
-							
-							landMap.findPoint(SpineMapHelper.formKey(ejeX, printBackIndex)).setGramaticalType("l-"
-									+ejeX+"-"+(printBackIndex+6)+"-1-2-"+sideSize+"-"+newlongHouse);
+							String dato1="l-"+ejeX+"-"+(printBackIndex)+"-"+(ejeX+newlongHouse)+"-"+(printBackIndex)+"-"+(ejeX+newlongHouse)+"-"+(printBackIndex+6)+"-"+ejeX+"-"+(printBackIndex+6);
+							if(cccc>=6)
+							landMap.findPoint(SpineMapHelper.formKey(ejeX, (printBackIndex+20))).setGramaticalType(dato1);
+							/*landMap.findPoint(SpineMapHelper.formKey(ejeX, printBackIndex)).setGramaticalType("l-"
+									+ejeX+"-"+(printBackIndex+6)+"-1-2-"+sideSize+"-"+newlongHouse);*/
 						}
 						//if(bol!=true)bol=true;
-							
-						for (int i = 0; i < SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+						cccc=0;
+						for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
 							comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, printBackIndex)).getType();
 							if (comparableValue.equals(".") || comparableValue.equals(" ") || printBackIndex < 1
 									|| comparableValue.equals("a")) {
@@ -111,13 +124,14 @@ public class SpineAlgorithm {
 							}
 							printBackIndex--;
 							beginCounter++;
+							cccc++;
 						}
 						aux = val1;
 						val1 = val2;
 						val2 = aux;
 						if (stateOut)
 							break;
-						if (beginCounter > SpineConfiguration.BASE_CLUSTER_SIZE)
+						if (beginCounter > landMap.getConfiguration().getBlockConfiguration().getSideSize())
 							break;
 						counterGram++;
 					}
@@ -143,7 +157,7 @@ public class SpineAlgorithm {
 				val2 = "2";
 				boolean stateOut = false;
 				while (true) {
-					for (int i = 0; i < SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+					for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
 						comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, yyy)).getType();
 						if (comparableValue.equals(SpineConfiguration.WALK_MARK)
 								|| comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
@@ -159,7 +173,7 @@ public class SpineAlgorithm {
 					aux = val1;
 					val1 = val2;
 					val2 = aux;
-					if (idCont > (SpineConfiguration.BASE_CLUSTER_SIZE - SpineConfiguration.ARTERIAL_BRANCH_SIZE
+					if (idCont > (landMap.getConfiguration().getBlockConfiguration().getSideSize() - SpineConfiguration.ARTERIAL_BRANCH_SIZE
 							- SpineConfiguration.LOCAL_BRANCH_SIZE))
 						break;
 				}
@@ -182,7 +196,7 @@ public class SpineAlgorithm {
 						idCont = 0;
 						yyy = tope;
 						while (true) {
-							for (int i = 0; i < SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+							for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
 								comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, yyy)).getType();
 								if (comparableValue.equals(SpineConfiguration.WALK_MARK)
 										|| comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
@@ -198,7 +212,7 @@ public class SpineAlgorithm {
 							aux = val1;
 							val1 = val2;
 							val2 = aux;
-							if (idCont > SpineConfiguration.BASE_CLUSTER_SIZE)
+							if (idCont > landMap.getConfiguration().getBlockConfiguration().getSideSize())
 								break;
 						}
 
@@ -226,7 +240,7 @@ public class SpineAlgorithm {
 					val1 = "1";
 					val2 = "2";
 					while (true) {
-						for (int i = 0; i < SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+						for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
 
 							comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, printBackIndex)).getType();
 							if (comparableValue.equals(".") || comparableValue.equals(" ") || printBackIndex < 1
@@ -242,7 +256,7 @@ public class SpineAlgorithm {
 						val2 = aux;
 						if (stateOut)
 							break;
-						if (beginCounter > SpineConfiguration.BASE_CLUSTER_SIZE)
+						if (beginCounter > landMap.getConfiguration().getBlockConfiguration().getSideSize())
 							break;
 					}
 
@@ -267,7 +281,7 @@ public class SpineAlgorithm {
 				val2 = "2";
 				boolean stateOut = false;
 				while (true) {
-					for (int i = 0; i < SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+					for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
 						comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, yyy)).getType();
 						if (comparableValue.equals(SpineConfiguration.WALK_MARK)
 								|| comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
@@ -287,7 +301,7 @@ public class SpineAlgorithm {
 					aux = val1;
 					val1 = val2;
 					val2 = aux;
-					if (idCont > (SpineConfiguration.BASE_CLUSTER_SIZE - SpineConfiguration.ARTERIAL_BRANCH_SIZE
+					if (idCont > (landMap.getConfiguration().getBlockConfiguration().getSideSize() - SpineConfiguration.ARTERIAL_BRANCH_SIZE
 							- SpineConfiguration.LOCAL_BRANCH_SIZE))
 						break;
 				}
@@ -310,7 +324,7 @@ public class SpineAlgorithm {
 						idCont = 0;
 						yyy = tope;
 						while (true) {
-							for (int i = 0; i < SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+							for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
 								comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, yyy)).getType();
 								if (comparableValue.equals(SpineConfiguration.WALK_MARK)
 										|| comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
@@ -330,7 +344,7 @@ public class SpineAlgorithm {
 							aux = val1;
 							val1 = val2;
 							val2 = aux;
-							if (idCont > SpineConfiguration.BASE_CLUSTER_SIZE)
+							if (idCont > landMap.getConfiguration().getBlockConfiguration().getSideSize())
 								break;
 						}
 
@@ -343,7 +357,7 @@ public class SpineAlgorithm {
 			}
 
 		} else if (limite > 10 && limite < 15) {
-			int topAux = (SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE)
+			int topAux = (landMap.getConfiguration().getLotConfiguration().getDepthSize() * landMap.getConfiguration().getLotConfiguration().getSideSize())
 					/ limite;
 			// topAux++;
 			// cuadras de 1 casa
@@ -385,7 +399,7 @@ public class SpineAlgorithm {
 						val2 = aux;
 						if (stateOut)
 							break;
-						if (beginCounter > SpineConfiguration.BASE_CLUSTER_SIZE)
+						if (beginCounter > landMap.getConfiguration().getBlockConfiguration().getSideSize())
 							break;
 					}
 
@@ -430,7 +444,7 @@ public class SpineAlgorithm {
 					aux = val1;
 					val1 = val2;
 					val2 = aux;
-					if (idCont > (SpineConfiguration.BASE_CLUSTER_SIZE - SpineConfiguration.ARTERIAL_BRANCH_SIZE
+					if (idCont > (landMap.getConfiguration().getBlockConfiguration().getSideSize() - SpineConfiguration.ARTERIAL_BRANCH_SIZE
 							- SpineConfiguration.LOCAL_BRANCH_SIZE))
 						break;
 				}
@@ -473,7 +487,7 @@ public class SpineAlgorithm {
 							aux = val1;
 							val1 = val2;
 							val2 = aux;
-							if (idCont > SpineConfiguration.BASE_CLUSTER_SIZE)
+							if (idCont > landMap.getConfiguration().getBlockConfiguration().getSideSize())
 								break;
 						}
 
@@ -489,13 +503,13 @@ public class SpineAlgorithm {
 
 	}
 
-	public void spineizeV2() {
-		int directionBranch = SpineDirectionHelper.orthogonalDirectionFromPointToPoint(new SpineLandPoint(xx, yy),
-				landMap.getCentroid());
+	public void spineizeV2(int directionBranch) {
+		/*int directionBranch = SpineDirectionHelper.orthogonalDirectionFromPointToPoint(new SpineLandPoint(xx, yy),
+				landMap.getCentroid());*/
 		if(directionBranch==2 || directionBranch==0){
 			int divisionResultBlock = large
-					/ (SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
-			int ejeX = SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2;// rev
+					/ (landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
+			int ejeX = landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2;// rev
 			// COLLECTOR_BRANCH_SIZE
 			int dos = 0;
 			for (int i = 0; i < divisionResultBlock; i++) {
@@ -532,7 +546,7 @@ public class SpineAlgorithm {
 
 				}
 
-				ejeX += (SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
+				ejeX += (landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
 			}
 
 			// LOCAL_BRANCH_SIZE
@@ -548,12 +562,12 @@ public class SpineAlgorithm {
 					break;
 			}
 
-			int ejeY = yy - 1 + SpineConfiguration.BASE_CLUSTER_SIZE;
-			// System.out.println(inc/SpineConfiguration.BASE_CLUSTER_SIZE);
+			int ejeY = yy - 1 + landMap.getConfiguration().getBlockConfiguration().getSideSize();
+			// System.out.println(inc/landMap.getConfiguration().getBlockConfiguration().getSideSize());
 
 			landMap.findPoint(SpineMapHelper.formKey(1, ejeY)).setType("9");
 			
-			for (int i = 0; i < (inc / SpineConfiguration.BASE_CLUSTER_SIZE); i++) {
+			for (int i = 0; i < (inc / landMap.getConfiguration().getBlockConfiguration().getSideSize()); i++) {
 				boolean firstPaint = true;
 				for (int j = 0; j < SpineConfiguration.LOCAL_BRANCH_SIZE; j++) {
 					int eje = 0;
@@ -580,12 +594,12 @@ public class SpineAlgorithm {
 					}
 
 				}
-				ejeY += 10 + SpineConfiguration.BASE_CLUSTER_SIZE;
+				ejeY += 10 + landMap.getConfiguration().getBlockConfiguration().getSideSize();
 			}
 
-			ejeY = yy - 1 - SpineConfiguration.BASE_CLUSTER_SIZE;
+			ejeY = yy - 1 - landMap.getConfiguration().getBlockConfiguration().getSideSize();
 			int cccc = 0;
-			for (int i = 0; i < ((yy - 1) / SpineConfiguration.BASE_CLUSTER_SIZE); i++) {
+			for (int i = 0; i < ((yy - 1) / landMap.getConfiguration().getBlockConfiguration().getSideSize()); i++) {
 				boolean firstPaint = true;
 				for (int j = 0; j < SpineConfiguration.LOCAL_BRANCH_SIZE; j++) {
 					int eje = 0;
@@ -613,14 +627,14 @@ public class SpineAlgorithm {
 					}
 
 				}
-				ejeY -= (SpineConfiguration.LOCAL_BRANCH_SIZE + SpineConfiguration.BASE_CLUSTER_SIZE);
+				ejeY -= (SpineConfiguration.LOCAL_BRANCH_SIZE + landMap.getConfiguration().getBlockConfiguration().getSideSize());
 
 			}
 			zonify();
 		}else{
 			int divisionResultBlock = width
-					/ (SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
-			int ejeX = SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2;// rev
+					/ (landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
+			int ejeX = landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2;// rev
 			// COLLECTOR_BRANCH_SIZE
 			int dos = 0;
 			for (int i = 0; i < divisionResultBlock; i++) {
@@ -657,7 +671,7 @@ public class SpineAlgorithm {
 
 				}
 
-				ejeX += (SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
+				ejeX += (landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
 			}
 			int inc = 0;
 			while (true) {
@@ -670,9 +684,9 @@ public class SpineAlgorithm {
 					break;
 			}
 
-			int ejeY = xx - 1 + SpineConfiguration.BASE_CLUSTER_SIZE;
+			int ejeY = xx - 1 + landMap.getConfiguration().getBlockConfiguration().getSideSize();
 			
-			for (int i = 0; i < (inc / SpineConfiguration.BASE_CLUSTER_SIZE); i++) {
+			for (int i = 0; i < (inc / landMap.getConfiguration().getBlockConfiguration().getSideSize()); i++) {
 				boolean firstPaint = true;
 				for (int j = 0; j < SpineConfiguration.LOCAL_BRANCH_SIZE; j++) {
 					int eje = 0;
@@ -699,11 +713,11 @@ public class SpineAlgorithm {
 					}
 
 				}
-				ejeY += 10 + SpineConfiguration.BASE_CLUSTER_SIZE;
+				ejeY += 10 + landMap.getConfiguration().getBlockConfiguration().getSideSize();
 			}
-			ejeY = xx - 1 - SpineConfiguration.BASE_CLUSTER_SIZE;
+			ejeY = xx - 1 - landMap.getConfiguration().getBlockConfiguration().getSideSize();
 			int cccc = 0;
-			for (int i = 0; i < ((xx-1) / SpineConfiguration.BASE_CLUSTER_SIZE); i++) {
+			for (int i = 0; i < ((xx-1) / landMap.getConfiguration().getBlockConfiguration().getSideSize()); i++) {
 				boolean firstPaint = true;
 				for (int j = 0; j < SpineConfiguration.LOCAL_BRANCH_SIZE; j++) {
 					int eje = 0;
@@ -731,7 +745,7 @@ public class SpineAlgorithm {
 					}
 
 				}
-				ejeY -= (SpineConfiguration.LOCAL_BRANCH_SIZE + SpineConfiguration.BASE_CLUSTER_SIZE);
+				ejeY -= (SpineConfiguration.LOCAL_BRANCH_SIZE + landMap.getConfiguration().getBlockConfiguration().getSideSize());
 				if(ejeY<0)break;
 
 			}
@@ -740,6 +754,7 @@ public class SpineAlgorithm {
 
 		
 	}
+
 
 
 
@@ -1011,27 +1026,20 @@ public class SpineAlgorithm {
 						while (true) {
 							for (int k = 0; k < landMap.getConfiguration().getLotConfiguration().getSideSize(); k++) {
 								if(k==0 && (ejeY - inc_Block - inc)>=0){
-									if(!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).setGramaticalType("l-"
-											+(ejeY - inc_Block - inc)+"-"+ejeX+"-2-1-"+sideSize+"-"+sideDepth);
-									if(!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,(ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()))).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,(ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()))).setGramaticalType("l-"
-											+(ejeY - inc_Block - inc)+"-"+(ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-2-1-"+sideSize+"-"+sideDepth);
+									if(!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).getType().equals(" ")){
+										if(insideMApVertical((ejeY - inc_Block - inc),ejeX,2,1)){
+											String data1="l-"+(ejeY - inc_Block - inc)+"-"+ejeX+"-"+((ejeY - inc_Block - inc)+sideSize)+"-"+ejeX+"-"+
+													((ejeY - inc_Block - inc)+sideSize)+"-"+(ejeX-sideDepth)+"-"+(ejeY - inc_Block - inc)+"-"+(ejeX-sideDepth);
+											landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).setGramaticalType(data1);
+										}
+										if(insideMApVertical((ejeY - inc_Block - inc),(ejeX-sideDepth),2,1)){
+											String data2="l-"+(ejeY - inc_Block - inc)+"-"+(ejeX-sideDepth)+"-"+((ejeY - inc_Block - inc)+sideSize)+"-"+(ejeX-sideDepth)+"-"+
+													((ejeY - inc_Block - inc)+sideSize)+"-"+(ejeX-(sideDepth*2))+"-"+(ejeY - inc_Block - inc)+"-"+(ejeX-(sideDepth*2));
+											landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,(ejeX-sideDepth))).setGramaticalType(data2);
+										}
+										
+									}
 								}
-								/*for (int l = 0; l < landMap.getConfiguration().getLotConfiguration().getDepthSize(); l++) {
-									if ((ejeY - inc_Block - inc)>=0 && !landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX + l)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
-										landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX + l))
-												.setType(val1);
-									if ((ejeY - inc_Block - inc)>=0&&!landMap
-											.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,
-													ejeX + l + landMap.getConfiguration().getLotConfiguration().getDepthSize()
-													))
-											.getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
-										landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,
-												ejeX + l + landMap.getConfiguration().getLotConfiguration().getDepthSize()
-												)).setType(val2);
-								}*/
-
 								inc++;
 							}
 							// swap
@@ -1075,31 +1083,23 @@ public class SpineAlgorithm {
 							
 							
 							for (int k = 0; k < landMap.getConfiguration().getLotConfiguration().getSideSize(); k++) {
-								//blocks  next to parks
-								if(k==0){
-									if(!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).setGramaticalType("l-"
-											+(ejeY - inc_Block - inc)+"-"+ejeX+"-2-1-"+sideSize+"-"+sideDepth);
+								if(k==0 && (ejeY - inc_Block - inc)>=0){
+									if(!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).getType().equals(" ")){
+										if(insideMApVertical((ejeY - inc_Block - inc),ejeX,2,1)){
+											String data1="l-"+(ejeY - inc_Block - inc)+"-"+ejeX+"-"+((ejeY - inc_Block - inc)+sideSize)+"-"+ejeX+"-"+
+													((ejeY - inc_Block - inc)+sideSize)+"-"+(ejeX-sideDepth)+"-"+(ejeY - inc_Block - inc)+"-"+(ejeX-sideDepth);
+											landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).setGramaticalType(data1);
+										}
+										if(insideMApVertical((ejeY - inc_Block - inc),(ejeX-sideDepth),2,1)){
+											String data2="l-"+(ejeY - inc_Block - inc)+"-"+(ejeX-sideDepth)+"-"+((ejeY - inc_Block - inc)+sideSize)+"-"+(ejeX-sideDepth)+"-"+
+													((ejeY - inc_Block - inc)+sideSize)+"-"+(ejeX-(sideDepth*2))+"-"+(ejeY - inc_Block - inc)+"-"+(ejeX-(sideDepth*2));
+											landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,(ejeX-sideDepth))).setGramaticalType(data2);
+										}
+										
+									}
 									
-									if(!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc, ejeX + landMap.getConfiguration().getLotConfiguration().getDepthSize())).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())).setGramaticalType("l-"
-											+(ejeY - inc_Block - inc)+"-"+(ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-2-1-"+sideSize+"-"+sideDepth);
 								}
 								
-								/*for (int l = 0; l < landMap.getConfiguration().getLotConfiguration().getDepthSize(); l++) {
-									if (!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc, ejeX+l))
-											.getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
-										landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc, ejeX+l))
-												.setType(val1);
-									if (!landMap
-											.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,
-													ejeX + l + landMap.getConfiguration().getLotConfiguration().getDepthSize()))
-											.getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
-										landMap.findPoint(SpineMapHelper.formKey(
-												ejeY - inc_Block - inc,
-												ejeX + l + landMap.getConfiguration().getLotConfiguration().getDepthSize())).setType(val2);
-								}*/
-
 								inc++;
 							}
 							// swap
@@ -1112,8 +1112,7 @@ public class SpineAlgorithm {
 						// pinto calle
 						for (int k = 0; k < SpineConfiguration.LOCAL_BRANCH_SIZE; k++) {
 							for (int l = 0; l < landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2; l++) {
-								if (!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX + l))
-										.getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
+								if ((ejeY - inc_Block - inc)>=0 &&!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX + l)).getType().equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
 									landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX + l))
 											.setType(SpineConfiguration.ARTERIAL_MARK);
 							}
@@ -1122,10 +1121,14 @@ public class SpineAlgorithm {
 						
 						for (int k = 0; k < nmbrParksLong; k++) {
 							if(k==0){
-								//nmbrParksLong
-								if(!landMap.findPoint(SpineMapHelper.formKey((ejeY - inc_Block - inc),ejeX)).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey((ejeY - inc_Block - inc),ejeX)).setGramaticalType("l-"
-										+( ejeY - inc_Block - inc-36)+"-"+(ejeX+15)+"-2-1-"+nmbrParksLong+"-"+(landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2));
+								if(k==0 && (ejeY - inc_Block - inc)>=0){
+									if(!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).getType().equals(" ")){
+											String data1="g-"+(ejeY - inc_Block - inc-36)+"-"+(ejeX)+"-"+(ejeY - inc_Block - inc-36+nmbrParksLong)+"-"+(ejeX)+"-"+
+											(ejeY - inc_Block - inc-36+nmbrParksLong)+"-"+(ejeX-(sideDepth*2))+"-"+(ejeY - inc_Block - inc-36)+"-"+(ejeX-(sideDepth*2));;
+											landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).setGramaticalType(data1);
+									}
+									
+								}
 							}
 							for (int l = 0; l < landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2; l++) {
 								if ((ejeY - inc_Block - inc)>=0 && !landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX + l))
@@ -1171,12 +1174,22 @@ public class SpineAlgorithm {
 				while(true){
 					for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
 						if(i==0 ){
-							if(!landMap.findPoint(SpineMapHelper.formKey(base ,indexUp)).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey(base , indexUp)).setGramaticalType("l-"
-									+base+"-"+indexUp+"-2-1-"+sideSize+"-"+sideDepth);
-							if(!landMap.findPoint(SpineMapHelper.formKey(base,(indexUp+landMap.getConfiguration().getLotConfiguration().getDepthSize()))).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey(base,(indexUp+landMap.getConfiguration().getLotConfiguration().getDepthSize()))).setGramaticalType("l-"
-									+base+"-"+(indexUp+landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-2-1-"+sideSize+"-"+sideDepth);
+							if(!landMap.findPoint(SpineMapHelper.formKey(base,indexUp)).getType().equals(" ")){
+								if(insideMApVertical(base,indexUp,2,1)){
+									String data1="l-"+base+"-"+indexUp+"-"+(base+sideSize)+"-"+indexUp+"-"+
+											(base+sideSize)+"-"+(indexUp-sideDepth)+"-"+base+"-"+(indexUp-sideDepth);
+									landMap.findPoint(SpineMapHelper.formKey(base,indexUp)).setGramaticalType(data1);
+									
+								}
+								if(insideMApVertical(base,indexUp-sideDepth,2,1)){
+									String data2="l-"+base+"-"+(indexUp-sideDepth)+"-"+(base+sideSize)+"-"+(indexUp-sideDepth)+"-"+
+											(base+sideSize)+"-"+(indexUp -(sideDepth*2))+"-"+base+"-"+(indexUp -(sideDepth*2));
+									//System.out.println(indexUp-sideDepth);
+									landMap.findPoint(SpineMapHelper.formKey(base,indexUp-sideDepth)).setGramaticalType(data2);
+								}
+								
+							}
+							
 						}
 						
 						base--;
@@ -1207,31 +1220,20 @@ public class SpineAlgorithm {
 							stateOut = true;
 							break;
 						}
-						/*if(indAux==0){
-							if(!landMap.findPoint(SpineMapHelper.formKey(topY, xxx)).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey(topY, xxx)).setGramaticalType("l-"
-										+topY+"-"+xxx+"-2-1-"+sideSize+"-"+sideDepth);
-							if(!landMap.findPoint(SpineMapHelper.formKey(topY, xxx+landMap.getConfiguration().getLotConfiguration().getDepthSize())).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey(topY, xxx+landMap.getConfiguration().getLotConfiguration().getDepthSize())).setGramaticalType("l-"
-										+topY+"-"+(xxx+landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-2-1-"+sideSize+"-"+sideDepth);
-						}
-						*/
-						for (int jndAux = 0; jndAux < landMap.getConfiguration().getLotConfiguration().getDepthSize(); jndAux++) {
-							/*if (!landMap.findPoint(SpineMapHelper.formKey(topY, xxx + jndAux)).getType().equals(" ")
-									&& !landMap.findPoint(SpineMapHelper.formKey(xxx + jndAux, topY)).getType()
-											.equals("."))
-								landMap.findPoint(SpineMapHelper.formKey(topY, xxx + jndAux)).setType(val1);
-							if (!landMap
-									.findPoint(SpineMapHelper
-											.formKey(xxx + jndAux + landMap.getConfiguration().getLotConfiguration().getDepthSize(), topY))
-									.getType().equals(" ")
-									&& !landMap
-											.findPoint(SpineMapHelper.formKey(
-													xxx + jndAux + landMap.getConfiguration().getLotConfiguration().getDepthSize(), topY))
-											.getType().equals("."))
-								landMap.findPoint(SpineMapHelper
-										.formKey(xxx + jndAux + landMap.getConfiguration().getLotConfiguration().getDepthSize(), topY))
-										.setType(val2);*/
+						if(indAux==0){
+							if(!landMap.findPoint(SpineMapHelper.formKey(topY, xxx)).getType().equals(" ")){
+								if(insideMApVertical(topY,ejeX,2,1)){
+									String data1="l-"+topY+"-"+xxx+"-"+(topY+sideSize)+"-"+xxx+"-"+
+											(topY+sideSize)+"-"+(xxx-sideDepth)+"-"+topY+"-"+(xxx-sideDepth);
+									landMap.findPoint(SpineMapHelper.formKey(topY,ejeX)).setGramaticalType(data1);
+								}
+								if(insideMApVertical(topY,xxx+sideDepth,2,1)){
+									String data1="l-"+topY+"-"+(xxx+sideDepth)+"-"+(topY+sideSize)+"-"+(xxx+sideDepth)+"-"+
+											(topY+sideSize)+"-"+(xxx-(sideDepth*2))+"-"+topY+"-"+(xxx-(sideDepth*2));
+									
+								}
+								
+							}
 						}
 						topY--;
 					}
@@ -1263,8 +1265,6 @@ public class SpineAlgorithm {
 		dos = 0;
 		
 		if (inc >= landMap.getConfiguration().getBlockConfiguration().getSideSize()) {
-			System.out.println("divisionResultBlock");
-			System.out.println(divisionResultBlock);
 			for (int i = 0; i < divisionResultBlock; i++) {
 				int div = i / 9;
 				int rem = i % 9;
@@ -1287,12 +1287,18 @@ public class SpineAlgorithm {
 						while (true) {
 							for (int iii = 0; iii < landMap.getConfiguration().getLotConfiguration().getSideSize(); iii++) {
 								if(iii==0){
-									if(a<=large && !landMap.findPoint(SpineMapHelper.formKey(a ,ejeXX)).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey(a,ejeXX)).setGramaticalType("l-"
-												+a+"-"+ejeXX+"-2-1-"+sideSize+"-"+sideDepth);
-									if(a<=large &&!landMap.findPoint(SpineMapHelper.formKey(a,(ejeXX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()) )).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey(a,(ejeXX+landMap.getConfiguration().getLotConfiguration().getDepthSize()))).setGramaticalType("l-"
-												+a+"-"+(ejeXX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-2-1-"+sideSize+"-"+sideDepth);
+									if( a>=0&&a<=large&& !landMap.findPoint(SpineMapHelper.formKey(a, ejeXX)).getType().equals(" ")){
+										if(insideMApVertical(a,ejeXX,2,1)){
+											String data1="l-"+a+"-"+ejeXX+"-"+(a+sideSize)+"-"+ejeXX+"-"+
+													(a+sideSize)+"-"+(ejeXX-sideDepth)+"-"+a+"-"+(ejeXX-sideDepth);
+											landMap.findPoint(SpineMapHelper.formKey(a,ejeXX)).setGramaticalType(data1);
+										}
+										if(insideMApVertical(a,ejeXX-sideDepth,2,1)){
+											String data2="l-"+a+"-"+(ejeXX-sideDepth)+"-"+(a+sideSize)+"-"+(ejeXX-sideDepth)+"-"+
+													(a+sideSize)+"-"+(ejeXX-(sideDepth*2))+"-"+a+"-"+(ejeXX-(sideDepth*2));
+											landMap.findPoint(SpineMapHelper.formKey(a,ejeXX+sideDepth)).setGramaticalType(data2);
+										}
+									}
 								}
 								a--;
 								counter++;
@@ -1343,24 +1349,21 @@ public class SpineAlgorithm {
 						int a = ejeYY  - SpineConfiguration.LOCAL_BRANCH_SIZE;
 						for (int ii = 0; ii < nmbrParksLong; ii++) {
 							if(ii==0){
-								/*if((ejeYY-ii)<=width)
-								landMap.findPoint(SpineMapHelper.formKey(ejeYY - ii,ejeXX)).setGramaticalType("p-"
-										+(ejeYY - ii)+"-"+ejeXX+"-2-1-"+sideSize+"-"+nmbrParksLong);*/
 								if (a<= large && a>=0 &&!landMap.findPoint(SpineMapHelper.formKey(a,ejeXX)).getType()
-										.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
-								landMap.findPoint(SpineMapHelper.formKey(a,ejeXX)).setGramaticalType("l-"
-										+(a-29)+"-"+(ejeXX+landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-2-1-"+nmbrParksLong+"-"+(landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2));
+										.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)){
+									if(verifyPArk(a-29,ejeXX,2,1)){
+										String data1="g-"+(a-29)+"-"+ejeXX+"-"+((a-29)+nmbrParksLong)+"-"+ejeXX+"-"+((a-29)+nmbrParksLong)+"-"+(ejeXX-(sideDepth*2))+"-"+(a-29)+"-"+(ejeXX-(sideDepth*2));
+										landMap.findPoint(SpineMapHelper.formKey(a-29,ejeXX)).setGramaticalType(data1);	
+									}
+									
+								}
+								
 							}
 							for (int jj = 0; jj < landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2; jj++) {
 								if ((ejeYY-ii)<=large && !landMap.findPoint(SpineMapHelper.formKey(ejeYY - ii,ejeXX + jj)).getType()
 										.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)){
 									landMap.findPoint(SpineMapHelper.formKey(ejeYY - ii,ejeXX + jj))
 									.setType(cambiable);
-									
-									
-									/*landMap.findPoint(SpineMapHelper.formKey(ejeYY - ii,ejeXX + jj)).setGramaticalType("p-"
-											+(ejeYY - ii)+"-"+(ejeXX + jj)+"-2-1-"+sideSize+"-"+nmbrParksLong);*/
-									
 								}
 									
 								
@@ -1386,14 +1389,21 @@ public class SpineAlgorithm {
 							for (int iii = 0; iii < landMap.getConfiguration().getLotConfiguration().getSideSize(); iii++) {
 								if(iii==0){
 									if (a<= large && a>=0 &&!landMap.findPoint(SpineMapHelper.formKey(a,ejeXX)).getType()
-											.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
-									landMap.findPoint(SpineMapHelper.formKey(a,ejeXX)).setGramaticalType("l-"
-											+a+"-"+ejeXX+"-2-1-"+sideSize+"-"+sideDepth);
-									if (a<= large && a>=0 &&!landMap.findPoint(SpineMapHelper.formKey(a,ejeXX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())).getType()
-											.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK))
-									landMap.findPoint(SpineMapHelper.formKey(a,ejeXX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())).setGramaticalType("l-"
-											+a+"-"+(ejeXX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-2-1-"+sideSize+"-"+sideDepth);
+											.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)){
+										if(insideMApVertical(a,ejeXX,2,1)){
+											String data1="l-"+a+"-"+ejeXX+"-"+(a+sideSize)+"-"+ejeXX+"-"+
+													(a+sideSize)+"-"+(ejeXX-sideDepth)+"-"+a+"-"+(ejeXX-sideDepth);
+											landMap.findPoint(SpineMapHelper.formKey(a,ejeXX)).setGramaticalType(data1);
+										}
+										if(insideMApVertical(a,ejeXX-sideDepth,2,1)){
+											String data2="l-"+a+"-"+(ejeXX-sideDepth)+"-"+(a+sideSize)+"-"+(ejeXX-sideDepth)+"-"+
+													(a+sideSize)+"-"+((ejeXX-sideDepth)-sideDepth)+"-"+a+"-"+((ejeXX-sideDepth)-sideDepth);
+											landMap.findPoint(SpineMapHelper.formKey(a,ejeXX+sideDepth)).setGramaticalType(data2);
+										}
+										
+									}
 								}
+								
 								a--;
 								counter++;
 							}
@@ -1470,6 +1480,7 @@ public class SpineAlgorithm {
 			}*/
 
 		}
+		paintAportesVertical();
 	}
 	
 	
@@ -1516,13 +1527,19 @@ public class SpineAlgorithm {
 							for (int k = 0; k < landMap.getConfiguration().getLotConfiguration().getSideSize(); k++) {
 								if(k==0 && (ejeY - inc_Block - inc)>=0){
 									if(!landMap.findPoint(SpineMapHelper.formKey(ejeX , ejeY - inc_Block - inc)).getType().equals(" ")&&
-											!landMap.findPoint(SpineMapHelper.formKey(ejeX +15, ejeY - inc_Block - inc)).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey(ejeX , ejeY - inc_Block - inc)).setGramaticalType("l-"
-											+ejeX+"-"+(ejeY - inc_Block - inc)+"-1-2-"+sideSize+"-"+sideDepth);
+											!landMap.findPoint(SpineMapHelper.formKey(ejeX +sideDepth, ejeY - inc_Block - inc)).getType().equals(" ")
+											&& insideMApVertical(ejeX,( ejeY - inc_Block - inc),2,1)){
+										String dato1="l-"+ejeX+"-"+( ejeY - inc_Block - inc)+"-"+(ejeX+sideDepth)+"-"+( ejeY - inc_Block - inc)+
+												"-"+(ejeX+sideDepth)+"-"+( ejeY - inc_Block - inc+sideSize)+"-"+ejeX+"-"+( ejeY - inc_Block - inc+sideSize);
+										landMap.findPoint(SpineMapHelper.formKey(ejeX,ejeY - inc_Block - inc)).setGramaticalType(dato1);
+									}
 									if(!landMap.findPoint(SpineMapHelper.formKey((ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()) , ejeY - inc_Block - inc)).getType().equals(" ")&&
-											!landMap.findPoint(SpineMapHelper.formKey((ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()+15) , ejeY - inc_Block - inc)).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey((ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()) , ejeY - inc_Block - inc)).setGramaticalType("l-"
-											+(ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-"+(ejeY - inc_Block - inc)+"-1-2-"+sideSize+"-"+sideDepth);
+											!landMap.findPoint(SpineMapHelper.formKey((ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()+sideDepth) , ejeY - inc_Block - inc)).getType().equals(" ")
+											&& insideMApVertical(ejeX+sideDepth,( ejeY - inc_Block - inc),2,1)){
+										String dato2="l-"+(ejeX+sideDepth)+"-"+( ejeY - inc_Block - inc)+"-"+(ejeX+(sideDepth*2))+"-"+( ejeY - inc_Block - inc)+
+												"-"+(ejeX+(sideDepth*2))+"-"+( ejeY - inc_Block - inc+sideSize)+"-"+(ejeX+sideDepth)+"-"+( ejeY - inc_Block - inc+sideSize);
+										landMap.findPoint(SpineMapHelper.formKey(ejeX+15,ejeY - inc_Block - inc)).setGramaticalType(dato2);
+									}
 								}
 								inc++;
 							}
@@ -1563,18 +1580,22 @@ public class SpineAlgorithm {
 						val2 = "2";
 						aux = "";
 						while (true) {
-							
-							
 							for (int k = 0; k < landMap.getConfiguration().getLotConfiguration().getSideSize(); k++) {
-								if(k==0){
+								if(k==0 && (ejeY - inc_Block - inc)>=0){
 									if(!landMap.findPoint(SpineMapHelper.formKey(ejeX , ejeY - inc_Block - inc)).getType().equals(" ")&&
-											!landMap.findPoint(SpineMapHelper.formKey(ejeX+15 , ejeY - inc_Block - inc)).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey(ejeX , ejeY - inc_Block - inc)).setGramaticalType("l-"
-											+ejeX+"-"+(ejeY - inc_Block - inc)+"-1-2-"+sideSize+"-"+sideDepth);
-									if(!landMap.findPoint(SpineMapHelper.formKey(ejeX + landMap.getConfiguration().getLotConfiguration().getDepthSize(), ejeY - inc_Block - inc)).getType().equals(" ")&&
-											!landMap.findPoint(SpineMapHelper.formKey(ejeX + landMap.getConfiguration().getLotConfiguration().getDepthSize()+15, ejeY - inc_Block - inc)).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey((ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()) , ejeY - inc_Block - inc)).setGramaticalType("l-"
-											+(ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-"+(ejeY - inc_Block - inc)+"-1-2-"+sideSize+"-"+sideDepth);
+											!landMap.findPoint(SpineMapHelper.formKey(ejeX +sideDepth, ejeY - inc_Block - inc)).getType().equals(" ")
+											&& insideMApVertical(ejeX,( ejeY - inc_Block - inc),2,1)){
+										String dato1="l-"+ejeX+"-"+( ejeY - inc_Block - inc)+"-"+(ejeX+sideDepth)+"-"+( ejeY - inc_Block - inc)+
+												"-"+(ejeX+sideDepth)+"-"+( ejeY - inc_Block - inc+sideSize)+"-"+ejeX+"-"+( ejeY - inc_Block - inc+sideSize);
+										landMap.findPoint(SpineMapHelper.formKey(ejeX,ejeY - inc_Block - inc)).setGramaticalType(dato1);
+									}
+									if(!landMap.findPoint(SpineMapHelper.formKey((ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()) , ejeY - inc_Block - inc)).getType().equals(" ")&&
+											!landMap.findPoint(SpineMapHelper.formKey((ejeX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()+sideDepth) , ejeY - inc_Block - inc)).getType().equals(" ")
+											&& insideMApVertical(ejeX+sideDepth,( ejeY - inc_Block - inc),2,1)){
+										String dato2="l-"+(ejeX+sideDepth)+"-"+( ejeY - inc_Block - inc)+"-"+(ejeX+(sideDepth*2))+"-"+( ejeY - inc_Block - inc)+
+												"-"+(ejeX+(sideDepth*2))+"-"+( ejeY - inc_Block - inc+sideSize)+"-"+(ejeX+sideDepth)+"-"+( ejeY - inc_Block - inc+sideSize);
+										landMap.findPoint(SpineMapHelper.formKey(ejeX+sideDepth,ejeY - inc_Block - inc)).setGramaticalType(dato2);
+									}
 								}
 								
 								inc++;
@@ -1600,10 +1621,13 @@ public class SpineAlgorithm {
 						}
 						
 						for (int k = 0; k < nmbrParksLong; k++) {
-							if(k==0){
-								if(!landMap.findPoint(SpineMapHelper.formKey((ejeX), (ejeY - inc_Block - inc))).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey((ejeX), (ejeY - inc_Block - inc))).setGramaticalType("l-"
-										+(ejeX)+"-"+( ejeY - inc_Block - inc)+"-1-2-"+nmbrParksLong+"-"+(landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2));
+							if(k==0 && (ejeY - inc_Block - inc)>=0){
+								if(!landMap.findPoint(SpineMapHelper.formKey(ejeX,ejeY - inc_Block - inc)).getType().equals(" ")){
+										String data1="g-"+ejeX+"-"+(ejeY - inc_Block - inc+10)+"-"+(ejeX+2*15)+"-"+(ejeY - inc_Block - inc+10)+"-"+
+										(ejeX+2*15)+"-"+(ejeY - inc_Block - inc-nmbrParksLong+10	)+"-"+ejeX+"-"+(ejeY - inc_Block - inc-nmbrParksLong+10);
+										landMap.findPoint(SpineMapHelper.formKey(ejeX,ejeY - inc_Block - inc)).setGramaticalType(data1);
+								}
+								
 							}
 							for (int l = 0; l < landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2; l++) {
 								
@@ -1649,15 +1673,21 @@ public class SpineAlgorithm {
 				val2="2";
 				while(true){
 					for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
-						if(i==0 ){
-							if(!landMap.findPoint(SpineMapHelper.formKey(indexUp ,base)).getType().equals(" ")&&
-									!landMap.findPoint(SpineMapHelper.formKey(indexUp+15,base)).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey(indexUp , base)).setGramaticalType("l-"
-									+indexUp+"-"+base+"-1-2-"+sideSize+"-"+sideDepth);
-							if(!landMap.findPoint(SpineMapHelper.formKey((indexUp+landMap.getConfiguration().getLotConfiguration().getDepthSize()) ,base)).getType().equals(" ")&&
-									!landMap.findPoint(SpineMapHelper.formKey((indexUp+landMap.getConfiguration().getLotConfiguration().getDepthSize()+15),base)).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey((indexUp+landMap.getConfiguration().getLotConfiguration().getDepthSize()) , base)).setGramaticalType("l-"
-									+(indexUp+landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-"+base+"-1-2-"+sideSize+"-"+sideDepth);
+						if(i==0){
+							if(!landMap.findPoint(SpineMapHelper.formKey(indexUp , base)).getType().equals(" ")&&
+									!landMap.findPoint(SpineMapHelper.formKey(indexUp +sideDepth, base)).getType().equals(" ")
+									&& insideMApVertical(ejeX,base,1,2)){
+								String dato1="l-"+indexUp+"-"+base+"-"+(indexUp+sideDepth)+"-"+base+
+										"-"+(indexUp+sideDepth)+"-"+( base+sideSize)+"-"+indexUp+"-"+( base+sideSize);
+								landMap.findPoint(SpineMapHelper.formKey(indexUp,base)).setGramaticalType(dato1);
+							}
+							if(!landMap.findPoint(SpineMapHelper.formKey((indexUp+ landMap.getConfiguration().getLotConfiguration().getDepthSize()) , base)).getType().equals(" ")&&
+									!landMap.findPoint(SpineMapHelper.formKey((indexUp+ landMap.getConfiguration().getLotConfiguration().getDepthSize()+sideDepth) , base)).getType().equals(" ")
+									&& insideMApVertical(indexUp+sideDepth,base,1,2)){
+								String dato2="l-"+(indexUp+sideDepth)+"-"+base+"-"+(indexUp+(sideDepth*2))+"-"+( base)+
+										"-"+(indexUp+(sideDepth*2))+"-"+( base+sideSize)+"-"+(indexUp+sideDepth)+"-"+( base+sideSize);
+								landMap.findPoint(SpineMapHelper.formKey(indexUp+sideDepth,base)).setGramaticalType(dato2);
+							}
 						}
 						base--;
 						if(base<0)break;
@@ -1690,12 +1720,20 @@ public class SpineAlgorithm {
 							break;
 						}
 						if(indAux==0){
-							if(!landMap.findPoint(SpineMapHelper.formKey(xxx, topY)).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey(xxx, topY)).setGramaticalType("l-"
-										+xxx+"-"+topY+"-1-2-"+sideSize+"-"+sideDepth);
-							if(!landMap.findPoint(SpineMapHelper.formKey(xxx+landMap.getConfiguration().getLotConfiguration().getDepthSize(), topY)).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey(xxx+landMap.getConfiguration().getLotConfiguration().getDepthSize(), topY)).setGramaticalType("l-"
-										+(xxx+landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-"+topY+"-1-2-"+sideSize+"-"+sideDepth);
+							if(!landMap.findPoint(SpineMapHelper.formKey(xxx, topY)).getType().equals(" ")){
+								if(insideMApVertical(xxx,topY,1,2)){
+									String dato1="l-"+xxx+"-"+topY+"-"+(xxx+sideDepth)+"-"+topY+
+											"-"+(xxx+sideDepth)+"-"+( topY+sideSize)+"-"+xxx+"-"+( topY+sideSize);
+								}
+							}
+							if(!landMap.findPoint(SpineMapHelper.formKey(xxx+sideDepth, topY)).getType().equals(" ")){
+								if(insideMApVertical(xxx+sideDepth,topY,1,2)){
+									String dato2="l-"+(xxx+sideDepth)+"-"+topY+"-"+(xxx+(sideDepth*2))+"-"+topY+
+											"-"+(xxx+(sideDepth*2))+"-"+( topY+sideSize)+"-"+(xxx+sideDepth)+"-"+( topY+sideSize);
+									
+								}
+							}
+							
 						}
 						topY--;
 					}
@@ -1753,12 +1791,17 @@ public class SpineAlgorithm {
 						while (true) {
 							for (int iii = 0; iii < landMap.getConfiguration().getLotConfiguration().getSideSize(); iii++) {
 								if(iii==0){
-									if(!landMap.findPoint(SpineMapHelper.formKey(ejeXX ,a)).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey(ejeXX , a)).setGramaticalType("l-"
-												+ejeXX+"-"+a+"-1-2-"+sideSize+"-"+sideDepth);
-									if(!landMap.findPoint(SpineMapHelper.formKey((ejeXX+ landMap.getConfiguration().getLotConfiguration().getDepthSize()) ,a)).getType().equals(" "))
-										landMap.findPoint(SpineMapHelper.formKey((ejeXX+landMap.getConfiguration().getLotConfiguration().getDepthSize()) , a)).setGramaticalType("l-"
-												+(ejeXX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-"+a+"-1-2-"+sideSize+"-"+sideDepth);
+									if(!landMap.findPoint(SpineMapHelper.formKey(ejeXX ,a)).getType().equals(" ")){
+										if(insideMApVertical(ejeXX,a,1,2)){
+											String dato1="l-"+ejeXX+"-"+a+"-"+(ejeXX+sideDepth)+"-"+a+"-"+(ejeXX+sideDepth)+"-"+(a+sideSize)+"-"+ejeXX+"-"+(a+sideSize);
+											landMap.findPoint(SpineMapHelper.formKey(ejeXX , a)).setGramaticalType(dato1);
+										}
+										if(insideMApVertical(ejeXX+sideDepth,a,1,2)){
+											String dato2="l-"+(ejeXX+sideDepth)+"-"+a+"-"+(ejeXX+sideDepth*2)+"-"+a+"-"+(ejeXX+sideDepth*2)+"-"+(a+sideSize)+"-"+(ejeXX+sideDepth)+"-"+(a+sideSize);
+											landMap.findPoint(SpineMapHelper.formKey(ejeXX+sideDepth , a)).setGramaticalType(dato2);
+										}
+									}
+									
 								}
 								a--;
 								counter++;
@@ -1805,9 +1848,14 @@ public class SpineAlgorithm {
 
 						for (int ii = 0; ii < nmbrParksLong; ii++) {
 							if(ii==0 ){
-								if(!landMap.findPoint(SpineMapHelper.formKey(ejeXX, ejeYY - ii)).getType().equals(" "))
-									landMap.findPoint(SpineMapHelper.formKey(ejeXX, ejeYY - ii)).setGramaticalType("l-"
-										+ejeXX+"-"+( ejeYY - ii)+"-1-2-"+nmbrParksLong+"-"+(landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2));
+								if(!landMap.findPoint(SpineMapHelper.formKey(ejeXX, ejeYY - ii)).getType().equals(" ")){
+									if(verifyPArk(ejeXX, ejeYY - ii,1,2)){
+										String grass="g-"+ejeXX+"-"+(ejeYY - ii-40)+"-"+(ejeXX+sideDepth*2)+"-"+(ejeYY - ii-40)+"-"+(ejeXX+sideDepth*2)+"-"+(ejeYY - ii+nmbrParksLong-40)+"-"+ejeXX+"-"+(ejeYY - ii+nmbrParksLong-40);
+										landMap.findPoint(SpineMapHelper.formKey(ejeXX ,  ejeYY - ii)).setGramaticalType(grass);
+									}
+									
+								}
+									
 							}
 							
 							
@@ -1843,11 +1891,19 @@ public class SpineAlgorithm {
 							
 							for (int iii = 0; iii < landMap.getConfiguration().getLotConfiguration().getSideSize(); iii++) {
 								if(iii==0 && !landMap.findPoint(SpineMapHelper.formKey(ejeXX ,a)).getType().equals(" ")){
-									landMap.findPoint(SpineMapHelper.formKey(ejeXX , a)).setGramaticalType("l-"
-											+ejeXX+"-"+a+"-1-2-"+sideSize+"-"+sideDepth);
-									landMap.findPoint(SpineMapHelper.formKey((ejeXX +landMap.getConfiguration().getLotConfiguration().getDepthSize()), a)).setGramaticalType("l-"
-											+(ejeXX+landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-"+a+"-1-2-"+sideSize+"-"+sideDepth);
+									if(!landMap.findPoint(SpineMapHelper.formKey(ejeXX ,a)).getType().equals(" ")){
+										if(insideMApVertical(ejeXX,a,1,2)){
+											String dato1="l-"+ejeXX+"-"+a+"-"+(ejeXX+sideDepth)+"-"+a+"-"+(ejeXX+sideDepth)+"-"+(a+sideSize)+"-"+ejeXX+"-"+(a+sideSize);
+											landMap.findPoint(SpineMapHelper.formKey(ejeXX , a)).setGramaticalType(dato1);
+										}
+										if(insideMApVertical(ejeXX+sideDepth,a,1,2)){
+											String dato2="l-"+(ejeXX+sideDepth)+"-"+a+"-"+(ejeXX+sideDepth*2)+"-"+a+"-"+(ejeXX+sideDepth*2)+"-"+(a+sideSize)+"-"+(ejeXX+sideDepth)+"-"+(a+sideSize);
+											landMap.findPoint(SpineMapHelper.formKey(ejeXX+sideDepth , a)).setGramaticalType(dato2);
+										}
+									}
+									
 								}
+								
 								a--;
 								counter++;
 							}
@@ -1884,13 +1940,20 @@ public class SpineAlgorithm {
 					val2 = "2";
 					while (true) {
 						for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
-							
 							if(i==0 && !landMap.findPoint(SpineMapHelper.formKey(indexXLoop , yBegin + counter)).getType().equals(" ")){
-								landMap.findPoint(SpineMapHelper.formKey(indexXLoop , yBegin + counter)).setGramaticalType("l-"
-										+indexXLoop+"-"+(yBegin + counter)+"-1-2-"+sideSize+"-"+sideDepth);
-								landMap.findPoint(SpineMapHelper.formKey((indexXLoop+landMap.getConfiguration().getLotConfiguration().getDepthSize()) , yBegin + counter)).setGramaticalType("l-"
-										+(indexXLoop+landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-"+(yBegin + counter)+"-1-2-"+sideSize+"-"+sideDepth);
+								if(!landMap.findPoint(SpineMapHelper.formKey(indexXLoop ,(yBegin + counter))).getType().equals(" ")){
+									if(insideMApVertical(indexXLoop,yBegin + counter,1,2)){
+										String dato1="l-"+indexXLoop+"-"+(yBegin + counter)+"-"+(indexXLoop+sideDepth)+"-"+(yBegin + counter)+"-"+(indexXLoop+sideDepth)+"-"+((yBegin + counter)+sideSize)+"-"+indexXLoop+"-"+((yBegin + counter)+sideSize);
+										landMap.findPoint(SpineMapHelper.formKey(ejeXX , (yBegin + counter))).setGramaticalType(dato1);
+									}
+									if(insideMApVertical(indexXLoop+sideDepth,(yBegin + counter),1,2)){
+										String dato2="l-"+(indexXLoop+sideDepth)+"-"+(yBegin + counter)+"-"+(indexXLoop+sideDepth*2)+"-"+(yBegin + counter)+"-"+(indexXLoop+sideDepth*2)+"-"+((yBegin + counter)+sideSize)+"-"+(indexXLoop+sideDepth)+"-"+((yBegin + counter)+sideSize);
+										landMap.findPoint(SpineMapHelper.formKey(indexXLoop+sideDepth , (yBegin + counter))).setGramaticalType(dato2);
+									}
+								}
+								
 							}
+							
 							counter++;
 							if (counter > nmbrLines)
 								break;
@@ -1927,14 +1990,17 @@ public class SpineAlgorithm {
 							break;
 						}
 						if(ii==0){
-							if(!landMap.findPoint(SpineMapHelper.formKey(ejeXX, topY)).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey(ejeXX, topY)).setGramaticalType("l-"
-										+ejeXX+"-"+topY+"-1-2-"+sideSize+"-"+sideDepth);
-							if(!landMap.findPoint(SpineMapHelper.formKey(ejeXX + landMap.getConfiguration().getLotConfiguration().getDepthSize(), topY)).getType().equals(" "))
-								landMap.findPoint(SpineMapHelper.formKey(ejeXX + landMap.getConfiguration().getLotConfiguration().getDepthSize(), topY)).setGramaticalType("l-"
-										+(ejeXX+ landMap.getConfiguration().getLotConfiguration().getDepthSize())+"-"+topY+"-1-2-"+sideSize+"-"+sideDepth);
+							if(insideMApVertical(ejeXX,topY,1,2)){
+								String dato1="l-"+ejeXX+"-"+topY+"-"+(ejeXX+sideDepth)+"-"+topY+"-"+(ejeXX+sideDepth)+"-"+(topY+sideSize)+"-"+ejeXX+"-"+(topY+sideSize);
+								landMap.findPoint(SpineMapHelper.formKey(ejeXX , topY)).setGramaticalType(dato1);
+							}
+							if(insideMApVertical(ejeXX+sideDepth,topY,1,2)){
+								String dato2="l-"+(ejeXX+sideDepth)+"-"+topY+"-"+(ejeXX+sideDepth*2)+"-"+topY+"-"+(ejeXX+sideDepth*2)+"-"+(topY+sideSize)+"-"+(ejeXX+sideDepth)+"-"+(topY+sideSize);
+								landMap.findPoint(SpineMapHelper.formKey(ejeXX+sideDepth ,topY)).setGramaticalType(dato2);
+							}
+							
+							
 						}
-
 						topY++;
 					}
 					aux = val1;
@@ -1944,8 +2010,6 @@ public class SpineAlgorithm {
 						break;
 					if (stateOut)
 						break;
-					// topY++;
-					// break;
 				}
 
 				ejeXX += landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE;
@@ -1954,5 +2018,211 @@ public class SpineAlgorithm {
 
 		paintAportes();
 
+	}
+	private void paintAportesVertical(){
+		int tope, ejeX, limite, divisionResultBlock;
+		String val1, val2, aux;
+		divisionResultBlock = width
+				/ (SpineConfiguration.HOUSE_SIDE_MAXIMUN_SIZE * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE);
+		tope = 1;
+		ejeX = 0;
+		for (int i = 0; i < divisionResultBlock; i++)
+			ejeX += SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE * 2 + SpineConfiguration.COLLECTOR_BRANCH_SIZE;
+		limite = width - ejeX;
+		int newlongHouse = limite / 2;
+		System.out.println("newlongHouse");
+		System.out.println(newlongHouse);
+		String comparableValue, comparableValue2;
+		
+		if (newlongHouse >= SpineConfiguration.HOUSE_DEPTH_MINIMUN_SIZE) {
+			while (true) {
+				comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, tope)).getType();
+				if (!comparableValue.equals(SpineConfiguration.ARTERIAL_MARK)) {
+					comparableValue = landMap
+							.findPoint(SpineMapHelper.formKey(ejeX, tope + SpineConfiguration.LOCAL_BRANCH_SIZE))
+							.getType();
+					int printBackIndex = tope - 1;
+					tope += SpineConfiguration.LOCAL_BRANCH_SIZE;
+					int beginCounter = 0;
+					boolean stateOut = false;
+					val1 = "1";
+					val2 = "2";
+					int counterGram=0;
+					boolean bol=true;
+					while (true) {
+						if(!landMap.findPoint(SpineMapHelper.formKey(ejeX,printBackIndex)).getType().equals(" ") &&counterGram<3 &&
+								!landMap.findPoint(SpineMapHelper.formKey(ejeX+sideDepth,printBackIndex)).getType().equals(" ") && bol){
+							
+							landMap.findPoint(SpineMapHelper.formKey(ejeX, printBackIndex)).setGramaticalType("l-"
+									+ejeX+"-"+(printBackIndex+6)+"-1-2-"+sideSize+"-"+newlongHouse);
+						}
+						//if(bol!=true)bol=true;
+							
+						for (int i = 0; i < SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+							comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, printBackIndex)).getType();
+							if (comparableValue.equals(".") || comparableValue.equals(" ") || printBackIndex < 1
+									|| comparableValue.equals("a")) {
+								stateOut = true;
+								break;
+							}
+							printBackIndex--;
+							beginCounter++;
+						}
+						aux = val1;
+						val1 = val2;
+						val2 = aux;
+						if (stateOut)
+							break;
+						if (beginCounter > SpineConfiguration.BASE_CLUSTER_SIZE)
+							break;
+						counterGram++;
+					}
+
+					// prin blocks
+				} else if (comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
+						|| comparableValue.equals(SpineConfiguration.BORDER_MARK))
+					break;
+				tope++;
+				if (tope > yy)
+					break;
+			}
+			comparableValue = landMap
+					.findPoint(SpineMapHelper.formKey(ejeX, yy + SpineConfiguration.ARTERIAL_BRANCH_SIZE)).getType();
+			tope = yy + SpineConfiguration.ARTERIAL_BRANCH_SIZE;
+
+			if (!comparableValue.equals(" ") && !comparableValue.equals("a") && !comparableValue.equals(".")) {
+				// landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).setType("9");//
+				// auxiliar print block
+				int idCont = 0;
+				int yyy = tope;
+				val1 = "1";
+				val2 = "2";
+				boolean stateOut = false;
+				while (true) {
+					for (int i = 0; i < SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+						comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, yyy)).getType();
+						if (comparableValue.equals(SpineConfiguration.WALK_MARK)
+								|| comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
+								|| comparableValue.equals(SpineConfiguration.POLYGON_BORDER)) {
+							stateOut = true;
+							break;
+						}
+						idCont++;
+						yyy++;
+					}
+					if (stateOut)
+						break;
+					aux = val1;
+					val1 = val2;
+					val2 = aux;
+					if (idCont > (SpineConfiguration.BASE_CLUSTER_SIZE - SpineConfiguration.ARTERIAL_BRANCH_SIZE
+							- SpineConfiguration.LOCAL_BRANCH_SIZE))
+						break;
+				}
+
+				while (true) {
+					tope++;
+					if (tope > width)
+						break;
+					comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, tope)).getType();
+					if (comparableValue.equals(" ") || comparableValue.equals("."))
+						break;
+					if (comparableValue.equals(SpineConfiguration.ARTERIAL_MARK)) {
+						// int printBackIndex=tope-1;
+						tope += SpineConfiguration.LOCAL_BRANCH_SIZE;
+						if (tope > width)
+							break;
+						val1 = "1";
+						val2 = "2";
+						stateOut = false;
+						idCont = 0;
+						yyy = tope;
+						while (true) {
+							for (int i = 0; i < SpineConfiguration.HOUSE_SIDE_MINIMUN_SIZE; i++) {
+								comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, yyy)).getType();
+								if (comparableValue.equals(SpineConfiguration.WALK_MARK)
+										|| comparableValue.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)
+										|| comparableValue.equals(SpineConfiguration.POLYGON_BORDER)) {
+									stateOut = true;
+									break;
+								}
+								idCont++;
+								yyy++;
+							}
+							if (stateOut)
+								break;
+							aux = val1;
+							val1 = val2;
+							val2 = aux;
+							if (idCont > SpineConfiguration.BASE_CLUSTER_SIZE)
+								break;
+						}
+
+						// landMap.findPoint(SpineMapHelper.formKey(ejeX,tope)).setType("9");
+					}
+					if (tope > width)
+						break;
+
+				}
+			}
+
+		}
+		
+	}
+	private boolean insideMApVertical(int x,int y, int a, int b){
+		//verify sense
+		if(a==2 && b==1){
+			if( (x-sideSize)<0 ||(x+sideSize)>large ||(y-this.sideDepth)<0 ||(y+sideDepth)>width )return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x+sideSize,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x+sideSize,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x-sideSize,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x-sideSize,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y+sideDepth)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y+sideDepth)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y-sideDepth)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y-sideDepth)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x+sideSize,y+sideDepth)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x+sideSize,y+sideDepth)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x-sideSize,y-sideDepth)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x-sideSize,y-sideDepth)).getType().equals("."))return false;
+		}
+		if(a==1 && b==2){
+			if( (x-sideDepth)<0 ||(x+sideDepth)>large ||(y-this.sideSize)<0 ||(y+sideSize)>width )return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y+sideSize)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y+sideSize)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y-sideSize)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y-sideSize)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x+sideDepth,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x+sideDepth,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x-sideDepth,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x-sideDepth,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x+sideDepth,y+sideSize)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x+sideDepth,y+sideSize)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x-sideDepth,y-sideSize)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x-sideDepth,y-sideSize)).getType().equals("."))return false;
+		}
+		
+		return true;
+	}
+	private boolean verifyPArk(int x,int y, int a, int b){
+		//verify sense
+		if(a==2 && b==1){
+			if( (x-nmbrParksLong)<0 ||(x+nmbrParksLong)>large ||(y-(sideDepth*2))<0 ||(y+(sideDepth*2))>width )return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x+nmbrParksLong,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x+nmbrParksLong,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x-nmbrParksLong,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x-nmbrParksLong,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y+(sideDepth*2))).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y+(sideDepth*2))).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y-(sideDepth*2))).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y-(sideDepth*2))).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x+nmbrParksLong,y+(sideDepth*2))).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x+nmbrParksLong,y+(sideDepth*2))).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x-nmbrParksLong,y-(sideDepth*2))).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x-nmbrParksLong,y-(sideDepth*2))).getType().equals("."))return false;
+		}
+		
+		if(a==1 && b==2){
+			/*if( (x-sideDepth*2)<0 ||(x+sideDepth*2)>large ||(y-nmbrParksLong)<0 ||(y+nmbrParksLong)>width )return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y)).getType().equals(" ")||
+					landMap.findPoint(SpineMapHelper.formKey(x+sideDepth*2,y)).getType().equals(".")||
+					landMap.findPoint(SpineMapHelper.formKey(x,y+nmbrParksLong)).getType().equals(".")||
+					landMap.findPoint(SpineMapHelper.formKey(x+sideDepth*2,y+nmbrParksLong)).getType().equals(".")
+					)return false;
+			if(!landMap.landPointisOnMap(x)||!landMap.landPointisOnMap(x+sideDepth*2))return false;*/
+			/*if(landMap.findPoint(SpineMapHelper.formKey(x,y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y+nmbrParksLong)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y+nmbrParksLong)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x,y-nmbrParksLong)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x,y-nmbrParksLong)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x+(sideDepth*2),y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x+(sideDepth*2),y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x-(sideDepth*2),y)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x-(sideDepth*2),y)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x+(sideDepth*2),y+nmbrParksLong)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x+sideDepth*2,y+nmbrParksLong)).getType().equals("."))return false;
+			if(landMap.findPoint(SpineMapHelper.formKey(x-(sideDepth*2),y+nmbrParksLong)).getType().equals(" ")||landMap.findPoint(SpineMapHelper.formKey(x-sideDepth*2,y+nmbrParksLong)).getType().equals("."))return false;*/
+		}
+		return true;
 	}
 }

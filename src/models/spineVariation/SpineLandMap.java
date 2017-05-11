@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import helpers.clusterVariation.ClusterDirectionHelper;
 import helpers.clusterVariation.ClusterMapHelper;
 import helpers.spineVariation.SpineDirectionHelper;
 import helpers.spineVariation.SpineMapHelper;
@@ -1458,12 +1459,12 @@ public class SpineLandMap {
 		String mapString = "";
 		for (int j = 0; j < pointsy; j++) {
 			for (int i = 0; i < pointsx; i++) {
-				String type = getLandPoint(SpineMapHelper.formKey(i, j)).getGramaticalType();
-				if(type != null){
-					mapString += type+",";
+				String type = getLandPoint(ClusterMapHelper.formKey(i, j)).getGramaticalType();
+				if (type != null) {
+					mapString += type + ",";
 				}
 			}
 		}
-		return mapString.substring(0, mapString.length()-2);//remove last ,
+		return mapString;// remove last ,
 	}
 }

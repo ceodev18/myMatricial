@@ -23,21 +23,31 @@ public class SpineTestPane extends JPanel {
 	//private boolean stringedType;
 	private int stringedType;
 	private List<SpineLandRoute> landRoutes;
-	/*
-	public SpineTestPane(boolean stringedType, String stringify, int large, int width) {
+	private List<Integer> landmapNodes;
+	
+	/*public SpineTestPane(boolean stringedType, String stringify, int large, int width) {
 		this.large = large;
 		this.width = width;
-		this.stringedType = stringedType;
+		this.stringedType = stringify;
 		this.spineString = stringify;
-	}
-*/
-	public SpineTestPane(int stringedType, String stringify, List<SpineLandRoute> landRoutes, int large,
+	}*/
+
+	public SpineTestPane(int stringedType, List<Integer> landmapNodes,String stringify, List<SpineLandRoute> landRoutes, int large,
 			int width) {
 		this.large = large;
 		this.width = width;
 		this.stringedType = stringedType;
 		this.landRoutes = landRoutes;
 		this.spineString = stringify;
+		this.landmapNodes= landmapNodes;
+	}
+	public SpineTestPane(int stringedType, String stringify, List<SpineLandRoute> landRoutes, int large, int width) {
+		this.large = large;
+		this.width = width;
+		this.stringedType = stringedType;
+		this.landRoutes = landRoutes;
+		this.spineString = stringify;
+		this.landmapNodes = null;
 	}
 	
 	@Override
@@ -70,21 +80,38 @@ public class SpineTestPane extends JPanel {
 		}
 	}
 	private void linearGrammarSimulation(Graphics g) {
+		System.out.println("linearGrammarSimulation");
 		String[] mapLines = spineString.split("\\,");
+		
+		for (int i = 0; i < landmapNodes.size(); i++) {
+			int[] initialXY = ClusterMapHelper.breakKey(landmapNodes.get(i));
+			int[] finalXY = ClusterMapHelper.breakKey(landmapNodes.get((i + 1) % landmapNodes.size()));
+			g.drawLine(initialXY[0], initialXY[1], finalXY[0], finalXY[1]);
+		}
+
+		int house = 0;
 		for (int y = 0; y < mapLines.length; y++) {
 			String[] buildingSymbols = mapLines[y].split("\\-");
 			switch (buildingSymbols[0]) {
-			case "l":
-				int[] coords = interpretBuilding(buildingSymbols[1], buildingSymbols[2], buildingSymbols[3],
-						buildingSymbols[4], buildingSymbols[5], buildingSymbols[6]);
-				g.drawLine(coords[0], coords[1], coords[2], coords[3]);
-				g.drawLine(coords[2], coords[3], coords[4], coords[5]);
-				g.drawLine(coords[4], coords[5], coords[6], coords[7]);
-				g.drawLine(coords[6], coords[7], coords[0], coords[1]);
 
-				/*String legend = buildingSymbols[5] + "x" + buildingSymbols[6];
-				g.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 5));
-				g.drawChars(legend.toCharArray(), 0, legend.length(), coords[0], coords[1]);*/
+			case "l":
+			//	System.out.print("("+house+")");
+				int [] coords = interpretNonOrhtogonalBuilding(buildingSymbols);
+				for (int i = 0; i < coords.length; i+=2) {
+					g.drawLine(coords[i], coords[i + 1], coords[(i + 2) % coords.length],
+								coords[(i + 3) % coords.length]);
+						//System.out.print(coords[i] + ","+ coords[i + 1] +"->");
+				}
+				
+				//System.out.println();
+				
+				//g.drawChars(("" + house).toCharArray(), 0, ("" + house).length(), coords[0], coords[1]);
+				house++;
+				//System.out.println();
+				/* String legend = buildingSymbols[5] + "x" +
+				 * buildingSymbols[6]; g.setFont(new Font(Font.SANS_SERIF,
+				 * Font.PLAIN, 5)); g.drawChars(legend.toCharArray(), 0,
+				 * legend.length(), coords[0], coords[1]);  */
 				break;
 			case "g":
 				coords = interpretNonOrhtogonalBuilding(buildingSymbols);
@@ -94,40 +121,16 @@ public class SpineTestPane extends JPanel {
 				}
 				//g.drawChars(("" + coords[0]).toCharArray(), 0, ("" + coords[0]).length(), coords[0], coords[1]);
 				break;
-
 			}
-
 		}
 
 		for (int i = 0; i < landRoutes.size(); i++) {
 			int xy[] = ClusterMapHelper.breakKey(landRoutes.get(i).getInitialPointId());
 			g.setColor(Color.BLACK);
-			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0],
+			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0]-(landRoutes.get(i).getType().equals("b")?0:10),
 					xy[1]);
-			g.fillOval(xy[0], xy[1], 10, 10);
+			g.fillOval(xy[0]-(landRoutes.get(i).getType().equals("b")?0:10), xy[1], 10, 10);
 		}
-	}
-	private int[] interpretBuilding(String initialX, String finalX, String driveDirection, String growDirection,
-			String sideSize, String depthSize) {
-		int[] coords = new int[8];
-		coords[0] = Integer.parseInt(initialX);
-		coords[1] = Integer.parseInt(finalX);
-
-		int[] xy = ClusterMapHelper.moveKeyByOffsetAndDirection(coords, Integer.parseInt(sideSize),
-				Integer.parseInt(driveDirection));
-		coords[2] = xy[0];
-		coords[3] = xy[1];
-
-		xy = ClusterMapHelper.moveKeyByOffsetAndDirection(xy, Integer.parseInt(depthSize),
-				Integer.parseInt(growDirection));
-		coords[4] = xy[0];
-		coords[5] = xy[1];
-
-		xy = ClusterMapHelper.moveKeyByOffsetAndDirection(xy, Integer.parseInt(sideSize),
-				ClusterDirectionHelper.oppositeDirection(Integer.parseInt(driveDirection)));
-		coords[6] = xy[0];
-		coords[7] = xy[1];
-		return coords;
 	}
 
 	private void normalSimulation(Graphics g) {
@@ -262,4 +265,5 @@ public class SpineTestPane extends JPanel {
 		}
 		return coords;
 	}
+
 }

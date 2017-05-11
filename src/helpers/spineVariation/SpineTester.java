@@ -14,6 +14,7 @@ import algorithm.clusterVariation.ClusterAlgorithm;
 import algorithm.spineVariation.LSystemSpineAlgorithm;
 import algorithm.spineVariation.SpineAlgorithm;
 import helpers.clusterVariation.ClusterTestPane;
+import helpers.clusterVariation.ClusterTester;
 import helpers.spineVariation.SpineDirectionHelper;
 import interfaces.spineVariation.SpineConfiguration;
 import models.spineVariation.SpineLandPoint;
@@ -73,8 +74,6 @@ public class SpineTester {
 		
 		// 3. We create the entry points for the main routes
 		SpineAlgorithm spineAlgorithm = new SpineAlgorithm();
-		//spineAlgorithm.setConfigValues(spineLandMap.getConfiguration().getLotConfiguration().getSideSize(),spineLandMap.getConfiguration().getLotConfiguration().getDepthSize());
-		//spineAlgorithm.setLandMap(landMap);
 		spineAlgorithm.setLandMap(spineLandMap);
 		spineAlgorithm.setWidth(width);
 		spineAlgorithm.setEntryX(algorithmView.getCartEntrygeocoords().get(0));
@@ -91,7 +90,11 @@ public class SpineTester {
 		}
 		
 		// 4. We clusterize the points
-		spineAlgorithm.spineizeV2();
+		int directionBranch = SpineDirectionHelper.orthogonalDirectionFromPointToPoint(new SpineLandPoint(algorithmView.getCartEntrygeocoords().get(0), algorithmView.getCartEntrygeocoords().get(1)),
+				spineLandMap.getCentroid());
+		System.out.println("directionBranch");
+		System.out.println(directionBranch);
+		spineAlgorithm.spineizeV2(directionBranch);
 		// We make border
 		spineAlgorithm.makeBorder(listData);
 		System.out.println("spineAlgorithm.getLandMap().getLandRoutes(); in TESTER");
@@ -108,8 +111,9 @@ public class SpineTester {
 		System.out.println("Response build finished in " + duration + "s");
 		
 		System.out.println("Start canvas");
-		
-		SpineTestPane spineTestPane2 = new SpineTestPane(2, spineAlgorithm.getLandMap().getGrammar(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
+		SpineTestPane spineTestPane1 = new SpineTestPane(1, spineAlgorithm.getLandMap().stringify(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
+		new SpineTester(spineTestPane1); 
+		SpineTestPane spineTestPane2 = new SpineTestPane(2, spineAlgorithm.getLandMap().getNodes(),spineAlgorithm.getLandMap().getGrammar(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
 		new SpineTester(spineTestPane2);
 	}
 	public SpineTester(SpineTestPane spineTestPane) {
