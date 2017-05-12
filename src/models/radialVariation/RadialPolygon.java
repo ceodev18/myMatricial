@@ -6,7 +6,6 @@ import models.radialVariation.RadialLandPoint;
 import models.radialVariation.RadialLandMap;
 import helpers.radialVariation.RadialMapHelper;
 import interfaces.radialVariation.RadialConfiguration;
-import interfaces.radialVariation.RadialConstants;
 
 public class RadialPolygon {
 	private List<Integer> points;

@@ -105,5 +105,8 @@ public class RadialLandRoute {
 		
 	return auxArr;	
 	}
+	public String stringify() {
+		return direction + "" + type + "" + initialPointId;
+	}
 	
 }
