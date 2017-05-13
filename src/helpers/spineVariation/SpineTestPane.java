@@ -261,6 +261,7 @@ public class SpineTestPane extends JPanel {
 	private int[] interpretNonOrhtogonalBuilding(String[] buildingSymbols) {
 		int[] coords = new int[buildingSymbols.length - 1];
 		for (int i = 1; i < buildingSymbols.length; i++) {
+			if(((buildingSymbols[i]).length()>=1))
 			coords[i - 1] = Integer.parseInt(buildingSymbols[i]);
 		}
 		return coords;

@@ -92,13 +92,9 @@ public class SpineTester {
 		// 4. We clusterize the points
 		int directionBranch = SpineDirectionHelper.orthogonalDirectionFromPointToPoint(new SpineLandPoint(algorithmView.getCartEntrygeocoords().get(0), algorithmView.getCartEntrygeocoords().get(1)),
 				spineLandMap.getCentroid());
-		System.out.println("directionBranch");
-		System.out.println(directionBranch);
 		spineAlgorithm.spineizeV2(directionBranch);
 		// We make border
 		spineAlgorithm.makeBorder(listData);
-		System.out.println("spineAlgorithm.getLandMap().getLandRoutes(); in TESTER");
-		System.out.println("size is "+ spineAlgorithm.getLandMap().getLandRoutes().size());
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
