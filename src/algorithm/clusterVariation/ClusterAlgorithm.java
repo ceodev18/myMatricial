@@ -58,20 +58,34 @@ public class ClusterAlgorithm {
 				break;
 		}
 
-		// Principal routes
+		// Local routes parallel to main route
 		int upperParallelId = mainRoute.getInitialPointId();
+		boolean first = true;
 		while (true) {
+			int extraSpace;
+			if (first) {
+				extraSpace = findExtraSpace(mainRoute.getDirection(), "upper");
+			} else {
+				extraSpace = 0;
+			}
+			first = false;
 			upperParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(upperParallelId,
-					landMap.getConfiguration().getBlockConfiguration().getSideSize(), orthogonalDirections.get(0));
+					landMap.getConfiguration().getBlockConfiguration().getSideSize() + extraSpace,
+					orthogonalDirections.get(0));
 			if (!landMap.landPointisOnMap(upperParallelId))
 				break;
 			createRouteVariation(upperParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
 		}
 
 		int lowerParallelId = mainRoute.getInitialPointId();
-		boolean first = true;
+		first = true;
 		while (true) {
-			int extraSpace = first ? ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 12 : 0;
+			int extraSpace;
+			if (first) {
+				extraSpace = findExtraSpace(mainRoute.getDirection(), "lower");
+			} else {
+				extraSpace = 0;
+			}
 			first = false;
 			lowerParallelId = ClusterMapHelper.moveKeyByOffsetAndDirection(lowerParallelId,
 					landMap.getConfiguration().getBlockConfiguration().getSideSize() + extraSpace,
@@ -80,6 +94,41 @@ public class ClusterAlgorithm {
 				break;
 			createRouteVariation(lowerParallelId, mainRoute.getDirection(), ClusterConfiguration.LOCAL_BRANCH);
 		}
+	}
+
+	private int findExtraSpace(int direction, String parallel) {
+		int extraSpace = 0;
+		switch (direction) {
+		case ClusterConstants.NORTH:
+			if (parallel.equals("upper")) {
+				extraSpace = 0;
+			} else {
+				extraSpace = ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 12;
+			}
+			break;
+		case ClusterConstants.SOUTH:
+			if (parallel.equals("upper")) {
+				extraSpace = ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 12;
+			} else {
+				extraSpace = 0;	
+			}
+			break;
+		case ClusterConstants.EAST:
+			if (parallel.equals("upper")) {
+				extraSpace = ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 12;
+			} else {
+				extraSpace = 0;
+			}
+			break;
+		case ClusterConstants.WEST:
+			if (parallel.equals("upper")) {
+				extraSpace = 0;
+			} else {
+				extraSpace = ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 12;
+			}
+			break;
+		}
+		return extraSpace;
 	}
 
 	public void createRouteVariation(int axisPoint, int direction, int branchType) {
@@ -404,7 +453,6 @@ public class ClusterAlgorithm {
 	}
 
 	private void simplifyOctopian(ClusterPolygon clusterPolygon) {
-
 		if (clusterPolygon.getPoints().size() > 1) {
 			if ((clusterPolygon.getPoints().get(0) + 1) == clusterPolygon.getPoints()
 					.get(clusterPolygon.getPoints().size() - 1)) {
