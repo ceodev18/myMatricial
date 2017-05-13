@@ -609,7 +609,7 @@ public class RadialLandMap {
 			int lower = xyRec1Ini[1] < xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];
 			int upper = xyRec1Ini[1] > xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];	
 			double yAux = xyRec1End[0]*gradient2 + b2;
-				if((lower <= yAux && yAux <= upper)|| !belong){
+				if(((lower-2) <= yAux && yAux <= (upper+2))|| !belong){
 					
 					RadialMapHelper.round(yAux);
 					pointSolution =  RadialMapHelper.formKey( xyRec1End[0],(int)yAux);
@@ -625,7 +625,7 @@ public class RadialLandMap {
 			int upper = xyRec2Ini[1] > xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
 				double yAux = xyRec2End[0]*gradient1 + b1;
 				
-				if((lower <= yAux && yAux <= upper)|| !belong){ //verify if the point belong to the straight
+				if(((lower-2) <= yAux && yAux <= (upper+2))|| !belong){ //verify if the point belong to the straight
 					RadialMapHelper.round(yAux);
 					pointSolution =  RadialMapHelper.formKey(xyRec2End[0],(int)yAux);
 					return pointSolution;
@@ -637,7 +637,7 @@ public class RadialLandMap {
 					int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
 					int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
 					double xAux = (xyRec1End[1]- b2)/gradient2;
-					if((lower <= xAux && xAux <= upper)|| !belong){
+					if(((lower-2)) <= xAux && xAux <= (upper+2)|| !belong){
 						
 						RadialMapHelper.round(xAux);
 						pointSolution =  RadialMapHelper.formKey( (int)xAux, xyRec1End[1]);
@@ -650,7 +650,7 @@ public class RadialLandMap {
 					int lower = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
 					int upper = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
 					double xAux = (xyRec2End[1]- b1)/gradient1;
-					if((lower <= xAux && xAux <= upper)|| !belong){
+					if(((lower-2) <= xAux && xAux <= (upper+2))|| !belong){
 						
 						RadialMapHelper.round(xAux);
 						pointSolution =  RadialMapHelper.formKey((int)xAux,xyRec2End[1]);
