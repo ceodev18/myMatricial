@@ -26,6 +26,12 @@ public class ClusterAlgorithm {
 		// 1. we need to now the main route size
 		int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint, landMap.getCentroid());
 		createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
+		if(landMap.getLandRoutes().size()==0){
+			createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.COLLECTOR_BRANCH);
+		}
+		if(landMap.getLandRoutes().size()==0){
+			createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.LOCAL_BRANCH);
+		}
 		ClusterLandRoute mainRoute = landMap.getLandRoutes().get(0);
 		// Once the collector branches are created we need to create the non
 		// collector running orthogonal to the main
