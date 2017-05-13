@@ -45,7 +45,7 @@ public class radialAlgorithm {
 		polygon.setComplete(true);
 		layersPolygon.add(localLayer);
 		//border of polygon print new grammar
-		String borderGrammar = "o-";
+		/*String borderGrammar = "o-";
 		for (int i = 0; i < localLayer.size(); i++) {
 			int[] xy = RadialMapHelper.breakKey(localLayer.get(i));
 			borderGrammar += xy[0] + "-" + xy[1];
@@ -54,6 +54,7 @@ public class radialAlgorithm {
 			}
 		}
 		landMap.findPoint(localLayer.get(0)).setGramaticalType(borderGrammar);	
+		*/
 		/// calculate the aprox of layers on the polygon
 		int valueSeparation = landMap.getConfiguration().getLotConfiguration().getDepthSize() * 2 + RadialConfiguration.LOCAL_BRANCH_SIZE;
 		double areaTotal = landMap.getPolygonalArea();

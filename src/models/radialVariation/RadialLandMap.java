@@ -666,8 +666,8 @@ public class RadialLandMap {
 			double xAux = (b2 -b1)/(gradient1- gradient2);
 			double yAux = gradient1*(xAux) + b1;		
 			
-			
-				if((lowerx <= xAux && xAux <= upperx && lowery <= yAux && yAux <= uppery) || !belong){//verify if the point belong to the straight because it wouldn't be include in both
+				
+				if(((lowerx-2) <= xAux && xAux <= (upperx+2) && (lowery-2) <= yAux && yAux <= (uppery+2)) || !belong){//verify if the point belong to the straight because it wouldn't be include in both
 					RadialMapHelper.round(xAux);
 					RadialMapHelper.round(yAux);
 					pointSolution =  RadialMapHelper.formKey((int)xAux, (int)yAux);	
