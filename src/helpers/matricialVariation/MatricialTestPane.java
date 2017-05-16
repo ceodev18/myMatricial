@@ -7,7 +7,6 @@ import java.awt.Graphics;
 
 import javax.swing.JPanel;
 
-import helpers.base.MapHelper;
 import models.matricialVariation.MatricialLandMap;
 
 public class MatricialTestPane extends JPanel {
@@ -45,7 +44,7 @@ public class MatricialTestPane extends JPanel {
 		int growthX = 0, growthY = 0;
 		for (int x = 0; x < matricialLandMap.getPointsx(); x++) {
 			for (int y = matricialLandMap.getPointsy() - 1; y >= 0; y--) {
-				String type = matricialLandMap.findPoint(MapHelper.formKey(x, y)).getType();
+				String type = matricialLandMap.findPoint(MatricialMapHelper.formKey(x, y)).getType();
 				switch (type) {/* 39 + 40*0 | 0+ 40*1 */
 				case "a":
 				case "b":
