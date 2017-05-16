@@ -18,6 +18,7 @@ import models.view.AlgorithmView;
 
 public class ClusterTester {
 	public static void main(String[] args) {
+//TODO 300 M case (Its entering the optimization code. Meaning it cannot render a normal lotization because the shit is too small
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
