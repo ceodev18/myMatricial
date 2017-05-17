@@ -200,9 +200,15 @@ public class ClusterAlgorithm {
 				ClusterDirectionHelper.oppositeDirection(growDirection));
 		int lowerLimitKey = ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, extension, growDirection);
 
+		boolean reverse = false;
 		if (!landMap.landPointisOnMap(upperLimitKey) || !landMap.landPointisOnMap(lowerLimitKey)) {
-			//TODO must do a for in case it happens to prevent 
-			return;
+			upperLimitKey = ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, extension,ClusterDirectionHelper.oppositeDirection( growDirection));
+			lowerLimitKey = ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, 1, growDirection);
+			if (!landMap.landPointisOnMap(upperLimitKey) || !landMap.landPointisOnMap(lowerLimitKey)) {
+				return;				
+			} else {
+				reverse = true;
+			}
 		}
 
 		createLine(upperLimitKey, direction, ClusterConfiguration.NODE_MARK);
@@ -210,7 +216,12 @@ public class ClusterAlgorithm {
 
 		landMap.getLandRoutes().add(clusterLandRoute);
 		for (int i = 0; i < extension; i++) {
-			createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction, markType);
+			if(reverse){
+				createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, ClusterDirectionHelper.oppositeDirection(growDirection)), direction, markType);
+			}else{
+				createLine(ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction, markType);				
+			}
+
 		}
 	}
 
