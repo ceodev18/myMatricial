@@ -25,11 +25,19 @@ public class ClusterAlgorithm {
 	public void clusterize(ClusterLandPoint entryPoint) {
 		// 1. we need to now the main route size
 		int direction = ClusterDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint, landMap.getCentroid());
-		createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
-		if(landMap.getLandRoutes().size()==0){
+
+		if (landMap.getPointsx() > 1000 && landMap.getPointsy() > 1000) {
+			createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.ARTERIAL_BRANCH);
+		} else if (landMap.getPointsx() > 600 && landMap.getPointsy() > 600) {
+			createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.COLLECTOR_BRANCH);
+		} else {
+			createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.LOCAL_BRANCH);
+		}
+
+		if (landMap.getLandRoutes().size() == 0) {
 			createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.COLLECTOR_BRANCH);
 		}
-		if(landMap.getLandRoutes().size()==0){
+		if (landMap.getLandRoutes().size() == 0) {
 			createRouteVariation(entryPoint.getId(), direction, ClusterConfiguration.LOCAL_BRANCH);
 		}
 		ClusterLandRoute mainRoute = landMap.getLandRoutes().get(0);
@@ -116,7 +124,7 @@ public class ClusterAlgorithm {
 			if (parallel.equals("upper")) {
 				extraSpace = ClusterConfiguration.ARTERIAL_BRANCH_SIZE - 12;
 			} else {
-				extraSpace = 0;	
+				extraSpace = 0;
 			}
 			break;
 		case ClusterConstants.EAST:
@@ -187,11 +195,13 @@ public class ClusterAlgorithm {
 
 		// It is necessary to test that the lower and upper key are still on the
 		// map.It would be impossible otherwise to create
+
 		int upperLimitKey = ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, 1,
 				ClusterDirectionHelper.oppositeDirection(growDirection));
 		int lowerLimitKey = ClusterMapHelper.moveKeyByOffsetAndDirection(axisPoint, extension, growDirection);
 
 		if (!landMap.landPointisOnMap(upperLimitKey) || !landMap.landPointisOnMap(lowerLimitKey)) {
+			//TODO must do a for in case it happens to prevent 
 			return;
 		}
 
