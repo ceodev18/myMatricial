@@ -16,8 +16,6 @@ import helpers.spineVariation.SpineDirectionHelper;
 import helpers.spineVariation.SpineTestPane;
 import helpers.spineVariation.SpineTester;
 import interfaces.spineVariation.SpineConfiguration;
-import models.base.LandMap;
-import models.base.LandPoint;
 import models.matricialVariation.MatricialLandMap;
 import models.matricialVariation.MatricialLandPoint;
 import models.spineVariation.SpineLandMap;
@@ -121,14 +119,13 @@ public class MatricialTester {
 		System.out.println("Response build finished in " + duration + "s");
 		
 		//2 variants
-		SpineTestPane spineTestPane = new SpineTestPane(true,
-				matricialAlgorithm.getLandMap().stringify(), large, width);		
+		//SpineTestPane spineTestPane = new SpineTestPane(true,matricialAlgorithm.getLandMap().stringify(), large, width);		
 				//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
 				//clusterTestPane.large = large;
 				//clusterTestPane.width = width;
 		System.out.println("Start canvas");
 		
-		new SpineTester(spineTestPane);
+		//new SpineTester(spineTestPane);
 
 	}
 	public MatricialTester(MatricialTestPane matricialTestPane) {
