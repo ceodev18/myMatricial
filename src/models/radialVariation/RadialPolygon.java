@@ -102,10 +102,21 @@ public class RadialPolygon {
 					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
 			unitVector[1] = (xyFinal[1] - xyInitial[1])
 					/ Math.sqrt(Math.pow(xyFinal[0] - xyInitial[0], 2) + Math.pow(xyFinal[1] - xyInitial[1], 2));
-
-			double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / (xyFinal[0] - xyInitial[0]);
+			
+			/*
+			///find a point to distance "size" with the centroid
+			int auxPoint2 =auxLandMap.findProyectionPointIntoParalelStraights(points.get(i),points.get((i + 1) % points.size()),RadialMapHelper.formKey(centroid[0],centroid[1]),false);
+			int auxPoint3 = auxLandMap.findPointOnStreightToDistance(auxPoint2, RadialMapHelper.formKey(centroid[0],centroid[1]), size);
+			int[] xyRef = RadialMapHelper.breakKey(auxPoint3);
+			*/
+			Double gradient = ((xyFinal[1] - xyInitial[1]) * 1.0 )/ (xyFinal[0] - xyInitial[0]);
+			
+			//if(Math.abs(xyFinal[0] - xyInitial[0]) < 15) gradient = Double.POSITIVE_INFINITY ;
+			//if(Math.abs(xyFinal[1] - xyInitial[1]) < 15) gradient = 0.0;
+			
 			gradients.add(gradient);
 			// then the perpendicular
+		
 			double[] perpendicularUnitVector = new double[2];
 			perpendicularUnitVector[0] = unitVector[1];
 			perpendicularUnitVector[1] = -unitVector[0];
@@ -116,7 +127,7 @@ public class RadialPolygon {
 			variationA[0] = xyInitial[0] + size * perpendicularUnitVector[0];
 			variationA[1] = xyInitial[1] + size * perpendicularUnitVector[1];
 
-			variationB[0] = xyInitial[0] - size * perpendicularUnitVector[0];
+			variationB[0] = xyInitial[0] - size * perpendicularUnitVector[0];	
 			variationB[1] = xyInitial[1] - size * perpendicularUnitVector[1];
 
 			double bA;
@@ -134,6 +145,9 @@ public class RadialPolygon {
 			} else {
 				offsets.add(bA);
 			}
+		
+			//double b = xyRef[1] - xyRef[0]*gradient ;
+			//offsets.add(b);
 		}
 
 		// Special cases. When infinity and when 0 if infinity y=has a
@@ -226,9 +240,10 @@ public class RadialPolygon {
 				shrinkedList.add(RadialMapHelper.formKey(xy[0], xy[1]));
 				continue;
 			}
-
+			
 			xy[0] = (int) ((offsets.get(i) - offsets.get(previous)) / (gradients.get(previous) - gradients.get(i)));
 			xy[1] = (int) (gradients.get(previous) * xy[0] + offsets.get(previous));
+			
 			shrinkedList.add(RadialMapHelper.formKey(xy[0], xy[1]));
 		}
 		//verify repetition

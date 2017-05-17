@@ -93,24 +93,32 @@ public class RadialLandMap {
 	 * all the input from android looks like that.
 	 */
 	public void createBorderFromPolygon(List<RadialLandPoint> polygon) {
-
+		
 		///evade sizes errors, when is possible to out of range
 		for(int j =0 ;j < polygon.size();j++ ){
 			int valX = polygon.get(j).getX();
 			int valY = polygon.get(j).getY();
-			int aux = (int)(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2) ;
+			int valXNext = polygon.get((j+1)%polygon.size()).getX();
+			int	valYNext = polygon.get((j+1)%polygon.size()).getY();	
+			int aux = 10;
 			if(valX < aux){
+				valX=aux;
 				polygon.get(j).setX(aux);
 			}
 			if(valX > (getPointsx() - aux)){
+				valX=getPointsx() - aux;
 				polygon.get(j).setX(getPointsx() - aux);
 			}
 			if(valY < aux){
+				valY=aux;
 				polygon.get(j).setY(aux);
 			}
 			if(valY > (getPointsy() - aux)){
+				valY=getPointsy() - aux;
 				polygon.get(j).setY(getPointsy() - aux);
 			}
+			if(Math.abs(valX-valXNext)<15) polygon.get((j+1)%polygon.size()).setX(valX);
+			if(Math.abs(valY-valYNext)<15) polygon.get((j+1)%polygon.size()).setY(valY);
 		}
 		
 		setPolygonNodes(polygon);
@@ -257,10 +265,12 @@ public class RadialLandMap {
 
 	// Variation for the creation of zones
 	public void createBorderFromPolygon(List<Integer> polygon, String markType) {
+		
 		int variation=0;
+		
 		for(int j =0 ;j < polygon.size();j++ ){
 			int xyPoint[] = RadialMapHelper.breakKey(polygon.get(j));
-			int aux = (int)(RadialConfiguration.ARTERIAL_BRANCH_SIZE/2);
+			int aux = 25;
 			if(xyPoint[0] < aux){
 				xyPoint[0]= aux;
 				variation=1;
@@ -711,10 +721,12 @@ public class RadialLandMap {
 				}else{
 					pointSolution =  RadialMapHelper.formKey(xyFinal[0],(xyInitial[1] - (int)distance));		
 				}
+				/*
 				if(!landPointisOnMap(pointSolution)){
 					//System.out.println("point out of range");
 					return -1;
 				}
+				*/
 				return pointSolution;
 		}else{
 			gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
@@ -725,10 +737,12 @@ public class RadialLandMap {
 				}else{
 					pointSolution =  RadialMapHelper.formKey( (xyInitial[0] - (int)distance),xyFinal[1] );	
 				}
+				/*
 				if(!landPointisOnMap(pointSolution)){
 					//System.out.println("point out of range");
 					return -1;
 				}
+				*/
 				return pointSolution;
 			}
 			int sign,init,end;
@@ -766,10 +780,11 @@ public class RadialLandMap {
 					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
 					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
 					if(auxDist >= distance){
-						if(!landPointisOnMap(pointSolution)){
+						/*if(!landPointisOnMap(pointSolution)){
 							//System.out.println("point out of range");
 							return -1;
 						}
+						*/
 						return pointSolution;
 					}
 				}
@@ -788,10 +803,10 @@ public class RadialLandMap {
 					pointSolution =  RadialMapHelper.formKey( (int)x,(int)y );
 					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
 					if(auxDist >= distance){
-						if(!landPointisOnMap(pointSolution)){
+						/*if(!landPointisOnMap(pointSolution)){
 							//System.out.println("point out of range");
 							return -1;
-						}
+						}*/
 						return pointSolution;
 					}
 				}
