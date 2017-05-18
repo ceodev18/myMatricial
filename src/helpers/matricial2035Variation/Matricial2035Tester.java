@@ -19,13 +19,11 @@ import models.view.AlgorithmView;
 public class Matricial2035Tester {
 	public static void main(String[] args) {
 		/**
-		 La retícula para pendientes del 20 al 35% tendrá
-         también manzanas de 64x76m con dos
-         pasajes peatonales, sin embargo sólo tendrá
-         un tipo de lote de 6x15m, orientado según la
-         dirección del pasaje.
+		 * La retícula para pendientes del 20 al 35% tendrá también manzanas de
+		 * 64x76m con dos pasajes peatonales, sin embargo sólo tendrá un tipo de
+		 * lote de 6x15m, orientado según la dirección del pasaje.
 		 */
-		
+
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
@@ -34,7 +32,10 @@ public class Matricial2035Tester {
 		ConfigurationMatrix configurationMatrix = new ConfigurationMatrix(algorithmView);
 
 		int large = algorithmView.getxSize(), width = algorithmView.getySize();
-		// 1. We create the map and set its intrinsec variables
+
+		// 1. To be able to make rotationary changes we need to work with the
+		// points before the map creation
+		// 1.1. We create the map and set its intrinsec variables
 		List<Matricial2035LandPoint> polygon = new ArrayList<>();
 		List<Integer> intVertex = algorithmView.getCartVertexgeocoords();
 		for (int i = 0; i < algorithmView.getVertexgeocoords().size(); i += 2) {
@@ -49,6 +50,14 @@ public class Matricial2035Tester {
 				algorithmView.getCartEntrygeocoords().get(1));
 		entryPoints.add(landPoint);
 
+		//1.2. We get the direction angle to create the main route
+		double directionAngle = Matricial2035DirectionHelper.parallelDirectionFromLargestLimit(entryPoints.get(0), polygon);
+		
+		//1.3. The entry point and vertex points are changed
+		Matricial2035DirectionHelper.rotatePoints(directionAngle, entryPoints.get(0), polygon);
+
+		
+		
 		// TRUE BEGINNING OF THE ALGORITHM
 		Matricial2035LandMap landMap = new Matricial2035LandMap(large, width);
 		// 2. we create the border from the polygon
@@ -59,8 +68,8 @@ public class Matricial2035Tester {
 		Matricial2035Algorithm matricial2035Algorithm = new Matricial2035Algorithm();
 		matricial2035Algorithm.setLandMap(landMap);
 
-		// 4. We clusterize the points
-		//matricial2035Algorithm.clusterize(entryPoints.get(0));
+		// 4. We make the matrix
+		matricial2035Algorithm.generateMatrix(entryPoints.get(0));
 
 		// 5. Zonification
 		matricial2035Algorithm.zonify();
@@ -68,7 +77,9 @@ public class Matricial2035Tester {
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Final Memory" + usedMemoryBefore / 1000000 + " in MB");
 
-		Matricial2035TestPane clusterTestPane = new Matricial2035TestPane(2, matricial2035Algorithm.getLandMap().getNodes(), matricial2035Algorithm.getLandMap().getGrammar(), matricial2035Algorithm.getLandMap().getLandRoutes(), large, width);
+		Matricial2035TestPane clusterTestPane = new Matricial2035TestPane(2,
+				matricial2035Algorithm.getLandMap().getNodes(), matricial2035Algorithm.getLandMap().getGrammar(),
+				matricial2035Algorithm.getLandMap().getLandRoutes(), large, width);
 		new Matricial2035Tester(clusterTestPane);
 	}
 

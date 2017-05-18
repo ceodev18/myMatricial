@@ -11,24 +11,18 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import algorithm.matricialVariation.MatricialAlgorithm;
-import algorithm.spineVariation.SpineAlgorithm;
-import helpers.spineVariation.SpineDirectionHelper;
-import helpers.spineVariation.SpineTestPane;
-import helpers.spineVariation.SpineTester;
-import interfaces.spineVariation.SpineConfiguration;
+import interfaces.matricialVariation.MatricialConfiguration;
 import models.matricialVariation.MatricialLandMap;
 import models.matricialVariation.MatricialLandPoint;
-import models.spineVariation.SpineLandMap;
-import models.spineVariation.SpineLandPoint;
 
 public class MatricialTester {
 	public static void main(String[] args) {
 		/** TODO segun el informe
 		 manzana de 64x76m, con 36 lotes y pasajes
          peatonales al interior. Tendrá además dos tipos
-de lotes, un lote de 7.5x12m, orientado
-hacia la calle principal y un tipo de lote de
-6x15m orientado hacia el pasaje peatonal.*/		
+         de lotes, un lote de 7.5x12m, orientado
+         hacia la calle principal y un tipo de lote de
+         6x15m orientado hacia el pasaje peatonal.*/		
 		
 		long startTime = System.nanoTime();
 		//MAPA 1
@@ -80,7 +74,7 @@ hacia la calle principal y un tipo de lote de
 		for (MatricialLandPoint entryPoint : entryPoints) {
 			int direction =MatricialDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
 					matricialLandMap.getCentroid());
-			matricialAlgorithm.createRouteVariation(entryPoint.getId(), direction,SpineConfiguration.ARTERIAL_BRANCH);
+			matricialAlgorithm.createRouteVariation(entryPoint.getId(), direction, MatricialConfiguration.ARTERIAL_BRANCH);
 			
 		}
 		
