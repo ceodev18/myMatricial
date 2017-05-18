@@ -18,6 +18,14 @@ import models.view.AlgorithmView;
 
 public class Matricial2035Tester {
 	public static void main(String[] args) {
+		/**
+		 La retícula para pendientes del 20 al 35% tendrá
+         también manzanas de 64x76m con dos
+         pasajes peatonales, sin embargo sólo tendrá
+         un tipo de lote de 6x15m, orientado según la
+         dirección del pasaje.
+		 */
+		
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");

@@ -23,6 +23,13 @@ import models.spineVariation.SpineLandPoint;
 
 public class MatricialTester {
 	public static void main(String[] args) {
+		/** TODO segun el informe
+		 manzana de 64x76m, con 36 lotes y pasajes
+         peatonales al interior. Tendrá además dos tipos
+de lotes, un lote de 7.5x12m, orientado
+hacia la calle principal y un tipo de lote de
+6x15m orientado hacia el pasaje peatonal.*/		
+		
 		long startTime = System.nanoTime();
 		//MAPA 1
 		Runtime runtime = Runtime.getRuntime();
