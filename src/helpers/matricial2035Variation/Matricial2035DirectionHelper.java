@@ -5,6 +5,7 @@ import java.util.List;
 
 import interfaces.matricial2035Variation.Matricial2035Constants;
 import models.matricial2035Variation.Matricial2035LandPoint;
+import models.matricial2035Variation.Matricial2035RotationPoint;
 
 public class Matricial2035DirectionHelper {
 	public static List<Integer> orthogonalDirections(final int direction) {
@@ -148,8 +149,11 @@ public class Matricial2035DirectionHelper {
 		}
 	}
 
-	public static double parallelDirectionFromLargestLimit(Matricial2035LandPoint entryPoint,
+	// I need to establish the point as a rotator index. Think of it as a
+	// constellation
+	public static Matricial2035RotationPoint getRotationPoint(Matricial2035LandPoint entryPoint,
 			List<Matricial2035LandPoint> polygon) {
+		Matricial2035RotationPoint matricial2035RotationPoint = new Matricial2035RotationPoint();
 		int vertexesIndex = 0;
 		// we find the vertex
 		for (vertexesIndex = 0; vertexesIndex < polygon.size(); vertexesIndex++) {
@@ -159,10 +163,8 @@ public class Matricial2035DirectionHelper {
 		}
 		int indexBehind = vertexesIndex;
 		int indexBehindComplimentary = (indexBehind - 1) == -1 ? polygon.size() : indexBehind - 1;
-
-		int indexInFront = vertexesIndex;
-		int indexInFrontComplimentary = (indexInFront + 1) == polygon.size() ? 0 : indexInFront + 1;
-
+		int indexInFront = (vertexesIndex + 1) % polygon.size();
+		int indexInFrontComplimentary = (indexInFront + 1) % polygon.size();
 		int indexSelected = -1;
 		int indexSelectedComplimentary = -1;
 
@@ -175,13 +177,27 @@ public class Matricial2035DirectionHelper {
 			indexSelectedComplimentary = indexInFrontComplimentary;
 		}
 
-		return findDirection(polygon.get(indexSelected), polygon.get(indexSelectedComplimentary));
+		matricial2035RotationPoint.setNodeIndex(indexSelected);
+		matricial2035RotationPoint.setRotationPoint(polygon.get(indexSelected).getId());
+		matricial2035RotationPoint
+				.setAngle(findAngle(polygon.get(indexSelected), polygon.get(indexSelectedComplimentary)));
+		return matricial2035RotationPoint;
 	}
 
-	private static double findDirection(Matricial2035LandPoint initialLandPoint,
-			Matricial2035LandPoint finalLandPoint2) {
-		
-		return 0;
+	private static double findAngle(Matricial2035LandPoint initialLandPoint, Matricial2035LandPoint finalLandPoint) {
+		int[] axisXY = Matricial2035MapHelper.moveKeyByOffsetAndDirection(
+				Matricial2035MapHelper.breakKey(initialLandPoint.getId()), 10, Matricial2035Constants.EAST);
+		int[] initialXY = Matricial2035MapHelper.breakKey(initialLandPoint.getId());
+		int[] finalXY = Matricial2035MapHelper.breakKey(finalLandPoint.getId());
+
+		double angle1 = Math.atan2(finalXY[1] - initialXY[1], finalXY[0] - initialXY[0]);
+		double angle2 = Math.atan2(axisXY[1] - initialXY[1], axisXY[0] - initialXY[0]);
+
+		float calculatedAngle = (float) Math.toDegrees(angle1 - angle2);
+		if (calculatedAngle < 0)
+			calculatedAngle += 360;
+
+		return calculatedAngle;
 	}
 
 	/*
@@ -194,15 +210,37 @@ public class Matricial2035DirectionHelper {
 		return Math.sqrt(Math.pow(initialXY[0] - finalXY[0], 2) + Math.pow(initialXY[1] - finalXY[1], 2));
 	}
 
-	private static boolean isFromRect(Matricial2035LandPoint entryPoint, Matricial2035LandPoint matricial2035LandPoint,
-			Matricial2035LandPoint matricial2035LandPoint2) {
-		// TODO Auto-generated method stub
+	/*
+	 * Simple verification that the current analyzed rect is from such point
+	 */
+	private static boolean isFromRect(Matricial2035LandPoint entryPoint, Matricial2035LandPoint initialLandPoint,
+			Matricial2035LandPoint finalLandPoint2) {
+		int[] initialXY = Matricial2035MapHelper.breakKey(initialLandPoint.getId());
+		int[] finalXY = Matricial2035MapHelper.breakKey(finalLandPoint2.getId());
+		int[] entryXY = Matricial2035MapHelper.breakKey(entryPoint.getId());
+		// 3 cases, if x == x, y == y or xy gradient in which case it is
+		// necessary to calculate
+		if ((initialXY[0] == finalXY[0])) {
+			return initialXY[0] == finalXY[0];
+		} else if ((initialXY[0] == finalXY[0])) {
+			return initialXY[1] == finalXY[1];
+		} else {// Needs to be done with a tolerance ratio, as 2 curves can be
+				// equal and not necessarily correct
+			double normalGradient = (finalXY[1] - initialXY[1]) * 1.0 / (finalXY[0] - initialXY[0]);
+			double entryGradient = (entryXY[1] - initialXY[1]) * 1.0 / (entryXY[0] - initialXY[0]);
+			if (Math.abs(normalGradient - entryGradient) < 0.05) {
+				return true;
+			}
+		}
 		return false;
 	}
 
-	public static void rotatePoints(double directionAngle, Matricial2035LandPoint matricial2035LandPoint,
+	public static void rotatePoints(Matricial2035RotationPoint rotationPoint, Matricial2035LandPoint entryLandPoint,
 			List<Matricial2035LandPoint> polygon) {
-		// TODO Auto-generated method stub
-
+		/*
+		 * newX = centerX + (point2x-centerX)*Math.cos(x) -
+		 * (point2y-centerY)*Math.sin(x); newY = centerY +
+		 * (point2x-centerX)*Math.sin(x) + (point2y-centerY)*Math.cos(x);
+		 */
 	}
 }

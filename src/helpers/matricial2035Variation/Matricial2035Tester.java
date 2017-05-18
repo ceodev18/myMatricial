@@ -14,6 +14,7 @@ import algorithm.matricial2035Variation.Matricial2035Algorithm;
 import models.configuration.ConfigurationMatrix;
 import models.matricial2035Variation.Matricial2035LandMap;
 import models.matricial2035Variation.Matricial2035LandPoint;
+import models.matricial2035Variation.Matricial2035RotationPoint;
 import models.view.AlgorithmView;
 
 public class Matricial2035Tester {
@@ -51,10 +52,10 @@ public class Matricial2035Tester {
 		entryPoints.add(landPoint);
 
 		//1.2. We get the direction angle to create the main route
-		double directionAngle = Matricial2035DirectionHelper.parallelDirectionFromLargestLimit(entryPoints.get(0), polygon);
+		Matricial2035RotationPoint matricial2035RotationPoint = Matricial2035DirectionHelper.getRotationPoint(entryPoints.get(0), polygon);
 		
 		//1.3. The entry point and vertex points are changed
-		Matricial2035DirectionHelper.rotatePoints(directionAngle, entryPoints.get(0), polygon);
+		Matricial2035DirectionHelper.rotatePoints(matricial2035RotationPoint, entryPoints.get(0), polygon);
 
 		
 		
