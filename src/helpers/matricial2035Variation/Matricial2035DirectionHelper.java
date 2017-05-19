@@ -178,7 +178,7 @@ public class Matricial2035DirectionHelper {
 		}
 
 		matricial2035RotationPoint.setNodeIndex(indexSelected);
-		matricial2035RotationPoint.setRotationPoint(polygon.get(indexSelected).getId());
+		matricial2035RotationPoint.setRotationPointId(polygon.get(indexSelected).getId());
 		matricial2035RotationPoint
 				.setAngle(findAngle(polygon.get(indexSelected), polygon.get(indexSelectedComplimentary)));
 		return matricial2035RotationPoint;
@@ -235,12 +235,52 @@ public class Matricial2035DirectionHelper {
 		return false;
 	}
 
-	public static void rotatePoints(Matricial2035RotationPoint rotationPoint, Matricial2035LandPoint entryLandPoint,
-			List<Matricial2035LandPoint> polygon) {
-		/*
-		 * newX = centerX + (point2x-centerX)*Math.cos(x) -
-		 * (point2y-centerY)*Math.sin(x); newY = centerY +
-		 * (point2x-centerX)*Math.sin(x) + (point2y-centerY)*Math.cos(x);
-		 */
+	public static void resize(List<Matricial2035LandPoint> polygon, int[] sizes) {
+		for (int i = 0; i < polygon.size(); i++) {
+			int[] currentXY = Matricial2035MapHelper.breakKey(polygon.get(i).getId());
+			if (sizes[0] < currentXY[0]) {
+				sizes[0] = currentXY[0];
+			}
+			if (sizes[1] < currentXY[1]) {
+				sizes[1] = currentXY[1];
+			}
+		}
 	}
+
+	public static void translate(List<Matricial2035LandPoint> polygon, List<Matricial2035LandPoint> entryPoints,
+			int[] xy) {
+		xy[0] = 0;
+		xy[1] = 0;
+
+		for (int i = 0; i < polygon.size(); i++) {
+			if (polygon.get(i).getX() < xy[0]) {
+				xy[0] = polygon.get(i).getX();
+			}
+
+			if (polygon.get(i).getY() < xy[1]) {
+				xy[1] = polygon.get(i).getY();
+			}
+		}
+		
+		if (entryPoints.get(0).getX() < xy[0]) {
+			xy[0] = entryPoints.get(0).getX();
+		}
+
+		if (entryPoints.get(0).getY() < xy[1]) {
+			xy[1] = entryPoints.get(0).getY();
+		}
+
+		if (xy[0] != 0) {
+			for (int i = 0; i < polygon.size(); i++) {
+				polygon.get(i).setX(polygon.get(i).getX() - xy[0]);
+			}
+		}
+
+		if (xy[1] != 0) {
+			for (int i = 0; i < polygon.size(); i++) {
+				polygon.get(i).setY(polygon.get(i).getY() - xy[1]);
+			}
+		}
+	}
+	//TODO still not giving feasable answers
 }

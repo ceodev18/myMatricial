@@ -18,6 +18,10 @@ public class Matricial2035LandPoint {
 		this.id = x * 10000 + y; /* Result space = y: 0 -9999 y x = 0 9999 */
 	}
 
+	public Matricial2035LandPoint() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public int getId() {
 		return id;
 	}

@@ -55,12 +55,32 @@ public class Matricial2035Tester {
 		Matricial2035RotationPoint matricial2035RotationPoint = Matricial2035DirectionHelper.getRotationPoint(entryPoints.get(0), polygon);
 		
 		//1.3. The entry point and vertex points are changed
-		Matricial2035DirectionHelper.rotatePoints(matricial2035RotationPoint, entryPoints.get(0), polygon);
-
+		List<Matricial2035LandPoint> rotatedPolygon = new ArrayList<>();
+		for (int i = 0; i < polygon.size(); i ++) {
+			landPoint = matricial2035RotationPoint.rotatePoint(polygon.get((i)));
+			rotatedPolygon.add(landPoint);
+		}
 		
+		
+		
+		Matricial2035LandPoint entry = new Matricial2035LandPoint(algorithmView.getCartEntrygeocoords().get(0),
+				algorithmView.getCartEntrygeocoords().get(1));
+		entryPoints = new ArrayList<>();
+		landPoint = matricial2035RotationPoint.rotatePoint(entry);
+		entryPoints.add(landPoint);
+
+		int [] translationUnit = new int[2];
+		Matricial2035DirectionHelper.translate(polygon, entryPoints, translationUnit);
+		
+		
+		//1.4. Even the large and width
+		int [] newSizes = new int[2];
+		newSizes[0]=0;
+		newSizes[1]=0;
+		Matricial2035DirectionHelper.resize(polygon, newSizes);
 		
 		// TRUE BEGINNING OF THE ALGORITHM
-		Matricial2035LandMap landMap = new Matricial2035LandMap(large, width);
+		Matricial2035LandMap landMap = new Matricial2035LandMap(newSizes[0], newSizes[1]);
 		// 2. we create the border from the polygon
 		landMap.createMapBorder(polygon);
 		landMap.setConfiguration(configurationMatrix.getConfiguration().get(0));
@@ -70,7 +90,7 @@ public class Matricial2035Tester {
 		matricial2035Algorithm.setLandMap(landMap);
 
 		// 4. We make the matrix
-		matricial2035Algorithm.generateMatrix(entryPoints.get(0));
+		matricial2035Algorithm.clusterize(entryPoints.get(0));
 
 		// 5. Zonification
 		matricial2035Algorithm.zonify();
@@ -80,7 +100,11 @@ public class Matricial2035Tester {
 
 		Matricial2035TestPane clusterTestPane = new Matricial2035TestPane(2,
 				matricial2035Algorithm.getLandMap().getNodes(), matricial2035Algorithm.getLandMap().getGrammar(),
-				matricial2035Algorithm.getLandMap().getLandRoutes(), large, width);
+				matricial2035Algorithm.getLandMap().getLandRoutes(), newSizes[0], newSizes[1]);
+		
+		/*Matricial2035TestPane clusterTestPane = new Matricial2035TestPane(2,
+				matricial2035Algorithm.getLandMap().getNodes(), matricial2035Algorithm.getLandMap().getGrammar(),
+				matricial2035Algorithm.getLandMap().getLandRoutes(), large, width);*/
 		new Matricial2035Tester(clusterTestPane);
 	}
 
@@ -94,7 +118,7 @@ public class Matricial2035Tester {
 						| UnsupportedLookAndFeelException ex) {
 				}
 
-				JFrame frame = new JFrame("Testing");
+				JFrame frame = new JFrame("Matricial Testing");
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setLayout(new BorderLayout());
 				JScrollPane scrPane = new JScrollPane(clusterTestPane);
@@ -118,7 +142,7 @@ public class Matricial2035Tester {
 						| UnsupportedLookAndFeelException ex) {
 				}
 
-				JFrame frame = new JFrame("Testing");
+				JFrame frame = new JFrame("Matricial Testing");
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				frame.setLayout(new BorderLayout());
 				JScrollPane scrPane = new JScrollPane(clusterPolygonTester);
