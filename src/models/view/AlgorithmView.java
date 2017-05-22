@@ -23,7 +23,9 @@ public class AlgorithmView {
 	private int userId;
 	private int intDate;
 	private String fcmToken;
-
+	private List<Integer> vertexcartcoords;
+	private List<Integer> entrycartcoords;
+	
 	protected AlgorithmView() {
 	}
 
@@ -43,31 +45,46 @@ public class AlgorithmView {
 
 			this.vertexgeocoords = new ArrayList<>();
 			JSONArray vertexgeocoordsList = (JSONArray) jsonObject.get("vertexgeocoords");
-			Iterator<Double> iterator = vertexgeocoordsList.iterator();
-			while (iterator.hasNext()) {
-				vertexgeocoords.add(iterator.next());
+			Iterator<Double> doubleIterator = vertexgeocoordsList.iterator();
+			while (doubleIterator.hasNext()) {
+				vertexgeocoords.add(doubleIterator.next());
 			}
 
 			this.entrygeocoords = new ArrayList<>();
 			JSONArray entrygeocoordsList = (JSONArray) jsonObject.get("entrygeocoords");
-			iterator = entrygeocoordsList.iterator();
-			while (iterator.hasNext()) {
-				entrygeocoords.add(iterator.next());
+			doubleIterator = entrygeocoordsList.iterator();
+			while (doubleIterator.hasNext()) {
+				entrygeocoords.add(doubleIterator.next());
 			}
 
 			this.origincoords = new ArrayList<>();
 			JSONArray origincoordsList = (JSONArray) jsonObject.get("origincoords");
-			iterator = origincoordsList.iterator();
-			while (iterator.hasNext()) {
-				origincoords.add(iterator.next());
+			doubleIterator = origincoordsList.iterator();
+			while (doubleIterator.hasNext()) {
+				origincoords.add(doubleIterator.next());
 			}
 
 			this.coordLimits = new ArrayList<>();
 			JSONArray coordLimitsList = (JSONArray) jsonObject.get("coordLimits");
-			iterator = coordLimitsList.iterator();
-			while (iterator.hasNext()) {
-				coordLimits.add(iterator.next());
+			doubleIterator = coordLimitsList.iterator();
+			while (doubleIterator.hasNext()) {
+				coordLimits.add(doubleIterator.next());
 			}
+			
+			this.setVertexcartcoords(new ArrayList<>());
+			JSONArray vertexCartList = (JSONArray) jsonObject.get("vertexcartcoords");
+			Iterator<Long> integerIterator = vertexCartList.iterator();
+			while (integerIterator.hasNext()) {
+				getVertexcartcoords().add(integerIterator.next().intValue());
+			}
+			
+			this.setEntrycartcoords(new ArrayList<>());
+			JSONArray entryCartList = (JSONArray) jsonObject.get("entrycartcoords");
+			integerIterator = entryCartList.iterator();
+			while (integerIterator.hasNext()) {
+				getEntrycartcoords().add(integerIterator.next().intValue());
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -75,7 +92,7 @@ public class AlgorithmView {
 
 	public AlgorithmView(int xSize, int ySize, List<Double> vertexgeocoords, List<Double> entrygeocoords,
 			List<Double> origincoords, List<Double> coordLimits, int minBlockSize, int maxBlockSize, int minLotSize,
-			int maxLotSize, int userId, int intDate, String fcmToken) {
+			int maxLotSize, int userId, int intDate, String fcmToken, List<Integer> vertexcartcoords, List<Integer> entrycartcoords) {
 		super();
 		this.xSize = xSize;
 		this.ySize = ySize;
@@ -90,6 +107,8 @@ public class AlgorithmView {
 		this.userId = userId;
 		this.intDate = intDate;
 		this.fcmToken = fcmToken;
+		this.setVertexcartcoords(vertexcartcoords);
+		this.setEntrycartcoords(entrycartcoords);
 	}
 
 	public int getxSize() {
@@ -207,6 +226,8 @@ public class AlgorithmView {
 		this.coordLimits = coordLimits;
 	}
 
+	
+	
 	public List<Integer> getCartVertexgeocoords() {
 		List<Integer> coordinates = new ArrayList<>(vertexgeocoords.size());
 		// 0 -> Latitud //1 -> Longitude
@@ -222,6 +243,69 @@ public class AlgorithmView {
 		return coordinates;
 	}
 
+	// a b (1/f) WGS84
+	// 6 378 137.0 | 6 356 752.314 245 | 298.257 223 563
+	// latitude, longitude and height (h)
+	// X = (N(latitude) + h)*cos(latitude) * cos(longitude)
+	// Y = (N(latitude) + h)*cos(latitude) * sin(longitude)
+	// Z = ((b2/a2) * N(latitude) + h)* sin(latitude)
+	// N(latitude) = a2 / sqrt(a2 * cos2(latitude) + b2 * sin2(latitude))
+	public List<Integer> getCartVertexgeocoordsWGS84() {
+		List<Integer> coordinates = new ArrayList<>(vertexgeocoords.size());
+		// 0 -> Latitud //1 -> Longitude
+		for (int i = 0; i < vertexgeocoords.size(); i += 2) {
+			double latitude = Math.toRadians(vertexgeocoords.get(i));
+			double longitude = Math.toRadians(vertexgeocoords.get(i+1));
+			
+			double N = Math.pow(6378137.0, 2) / (Math.sqrt(Math.pow(6378137.0, 2) * Math.pow(Math.cos(latitude),2) + Math.pow(6356752.314245, 2) * Math.pow(Math.sin(latitude),2)));
+			int X = round((N + 0) * Math.cos(latitude) * Math.cos(longitude));
+			int Y = round((N + 0) * Math.cos(latitude) * Math.sin(longitude));
+			coordinates.add(X);
+			coordinates.add(Y);
+		}
+
+		// TEST INVERSE TRANSFORMATION
+		coordinates = translatePoints(coordinates);
+		readjustLimits(coordinates);
+		return coordinates;
+	}
+
+	private void readjustLimits(List<Integer> coordinates) {
+		for (int i = 0; i < coordinates.size(); i += 2) {
+			if(coordinates.get(i)>xSize){
+				xSize =  coordinates.get(i);
+			}
+			
+			if(coordinates.get(i+1)>ySize){
+				ySize = coordinates.get(i+1);
+			}
+		}
+	}
+
+	private List<Integer> translatePoints(List<Integer> coordinates) {
+		// TODO will only work on southern hemisphere
+		List<Integer> translatedCoordinates = new ArrayList<>(vertexgeocoords.size());
+		int minLatitude = 9999999, minLongitude = 9999999;
+		// 0 -> Latitud //1 -> Longitude
+		for (int i = 0; i < vertexgeocoords.size(); i += 2) {
+			if (minLatitude > coordinates.get(i)) {
+				minLatitude = coordinates.get(i);
+			}
+
+			if (minLongitude > coordinates.get(i + 1)) {
+				minLongitude = coordinates.get(i + 1);
+			}
+		}
+		
+		//translate and see if it is correct
+		for (int i = 0; i < vertexgeocoords.size(); i += 2) {
+			translatedCoordinates.add(coordinates.get(i)-minLatitude);
+			translatedCoordinates.add(coordinates.get(i+1)-minLongitude);
+		}
+		
+		return translatedCoordinates;
+	}
+
 	private static int round(double d) {
 		double dAbs = Math.abs(d);
 		int i = (int) dAbs;
@@ -235,5 +319,21 @@ public class AlgorithmView {
 
 	public void setVertexgeocoords(List<Double> vertexgeocoords) {
 		this.vertexgeocoords = vertexgeocoords;
+	}
+
+	public List<Integer> getVertexcartcoords() {
+		return vertexcartcoords;
+	}
+
+	public void setVertexcartcoords(List<Integer> vertexcartcoords) {
+		this.vertexcartcoords = vertexcartcoords;
+	}
+
+	public List<Integer> getEntrycartcoords() {
+		return entrycartcoords;
+	}
+
+	public void setEntrycartcoords(List<Integer> entrycartcoords) {
+		this.entrycartcoords = entrycartcoords;
 	}
 }

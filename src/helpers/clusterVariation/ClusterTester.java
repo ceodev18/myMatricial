@@ -26,10 +26,12 @@ public class ClusterTester {
 		AlgorithmView algorithmView = new AlgorithmView("cluster-error.txt");
 		ConfigurationMatrix configurationMatrix = new ConfigurationMatrix(algorithmView);
 
-		int large = algorithmView.getxSize(), width = algorithmView.getySize();
+		
 		// 1. We create the map and set its intrinsec variables
 		List<ClusterLandPoint> polygon = new ArrayList<>();
-		List<Integer> intVertex = algorithmView.getCartVertexgeocoords();
+		List<Integer> intVertex = algorithmView.getVertexcartcoords();
+		int large = algorithmView.getxSize(), width = algorithmView.getySize();
+		
 		for (int i = 0; i < algorithmView.getVertexgeocoords().size(); i += 2) {
 			ClusterLandPoint landPoint = new ClusterLandPoint(intVertex.get(i), intVertex.get(i + 1));
 			polygon.add(landPoint);
@@ -38,7 +40,7 @@ public class ClusterTester {
 		polygon.add(landPoint);
 
 		List<ClusterLandPoint> entryPoints = new ArrayList<>();
-		landPoint = new ClusterLandPoint(algorithmView.getCartEntrygeocoords().get(0),
+		landPoint = new ClusterLandPoint(algorithmView.getEntrycartcoords().get(0),
 				algorithmView.getCartEntrygeocoords().get(1));
 		entryPoints.add(landPoint);
 
