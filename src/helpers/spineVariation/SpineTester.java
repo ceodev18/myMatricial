@@ -9,18 +9,11 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-
-import algorithm.clusterVariation.ClusterAlgorithm;
-import algorithm.spineVariation.LSystemSpineAlgorithm;
 import algorithm.spineVariation.SpineAlgorithm;
-import helpers.clusterVariation.ClusterTestPane;
-import helpers.clusterVariation.ClusterTester;
 import helpers.spineVariation.SpineDirectionHelper;
 import interfaces.spineVariation.SpineConfiguration;
 import models.spineVariation.SpineLandPoint;
 import models.view.AlgorithmView;
-import models.clusterVariation.ClusterLandMap;
-import models.clusterVariation.ClusterLandPoint;
 import models.configuration.ConfigurationMatrix;
 import models.spineVariation.SpineLandMap;
 
@@ -42,6 +35,10 @@ public class SpineTester {
 		List<Integer> intVertex = algorithmView.getCartVertexgeocoords();
 		List<Integer> listData= new ArrayList<>();
 		for (int i = 0; i < algorithmView.getVertexgeocoords().size(); i += 2) {
+			System.out.println("intVertex.get(i)");
+			System.out.println(intVertex.get(i));
+			System.out.println("intVertex.get(i+1)");
+			System.out.println(intVertex.get(i+1));
 			listData.add(intVertex.get(i));
 			listData.add(intVertex.get(i+1));
 			SpineLandPoint landPoint = new SpineLandPoint(intVertex.get(i), intVertex.get(i + 1));

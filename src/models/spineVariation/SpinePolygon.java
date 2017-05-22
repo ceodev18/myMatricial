@@ -189,7 +189,7 @@ public class SpinePolygon {
 		return shrinkedList;
 	}
 
-	private boolean isInsidePolygon(Integer vertexId) {
+	public boolean isInsidePolygon(Integer vertexId) {
 		boolean c = false;
 		int[] xy = SpineMapHelper.breakKey(vertexId);
 		for (int i = 0, j = getPoints().size() - 1; i < getPoints().size(); j = i++) {
