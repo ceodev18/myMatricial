@@ -35,10 +35,6 @@ public class SpineTester {
 		List<Integer> intVertex = algorithmView.getCartVertexgeocoords();
 		List<Integer> listData= new ArrayList<>();
 		for (int i = 0; i < algorithmView.getVertexgeocoords().size(); i += 2) {
-			System.out.println("intVertex.get(i)");
-			System.out.println(intVertex.get(i));
-			System.out.println("intVertex.get(i+1)");
-			System.out.println(intVertex.get(i+1));
 			listData.add(intVertex.get(i));
 			listData.add(intVertex.get(i+1));
 			SpineLandPoint landPoint = new SpineLandPoint(intVertex.get(i), intVertex.get(i + 1));
@@ -106,8 +102,8 @@ public class SpineTester {
 		System.out.println("Start canvas");
 		SpineTestPane spineTestPane1 = new SpineTestPane(1, spineAlgorithm.getLandMap().stringify(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
 		new SpineTester(spineTestPane1); 
-		SpineTestPane spineTestPane2 = new SpineTestPane(2, spineAlgorithm.getLandMap().getNodes(),spineAlgorithm.getLandMap().getGrammar(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
-		new SpineTester(spineTestPane2);
+		//SpineTestPane spineTestPane2 = new SpineTestPane(2, spineAlgorithm.getLandMap().getNodes(),spineAlgorithm.getLandMap().getGrammar(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
+		//new SpineTester(spineTestPane2);
 	}
 	public SpineTester(SpineTestPane spineTestPane) {
 		EventQueue.invokeLater(new Runnable() {

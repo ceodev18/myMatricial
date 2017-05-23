@@ -25,13 +25,6 @@ public class SpineTestPane extends JPanel {
 	private List<SpineLandRoute> landRoutes;
 	private List<Integer> landmapNodes;
 	
-	/*public SpineTestPane(boolean stringedType, String stringify, int large, int width) {
-		this.large = large;
-		this.width = width;
-		this.stringedType = stringify;
-		this.spineString = stringify;
-	}*/
-
 	public SpineTestPane(int stringedType, List<Integer> landmapNodes,String stringify, List<SpineLandRoute> landRoutes, int large,
 			int width) {
 		this.large = large;

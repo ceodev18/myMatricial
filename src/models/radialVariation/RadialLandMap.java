@@ -270,7 +270,7 @@ public class RadialLandMap {
 		
 		for(int j =0 ;j < polygon.size();j++ ){
 			int xyPoint[] = RadialMapHelper.breakKey(polygon.get(j));
-			int aux = 25;
+			int aux = 10;
 			if(xyPoint[0] < aux){
 				xyPoint[0]= aux;
 				variation=1;

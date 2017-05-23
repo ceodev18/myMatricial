@@ -1,27 +1,30 @@
 package algorithm.matricialVariation;
 
+
+
 import helpers.matricialVariation.MatricialMapHelper;
 import helpers.spineVariation.SpineDirectionHelper;
 import helpers.spineVariation.SpineMapHelper;
+import interfaces.matricialVariation.MatricialConfiguration;
 import interfaces.spineVariation.SpineConfiguration;
 import interfaces.spineVariation.SpineConstants;
 import models.matricialVariation.MatricialLandMap;
 import models.matricialVariation.MatricialLandPoint;
 import models.matricialVariation.MatricialLandRoute;
-import models.spineVariation.SpineLandMap;
-import models.spineVariation.SpineLandPoint;
-import models.spineVariation.SpineLandRoute;
+import models.matricialVariation.MatricialPolygon;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MatricialAlgorithm {
 	public MatricialLandMap landMap;
-	public static int xx;
-	public static int yy;
 	public static int indice;
 	public static int width;
 	public static int large;
 	public static int pointStart;
 	public static int nmbrParksSpine;
 	public static int nmbrParksLong;
+	public MatricialLandPoint entrypoint;
+	public List<Integer> axisLongSide;
 	public  int factorAporte;
 	
 	public MatricialLandMap getLandMap() {
@@ -30,12 +33,6 @@ public class MatricialAlgorithm {
 	
 	public void setLandMap(MatricialLandMap landMap) {
 		this.landMap = landMap;
-	}
-	public void setEntryX(int x) {
-		this.xx = x;
-	}
-	public void setEntryY(int y) {
-		this.yy = y;
 	}
 	public void setLarge(int large) {
 		this.large = large;
@@ -46,6 +43,13 @@ public class MatricialAlgorithm {
 	public void cleanArterialBranch(){
 		
 	}
+	public MatricialLandPoint getEntryPoint(){
+		return entrypoint;
+	}
+	public void setEntryPoint(MatricialLandPoint  point){
+		entrypoint = point;
+	}
+	
 	public  void createRouteVariation(int axisPoint, int direction, int branchType) {
 		int extension = 0;
 		String markType = "";
@@ -106,11 +110,11 @@ public class MatricialAlgorithm {
 				matricialLandRoute.setFinalPointId(finalPointid);
 				//System.out.println("landMap.setLandRoute(clusterLandRoute)");
 				landMap.getLandRoutes().add(matricialLandRoute);
-				System.out.println("spineLandRoute.stringify() in creaRouteVartiation");
+				System.out.println("matricialLandRoute.stringify() in creaRouteVartiation");
 				System.out.println(matricialLandRoute.stringify());
 				//landMap.setLandRoute(clusterLandRoute);
 			} else {
-				createLine(SpineMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction,
+				createLine(MatricialMapHelper.moveKeyByOffsetAndDirection(axisPoint, i, growDirection), direction,
 						markType);
 			}
 		}
@@ -164,7 +168,9 @@ public class MatricialAlgorithm {
 	}
 	private  boolean markPoint(int[] newXY, String markType, Boolean in, Boolean out) {
 		boolean changed = false;
+		if(!verificablePoint(newXY[0],newXY[1]))return false;
 		MatricialLandPoint matricialLandPoint = landMap.findPoint(MatricialMapHelper.formKey(newXY[0], newXY[1]));
+	
 		if (!in.booleanValue() && !matricialLandPoint.isMapLimit()) {
 			changed = true;
 			in = true;
@@ -188,5 +194,40 @@ public class MatricialAlgorithm {
 		}
 		return changed;
 	}
-
+	private boolean verificablePoint(int pointX,int pointY){
+		if(pointX<0 ||pointX>large)return false;
+		if(pointY<0 ||pointY>width)return false;
+		return true;
+	}
+	public void matricialZonification(){
+		
+			this.axisLongSide=this.landMap.mostLargeSide();
+			for(int i=0;i<axisLongSide.size();i++){
+				System.out.println(axisLongSide.get(i));
+			}
+			
+			firstPrincipalStreet();
+	}
+	private void secondPrincipalStreet(){
+		
+	}
+	private int[] firstPrincipalStreet(){
+		List<Integer> localLayer;
+		localLayer = new ArrayList<>();
+		for(int i=0; i<landMap.getPolygonNodes().size()-1; i++){
+			localLayer.add(landMap.getPolygonNodes().get(i).getId());
+		}
+		MatricialPolygon polygonAux = new MatricialPolygon();
+		polygonAux.setPoints(localLayer);
+		polygonAux.setComplete(true);
+		
+		
+		
+		int referencePoint =  MatricialMapHelper.formKey( getEntryPoint().getX(),getEntryPoint().getY());
+		int centroid =    MatricialMapHelper.formKey( polygonAux.getCentroid()[0],polygonAux.getCentroid()[1]);
+		int[] pointsInters = landMap.createMainRoute(referencePoint,centroid,localLayer);
+		landMap.createACustomRoute
+			(pointsInters[0],pointsInters[1], MatricialConfiguration.ARTERIAL_BRANCH_SIZE , MatricialConfiguration.ARTERIAL_MARK);
+		return pointsInters;
+	}
 }
