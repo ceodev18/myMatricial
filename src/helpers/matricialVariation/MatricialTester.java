@@ -21,7 +21,7 @@ public class MatricialTester {
 	public static void main(String[] args) {
 		/** TODO segun el informe
 		 manzana de 64x76m, con 36 lotes y pasajes
-         peatonales al interior. Tendrá además dos tipos
+         peatonales al interior. Tendrï¿½ ademç–½ dos tipos
          de lotes, un lote de 7.5x12m, orientado
          hacia la calle principal y un tipo de lote de
          6x15m orientado hacia el pasaje peatonal.*/		
@@ -67,6 +67,7 @@ public class MatricialTester {
 		matricialAlgorithm.setLandMap(matricialLandMap);
 		matricialAlgorithm.setWidth(width);
 		matricialAlgorithm.setLarge(large);
+		matricialAlgorithm.setEntryPoint(entryPoints.get(0));
 		
 		matricialAlgorithm.matricialZonification();
 		

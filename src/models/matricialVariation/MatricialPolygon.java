@@ -38,10 +38,13 @@ public class MatricialPolygon {
 		return points;
 	}
 
+	public void setPoints(List<Integer> pnts) {
+		this.points = pnts;
+	}
 	public void setComplete(boolean complete) {
 		this.complete = complete;
 		if (complete) {
-			findCentroid();
+			centroid = findCentroid();
 		}
 	}
 

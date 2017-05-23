@@ -1,6 +1,5 @@
 package models.matricialVariation;
 
-import java.awt.Polygon;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +13,7 @@ import helpers.matricialVariation.MatricialMapHelper;
 import interfaces.matricialVariation.MatricialConfiguration;
 import interfaces.matricialVariation.MatricialConstants;
 import models.configuration.ConfigurationEntry;
+
 
 
 
@@ -1413,5 +1413,276 @@ public class MatricialLandMap {
 		
 	return axisLongSide;
 	}
+	public int[] createMainRoute(int refPoint,int centroid, List<Integer> polygon){
+		int[] auxPoints = new int[2];
+		int pointVerif;
+		int k = 0;
+		for(int i= 0;i < polygon.size();i++){
+			pointVerif = findIntersectionPointIntoTwoStraight
+					(refPoint,centroid , polygon.get(i % polygon.size()), polygon.get((i+1) % polygon.size()), true);
+			if(pointVerif != -1){
+				auxPoints[k] = pointVerif;
+				k++;
+			}
+		}
+	return auxPoints; 
+	}
+	
+	public int findIntersectionPointIntoTwoStraight(int rect1Ini, int rect1End, int rect2Ini, int rect2End, boolean belong){
+		int pointSolution =-1;
+		int xyRec1Ini[] = MatricialMapHelper.breakKey(rect1Ini);
+		int xyRec1End[] = MatricialMapHelper.breakKey(rect1End);
+		int xyRec2Ini[] = MatricialMapHelper.breakKey(rect2Ini);
+		int xyRec2End[] = MatricialMapHelper.breakKey(rect2End);
+		
+		int underscore1 = (xyRec1End[0] - xyRec1Ini[0]);
+		int underscore2 = (xyRec2End[0] - xyRec2Ini[0]);
+		double gradient1 = 0;
+		double gradient2 = 0;
+		double b1 = 0;
+		double b2 = 0;
+		
+		if(underscore1 == 0 && underscore2 == 0) return pointSolution; // would be the same straight or paralell
+		if(underscore1 != 0){
+			gradient1 = (xyRec1End[1] - xyRec1Ini[1]) * 1.0 / underscore1;
+			b1 = (xyRec1Ini[0]*xyRec1End[1] -(xyRec1End[0]*xyRec1Ini[1]))/(xyRec1Ini[0] -xyRec1End[0]);
+		}
+		if(underscore2 != 0){
+			gradient2 = (xyRec2End[1] - xyRec2Ini[1]) * 1.0 / underscore2;
+			b2 = (xyRec2Ini[0]*xyRec2End[1] -(xyRec2End[0]*xyRec2Ini[1]))/(xyRec2Ini[0] -xyRec2End[0]);
+		}
+		if((gradient1 == 0 && gradient2 == 0)|| (gradient1 == gradient2)) return pointSolution;  //would be the same straight or paralell
+		
+		
+		if (underscore1 == 0 && underscore2 != 0) {
+			int lower = xyRec1Ini[1] < xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];
+			int upper = xyRec1Ini[1] > xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];	
+			double yAux = xyRec1End[0]*gradient2 + b2;
+				if(((lower-2) <= yAux && yAux <= (upper+2))|| !belong){
+					
+					MatricialMapHelper.round(yAux);
+					pointSolution =  MatricialMapHelper.formKey( xyRec1End[0],(int)yAux);
+					
+					return pointSolution;
+				}
+
+				
+		
+		}
+		if (underscore2 == 0 && underscore1 != 0) {
+			int lower = xyRec2Ini[1] < xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
+			int upper = xyRec2Ini[1] > xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
+				double yAux = xyRec2End[0]*gradient1 + b1;
+				
+				if(((lower-2) <= yAux && yAux <= (upper+2))|| !belong){ //verify if the point belong to the straight
+					MatricialMapHelper.round(yAux);
+					pointSolution =  MatricialMapHelper.formKey(xyRec2End[0],(int)yAux);
+					return pointSolution;
+				}
+				
+		}
+		if (underscore1 != 0 && underscore2 != 0) {
+				if(gradient1 == 0){
+					int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+					int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+					double xAux = (xyRec1End[1]- b2)/gradient2;
+					if(((lower-2)) <= xAux && xAux <= (upper+2)|| !belong){
+						
+						MatricialMapHelper.round(xAux);
+						pointSolution =  MatricialMapHelper.formKey( (int)xAux, xyRec1End[1]);
+						
+						return pointSolution;
+					}
+					
+				}
+				if(gradient2 == 0){
+					int lower = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+					int upper = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+					double xAux = (xyRec2End[1]- b1)/gradient1;
+					if(((lower-2) <= xAux && xAux <= (upper+2))|| !belong){
+						
+						MatricialMapHelper.round(xAux);
+						pointSolution =  MatricialMapHelper.formKey((int)xAux,xyRec2End[1]);
+						
+						return pointSolution;
+					}
+				}
+			
+			int lowerx = xyRec2Ini[0] < xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+			int upperx = xyRec2Ini[0] > xyRec2End[0] ? xyRec2Ini[0] : xyRec2End[0];
+			int lowery = xyRec2Ini[1] < xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
+			int uppery = xyRec2Ini[1] > xyRec2End[1] ? xyRec2Ini[1] : xyRec2End[1];
+			double xAux = (b2 -b1)/(gradient1- gradient2);
+			double yAux = gradient1*(xAux) + b1;		
+			
+				
+				if(((lowerx-2) <= xAux && xAux <= (upperx+2) && (lowery-2) <= yAux && yAux <= (uppery+2)) || !belong){//verify if the point belong to the straight because it wouldn't be include in both
+					MatricialMapHelper.round(xAux);
+					MatricialMapHelper.round(yAux);
+					pointSolution =  MatricialMapHelper.formKey((int)xAux, (int)yAux);	
+				
+					return pointSolution;
+				}
+				
+		
+		}
+		
+		return pointSolution; //if dosnt fint, or dont exist, return -1
+	}
+	
+	
+	public void createACustomRoute(int inicialPoint, int finalPoint,int size, String markType) {
+		
+		int xyInitial[] = MatricialMapHelper.breakKey(inicialPoint);
+		int xyFinal[] = MatricialMapHelper.breakKey(finalPoint);
+		int cont= 1;
+		int sign = 1; 
+		int aux = 0;
+		int underscore = (xyFinal[0] - xyInitial[0]);
+		if (underscore == 0) {
+			
+			createALine(inicialPoint,finalPoint,markType);
+			for (int w = 0; w <= size-1; w++) {
+				int auxInitPoint = MatricialMapHelper.formKey(xyInitial[0] + cont*sign, xyInitial[1]) ;
+				int auxFinPoint = MatricialMapHelper.formKey(xyFinal[0] + cont*sign , xyFinal[1]);
+				if(!landPointisOnMap(auxInitPoint) || !landPointisOnMap(auxFinPoint)){
+					//System.out.println("point out of range");
+					return;
+				}
+				createALine(auxInitPoint,auxFinPoint,markType);
+				sign=sign*(-1);
+				if(aux == 1){
+					cont++;
+					aux=0;
+					continue;
+				}
+				aux++;
+			}
+			return;
+		}
+
+		double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
+		// 2nd, gradient=0; straight in the X axis
+		if (gradient == 0) {
+			createALine(inicialPoint,finalPoint,markType);
+			for (int w = 0; w < size; w++) {
+				int auxInitPoint = MatricialMapHelper.formKey(xyInitial[0] , xyInitial[1] + cont*sign) ;
+				int auxFinPoint = MatricialMapHelper.formKey(xyFinal[0]   , xyFinal[1] + cont*sign);	
+				if(!landPointisOnMap(auxInitPoint) || !landPointisOnMap(auxFinPoint)){
+					//System.out.println("point out of range");
+					return;
+				}
+				createALine(auxInitPoint,auxFinPoint,markType);
+				sign=sign*(-1);
+				if(aux == 1){
+					cont++;
+					aux=0;
+					continue;
+				}
+				aux++;
+			}
+			return;
+		}
+		// 3nd the gradient is positive/negative.
+		double contGradient = (-1)*(1.0/gradient);
+		double b1 = xyInitial[1] - contGradient * xyInitial[0];
+		double b2 = xyFinal[1] - contGradient * xyFinal[0];
+		int x1,x2,y1,y2;
+		createALine(inicialPoint,finalPoint,markType);
+		for (int w = 0; w <= size-1; w++) {
+			if(Math.abs(xyFinal[0]-xyInitial[0]) <  Math.abs(xyFinal[1]-xyInitial[1])){
+				 x1 = xyInitial[0] + cont*sign;
+				 x2 = xyFinal[0] + cont*sign;
+				 y1 =  (int)MatricialMapHelper.round(contGradient * x1 + b1);
+				 y2 =  (int)MatricialMapHelper.round(contGradient * x2 + b2);
+			}else{
+				 y1 = xyInitial[1] + cont*sign;
+				 y2 = xyFinal[1] + cont*sign;
+				 x1 =  (int)MatricialMapHelper.round((y1 - b1)/contGradient);
+				 x2 =  (int)MatricialMapHelper.round((y2 - b2)/contGradient);
+				
+			}
+	
+			int auxInitPoint = MatricialMapHelper.formKey(x1, y1) ;
+			int auxFinPoint = MatricialMapHelper.formKey( x2, y2);	
+			if(!landPointisOnMap(auxInitPoint) || !landPointisOnMap(auxFinPoint)){
+				//System.out.println("point out of range");
+				return;
+			}
+			if((size/2) <= distanceOfPointToPoint(auxInitPoint,inicialPoint)){
+				createALine(auxInitPoint,auxFinPoint,markType);
+				break;
+			}
+			createALine(auxInitPoint,auxFinPoint,markType);
+					
+			sign=sign*(-1);
+			if(aux == 1){
+				cont++;
+				aux=0;
+				continue;
+			}
+			aux++;
+		}
+		return;
+		
+		
+	}
+
+	public void createALine(int inicialPoint, int finalPoint, String markType) {
+		int xyInitial[] = MatricialMapHelper.breakKey(inicialPoint);
+		int xyFinal[] = MatricialMapHelper.breakKey(finalPoint);
+	
+		int underscore = (xyFinal[0] - xyInitial[0]);
+		if (underscore == 0) {
+			int lower = xyInitial[1] < xyFinal[1] ? xyInitial[1] : xyFinal[1];
+			int upper = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
+	
+			for (int w = lower; w <= upper; w++) {
+				getLandPoint(MatricialMapHelper.formKey(xyInitial[0], w)).setType(markType);
+			}
+			return;
+		}
+	
+		double gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
+		// 2nd, gradient=0; straight in the X axis
+		int lowerx = xyInitial[0] < xyFinal[0] ? xyInitial[0] : xyFinal[0];
+		int upperx = xyInitial[0] > xyFinal[0] ? xyInitial[0] : xyFinal[0];
+		if (gradient == 0) {
+			for (int w = lowerx; w <= upperx; w++) {
+				if (landPointisOnMap(MatricialMapHelper.formKey(xyInitial[0], w))) {
+					getLandPoint(MatricialMapHelper.formKey(w, xyInitial[1])).setType(markType);
+				}
+			}
+			return;
+		}
+		int lowery = xyInitial[1] < xyFinal[1] ? xyInitial[1] : xyFinal[1];
+		int uppery = xyInitial[1] > xyFinal[1] ? xyInitial[1] : xyFinal[1];
+	
+		double b = xyFinal[1] - gradient * xyFinal[0];
+		// 3nd the gradient is positive/negative.
+		for (int w = lowerx; w <= upperx; w++) {
+			float y = MatricialMapHelper.round(gradient * w + b);
+				if (landPointisOnMap(MatricialMapHelper.formKey(xyInitial[0], w))) {
+					getLandPoint(MatricialMapHelper.formKey(w, (int) y)).setType(markType);
+				}
+		}
+		for (int w = lowery; w <= uppery; w++) {
+			float x = MatricialMapHelper.round( (w - b)/gradient);
+			if (x == (int) x) // quick and dirty convertion check
+			{
+				if (landPointisOnMap(MatricialMapHelper.formKey(xyInitial[0], w))) {
+					getLandPoint(MatricialMapHelper.formKey((int) x, w)).setType(markType);
+				}
+			}
+		}
+		
+		
+	}
+	public double distanceOfPointToPoint(int pointi, int pointf) {
+		int xyPointF[] = MatricialMapHelper.breakKey(pointf);
+		int xyPointI[] = MatricialMapHelper.breakKey(pointi);
+		return Math.sqrt(Math.pow(xyPointF[0] - xyPointI[0], 2) + Math.pow(xyPointF[1] - xyPointI[1], 2));
+	}	
+	
 		
 }
