@@ -12,8 +12,10 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import algorithm.matricialVariation.MatricialAlgorithm;
 import interfaces.matricialVariation.MatricialConfiguration;
+import models.configuration.ConfigurationMatrix;
 import models.matricialVariation.MatricialLandMap;
 import models.matricialVariation.MatricialLandPoint;
+import models.view.AlgorithmView;
 
 public class MatricialTester {
 	public static void main(String[] args) {
@@ -29,105 +31,59 @@ public class MatricialTester {
 		Runtime runtime = Runtime.getRuntime();
 		long usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocation" + usedMemoryBefore / 1000000 + " in MB");
-		int large=969 +1,width=899	 +1;
+		
+		AlgorithmView algorithmView = new AlgorithmView("matricial-error.txt");
+		ConfigurationMatrix configurationMatrix = new ConfigurationMatrix(algorithmView);
+		int large = algorithmView.getxSize(), width = algorithmView.getySize();
+		
 		MatricialLandMap matricialLandMap = new MatricialLandMap(large, width);
-		
-
 		List<MatricialLandPoint> polygon = new ArrayList<>();
-		MatricialLandPoint landPoint = new MatricialLandPoint(150, 67);
-		polygon.add(landPoint);
-		landPoint = new MatricialLandPoint(633, 0);
-		polygon.add(landPoint);
-		landPoint = new MatricialLandPoint(969, 338);
-		polygon.add(landPoint);
-		landPoint = new MatricialLandPoint(829,802);
-		polygon.add(landPoint);
-		landPoint = new MatricialLandPoint(376,899);
-		polygon.add(landPoint);
-		landPoint = new MatricialLandPoint(0,669);
-		polygon.add(landPoint);
-		matricialLandMap.createBorderFromPolygon(polygon);
-		//spineLandMap.compress();
-		//entry point 353 31
-		List<MatricialLandPoint> entryPoints = new ArrayList<>();	
-		//200 representa la distancia del borde del poligono al inicio
-		//landPoint = new SpineLandPoint(200,571);
-		//landPoint = new MatricialLandPoint(6,557);
-		//entryPoints.add(landPoint);
+		List<Integer> intVertex = algorithmView.getCartVertexgeocoords();
+		List<Integer> coordinates= new ArrayList<>();
+		for (int i = 0; i < algorithmView.getVertexgeocoords().size(); i += 2) {
+			coordinates.add(intVertex.get(i));
+			coordinates.add(intVertex.get(i+1));
+			MatricialLandPoint landPoint = new MatricialLandPoint(intVertex.get(i), intVertex.get(i + 1));
+			polygon.add(landPoint);
+		}
 		
-		landPoint = new MatricialLandPoint(100,400);
+		matricialLandMap.setCoordinates(coordinates);
+		MatricialLandPoint landPoint = new MatricialLandPoint(intVertex.get(0), intVertex.get(1));
+		polygon.add(landPoint);
+		
+		matricialLandMap.createBorderFromPolygon(polygon);
+		List<MatricialLandPoint> entryPoints = new ArrayList<>();
+		landPoint = new MatricialLandPoint(algorithmView.getCartEntrygeocoords().get(0),
+				algorithmView.getCartEntrygeocoords().get(1));
 		entryPoints.add(landPoint);
-		entryPoints.add(new MatricialLandPoint(557,6));
+		
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map allocated" + usedMemoryBefore / 1000000 + " in MB");
 		
-		// replace this LSYSTEM  by For loop
-		//spineLandMap.clearDottedLimits();
-		
+		// TRUE BEGINNING OF THE ALGORITHM
+		//matricialLandMap.createMapBorder(polygon);
+		matricialLandMap.setConfiguration(configurationMatrix.getConfiguration().get(0));
 		MatricialAlgorithm matricialAlgorithm = new MatricialAlgorithm();
 		matricialAlgorithm.setLandMap(matricialLandMap);
-		/*matricialAlgorithm.setWidth(width);
-		matricialAlgorithm.setEntryX(6);
-		matricialAlgorithm.setEntryY(557);
-		matricialAlgorithm.setLarge(large);*/
+		matricialAlgorithm.setWidth(width);
+		matricialAlgorithm.setLarge(large);
 		
-		for (MatricialLandPoint entryPoint : entryPoints) {
-			int direction =MatricialDirectionHelper.orthogonalDirectionFromPointToPoint(entryPoint,
-					matricialLandMap.getCentroid());
-			matricialAlgorithm.createRouteVariation(entryPoint.getId(), direction, MatricialConfiguration.ARTERIAL_BRANCH);
-			
-		}
+		matricialAlgorithm.matricialZonification();
 		
-		// 4. We clusterize the points
-		//matricialAlgorithm.spineizeV2();
-		System.out.println("spineAlgorithm.getLandMap().getLandRoutes(); in TESTER");
-		System.out.println("size is "+ matricialAlgorithm.getLandMap().getLandRoutes().size());
-		String strVertex = "";
-		for (int i = 0; i < matricialAlgorithm.getLandMap().getLandRoutes().size(); i++) {
-			System.out.println(matricialAlgorithm.getLandMap().getLandRoutes().get(i).stringify());
-			strVertex += matricialAlgorithm.getLandMap().getLandRoutes().get(i).stringify();
-			if (i + 1 != matricialAlgorithm.getLandMap().getLandRoutes().size()) {
-				strVertex += ",";
-			}
-		}
-		
-		//spineAlgorithm.getLandMap().getLandRoutes();
-		
-		//spineAlgorithm.spineize();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
-			
-		
-		// 5. Zonification
-		//matricialAlgorithm.zonify();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after zonification" + usedMemoryBefore / 1000000 + " in MB");
-
-		
 		long endTime = System.nanoTime();
 		long duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
-		System.out.println("Algorithm finished in " + duration + "s");
-		//ClusterLotizationAlgorithm.landMap.printMapToFile();
-		//String compressedString = ClusterLotizationAlgorithm.landMap.stringify();
-		//System.out.println("Compressed String lenght: " + compressedString.length());
-		
-		
-		
-		matricialAlgorithm.getLandMap().printMapToFileNew();
-		
 		endTime = System.nanoTime();
 		duration = (endTime - startTime)/(1000000*1000);  //divide by  to get milliseconds.
 		System.out.println("Response build finished in " + duration + "s");
-		
-		//2 variants
-		//SpineTestPane spineTestPane = new SpineTestPane(true,matricialAlgorithm.getLandMap().stringify(), large, width);		
-				//clusterTestPane.clusterLandMap = clusterAlgorithm.getLandMap();
-				//clusterTestPane.large = large;
-				//clusterTestPane.width = width;
 		System.out.println("Start canvas");
+		MatricialTestPane spineTestPane1 = new MatricialTestPane(1, matricialAlgorithm.getLandMap().stringify(), matricialAlgorithm.getLandMap().getLandRoutes(), large, width);
+		new MatricialTester(spineTestPane1); 
 		
-		//new SpineTester(spineTestPane);
-
+		
 	}
 	public MatricialTester(MatricialTestPane matricialTestPane) {
 		EventQueue.invokeLater(new Runnable() {

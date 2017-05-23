@@ -13,6 +13,7 @@ import helpers.matricialVariation.MatricialDirectionHelper;
 import helpers.matricialVariation.MatricialMapHelper;
 import interfaces.matricialVariation.MatricialConfiguration;
 import interfaces.matricialVariation.MatricialConstants;
+import models.configuration.ConfigurationEntry;
 
 
 
@@ -28,8 +29,15 @@ public class MatricialLandMap {
 	private List<MatricialLandRoute> landRoutes = new ArrayList<>();
 	private List<Integer> nodes = new ArrayList<>();
 	List<List<Integer>> fullPolygon;
+	private  List<Integer>coordinates;
 	private List<MatricialLandPoint> polygonNodes;
 	private double polygonalArea;
+	
+	private ConfigurationEntry configuration;
+
+	public void setConfiguration(ConfigurationEntry configurationEntry) {
+		this.configuration = configurationEntry;
+	}
 	
 	public MatricialLandMap(int pointsx, int pointsy) {
 		this.setPointsx(++pointsx);
@@ -46,7 +54,13 @@ public class MatricialLandMap {
 	public int getPointsx() {
 		return pointsx;
 	}
-
+	public void setCoordinates(List<Integer>coordinates){
+		this.coordinates=coordinates;
+	}
+	public List<Integer> getCoordinates(){
+		return this.coordinates;
+	}
+	
 	public void setPointsx(int pointsx) {
 		this.pointsx = pointsx;
 	}
@@ -1375,6 +1389,29 @@ public class MatricialLandMap {
 			}
 		}
 
+	public List<Integer> mostLargeSide(){
+		//we gonna insert both extrems coordinates of the largest side
+		//meuclidean method
+		List<Integer>axisLongSide=new ArrayList<>();
+		double basicDist,finalDist;
+		List<Integer> finalList;
+		finalDist=0.0;
+		for(int i=0,j=0;j<(coordinates.size()/2);i++,j++){
+			if(i+1>=coordinates.size())break;
+			basicDist= (coordinates.get(i+2)-coordinates.get(i))*(coordinates.get(i+2)-coordinates.get(i))+
+					(coordinates.get(i+3)-coordinates.get(i+1))*(coordinates.get(i+3)-coordinates.get(i+1));
+			basicDist=Math.sqrt(basicDist);	
+			if(basicDist>finalDist){
+				axisLongSide=new ArrayList<>();
+				axisLongSide.add(coordinates.get(i));
+				axisLongSide.add(coordinates.get(i+1));
+				axisLongSide.add(coordinates.get(i+2));
+				axisLongSide.add(coordinates.get(i+3));
+				finalDist=basicDist;
+			}
+		}
 		
+	return axisLongSide;
+	}
 		
 }

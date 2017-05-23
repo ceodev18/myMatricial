@@ -4,10 +4,13 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.util.List;
 
 import javax.swing.JPanel;
 
+import helpers.clusterVariation.ClusterMapHelper;
 import models.matricialVariation.MatricialLandMap;
+import models.matricialVariation.MatricialLandRoute;
 
 public class MatricialTestPane extends JPanel {
 	private static final long serialVersionUID = 1L;
@@ -16,20 +19,34 @@ public class MatricialTestPane extends JPanel {
 	private int growtXY = 1;
 	private int large = 35;
 	private int width = 35;
-	private boolean stringedType;
+	private int stringedType;
+	private List<MatricialLandRoute> landRoutes;
+	private List<Integer> landmapNodes;
 	
-	public MatricialTestPane(boolean stringedType, String stringify, int large, int width) {
+	public MatricialTestPane(int stringedType, List<Integer> landmapNodes,String stringify, List<MatricialLandRoute> landRoutes, int large,
+			int width) {
 		this.large = large;
 		this.width = width;
 		this.stringedType = stringedType;
+		this.landRoutes = landRoutes;
 		this.matricialString = stringify;
+		this.landmapNodes= landmapNodes;
 	}
+	public MatricialTestPane(int stringedType, String stringify, List<MatricialLandRoute> landRoutes, int large, int width) {
+		this.large = large;
+		this.width = width;
+		this.stringedType = stringedType;
+		this.landRoutes = landRoutes;
+		this.matricialString = stringify;
+		this.landmapNodes = null;
+	
+	}	
 	
 	@Override
 	public Dimension getPreferredSize() {
 		return new Dimension(large, width);
 	}
-	
+	/*
 	@Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -39,7 +56,22 @@ public class MatricialTestPane extends JPanel {
 			normalSimulation(g); 
 		}
 	}
-	
+	*/
+	@Override
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		switch (stringedType) {
+		case 0:
+			normalSimulation(g);
+			break;
+		case 1:
+			gramaticalSimulation(g);
+			break;
+		case 2:
+			linearGrammarSimulation(g);
+			break;
+		}
+	}
 	private void normalSimulation(Graphics g) {
 		int growthX = 0, growthY = 0;
 		for (int x = 0; x < matricialLandMap.getPointsx(); x++) {
@@ -164,4 +196,67 @@ public class MatricialTestPane extends JPanel {
             growthY += growtXY;
         }
 	}
+	private void linearGrammarSimulation(Graphics g) {
+		System.out.println("linearGrammarSimulation");
+		String[] mapLines = matricialString.split("\\,");
+		
+		for (int i = 0; i < landmapNodes.size(); i++) {
+			int[] initialXY = ClusterMapHelper.breakKey(landmapNodes.get(i));
+			int[] finalXY = ClusterMapHelper.breakKey(landmapNodes.get((i + 1) % landmapNodes.size()));
+			g.drawLine(initialXY[0], initialXY[1], finalXY[0], finalXY[1]);
+		}
+
+		int house = 0;
+		for (int y = 0; y < mapLines.length; y++) {
+			String[] buildingSymbols = mapLines[y].split("\\-");
+			switch (buildingSymbols[0]) {
+
+			case "l":
+			//	System.out.print("("+house+")");
+				int [] coords = interpretNonOrhtogonalBuilding(buildingSymbols);
+				for (int i = 0; i < coords.length; i+=2) {
+					g.drawLine(coords[i], coords[i + 1], coords[(i + 2) % coords.length],
+								coords[(i + 3) % coords.length]);
+						//System.out.print(coords[i] + ","+ coords[i + 1] +"->");
+				}
+				
+				//System.out.println();
+				
+				//g.drawChars(("" + house).toCharArray(), 0, ("" + house).length(), coords[0], coords[1]);
+				house++;
+				//System.out.println();
+				/* String legend = buildingSymbols[5] + "x" +
+				 * buildingSymbols[6]; g.setFont(new Font(Font.SANS_SERIF,
+				 * Font.PLAIN, 5)); g.drawChars(legend.toCharArray(), 0,
+				 * legend.length(), coords[0], coords[1]);  */
+				break;
+			case "g":
+				coords = interpretNonOrhtogonalBuilding(buildingSymbols);
+				for (int i = 0; i < coords.length; i+=2) {
+					g.drawLine(coords[i], coords[i + 1], coords[(i + 2) % coords.length],
+							coords[(i + 3) % coords.length]);
+				}
+				//g.drawChars(("" + coords[0]).toCharArray(), 0, ("" + coords[0]).length(), coords[0], coords[1]);
+				break;
+			}
+		}
+
+		for (int i = 0; i < landRoutes.size(); i++) {
+			int xy[] = MatricialMapHelper.breakKey(landRoutes.get(i).getInitialPointId());
+			g.setColor(Color.BLACK);
+			g.drawChars(landRoutes.get(i).getType().toCharArray(), 0, landRoutes.get(i).getType().length(), xy[0]-(landRoutes.get(i).getType().equals("b")?0:10),
+					xy[1]);
+			g.fillOval(xy[0]-(landRoutes.get(i).getType().equals("b")?0:10), xy[1], 10, 10);
+		}
+	}
+	
+	private int[] interpretNonOrhtogonalBuilding(String[] buildingSymbols) {
+		int[] coords = new int[buildingSymbols.length - 1];
+		for (int i = 1; i < buildingSymbols.length; i++) {
+			if(((buildingSymbols[i]).length()>=1))
+			coords[i - 1] = Integer.parseInt(buildingSymbols[i]);
+		}
+		return coords;
+	}
+	
 }

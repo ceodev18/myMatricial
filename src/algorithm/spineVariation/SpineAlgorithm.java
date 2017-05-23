@@ -60,8 +60,6 @@ public class SpineAlgorithm {
 			for (int i = 0; i < landMap.getPointsx(); i++) {
 				if (landMap.findPoint(SpineMapHelper.formKey(i, j)).getType().equals(SpineConfiguration.POLYGON_BORDER))
 					landMap.getLandPoint(SpineMapHelper.formKey(i, j)).setType(SpineConfiguration.EMPTY_MARK);
-				// if(i== xx &&
-				// j==yy)spineLandMap.getLandPoint(SpineMapHelper.formKey(i,j)).setType(SpineConfiguration.NODE_MARK);
 			}
 		}
 
