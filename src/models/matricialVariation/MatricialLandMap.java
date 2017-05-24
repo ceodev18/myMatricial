@@ -1389,30 +1389,44 @@ public class MatricialLandMap {
 			}
 		}
 
-	public List<Integer> mostLargeSide(){
-		//we gonna insert both extrems coordinates of the largest side
-		//meuclidean method
-		List<Integer>axisLongSide=new ArrayList<>();
-		double basicDist,finalDist;
-		List<Integer> finalList;
-		finalDist=0.0;
-		for(int i=0,j=0;j<(coordinates.size()/2);i++,j++){
-			if(i+1>=coordinates.size())break;
-			basicDist= (coordinates.get(i+2)-coordinates.get(i))*(coordinates.get(i+2)-coordinates.get(i))+
-					(coordinates.get(i+3)-coordinates.get(i+1))*(coordinates.get(i+3)-coordinates.get(i+1));
+		public List<Integer> mostLargeSide(){
+			//we gonna insert both extrems coordinates of the largest side
+			//meuclidean method
+			List<Integer>axisLongSide=new ArrayList<>();
+			double basicDist,finalDist;
+			List<Integer> finalList;
+			finalDist=0.0;
+			for(int i=0,j=0;j<(coordinates.size()/2)-1;i+=2,j++){
+				basicDist= (coordinates.get(i+2)-coordinates.get(i))*(coordinates.get(i+2)-coordinates.get(i))+
+						(coordinates.get(i+3)-coordinates.get(i+1))*(coordinates.get(i+3)-coordinates.get(i+1));
+				
+				basicDist=Math.sqrt(basicDist);	
+				
+				if(basicDist>finalDist){
+					axisLongSide=new ArrayList<>();
+					axisLongSide.add(coordinates.get(i));
+					axisLongSide.add(coordinates.get(i+1));
+					axisLongSide.add(coordinates.get(i+2));
+					axisLongSide.add(coordinates.get(i+3));
+					finalDist=basicDist;
+				}
+			}
+			//ultima distancia
+			basicDist= (coordinates.get(coordinates.size()-2)-coordinates.get(coordinates.size()-4))*(coordinates.get(coordinates.size()-2)-coordinates.get(coordinates.size()-4))+
+					(coordinates.get(coordinates.size()-1)-coordinates.get(coordinates.size()-3))*(coordinates.get(coordinates.size()-1)-coordinates.get(coordinates.size()-3));
 			basicDist=Math.sqrt(basicDist);	
+			
 			if(basicDist>finalDist){
 				axisLongSide=new ArrayList<>();
-				axisLongSide.add(coordinates.get(i));
-				axisLongSide.add(coordinates.get(i+1));
-				axisLongSide.add(coordinates.get(i+2));
-				axisLongSide.add(coordinates.get(i+3));
+				axisLongSide.add(coordinates.get(coordinates.size()-4));
+				axisLongSide.add(coordinates.get(coordinates.size()-3));
+				axisLongSide.add(coordinates.get(coordinates.size()-2));
+				axisLongSide.add(coordinates.get(coordinates.size()-1));
 				finalDist=basicDist;
 			}
+
+			return axisLongSide;
 		}
-		
-	return axisLongSide;
-	}
 	public int[] createMainRoute(int refPoint,int centroid, List<Integer> polygon){
 		int[] auxPoints = new int[2];
 		int pointVerif;

@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MatricialAlgorithm {
+	public double constantGradient;
+	public double gradient; 
 	public MatricialLandMap landMap;
 	public static int indice;
 	public static int width;
@@ -200,13 +202,24 @@ public class MatricialAlgorithm {
 		return true;
 	}
 	public void matricialZonification(){
-		
-			this.axisLongSide=this.landMap.mostLargeSide();
-			for(int i=0;i<axisLongSide.size();i++){
-				System.out.println(axisLongSide.get(i));
-			}
-			
-			firstPrincipalStreet();
+		int middleX,middleY,axisX;
+		double factorX,factorY;
+		this.axisLongSide=this.landMap.mostLargeSide();
+		factorX=(axisLongSide.get(2)-axisLongSide.get(0))*1.0;
+		factorY=(axisLongSide.get(3)-axisLongSide.get(1))*1.0;
+		axisX=(axisLongSide.get(2)-axisLongSide.get(0))/2;
+		gradient=factorY/factorX;
+		constantGradient = axisLongSide.get(1)-(gradient*axisLongSide.get(0));
+		int valX = Math.abs(axisLongSide.get(2)-axisLongSide.get(0))/2;
+		int valor1 = MatricialMapHelper.formKey(valX,evaluateAxisY(valX));
+		int valor2 = MatricialMapHelper.formKey((valX +400),evaluateAxisPerpendicular(valX,valX+400));
+		landMap.createACustomRoute
+		(valor1,valor2, MatricialConfiguration.ARTERIAL_BRANCH_SIZE , MatricialConfiguration.ARTERIAL_MARK);
+	
+			//firstPrincipalStreet();
+			///find widht of polygon
+			//find altura polygon
+			//
 	}
 	private void secondPrincipalStreet(){
 		
@@ -229,5 +242,14 @@ public class MatricialAlgorithm {
 		landMap.createACustomRoute
 			(pointsInters[0],pointsInters[1], MatricialConfiguration.ARTERIAL_BRANCH_SIZE , MatricialConfiguration.ARTERIAL_MARK);
 		return pointsInters;
+	}
+	private int evaluateAxisY(int x){
+		return (int)(gradient*x+constantGradient);
+	}
+	private int evaluateAxisPerpendicular(int x1, int x2){
+			double b = evaluateAxisY(x1)/(x1*(-1*(1/gradient)));
+			
+			
+		return (int)((-1*(1/gradient))*x2+b);
 	}
 }
