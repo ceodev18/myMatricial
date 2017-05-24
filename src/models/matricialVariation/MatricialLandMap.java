@@ -202,6 +202,7 @@ public class MatricialLandMap {
 			fullPolygon.set(x, polygonRow);
 		}
 	}
+
 	
 	private boolean isPolygonBorder(int x, int y) {
 		int easternLimit = x+1;
@@ -294,7 +295,7 @@ public class MatricialLandMap {
 			}
 		}
 		
-		private void findPolygonalArea(List<MatricialLandPoint> polygon) {
+		public void findPolygonalArea(List<MatricialLandPoint> polygon) {
 			int absoluteArea = 0;
 			for (int i = 0; i < polygon.size(); i++) {
 				absoluteArea += (polygon.get(i).getX() * polygon.get((i + 1) % polygon.size()).getY())
@@ -493,6 +494,8 @@ public class MatricialLandMap {
 			}
 			return false;
 		}
+		
+		
 		
 		public MatricialPolygon joinWithPolygonalBorder(MatricialPolygon matricialPolygon) {
 			int initialVertex = matricialPolygon.getPoints().get(0);
@@ -1698,5 +1701,157 @@ public class MatricialLandMap {
 		return Math.sqrt(Math.pow(xyPointF[0] - xyPointI[0], 2) + Math.pow(xyPointF[1] - xyPointI[1], 2));
 	}	
 	
+	public int findPointOnStreightToDistance(int pointIni,int pointEnd,double distance){
+		int xyInitial[] = MatricialMapHelper.breakKey(pointIni);
+		int xyFinal[] = MatricialMapHelper.breakKey(pointEnd);
+		int underscore = (xyFinal[0] - xyInitial[0]);
+		double gradient = 0;
+		double b = 0;
+		int pointSolution = -1;
 		
+		if (underscore == 0) {	
+				if(xyInitial[1] < xyFinal[1] ){ 
+					pointSolution =  MatricialMapHelper.formKey(xyFinal[0],(xyInitial[1] + (int)distance));		
+				}else{
+					pointSolution =  MatricialMapHelper.formKey(xyFinal[0],(xyInitial[1] - (int)distance));		
+				}
+				/*
+				if(!landPointisOnMap(pointSolution)){
+					//System.out.println("point out of range");
+					return -1;
+				}
+				*/
+				return pointSolution;
+		}else{
+			gradient = (xyFinal[1] - xyInitial[1]) * 1.0 / underscore;
+			b = (xyInitial[0]*xyFinal[1] -(xyFinal[0]*xyInitial[1]))/(xyInitial[0] -xyFinal[0]);
+			if(gradient == 0){
+				if(xyInitial[0] < xyFinal[0]){ //verify if the point belong to the straight
+					pointSolution =  MatricialMapHelper.formKey( (xyInitial[0] + (int)distance),xyFinal[1] );		
+				}else{
+					pointSolution =  MatricialMapHelper.formKey( (xyInitial[0] - (int)distance),xyFinal[1] );	
+				}
+				/*
+				if(!landPointisOnMap(pointSolution)){
+					//System.out.println("point out of range");
+					return -1;
+				}
+				*/
+				return pointSolution;
+			}
+			int sign,init,end;
+			boolean onX = false;
+			if(Math.abs(xyFinal[0]-xyInitial[0]) <  Math.abs(xyFinal[1]-xyInitial[1])){
+			//do on Y
+				init = xyInitial[1];
+				end = xyFinal[1];
+				if(xyInitial[1] < xyFinal[1]) sign = 1;
+				else{
+					sign = -1;
+				}
+			}else{
+			//do on X
+				init = xyInitial[0];
+				end = xyFinal[0];
+				if(xyInitial[0] < xyFinal[0] ) sign = 1;
+				else{ 
+					sign = -1;
+				}
+				onX = true;
+			}
+			if(sign == 1){
+				for(int i = init; i <= end; i++){
+					double x,y;
+					if(onX){
+						x = i;
+						y= gradient*x + b;
+					}else{
+						y= i;
+						x = (y-b)/gradient; 
+					}
+					MatricialMapHelper.round(x);
+					MatricialMapHelper.round(y);
+					pointSolution =  MatricialMapHelper.formKey( (int)x,(int)y );
+					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
+					if(auxDist >= distance){
+						/*if(!landPointisOnMap(pointSolution)){
+							//System.out.println("point out of range");
+							return -1;
+						}
+						*/
+						return pointSolution;
+					}
+				}
+			}else if(sign == -1){
+				for(int i = init; i >= end; i--){
+					double x,y;
+					if(onX){
+						x = i;
+						y= gradient*x + b;
+					}else{
+						y= i;
+						x = (y-b)/gradient; 
+					}
+					MatricialMapHelper.round(x);
+					MatricialMapHelper.round(y);
+					pointSolution =  MatricialMapHelper.formKey( (int)x,(int)y );
+					double auxDist = distanceOfPointToPoint(pointIni,pointSolution);
+					if(auxDist >= distance){
+						/*if(!landPointisOnMap(pointSolution)){
+							//System.out.println("point out of range");
+							return -1;
+						}*/
+						return pointSolution;
+					}
+				}
+			}
+			if(!landPointisOnMap(pointSolution)){
+				//System.out.println("point out of range");
+				return -1;
+			}
+			return pointSolution;
+		}	
+	}
+	public int findProyectionPointIntoParalelStraights(int rect1Ini, int rect1End, int pointRef, boolean belong){ ////WARNING////////
+		int pointSolution = -1;
+		int xyRec1Ini[] = MatricialMapHelper.breakKey(rect1Ini);
+		int xyRec1End[] = MatricialMapHelper.breakKey(rect1End);
+		int xyPointRef[] = MatricialMapHelper.breakKey(pointRef);
+		int underscore = (xyRec1End[0] - xyRec1Ini[0]);
+		double gradient = 0;
+		double b = 0;
+		if (underscore == 0) {
+			int lower = xyRec1Ini[1] < xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];
+			int upper = xyRec1Ini[1] > xyRec1End[1] ? xyRec1Ini[1] : xyRec1End[1];	
+				if((lower <= xyPointRef[1] && xyPointRef[1] <= upper)|| !belong){ //verify if the point belong to the straight
+					pointSolution =  MatricialMapHelper.formKey(xyRec1Ini[0],xyPointRef[1] );		
+				}
+				return pointSolution;
+		}else{
+			gradient = (xyRec1End[1] - xyRec1Ini[1]) * 1.0 / underscore;
+			b = (xyRec1Ini[0]*xyRec1End[1] -(xyRec1End[0]*xyRec1Ini[1]))/(xyRec1Ini[0] -xyRec1End[0]);
+			if(gradient == 0){
+				int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+				int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+				if((lower <= xyPointRef[0] && xyPointRef[0] <= upper)|| !belong){ //verify if the point belong to the straight
+					pointSolution =  MatricialMapHelper.formKey( xyPointRef[0],xyRec1Ini[1] );		
+				}
+				return pointSolution;
+			}
+			double contGrad = -1*(1/gradient);
+			double b2 = xyPointRef[1] - contGrad*xyPointRef[0];
+			int lower = xyRec1Ini[0] < xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+			int upper = xyRec1Ini[0] > xyRec1End[0] ? xyRec1Ini[0] : xyRec1End[0];
+			double x = (b2-b)/(gradient-contGrad);
+			double y = contGrad*x + b2;
+			MatricialMapHelper.round(x);
+			MatricialMapHelper.round(y);
+			if((lower <= x && x <= upper)|| !belong){
+				pointSolution =  MatricialMapHelper.formKey( (int)x,(int)y );
+			}
+		}
+		
+		return pointSolution;
+	}
+	
 }
