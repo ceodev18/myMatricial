@@ -70,7 +70,7 @@ public class MatricialTester {
 		matricialAlgorithm.setEntryPoint(entryPoints.get(0));
 		
 		matricialAlgorithm.matricialZonification();
-		
+		matricialAlgorithm.getLandMap().printMapToFile();
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();
 		System.out.println("Used Memory map after completed routes" + usedMemoryBefore / 1000000 + " in MB");
 		usedMemoryBefore = runtime.totalMemory() - runtime.freeMemory();

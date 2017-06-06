@@ -407,8 +407,8 @@ public class SpineAlgorithm {
 				if (tope > yy)
 					break;
 			}
-			comparableValue = landMap
-					.findPoint(SpineMapHelper.formKey(ejeX, yy + SpineConfiguration.ARTERIAL_BRANCH_SIZE)).getType();
+			if(!verificablePoint(ejeX,yy + SpineConfiguration.ARTERIAL_BRANCH_SIZE))return;
+			comparableValue = landMap.findPoint(SpineMapHelper.formKey(ejeX, yy + SpineConfiguration.ARTERIAL_BRANCH_SIZE)).getType();
 			tope = yy + SpineConfiguration.ARTERIAL_BRANCH_SIZE;
 
 			if (!comparableValue.equals(" ") && !comparableValue.equals("a") && !comparableValue.equals(".")) {
@@ -714,7 +714,7 @@ public class SpineAlgorithm {
 				for (int j = 0; j < SpineConfiguration.LOCAL_BRANCH_SIZE; j++) {
 					int eje = 0;
 					while (true) {
-						if (!landMap.findPoint(SpineMapHelper.formKey(ejeY - j,eje)).getType()
+						if (verificablePoint(ejeY - j,eje) && !landMap.findPoint(SpineMapHelper.formKey(ejeY - j,eje)).getType()
 								.equals(SpineConfiguration.OUTSIDE_POLYGON_MARK)) {
 							if (firstPaint) {
 								SpineLandPoint collectorPoint = new SpineLandPoint(ejeY - j,eje);
@@ -1002,9 +1002,10 @@ public class SpineAlgorithm {
 						val1 = "1";
 						val2 = "2";
 						aux = "";
+						int inc120=0;
 						while (true) {
 							for (int k = 0; k < landMap.getConfiguration().getLotConfiguration().getSideSize(); k++) {
-								if(k==0 && (ejeY - inc_Block - inc)>=0){
+								if(k==0 && (ejeY - inc_Block - inc)>=0 && ( landMap.getConfiguration().getBlockConfiguration().getSideSize()>120 && inc120!=(landMap.getConfiguration().getBlockConfiguration().getSideSize()/2) ) ){
 									if(verificablePoint(ejeY - inc_Block - inc,ejeX) &&!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).getType().equals(" ")){
 										if(insideMApVertical((ejeY - inc_Block - inc),ejeX,2,1)){
 											String data1="l-"+(ejeY - inc_Block - inc)+"-"+ejeX+"-"+((ejeY - inc_Block - inc)+sideSize)+"-"+ejeX+"-"+
@@ -1022,6 +1023,9 @@ public class SpineAlgorithm {
 								}
 								inc++;
 							}
+							inc120+=6;
+							if(inc120==((landMap.getConfiguration().getBlockConfiguration().getSideSize()/2)+6))inc120=0;
+							
 							// swap
 							aux = val1;
 							val1 = val2;
@@ -1060,8 +1064,6 @@ public class SpineAlgorithm {
 						val2 = "2";
 						aux = "";
 						while (true) {
-							
-							
 							for (int k = 0; k < landMap.getConfiguration().getLotConfiguration().getSideSize(); k++) {
 								if(k==0 && (ejeY - inc_Block - inc)>=0){
 									if(verificablePoint(ejeY - inc_Block - inc,ejeX) &&!landMap.findPoint(SpineMapHelper.formKey(ejeY - inc_Block - inc,ejeX)).getType().equals(" ")){
@@ -1145,7 +1147,8 @@ public class SpineAlgorithm {
 			int topeDescount = a - SpineConfiguration.LOCAL_BRANCH_SIZE;
 			double divisionOutByShortBlock=((xx-1) % (blockSize + SpineConfiguration.LOCAL_BRANCH_SIZE))%(blockSize + SpineConfiguration.LOCAL_BRANCH_SIZE);
 			divisionOutByShortBlock/=blockSize + SpineConfiguration.LOCAL_BRANCH_SIZE;
-			if(divisionOutByShortBlock<0.5){
+			
+			if(divisionOutByShortBlock<0.7){
 
 				//condicion de impresion
 				String v1,v2;
@@ -1168,17 +1171,17 @@ public class SpineAlgorithm {
 						for (int i = 0; i < landMap.getConfiguration().getLotConfiguration().getSideSize(); i++) {
 							if(i==0 ){
 								if(verificablePoint(base,indexUp) &&!landMap.findPoint(SpineMapHelper.formKey(base,indexUp)).getType().equals(" ")){
-									if(insideMApVertical(base-36,indexUp,2,1)){
-										String data1="l-"+(base-36)+"-"+indexUp+"-"+((base-36)+sideSize)+"-"+indexUp+"-"+
-												((base-36)+sideSize)+"-"+(indexUp-sideDepth)+"-"+(base-36)+"-"+(indexUp-sideDepth);
-										landMap.findPoint(SpineMapHelper.formKey((base-36),indexUp)).setGramaticalType(data1);
+									if(insideMApVertical(base-20,indexUp,2,1)){
+										String data1="l-"+(base-20)+"-"+indexUp+"-"+((base-20)+sideSize)+"-"+indexUp+"-"+
+												((base-20)+sideSize)+"-"+(indexUp-sideDepth)+"-"+(base-20)+"-"+(indexUp-sideDepth);
+										landMap.findPoint(SpineMapHelper.formKey((base-20),indexUp)).setGramaticalType(data1);
 										
 									}
 									
-									if(insideMApVertical((base-36),indexUp-sideDepth,2,1)){
-										String data2="l-"+(base-36)+"-"+(indexUp-sideDepth)+"-"+((base-36)+sideSize)+"-"+(indexUp-sideDepth)+"-"+
-												((base-36)+sideSize)+"-"+(indexUp -(sideDepth*2))+"-"+(base-36)+"-"+(indexUp -(sideDepth*2));
-										landMap.findPoint(SpineMapHelper.formKey((base-36),indexUp-sideDepth)).setGramaticalType(data2);
+									if(insideMApVertical((base-20),indexUp-sideDepth,2,1)){
+										String data2="l-"+(base-20)+"-"+(indexUp-sideDepth)+"-"+((base-20)+sideSize)+"-"+(indexUp-sideDepth)+"-"+
+												((base-20)+sideSize)+"-"+(indexUp -(sideDepth*2))+"-"+(base-20)+"-"+(indexUp -(sideDepth*2));
+										landMap.findPoint(SpineMapHelper.formKey((base-20),indexUp-sideDepth)).setGramaticalType(data2);
 									}
 									
 								}
@@ -1249,7 +1252,8 @@ public class SpineAlgorithm {
 		int ejeXX =0;
 		int inc = 0;
 		while (true) {
-			if (landMap.findPoint(SpineMapHelper.formKey(yy - 1 + inc,2)).getType()
+			
+			if (verificablePoint(yy - 1 + inc,2) && landMap.findPoint(SpineMapHelper.formKey(yy - 1 + inc,2)).getType()
 					.equals(SpineConfiguration.POLYGON_BORDER)) {
 				break;
 			}
@@ -1279,10 +1283,11 @@ public class SpineAlgorithm {
 						int counter = 0;
 						val1 = "1";
 						val2 = "2";
+						int inc120=0;
 						while (true) {
 							for (int iii = 0; iii < landMap.getConfiguration().getLotConfiguration().getSideSize(); iii++) {
 								if(iii==0){
-									if( verificablePoint(a,ejeXX) && a>=0&&a<=large&& !landMap.findPoint(SpineMapHelper.formKey(a, ejeXX)).getType().equals(" ")){
+									if( verificablePoint(a,ejeXX) && a>=0 && a<=large&& !landMap.findPoint(SpineMapHelper.formKey(a, ejeXX)).getType().equals(" ") && ( landMap.getConfiguration().getBlockConfiguration().getSideSize()>120 && inc120!=(landMap.getConfiguration().getBlockConfiguration().getSideSize()/2) )){
 										if(insideMApVertical(a,ejeXX,2,1)){
 											String data1="l-"+a+"-"+ejeXX+"-"+(a+sideSize)+"-"+ejeXX+"-"+
 													(a+sideSize)+"-"+(ejeXX-sideDepth)+"-"+a+"-"+(ejeXX-sideDepth);
@@ -1299,6 +1304,8 @@ public class SpineAlgorithm {
 								counter++;
 								
 							}
+							inc120+=6;
+							if(inc120==((landMap.getConfiguration().getBlockConfiguration().getSideSize()/2)+6))inc120=0;
 							aux = val1;
 							val1 = val2;
 							val2 = aux;
@@ -1513,9 +1520,10 @@ public class SpineAlgorithm {
 						val1 = "1";
 						val2 = "2";
 						aux = "";
+						int inc120=0;
 						while (true) {
 							for (int k = 0; k < landMap.getConfiguration().getLotConfiguration().getSideSize(); k++) {
-								if(k==0 && (ejeY - inc_Block - inc)>=0){
+								if(k==0 && (ejeY - inc_Block - inc)>=0 && ( landMap.getConfiguration().getBlockConfiguration().getSideSize()>120 && inc120!=(landMap.getConfiguration().getBlockConfiguration().getSideSize()/2) )){
 									if(verificablePoint(ejeX,ejeY - inc_Block - inc) &&  !landMap.findPoint(SpineMapHelper.formKey(ejeX , ejeY - inc_Block - inc)).getType().equals(" ")&&
 											!landMap.findPoint(SpineMapHelper.formKey(ejeX +sideDepth, ejeY - inc_Block - inc)).getType().equals(" ")
 											&& insideMApVertical(ejeX,( ejeY - inc_Block - inc),2,1)){
@@ -1530,9 +1538,14 @@ public class SpineAlgorithm {
 												"-"+(ejeX+(sideDepth*2))+"-"+( ejeY - inc_Block - inc+sideSize)+"-"+(ejeX+sideDepth)+"-"+( ejeY - inc_Block - inc+sideSize);
 										landMap.findPoint(SpineMapHelper.formKey(ejeX+15,ejeY - inc_Block - inc)).setGramaticalType(dato2);
 									}
+									
 								}
+								
+								
 								inc++;
 							}
+							inc120+=6;
+							if(inc120==((landMap.getConfiguration().getBlockConfiguration().getSideSize()/2)+6))inc120=0;
 							// swap
 							aux = val1;
 							val1 = val2;
@@ -1778,10 +1791,11 @@ public class SpineAlgorithm {
 						int counter = 0;
 						val1 = "1";
 						val2 = "2";
+						int inc120=0;
 						while (true) {
 							for (int iii = 0; iii < landMap.getConfiguration().getLotConfiguration().getSideSize(); iii++) {
 								if(iii==0){
-									if(verificablePoint(ejeXX,a) &&!landMap.findPoint(SpineMapHelper.formKey(ejeXX ,a)).getType().equals(" ")){
+									if(verificablePoint(ejeXX,a) &&!landMap.findPoint(SpineMapHelper.formKey(ejeXX ,a)).getType().equals(" ") && ( landMap.getConfiguration().getBlockConfiguration().getSideSize()>120 && inc120!=(landMap.getConfiguration().getBlockConfiguration().getSideSize()/2) )){
 										if(insideMApVertical(ejeXX,a,1,2)){
 											String dato1="l-"+ejeXX+"-"+a+"-"+(ejeXX+sideDepth)+"-"+a+"-"+(ejeXX+sideDepth)+"-"+(a+sideSize)+"-"+ejeXX+"-"+(a+sideSize);
 											landMap.findPoint(SpineMapHelper.formKey(ejeXX , a)).setGramaticalType(dato1);
@@ -1797,6 +1811,8 @@ public class SpineAlgorithm {
 								counter++;
 								
 							}
+							inc120+=6;
+							if(inc120==((landMap.getConfiguration().getBlockConfiguration().getSideSize()/2)+6))inc120=0;
 							aux = val1;
 							val1 = val2;
 							val2 = aux;

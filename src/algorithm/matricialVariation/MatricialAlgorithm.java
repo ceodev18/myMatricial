@@ -17,7 +17,9 @@ import java.util.List;
 
 public class MatricialAlgorithm {
 	public double constantGradient;
-	public double gradient; 
+	public double gradient;
+	public double newConstantGradient;
+	public double newGradient; 
 	public MatricialLandMap landMap;
 	public static int indice;
 	public static int width;
@@ -202,22 +204,49 @@ public class MatricialAlgorithm {
 		return true;
 	}
 	public void matricialZonification(){
-		int middleX,middleY,axisX,axisY;
+		int axisX,axisY;
 		double factorX,factorY;
 		this.axisLongSide=this.landMap.mostLargeSide();
 		factorX=(axisLongSide.get(2)-axisLongSide.get(0))*1.0;
 		factorY=(axisLongSide.get(3)-axisLongSide.get(1))*1.0;
-		axisX=Math.abs((axisLongSide.get(2)-axisLongSide.get(0))/2);
-		axisY=Math.abs((axisLongSide.get(3)-axisLongSide.get(1))/2);
-		//gradient=factorY/factorX;
-		//constantGradient = axisLongSide.get(1)-(gradient*axisLongSide.get(0));
-		//int valX = Math.abs(axisLongSide.get(2)-axisLongSide.get(0))/2;
-	
-		secondPrincipalStreet(axisX,axisY);
-		firstPrincipalStreet();
-			///find widht of polygon
-			//find altura polygon
-			//
+		axisX=Math.abs((axisLongSide.get(2)-axisLongSide.get(0))/2);//mitad de la recta en X
+		axisY=Math.abs((axisLongSide.get(3)-axisLongSide.get(1))/2);//mitad de la recta en Y
+		gradient=factorY/factorX;
+		constantGradient = axisLongSide.get(1)-(gradient*axisLongSide.get(0));
+		pruebas();
+		secondPrincipalStreet(axisX,evaluateAxisY(axisX));
+		//firstPrincipalStreet();
+		newGradient= 1/(gradient*-1.0);
+		newConstantGradient = evaluateAxisY(axisX+13)-(newGradient*(axisX+13));
+		System.out.println("newGradient "+newGradient);
+		System.out.println("newConstantGradient "+axisX);
+		//int newPointX=getNewPoint(axisX,evaluateAxisY(axisX),84);
+		landMap.findPoint(SpineMapHelper.formKey(axisX+10,(int)(newGradient*(axisX+10)+newConstantGradient) )).setType("9");
+		landMap.findPoint(SpineMapHelper.formKey(axisX+11,(int)(newGradient*(axisX+11)+newConstantGradient) )).setType("9");
+		
+		for(int i=0;i>=0;i++){
+			if(!verificablePoint(axisX+13+i, (int)(newGradient*(axisX+13+i)+newConstantGradient)))break;
+			if(landMap.findPoint(SpineMapHelper.formKey(axisX+13+i,(int)(newGradient*(axisX+13+i)+newConstantGradient) )).getType().equals(" "))break;
+
+			landMap.findPoint(SpineMapHelper.formKey(axisX+13+i,(int)(newGradient*(axisX+13+i)+newConstantGradient) )).setType("9");
+		}
+		printPointMaxSide();
+
+		//System.out.println("(int)(newGradient*(axisX+10)+newConstantGradient) "+(int)(newGradient*(axisX+10)+newConstantGradient));
+		//landMap.findPoint(SpineMapHelper.formKey(axisX,evaluateAxisY(axisX))).setType("9");
+
+		
+		
+		landMap.findPoint(SpineMapHelper.formKey(0,0 )).setType("9");
+		
+		System.out.println("evaluateAxisY "+evaluateAxisY(axisX));
+		landMap.findPoint(SpineMapHelper.formKey(axisX,evaluateAxisY(axisX) )).setType("9");
+		
+		/*for(int i=13,j=0;i>0;i--,j++){
+			landMap.findPoint(SpineMapHelper.formKey(axisX-i,evaluateAxisY(axisX-i) )).setType("9");
+			landMap.findPoint(SpineMapHelper.formKey(axisX+j,evaluateAxisY(axisX+j) )).setType("9");
+		}*/
+		
 	}
 	private int[] secondPrincipalStreet(int axisX,int axisY ){
 		List<Integer> localLayer;
@@ -273,5 +302,27 @@ public class MatricialAlgorithm {
 			(pointsInters[0],pointsInters[1], MatricialConfiguration.ARTERIAL_BRANCH_SIZE , MatricialConfiguration.ARTERIAL_MARK);
 		return pointsInters;
 	}
-
+	private void pruebas(){
+		
+	}
+	private int evaluateAxisY(int pointX){
+		return (int)(gradient*pointX+constantGradient);
+	}
+	private int evaluateAxisYDegre(int pointX){
+		return (int)(newGradient*pointX+newConstantGradient);
+	}
+	private void printPointMaxSide(){
+		System.out.println("0 - "+this.axisLongSide.get(0));
+		System.out.println("1 - "+this.axisLongSide.get(1));
+		System.out.println("2 - "+this.axisLongSide.get(2));
+		System.out.println("3 - "+this.axisLongSide.get(3));
+		System.out.println("gradient "+gradient);
+		System.out.println("constantGradient "+constantGradient);
+		
+	}
+	private int getNewPoint(int axisX,int axisY,int distance){
+		int valueX;
+		return 1;
+		//int result = distance*distance- 
+	}
 }

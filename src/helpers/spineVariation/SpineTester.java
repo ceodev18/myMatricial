@@ -102,8 +102,8 @@ public class SpineTester {
 		System.out.println("Start canvas");
 		SpineTestPane spineTestPane1 = new SpineTestPane(1, spineAlgorithm.getLandMap().stringify(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
 		new SpineTester(spineTestPane1); 
-		//SpineTestPane spineTestPane2 = new SpineTestPane(2, spineAlgorithm.getLandMap().getNodes(),spineAlgorithm.getLandMap().getGrammar(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
-		//new SpineTester(spineTestPane2);
+		SpineTestPane spineTestPane2 = new SpineTestPane(2, spineAlgorithm.getLandMap().getNodes(),spineAlgorithm.getLandMap().getGrammar(), spineAlgorithm.getLandMap().getLandRoutes(), large, width);
+		new SpineTester(spineTestPane2);
 	}
 	public SpineTester(SpineTestPane spineTestPane) {
 		EventQueue.invokeLater(new Runnable() {
