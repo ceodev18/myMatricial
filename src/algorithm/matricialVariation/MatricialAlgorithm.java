@@ -204,6 +204,55 @@ public class MatricialAlgorithm {
 		return true;
 	}
 	public void matricialZonification(){
+		double constant,factorX,factorY,gradient;
+		int axisX,axisY;
+		this.axisLongSide=this.landMap.mostLargeSide();
+		factorX=(axisLongSide.get(2)-axisLongSide.get(0))*1.0;
+		factorY=(axisLongSide.get(3)-axisLongSide.get(1))*1.0;
+		gradient=factorY/factorX;
+		constant = axisLongSide.get(1)-(gradient*axisLongSide.get(0));
+		this.gradient=factorY/factorX;
+		this.constantGradient = axisLongSide.get(1)-(gradient*axisLongSide.get(0));
+		axisX=Math.abs((axisLongSide.get(2)-axisLongSide.get(0))/2);//mitad de la recta en X
+		axisY= applyFunction(axisX,gradient,constant);
+		newGradient= 1/(gradient*-1.0);
+		newConstantGradient = evaluateAxisY(axisX)-(newGradient*(axisX));
+		secondPrincipalStreet(axisX,evaluateAxisY(axisX));
+		landMap.findPoint(SpineMapHelper.formKey(axisX,evaluateAxisY(axisX) )).setType("9");
+		printPointMaxSide();
+		int point_x1,point_y1;
+		while(true){
+			double constant_c;
+			point_x1=solEquation(axisX, applyFunction(axisX,gradient,constant), gradient,84);
+			axisX=point_x1;
+			if(point_x1>large ||point_x1<0)break;
+			point_y1=evaluateAxisYDegre(point_x1);
+			constant_c=point_y1-(point_x1*gradient);
+			System.out.println("constant_c "+constant_c);
+			if(verificablePoint(point_x1,point_y1) && !landMap.findPoint(SpineMapHelper.formKey(point_x1,point_y1 )).getType().equals(" ")){
+				int x,y;
+				x=solEquation(point_x1, point_y1, gradient,13);
+				y=applyFunction(x,gradient,constant_c);//con esta funcion hago el loop
+				landMap.findPoint(SpineMapHelper.formKey(point_x1,point_y1 )).setType("9");
+				landMap.findPoint(SpineMapHelper.formKey(x,y )).setType("9");
+				point_x1=x;
+				while(true){
+					int aux;
+					x=solEquation(point_x1, point_y1, gradient,74);
+					point_x1=x;
+					y=applyFunction(x,gradient,constant_c);//con esta funcion hago el loop
+					if(verificablePoint(x,y) && !landMap.findPoint(SpineMapHelper.formKey(x,y )).getType().equals(" "))
+						landMap.findPoint(SpineMapHelper.formKey(x,y)).setType("9");
+					else break;
+				}
+			}
+				
+			
+			//we loop in both directions
+			//point byside
+		}
+	}
+	public void LotizingMatricial(){
 		int axisX,axisY;
 		double factorX,factorY;
 		this.axisLongSide=this.landMap.mostLargeSide();
@@ -241,12 +290,18 @@ public class MatricialAlgorithm {
 		
 		System.out.println("evaluateAxisY "+evaluateAxisY(axisX));
 		landMap.findPoint(SpineMapHelper.formKey(axisX,evaluateAxisY(axisX) )).setType("9");
-		
-		/*for(int i=13,j=0;i>0;i--,j++){
-			landMap.findPoint(SpineMapHelper.formKey(axisX-i,evaluateAxisY(axisX-i) )).setType("9");
-			landMap.findPoint(SpineMapHelper.formKey(axisX+j,evaluateAxisY(axisX+j) )).setType("9");
-		}*/
-		
+		//LotizingMatricial();
+	}
+	private int solEquation(int pointX1,int pointY1,double gradient,int distance){
+		double newGradient=(-1.0/gradient);
+		double a,b,c;
+		double root1, root2; //This is now a double, too.
+		a=1.0;
+		b=-2.0*pointX1;
+		c=(pointX1*pointX1)-(distance*distance/(newGradient*newGradient+1));
+	    root1 = (-b + Math.sqrt(Math.pow(b, 2) - 4*a*c)) / (2*a);
+	    root2 = (-b - Math.sqrt(Math.pow(b, 2) - 4*a*c)) / (2*a);
+	    return Math.max((int)root1, (int)root2);
 	}
 	private int[] secondPrincipalStreet(int axisX,int axisY ){
 		List<Integer> localLayer;
@@ -311,6 +366,9 @@ public class MatricialAlgorithm {
 	private int evaluateAxisYDegre(int pointX){
 		return (int)(newGradient*pointX+newConstantGradient);
 	}
+	private int applyFunction(int pointX,double gradient,double constant){
+		return (int)(gradient*pointX+constant);
+	}
 	private void printPointMaxSide(){
 		System.out.println("0 - "+this.axisLongSide.get(0));
 		System.out.println("1 - "+this.axisLongSide.get(1));
@@ -318,11 +376,8 @@ public class MatricialAlgorithm {
 		System.out.println("3 - "+this.axisLongSide.get(3));
 		System.out.println("gradient "+gradient);
 		System.out.println("constantGradient "+constantGradient);
+		System.out.println("gradient "+this.newGradient);
+		System.out.println("constantGradient "+this.newConstantGradient);
 		
-	}
-	private int getNewPoint(int axisX,int axisY,int distance){
-		int valueX;
-		return 1;
-		//int result = distance*distance- 
 	}
 }
